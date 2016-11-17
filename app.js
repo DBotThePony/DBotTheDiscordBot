@@ -1,12 +1,10 @@
 'use strict';
 
-const cfg     = require('../config.js');
-const pkg     = require('../package.json');
 const Discord = require('discord.js');
 const bot     = new Discord.Client();
 var token = "MjQ4NzU2MjM1ODg3ODM3MTk0.Cw8Xzg.wAxaM4qN6docKitkQe-PDud_IM0";
 
-require('./init.js');
+require('./lib/init.js');
 
 bot.on('message', msg => {
 	// Fired when someone sends a message
