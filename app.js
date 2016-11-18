@@ -44,14 +44,6 @@ bot.login(token).then(() => {
 	DBot.InitVars();
 });
 
-hook.Add('OnJoinedServer', 'Logging', function(server) {
-	console.log('Joined the server: ' + server.id);
-});
-
-hook.Add('OnLeftServer', 'Logging', function(server) {
-	console.log('Left the server: ' + server.id);
-});
-
 console.log('Initialization complete');
 
 /*
