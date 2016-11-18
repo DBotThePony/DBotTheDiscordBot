@@ -8,6 +8,7 @@ require('./lib/init.js');
 DBot.bot = bot;
 DBot.client = bot;
 hook.RegisterEvents();
+DBot.Discord = Discord;
 
 bot.on('message', msg => {
 	hook.Run('OnMessage', msg);
@@ -26,7 +27,7 @@ bot.on('message', msg => {
 		return;
 	
 	if (DBot.IsAskingMe(msg) && !DBot.IsAskingMe_Command(msg)) {
-		msg.reply('What do you want? @NotDBot help')
+		msg.reply('Pony? @NotDBot help')
 		return;
 	}
 	
@@ -39,7 +40,7 @@ bot.on('message', msg => {
 });
 
 bot.login(token).then(() => {
-	console.log('Running!');
+	console.log('Connected');
 	DBot.InitVars();
 });
 
@@ -50,6 +51,8 @@ hook.Add('OnJoinedServer', 'Logging', function(server) {
 hook.Add('OnLeftServer', 'Logging', function(server) {
 	console.log('Left the server: ' + server.id);
 });
+
+console.log('Initialization complete');
 
 /*
 // Message in PM
