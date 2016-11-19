@@ -27,7 +27,7 @@ bot.on('message', msg => {
 		return;
 	
 	if (DBot.IsAskingMe(msg) && !DBot.IsAskingMe_Command(msg)) {
-		msg.reply('Hi? x3 @NotDBot help')
+		msg.reply('Hi? x3 @NotDBot help or }help')
 		return;
 	}
 	
