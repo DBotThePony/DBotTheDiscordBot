@@ -49,6 +49,126 @@ bot.login(token).then(() => {
 console.log('Initialization complete');
 
 /*
+// Message with Picture
+
+Message {
+  channel:
+   TextChannel {
+     type: 'text',
+     id: '248758076662874113',
+     name: 'general',
+     position: 0,
+     permissionOverwrites: Collection { _array: null, _keyArray: null },
+     topic: null,
+     lastMessageID: '249427054460665856',
+     guild:
+      Guild {
+        members: [Object],
+        channels: [Object],
+        roles: [Object],
+        available: true,
+        id: '248758076662874113',
+        name: 'Test Polygon',
+        icon: null,
+        splash: null,
+        region: 'eu-central',
+        memberCount: 2,
+        large: undefined,
+        presences: [Object],
+        features: [],
+        emojis: [Object],
+        afkTimeout: 300,
+        afkChannelID: null,
+        embedEnabled: undefined,
+        verificationLevel: 0,
+        joinedTimestamp: 1479466649112,
+        ownerID: '141004095145115648',
+        _rawVoiceStates: [Object] },
+     messages:
+      Collection {
+        '249428753418027009' => [Object],
+        _array: null,
+        _keyArray: null },
+     _typing: Map {} },
+  id: '249428753418027009',
+  type: 'DEFAULT',
+  content: '',
+  author:
+   User {
+     id: '141004095145115648',
+     username: 'DBot',
+     discriminator: '6786',
+     avatar: 'cb4e45f6b0945a87482e9ad602423182',
+     bot: false },
+  member:
+   GuildMember {
+     guild:
+      Guild {
+        members: [Object],
+        channels: [Object],
+        roles: [Object],
+        available: true,
+        id: '248758076662874113',
+        name: 'Test Polygon',
+        icon: null,
+        splash: null,
+        region: 'eu-central',
+        memberCount: 2,
+        large: undefined,
+        presences: [Object],
+        features: [],
+        emojis: [Object],
+        afkTimeout: 300,
+        afkChannelID: null,
+        embedEnabled: undefined,
+        verificationLevel: 0,
+        joinedTimestamp: 1479466649112,
+        ownerID: '141004095145115648',
+        _rawVoiceStates: [Object] },
+     user:
+      User {
+        id: '141004095145115648',
+        username: 'DBot',
+        discriminator: '6786',
+        avatar: 'cb4e45f6b0945a87482e9ad602423182',
+        bot: false },
+     _roles: [],
+     serverDeaf: false,
+     serverMute: false,
+     selfMute: undefined,
+     selfDeaf: undefined,
+     voiceSessionID: undefined,
+     voiceChannelID: undefined,
+     speaking: false,
+     nickname: null,
+     joinedTimestamp: 1479378947202 },
+  pinned: false,
+  tts: false,
+  nonce: null,
+  system: false,
+  embeds: [],
+  attachments:
+   Collection {
+     '249428753418027008' => MessageAttachment {
+     message: [Circular],
+     id: '249428753418027008',
+     filename: 'fail.jpg',
+     filesize: 154018,
+     url: 'https://cdn.discordapp.com/attachments/248758076662874113/249428753418027008/fail.jpg',
+     proxyURL: 'https://images.discordapp.net/.eJwNyFEOgyAMANC7cAAKiNB5G4KIGFwJ7b6W3X3-vbyv-syuNnWKDN4A9saZ5q5ZaKZadCWqvaTRWGe6IYmkfN7lLQzOY1zRxBCCw-itXZ56-cfr4i0aF41BOFLr-hpV_f6enSFr.nulXh7FRs2DTOh4VP6BFua6fqFQ',
+     height: 297,
+     width: 668 },
+     _array: null,
+     _keyArray: null },
+  createdTimestamp: 1479538848977,
+  editedTimestamp: null,
+  mentions:
+   { users: Collection { _array: null, _keyArray: null },
+     roles: Collection { _array: null, _keyArray: null },
+     channels: Collection { _array: null, _keyArray: null },
+     everyone: false },
+  _edits: [] }
+
 // Message in PM
 
 Message {
@@ -210,6 +330,62 @@ Message {
      channels: Collection { _array: null, _keyArray: null },
      everyone: false },
   _edits: [] }
+
+// Messages collection
+Collection {
+  '249427054460665856' => Message {
+  channel:
+   TextChannel {
+     type: 'text',
+     id: '248758076662874113',
+     name: 'general',
+     position: 0,
+     permissionOverwrites: [Object],
+     topic: null,
+     lastMessageID: '249322424154193921',
+     guild: [Object],
+     messages: [Circular],
+     _typing: [Object] },
+  id: '249427054460665856',
+  type: 'DEFAULT',
+  content: 'test',
+  author:
+   User {
+     id: '141004095145115648',
+     username: 'DBot',
+     discriminator: '6786',
+     avatar: 'cb4e45f6b0945a87482e9ad602423182',
+     bot: false },
+  member:
+   GuildMember {
+     guild: [Object],
+     user: [Object],
+     _roles: [],
+     serverDeaf: false,
+     serverMute: false,
+     selfMute: undefined,
+     selfDeaf: undefined,
+     voiceSessionID: undefined,
+     voiceChannelID: undefined,
+     speaking: false,
+     nickname: null,
+     joinedTimestamp: 1479378947202 },
+  pinned: false,
+  tts: false,
+  nonce: '249427064904482816',
+  system: false,
+  embeds: [],
+  attachments: Collection { _array: null, _keyArray: null },
+  createdTimestamp: 1479538443914,
+  editedTimestamp: null,
+  mentions:
+   { users: [Object],
+     roles: [Object],
+     channels: [Object],
+     everyone: false },
+  _edits: [] },
+  _array: null,
+  _keyArray: null }
 
 // Bot Client Representation
 
