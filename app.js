@@ -42,6 +42,8 @@ bot.on('message', msg => {
 bot.login(token).then(() => {
 	console.log('Connected');
 	DBot.InitVars();
+	
+	hook.Run('BotOnline', DBot.bot);
 });
 
 console.log('Initialization complete');
