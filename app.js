@@ -35,7 +35,7 @@ bot.on('message', msg => {
 		DBot.HandleMessage(msg);
 	} catch(err) {
 		msg.reply('<internal pony error>');
-		console.log('REPORTED EXCEPTION: ' + err);
+		console.error(err);
 	}
 });
 
