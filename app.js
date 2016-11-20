@@ -1,5 +1,7 @@
 'use strict';
 
+var stamp = (new Date()).getTime();
+
 const Discord = require('discord.js');
 const bot     = new Discord.Client();
 var token = "MjQ4NzU2MjM1ODg3ODM3MTk0.Cw8Xzg.wAxaM4qN6docKitkQe-PDud_IM0";
@@ -17,6 +19,9 @@ bot.on('message', msg => {
 		return;
 	
 	hook.Run('OnValidMessage', msg);
+	
+	if (!msg.author.bot)
+		hook.Run('OnHumanMessage', msg);
 	
 	if (msg.channel.type == 'dm') {
 		DBot.HandleMessage(msg, true)
@@ -46,7 +51,9 @@ bot.login(token).then(() => {
 	hook.Run('BotOnline', DBot.bot);
 });
 
-console.log('Initialization complete');
+var nStamp = (new Date()).getTime();
+
+console.log('Initialization complete in ' + (Math.floor((nStamp - stamp) * 100) / 100) + ' ms');
 
 /*
 // Message with Picture
