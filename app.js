@@ -23,9 +23,14 @@ bot.on('message', msg => {
 	if (!msg.author.bot)
 		hook.Run('OnHumanMessage', msg);
 	
-	if (msg.channel.type == 'dm') {
-		DBot.HandleMessage(msg, true)
-		return;
+	try {
+		if (msg.channel.type == 'dm') {
+			DBot.HandleMessage(msg, true)
+			return;
+		}
+	} catch(err) {
+		msg.reply('<internal pony error>');
+		console.error(err);
 	}
 	
 	if (!DBot.IsAskingMe(msg))
