@@ -53,40 +53,57 @@ bot.on('message', msg => {
 	}
 });
 
-var IS_LOGGED_IN = false;
 var IS_INITIALIZED = false;
+var LEVEL_OF_CONNECTION = 0;
+
+var loginFunc = function() {
+	if (LEVEL_OF_CONNECTION > 0)
+		return;
+	
+	if (LEVEL_OF_CONNECTION < 0)
+		LEVEL_OF_CONNECTION = 0;
+	
+	if (!IS_INITIALIZED)
+		return;
+	
+	bot.login(token)
+	.then(function() {})
+	.catch(function() {
+		console.log('Reconnect failed. Retrying in 10 seconds');
+	});
+}
 
 bot.on('disconnect', function() {
-	console.log('Disconnected from servers! Will retry connection in 10 seconds');
-	IS_LOGGED_IN = false;
+	LEVEL_OF_CONNECTION--;
 	
-	var DelayID;
+	if (LEVEL_OF_CONNECTION > 0)
+		return;
 	
-	DelayID = setInterval(function() {
-		bot.login(token)
-		.then(function() {
-			console.log('Reconnected, running hooks again');
-			DBot.InitVars();
-			
-			hook.Run('BotOnline', bot);
-			clearInterval(DelayID);
-		})
-		.catch(function() {
-			console.log('Reconnect failed. Retrying in 10 seconds');
-		});
-	}, 10000);
+	if (LEVEL_OF_CONNECTION < 0)
+		LEVEL_OF_CONNECTION = 0;
+	
+	if (!IS_INITIALIZED)
+		return;
+	
+	console.log('Disconnected from servers!');
 	
 	hook.Run('OnDisconnected');
 });
 
-bot.login(token).then(() => {
-	IS_LOGGED_IN = true;
+bot.login(token).then(function() {
 	IS_INITIALIZED = true;
-	console.log('Connected');
+});
+
+bot.on('ready', function() {
+	LEVEL_OF_CONNECTION++;
+	
+	console.log('Connection established');
 	DBot.InitVars();
 	
 	hook.Run('BotOnline', DBot.bot);
 });
+
+setInterval(loginFunc, 10000);
 
 var nStamp = (new Date()).getTime();
 
