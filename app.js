@@ -20,8 +20,12 @@ bot.on('message', msg => {
 	
 	hook.Run('OnValidMessage', msg);
 	
-	if (!msg.author.bot)
-		hook.Run('OnHumanMessage', msg);
+	if (!msg.author.bot) {
+		var supp = hook.Run('OnHumanMessage', msg);
+		
+		if (supp === true)
+			return;
+	}
 	
 	try {
 		if (msg.channel.type == 'dm') {
