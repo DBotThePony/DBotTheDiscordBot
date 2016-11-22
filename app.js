@@ -49,7 +49,35 @@ bot.on('message', msg => {
 	}
 });
 
+var IS_LOGGED_IN = false;
+var IS_INITIALIZED = false;
+
+bot.on('disconnect', function() {
+	console.log('Disconnected from servers! Will retry connection in 10 seconds');
+	IS_LOGGED_IN = false;
+	
+	var DelayID;
+	
+	DelayID = setInterval(function() {
+		bot.login(token)
+		.then(function() {
+			console.log('Reconnected, running hooks again');
+			DBot.InitVars();
+			
+			hook.Run('BotOnline', bot);
+			clearInterval(DelayID);
+		})
+		.catch(function() {
+			console.log('Reconnect failed. Retrying in 10 seconds');
+		});
+	}, 10000);
+	
+	hook.Run('OnDisconnected');
+});
+
 bot.login(token).then(() => {
+	IS_LOGGED_IN = true;
+	IS_INITIALIZED = true;
 	console.log('Connected');
 	DBot.InitVars();
 	
