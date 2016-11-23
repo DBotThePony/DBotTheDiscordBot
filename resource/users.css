@@ -1,0 +1,58 @@
+
+body {
+	background: rgb(235, 235, 235);
+	padding: 30px;
+	font-family: Arial;
+}
+
+table {
+	width: 100%;
+	text-align: center;
+	border: solid 1px black;
+	border-collapse: collapse;
+}
+
+#top {
+	font-size: 24px;
+}
+
+tr {
+	width: 100%;
+	margin: 0;
+	border: solid 1px black;
+	border-collapse: collapse;
+}
+
+td {
+	border: solid 1px black;
+	border-collapse: collapse;
+	margin: 0;
+}
+
+#totalusers {
+	font-size: 26px;
+	display: block;
+	margin-bottom: 20px;
+}
+
+.perms {
+	text-align: left;
+	font-size: 14px;
+	display: block;
+	margin-left: 20px;
+}
+
+.permstat {
+	display: block;
+	float: right;
+	margin-right: 20px;
+}
+
+.oddline {
+	display: block;
+	background: rgb(200, 200, 200);
+}
+
+.eddline {
+	display: block;
+}
