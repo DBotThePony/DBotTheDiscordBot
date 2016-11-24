@@ -1,10 +1,22 @@
 {
-  "name": "NotDBot",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "start": "node app.js"
-  },
-  "dependencies": {
-  }
+	"name": "NotDBot",
+	"version": "1.0.0",
+	"private": true,
+	
+	"scripts": {
+		"start": "node app.js"
+	},
+	
+	"dependencies": {
+		"discord.js": "latest",
+		"bignumber.js": "latest",
+		"moment": "latest",
+		"cowsay": "latest",
+		"numeral": "latest",
+		"utf8": "latest",
+		"json3": "latest",
+		"figlet": "latest",
+		"unirest": "latest",
+		"mysql": "latest"
+	}
 }
