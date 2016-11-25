@@ -17,6 +17,7 @@
 		"json3": "latest",
 		"figlet": "latest",
 		"unirest": "latest",
+		"humanize-duration": "latest",
 		"mysql": "latest"
 	}
 }
