@@ -1,0 +1,67 @@
+
+body {
+	font-family: Arial;
+	background: rgb(240, 240, 240);
+}
+
+#commlist {
+	display: block;
+	width: 900px;
+	margin: 0 auto;
+}
+
+#commlist_header {
+	display: block;
+	font-size: 24px;
+}
+
+#commlist_start {
+	display: block;
+	margin-top: 5px;
+	margin-bottom: 15px;
+	margin-left: 30px;
+}
+
+#commands {
+	display: block;
+	width: 800px;
+	border: solid 1px rgb(220, 220, 220);
+	margin: 0 auto;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+.command {
+	display: block;
+	border: solid 1px black;
+	margin-left: 10px;
+	margin-right: 10px;
+	padding: 5px;
+	border-left: solid 7px rgb(0, 150, 200);
+	margin-top: 4px;
+	margin-bottom: 4px;
+	transition: .3s;
+}
+
+.command:hover {
+	border-left: solid 7px rgb(0, 200, 200);
+}
+
+.command_header {
+	display: block;
+	font-size: 20px;
+}
+
+.command_desc {
+	display: block;
+	margin-top: 6px;
+	padding-left: 30px;
+}
+
+.codeblock {
+	
+}
+
+.codeblock_s {
+	
+}
