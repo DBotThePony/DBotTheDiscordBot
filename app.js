@@ -13,42 +13,47 @@ hook.RegisterEvents();
 DBot.Discord = Discord;
 
 bot.on('message', msg => {
-	hook.Run('OnMessage', msg);
-	
-	if (DBot.IsMyMessage(msg))
-		return;
-	
-	hook.Run('OnValidMessage', msg);
-	
-	if (!msg.author.bot) {
-		var supp = hook.Run('OnHumanMessage', msg);
-		
-		if (supp === true)
-			return;
-	}
-	
 	try {
-		if (msg.channel.type == 'dm') {
-			DBot.HandleMessage(msg, true)
+		hook.Run('OnMessage', msg);
+		
+		if (DBot.IsMyMessage(msg))
+			return;
+		
+		hook.Run('OnValidMessage', msg);
+		
+		if (!msg.author.bot) {
+			var supp = hook.Run('OnHumanMessage', msg);
+			
+			if (supp === true)
+				return;
+		}
+		
+		try {
+			if (msg.channel.type == 'dm') {
+				DBot.HandleMessage(msg, true)
+				return;
+			}
+		} catch(err) {
+			msg.reply('<internal pony error>');
+			console.error(err);
 			return;
 		}
+		
+		if (!DBot.IsAskingMe(msg))
+			return;
+		
+		if (DBot.IsAskingMe(msg) && !DBot.IsAskingMe_Command(msg)) {
+			msg.reply('Hi? x3 @NotDBot help or }help')
+			return;
+		}
+		
+		try {
+			DBot.HandleMessage(msg);
+		} catch(err) {
+			msg.reply('<internal pony error>');
+			console.error(err);
+		}
 	} catch(err) {
-		msg.reply('<internal pony error>');
-		console.error(err);
-	}
-	
-	if (!DBot.IsAskingMe(msg))
-		return;
-	
-	if (DBot.IsAskingMe(msg) && !DBot.IsAskingMe_Command(msg)) {
-		msg.reply('Hi? x3 @NotDBot help or }help')
-		return;
-	}
-	
-	try {
-		DBot.HandleMessage(msg);
-	} catch(err) {
-		msg.reply('<internal pony error>');
 		console.error(err);
 	}
 });
