@@ -31,6 +31,42 @@ body {
 	padding-bottom: 20px;
 }
 
+#pipelist {
+	display: block;
+	width: 900px;
+	margin: 0 auto;
+}
+
+#pipelist_header {
+	display: block;
+	font-size: 24px;
+}
+
+#pipelist_header2 {
+	display: block;
+	font-size: 28px;
+	width: 850px;
+	margin: 0 auto;
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+#pipelist_start {
+	display: block;
+	margin-top: 5px;
+	margin-bottom: 15px;
+	margin-left: 30px;
+}
+
+#pipes {
+	display: block;
+	width: 800px;
+	border: solid 1px rgb(220, 220, 220);
+	margin: 0 auto;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
 .command {
 	display: block;
 	border: solid 1px black;
