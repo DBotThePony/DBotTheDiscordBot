@@ -1,4 +1,3 @@
-'use strict';
 
 var stamp = (new Date()).getTime();
 
@@ -60,6 +59,12 @@ bot.on('message', msg => {
 
 var IS_INITIALIZED = false;
 var LEVEL_OF_CONNECTION = 0;
+
+DBot.IsOnline = function() {
+	return LEVEL_OF_CONNECTION > 0;
+}
+
+IsOnline = DBot.IsOnline;
 
 var loginFunc = function() {
 	if (LEVEL_OF_CONNECTION > 0)
