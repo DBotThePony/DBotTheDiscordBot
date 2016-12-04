@@ -18,6 +18,9 @@ bot.on('message', msg => {
 		if (DBot.IsMyMessage(msg))
 			return;
 		
+		if (hook.Run('CheckValidMessage', msg) === true)
+			return;
+		
 		hook.Run('OnValidMessage', msg);
 		
 		if (!msg.author.bot) {
