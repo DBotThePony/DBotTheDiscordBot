@@ -27,15 +27,16 @@ bot.on('message', msg => {
 				return;
 		}
 		
-		try {
-			if (msg.channel.type == 'dm') {
+		
+		if (msg.channel.type == 'dm') {
+			try {
 				DBot.HandleMessage(msg, true)
 				return;
+			} catch(err) {
+				msg.reply('<internal pony error>');
+				console.error(err);
+				return;
 			}
-		} catch(err) {
-			msg.reply('<internal pony error>');
-			console.error(err);
-			return;
 		}
 		
 		if (!DBot.IsAskingMe(msg))
