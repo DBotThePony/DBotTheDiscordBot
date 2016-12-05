@@ -114,7 +114,10 @@ bot.on('ready', function() {
 	console.log('Connection established');
 	DBot.InitVars();
 	
-	hook.Run('BotOnline', DBot.bot);
+	setTimeout(function() {
+		console.log('Initializing stuff');
+		hook.Run('BotOnline', DBot.bot);
+	}, 2000); // Wait before all loads
 });
 
 setInterval(loginFunc, 10000);
