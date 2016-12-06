@@ -4,21 +4,11 @@ const utf8 = require('utf8');
 const hDuration = require('humanize-duration');
 
 hook.Add('ValidClientJoinsServer', 'JLogs', function(user, server, member) {
-	if (!DBot.UserIsInitialized(user))
-		return;
-	
-	setTimeout(function() {
-		MySQL.query('INSERT INTO `joinleft_log` (`USER`, `SERVER`, `STAMP`, `STATUS`) VALUES (' + DBot.GetUserID(user) + ', ' + DBot.GetServerID(server) + ', ' + CurTime() + ', 1)');
-	}, 1000);
+	MySQL.query('INSERT INTO `joinleft_log` (`USER`, `SERVER`, `STAMP`, `STATUS`) VALUES (get_user_id(' + Util.escape(user.id) + '), get_server_id(' + Util.escape(server.id) + '), ' + CurTime() + ', 1)');
 });
 
 hook.Add('ValidClientLeftServer', 'JLogs', function(user, server, member) {
-	if (!DBot.UserIsInitialized(user))
-		return;
-	
-	setTimeout(function() {
-		MySQL.query('INSERT INTO `joinleft_log` (`USER`, `SERVER`, `STAMP`, `STATUS`) VALUES (' + DBot.GetUserID(user) + ', ' + DBot.GetServerID(server) + ', ' + CurTime() + ', 0)');
-	}, 1000);
+	MySQL.query('INSERT INTO `joinleft_log` (`USER`, `SERVER`, `STAMP`, `STATUS`) VALUES (get_user_id(' + Util.escape(user.id) + '), get_server_id(' + Util.escape(server.id) + '), ' + CurTime() + ', 0)');
 });
 
 DBot.RegisterCommand({
