@@ -508,11 +508,9 @@ CREATE TABLE IF NOT EXISTS `roles_names` (
 	`NAME` VARCHAR(64) NOT NULL
 );
 
-DROP FUNCTION IF EXISTS `get_role_id`;
-
 -- ///Functions///
 
-CREATE FUNCTION `get_role_id`(fUID VARCHAR(64), fSERVER INTEGER)
+CREATE FUNCTION IF NOT EXISTS `get_role_id`(fUID VARCHAR(64), fSERVER INTEGER)
 RETURNS INTEGER
 BEGIN
 	DECLARE id INTEGER;
@@ -526,5 +524,49 @@ BEGIN
 	
 	RETURN id;
 END//
-    
+
+CREATE FUNCTION IF NOT EXISTS `get_channel_id`(`fUID` VARCHAR(64), `sID` INTEGER)
+RETURNS INTEGER
+BEGIN
+	DECLARE id INTEGER;
+	
+	SELECT `channel_id`.`ID` INTO id FROM `channel_id` WHERE `channel_id`.`UID` = `fUID`;
+	
+	IF (id IS NULL) THEN
+		INSERT INTO `channel_id` (`UID`, `SID`) VALUES (`fUID`, `sID`);
+		SELECT last_insert_id() INTO id;
+	END IF;
+	
+	RETURN id;
+END//
+
+CREATE FUNCTION IF NOT EXISTS `get_server_id`(`sID` VARCHAR(64))
+RETURNS INTEGER
+BEGIN
+	DECLARE id INTEGER;
+	
+	SELECT `server_id`.`ID` INTO id FROM `server_id` WHERE `server_id`.`UID` = `sID`;
+	
+	IF (id IS NULL) THEN
+		INSERT INTO `server_id` (`UID`) VALUES (`sID`);
+		SELECT last_insert_id() INTO id;
+	END IF;
+	
+	RETURN id;
+END//
+
+CREATE FUNCTION IF NOT EXISTS `get_user_id`(`sID` VARCHAR(64))
+RETURNS INTEGER
+BEGIN
+	DECLARE id INTEGER;
+	
+	SELECT `user_id`.`ID` INTO id FROM `user_id` WHERE `user_id`.`UID` = `sID`;
+	
+	IF (id IS NULL) THEN
+		INSERT INTO `user_id` (`UID`) VALUES (`sID`);
+		SELECT last_insert_id() INTO id;
+	END IF;
+	
+	RETURN id;
+END//
 
