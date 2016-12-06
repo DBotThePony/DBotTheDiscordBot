@@ -26,7 +26,6 @@ DBot.MySQLM = connectionMulti;
 MySQL = connection;
 MySQLM = connectionMulti;
 
-
 let sql = fs.readFileSync('./app/mysql.sql', 'utf8').replace(/\r/gi, '');
 let split = sql.split('-- ///Functions///');
 let sqlData = split[0];
@@ -292,6 +291,18 @@ DBot.DefineRole = function(role) {
 	});
 }
 
+DBot.DefineMember = function(member) {
+	let id = member.user.id;
+	let uid = member.guild.id;
+	
+	MySQL.query('SELECT get_member_id("' + id + '", ' + uid + ') AS `ID`', function(err, data) {
+		if (err) throw err;
+		member.uid = data[0].ID;
+		MySQL.query('REPLACE INTO `member_names` VALUES (' + Util.escape(member.uid) + ', ' + Util.escape(member.nickname || member.user.username) + ')');
+		hook.Run('MemberInitialized', member, member.uid);
+	});
+}
+
 DBot.DefineGuild = function(guild) {
 	let id = guild.id;
 	if (DBot.ServersIDs[id])
@@ -308,7 +319,10 @@ DBot.DefineGuild = function(guild) {
 		guild.roles.array().forEach(DBot.DefineRole);
 	});
 	
-	guild.members.array().forEach(function(obj) {DBot.DefineUser(obj.user);});
+	for (let member of guild.members.values()) {
+		DBot.DefineUser(member.user);
+		DBot.DefineMember(member);
+	}
 }
 
 hook.Add('ServerInitialized', 'MySQL.Saves', function(server, id) {

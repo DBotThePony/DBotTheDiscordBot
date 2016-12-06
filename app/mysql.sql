@@ -508,6 +508,25 @@ CREATE TABLE IF NOT EXISTS `roles_names` (
 	`NAME` VARCHAR(64) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS `member_id` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `USER` INTEGER NOT NULL,
+  `SERVER` INTEGER NOT NULL,
+  PRIMARY KEY (`ID`)
+);
+
+CREATE TABLE IF NOT EXISTS `member_names` (
+  `ID` int(11) NOT NULL,
+  `NAME` VARCHAR(64) NOT NULL,
+  PRIMARY KEY (`ID`)
+);
+
+DROP FUNCTION IF EXISTS `get_role_id`;
+DROP FUNCTION IF EXISTS `get_channel_id`;
+DROP FUNCTION IF EXISTS `get_server_id`;
+DROP FUNCTION IF EXISTS `get_user_id`;
+DROP FUNCTION IF EXISTS `get_member_id`;
+
 -- ///Functions///
 
 CREATE FUNCTION IF NOT EXISTS `get_role_id`(fUID VARCHAR(64), fSERVER INTEGER)
@@ -564,6 +583,26 @@ BEGIN
 	
 	IF (id IS NULL) THEN
 		INSERT INTO `user_id` (`UID`) VALUES (`sID`);
+		SELECT last_insert_id() INTO id;
+	END IF;
+	
+	RETURN id;
+END//
+
+CREATE FUNCTION IF NOT EXISTS `get_member_id`(`userid` VARCHAR(64), `server` VARCHAR(64))
+RETURNS INTEGER
+BEGIN
+	DECLARE id INTEGER;
+	DECLARE usr_internal_id INTEGER;
+	DECLARE ser_internal_id INTEGER;
+	
+	SET usr_internal_id = get_user_id(`userid`);
+	SET ser_internal_id = get_server_id(`server`);
+	
+	SELECT `member_id`.`ID` INTO id FROM `member_id` WHERE `member_id`.`USER` = usr_internal_id AND `member_id`.`SERVER` = ser_internal_id;
+	
+	IF (id IS NULL) THEN
+		INSERT INTO `member_id` (`USER`, `SERVER`) VALUES (usr_internal_id, ser_internal_id);
 		SELECT last_insert_id() INTO id;
 	END IF;
 	
