@@ -503,6 +503,11 @@ CREATE TABLE IF NOT EXISTS `votes_votes` (
   PRIMARY KEY (`VOTE`, `USER`)
 );
 
+CREATE TABLE IF NOT EXISTS `roles_names` (
+	`ROLEID` INTEGER NOT NULL PRIMARY KEY,
+	`NAME` INTEGER NOT NULL
+);
+
 DROP FUNCTION IF EXISTS `get_role_id`;
 
 -- ///Functions///
