@@ -36,21 +36,21 @@ CREATE TABLE IF NOT EXISTS `cvar_channel` (
   `ID` int(11) NOT NULL,
   `CVAR` varchar(64) NOT NULL,
   `VALUE` varchar(255) NOT NULL,
-  PRIMARY KEY (`ID`,`CVAR`)
+  PRIMARY KEY (`ID`, `CVAR`)
 );
 
 CREATE TABLE IF NOT EXISTS `cvar_client` (
   `ID` int(11) NOT NULL,
   `CVAR` varchar(64) NOT NULL,
   `VALUE` varchar(255) NOT NULL,
-  PRIMARY KEY (`ID`,`CVAR`)
+  PRIMARY KEY (`ID`, `CVAR`)
 );
 
 CREATE TABLE IF NOT EXISTS `cvar_server` (
   `ID` int(11) NOT NULL,
   `CVAR` varchar(64) NOT NULL,
   `VALUE` varchar(255) NOT NULL,
-  PRIMARY KEY (`ID`,`CVAR`)
+  PRIMARY KEY (`ID`, `CVAR`)
 );
 
 CREATE TABLE IF NOT EXISTS `fortune` (
@@ -102,11 +102,11 @@ CREATE TABLE IF NOT EXISTS `name_logs` (
   `NAME` varchar(255) NOT NULL,
   `LASTUSE` int(11) NOT NULL,
   `TIME` double NOT NULL,
-  PRIMARY KEY (`ID`,`SERVER`,`NAME`)
+  PRIMARY KEY (`ID`, `SERVER`, `NAME`)
 );
 
 CREATE TABLE IF NOT EXISTS `roles_id` (
-  `ID` int(11) NOT NULL,
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
   `SERVER` int(11) NOT NULL,
   `UID` varchar(64) NOT NULL,
   PRIMARY KEY (`ID`)
@@ -164,21 +164,21 @@ CREATE TABLE IF NOT EXISTS `stats__command_channel` (
   `UID` int(11) NOT NULL,
   `COMMAND` varchar(64) NOT NULL,
   `COUNT` int(11) NOT NULL,
-  PRIMARY KEY (`UID`,`COMMAND`)
+  PRIMARY KEY (`UID`, `COMMAND`)
 );
 
 CREATE TABLE IF NOT EXISTS `stats__command_client` (
   `UID` int(11) NOT NULL,
   `COMMAND` varchar(64) NOT NULL,
   `COUNT` int(11) NOT NULL,
-  PRIMARY KEY (`UID`,`COMMAND`)
+  PRIMARY KEY (`UID`, `COMMAND`)
 );
 
 CREATE TABLE IF NOT EXISTS `stats__command_server` (
   `UID` int(11) NOT NULL,
   `COMMAND` varchar(64) NOT NULL,
   `COUNT` int(11) NOT NULL,
-  PRIMARY KEY (`UID`,`COMMAND`)
+  PRIMARY KEY (`UID`, `COMMAND`)
 );
 
 CREATE TABLE IF NOT EXISTS `stats__command_uchannel` (
@@ -186,7 +186,7 @@ CREATE TABLE IF NOT EXISTS `stats__command_uchannel` (
   `CHANNEL` int(11) NOT NULL,
   `COMMAND` varchar(64) NOT NULL,
   `COUNT` int(11) NOT NULL,
-  PRIMARY KEY (`UID`,`CHANNEL`,`COMMAND`)
+  PRIMARY KEY (`UID`, `CHANNEL`, `COMMAND`)
 );
 
 CREATE TABLE IF NOT EXISTS `stats__command_userver` (
@@ -194,7 +194,7 @@ CREATE TABLE IF NOT EXISTS `stats__command_userver` (
   `USERVER` int(11) NOT NULL,
   `COMMAND` varchar(64) NOT NULL,
   `COUNT` int(11) NOT NULL,
-  PRIMARY KEY (`UID`,`USERVER`,`COMMAND`)
+  PRIMARY KEY (`UID`, `USERVER`, `COMMAND`)
 );
 
 CREATE TABLE IF NOT EXISTS `stats__images_channel` (
@@ -273,84 +273,84 @@ CREATE TABLE IF NOT EXISTS `stats__uchars_channel` (
   `UID` int(11) NOT NULL,
   `CHANNEL` int(11) NOT NULL,
   `COUNT` bigint(20) NOT NULL,
-  PRIMARY KEY (`UID`,`CHANNEL`)
+  PRIMARY KEY (`UID`, `CHANNEL`)
 );
 
 CREATE TABLE IF NOT EXISTS `stats__uchars_channel_d` (
   `UID` int(11) NOT NULL,
   `CHANNEL` int(11) NOT NULL,
   `COUNT` bigint(20) NOT NULL,
-  PRIMARY KEY (`UID`,`CHANNEL`)
+  PRIMARY KEY (`UID`, `CHANNEL`)
 );
 
 CREATE TABLE IF NOT EXISTS `stats__uchars_server` (
   `UID` int(11) NOT NULL,
   `USERVER` int(11) NOT NULL,
   `COUNT` bigint(20) NOT NULL,
-  PRIMARY KEY (`UID`,`USERVER`)
+  PRIMARY KEY (`UID`, `USERVER`)
 );
 
 CREATE TABLE IF NOT EXISTS `stats__uchars_server_d` (
   `UID` int(11) NOT NULL,
   `USERVER` int(11) NOT NULL,
   `COUNT` bigint(20) NOT NULL,
-  PRIMARY KEY (`UID`,`USERVER`)
+  PRIMARY KEY (`UID`, `USERVER`)
 );
 
 CREATE TABLE IF NOT EXISTS `stats__uimages_channel` (
   `UID` int(11) NOT NULL,
   `CHANNEL` int(11) NOT NULL,
   `COUNT` int(11) NOT NULL,
-  PRIMARY KEY (`UID`,`CHANNEL`)
+  PRIMARY KEY (`UID`, `CHANNEL`)
 );
 
 CREATE TABLE IF NOT EXISTS `stats__uimages_server` (
   `UID` int(11) NOT NULL,
   `USERVER` int(11) NOT NULL,
   `COUNT` int(11) NOT NULL,
-  PRIMARY KEY (`UID`,`USERVER`)
+  PRIMARY KEY (`UID`, `USERVER`)
 );
 
 CREATE TABLE IF NOT EXISTS `stats__uphrases_channel` (
   `UID` int(11) NOT NULL,
   `CHANNEL` int(11) NOT NULL,
   `COUNT` int(11) NOT NULL,
-  PRIMARY KEY (`UID`,`CHANNEL`)
+  PRIMARY KEY (`UID`, `CHANNEL`)
 );
 
 CREATE TABLE IF NOT EXISTS `stats__uphrases_channel_d` (
   `UID` int(11) NOT NULL,
   `CHANNEL` int(11) NOT NULL,
   `COUNT` int(11) NOT NULL,
-  PRIMARY KEY (`UID`,`CHANNEL`)
+  PRIMARY KEY (`UID`, `CHANNEL`)
 );
 
 CREATE TABLE IF NOT EXISTS `stats__uphrases_channel_e` (
   `UID` int(11) NOT NULL,
   `CHANNEL` int(11) NOT NULL,
   `COUNT` int(11) NOT NULL,
-  PRIMARY KEY (`UID`,`CHANNEL`)
+  PRIMARY KEY (`UID`, `CHANNEL`)
 );
 
 CREATE TABLE IF NOT EXISTS `stats__uphrases_server` (
   `UID` int(11) NOT NULL,
   `USERVER` int(11) NOT NULL,
   `COUNT` int(11) NOT NULL,
-  PRIMARY KEY (`UID`,`USERVER`)
+  PRIMARY KEY (`UID`, `USERVER`)
 );
 
 CREATE TABLE IF NOT EXISTS `stats__uphrases_server_d` (
   `UID` int(11) NOT NULL,
   `USERVER` int(11) NOT NULL,
   `COUNT` int(11) NOT NULL,
-  PRIMARY KEY (`UID`,`USERVER`)
+  PRIMARY KEY (`UID`, `USERVER`)
 );
 
 CREATE TABLE IF NOT EXISTS `stats__uphrases_server_e` (
   `UID` int(11) NOT NULL,
   `USERVER` int(11) NOT NULL,
   `COUNT` int(11) NOT NULL,
-  PRIMARY KEY (`UID`,`USERVER`)
+  PRIMARY KEY (`UID`, `USERVER`)
 );
 
 CREATE TABLE IF NOT EXISTS `stats__uwords_channel` (
@@ -358,7 +358,7 @@ CREATE TABLE IF NOT EXISTS `stats__uwords_channel` (
   `CHANNEL` int(11) NOT NULL,
   `WORD` varchar(64) NOT NULL,
   `COUNT` int(11) NOT NULL,
-  PRIMARY KEY (`UID`,`WORD`,`CHANNEL`)
+  PRIMARY KEY (`UID`, `WORD`, `CHANNEL`)
 );
 
 CREATE TABLE IF NOT EXISTS `stats__uwords_server` (
@@ -366,28 +366,28 @@ CREATE TABLE IF NOT EXISTS `stats__uwords_server` (
   `USERVER` int(11) NOT NULL,
   `WORD` varchar(64) NOT NULL,
   `COUNT` int(11) NOT NULL,
-  PRIMARY KEY (`UID`,`WORD`,`USERVER`)
+  PRIMARY KEY (`UID`, `WORD`, `USERVER`)
 );
 
 CREATE TABLE IF NOT EXISTS `stats__words_channel` (
   `UID` int(11) NOT NULL,
   `WORD` varchar(64) NOT NULL,
   `COUNT` int(11) NOT NULL,
-  PRIMARY KEY (`UID`,`WORD`)
+  PRIMARY KEY (`UID`, `WORD`)
 );
 
 CREATE TABLE IF NOT EXISTS `stats__words_client` (
   `UID` int(11) NOT NULL,
   `WORD` varchar(64) NOT NULL,
   `COUNT` int(11) NOT NULL,
-  PRIMARY KEY (`UID`,`WORD`)
+  PRIMARY KEY (`UID`, `WORD`)
 );
 
 CREATE TABLE IF NOT EXISTS `stats__words_server` (
   `UID` int(11) NOT NULL,
   `WORD` varchar(64) NOT NULL,
   `COUNT` int(11) NOT NULL,
-  PRIMARY KEY (`UID`,`WORD`)
+  PRIMARY KEY (`UID`, `WORD`)
 );
 
 CREATE TABLE IF NOT EXISTS `steam_emoji_fail` (
@@ -425,7 +425,7 @@ CREATE TABLE IF NOT EXISTS `timers_ids` (
 CREATE TABLE IF NOT EXISTS `timers_users` (
   `ID` int(11) NOT NULL,
   `TIMERID` int(11) NOT NULL,
-  PRIMARY KEY (`ID`,`TIMERID`)
+  PRIMARY KEY (`ID`, `TIMERID`)
 );
 
 CREATE TABLE IF NOT EXISTS `uptime` (
@@ -469,7 +469,7 @@ CREATE TABLE IF NOT EXISTS `user_names` (
 CREATE TABLE IF NOT EXISTS `users_roles` (
   `USERID` int(11) NOT NULL,
   `ROLEID` int(11) NOT NULL,
-  PRIMARY KEY (`USERID`,`ROLEID`)
+  PRIMARY KEY (`USERID`, `ROLEID`)
 );
 
 CREATE TABLE IF NOT EXISTS `votes_choices` (
@@ -477,7 +477,7 @@ CREATE TABLE IF NOT EXISTS `votes_choices` (
   `CHOICEID` int(11) NOT NULL,
   `NAME` varchar(64) NOT NULL,
   `VOTES` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`VOTE`,`CHOICEID`)
+  PRIMARY KEY (`VOTE`, `CHOICEID`)
 );
 
 CREATE TABLE IF NOT EXISTS `votes_list` (
@@ -500,7 +500,7 @@ CREATE TABLE IF NOT EXISTS `votes_votes` (
   `VOTE` int(11) NOT NULL,
   `USER` int(11) NOT NULL,
   `CHOICE` int(11) NOT NULL,
-  PRIMARY KEY (`VOTE`,`USER`)
+  PRIMARY KEY (`VOTE`, `USER`)
 );
 
 DROP FUNCTION IF EXISTS `get_role_id`;
