@@ -27,7 +27,7 @@ MySQL = connection;
 MySQLM = connectionMulti;
 
 
-let sql = fs.readFileSync(__dirname + '/mysql.sql', 'utf8').replace(/\r/gi, '');
+let sql = fs.readFileSync('./app/mysql.sql', 'utf8').replace(/\r/gi, '');
 let split = sql.split('-- ///Functions///');
 let sqlData = split[0];
 let sqlFuncs = split[1];

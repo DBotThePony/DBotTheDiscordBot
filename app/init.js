@@ -20,7 +20,7 @@ require('./commands.js');
 
 require('./modules/confirm.js');
 
-DBot.fs.readdirSync('./lib/addons/').forEach(function(file) {
+DBot.fs.readdirSync('./app/addons/').forEach(function(file) {
 	var sp = file.split('.');
 	if (!sp[1] || sp[1] != 'js')
 		return;

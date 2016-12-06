@@ -38,7 +38,7 @@ DBot.RegisterCommandPipe = function(command) {
 	return command;
 }
 
-DBot.fs.readdirSync('./lib/commands/').forEach(function(file) {
+DBot.fs.readdirSync('./app/commands/').forEach(function(file) {
 	var sp = file.split('.');
 	if (!sp[1])
 		return;
@@ -58,7 +58,7 @@ DBot.fs.readdirSync('./lib/commands/').forEach(function(file) {
 });
 
 try {
-	DBot.fs.readdirSync('./lib/pipes/').forEach(function(file) {
+	DBot.fs.readdirSync('./app/pipes/').forEach(function(file) {
 		var sp = file.split('.');
 		if (!sp[1])
 			return;

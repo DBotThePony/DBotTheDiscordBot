@@ -5,7 +5,7 @@ const Discord = require('discord.js');
 const bot = new Discord.Client();
 var token = "MjQ4NzU2MjM1ODg3ODM3MTk0.Cw8Xzg.wAxaM4qN6docKitkQe-PDud_IM0";
 
-require('./lib/init.js');
+require('./app/init.js');
 DBot.bot = bot;
 DBot.client = bot;
 hook.RegisterEvents();
