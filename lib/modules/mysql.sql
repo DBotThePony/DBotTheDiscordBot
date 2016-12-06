@@ -503,25 +503,23 @@ CREATE TABLE IF NOT EXISTS `votes_votes` (
   PRIMARY KEY (`VOTE`,`USER`)
 );
 
-/*
-DELIMITER //
+DROP FUNCTION IF EXISTS `get_role_id`;
 
-DROP FUNCTION IF EXISTS `get_role_id`//
+-- ///Functions///
 
-CREATE FUNCTION `get_role_id`(`fUID` VARCHAR(64), `fSERVER` INTEGER)
-	RETURNS INTEGER
+CREATE FUNCTION `get_role_id`(fUID VARCHAR(64), fSERVER INTEGER)
+RETURNS INTEGER
+BEGIN
+	DECLARE id INTEGER;
 	
-	BEGIN
-		DECLARE @id INTEGER;
-		@id = SELECT `roles_id`.`ID` FROM `roles_id` WHERE `roles_id`.`UID` = `fUID` AND `roles_id`.`SERVER` = `fSERVER`;
-		
-		IF (@id IS NULL) THEN
-			@id = INSERT INTO `roles_id` (
-	`SERVER`, `UID`) VALUES (`fSERVER`, `fUID`);
-			@id = SELECT last_insert_id();
-		END IF;
-	END//
+	SELECT `roles_id`.`ID` INTO id FROM `roles_id` WHERE `roles_id`.`UID` = fUID AND `roles_id`.`SERVER` = fSERVER;
+	
+	IF (id IS NULL) THEN
+		INSERT INTO `roles_id` (`SERVER`, `UID`) VALUES (`fSERVER`, `fUID`);
+		SELECT last_insert_id() INTO id;
+	END IF;
+	
+	RETURN id;
+END//
+    
 
-DELIMITER ;
-
-*/
