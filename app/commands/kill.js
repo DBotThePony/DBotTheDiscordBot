@@ -103,12 +103,13 @@ module.exports = {
 				let filename = data[0].FILENAME;
 				
 				let width = Number(data[0].WIDTH);
+				let iheight = Number(data[0].HEIGHT);
 				let height = 70;
-				let calcWidthFirst = username.length * FontSize * 1.2;
+				let calcWidthFirst = username.length * FontSize * .8;
 				let calcWidthLast = 0;
 				
 				if (username2)
-					calcWidthLast = username2.length * FontSize * 1.2 + 60;
+					calcWidthLast = username2.length * FontSize * .8 + 60;
 				
 				let totalWidth = calcWidthFirst + width + calcWidthLast - 50;
 				
@@ -122,12 +123,12 @@ module.exports = {
 				];
 				
 				if (username2) {
-					magikArgs.push('-gravity', 'center', '-draw', 'image over -10,0 0,0 "./resource/killicons/' + data[0].FILENAME + '"');
-					magikArgs.push('-gravity', 'northwest', '-draw', 'text 40,20 ' + Util.escape(username));
-					magikArgs.push('-fill', blu, '-gravity', 'northeast', '-draw', 'text 40,20 ' + Util.escape(username2));
+					magikArgs.push('-draw', 'text 40,50 ' + Util.escape(username));
+					magikArgs.push('-draw', 'image over ' + (calcWidthFirst - 10) + ',' + (height / 2 - iheight / 2) + ' 0,0 "./resource/killicons/' + data[0].FILENAME + '"');
+					magikArgs.push('-fill', blu, '-draw', 'text ' + (15 + calcWidthFirst + width) + ',50 ' + Util.escape(username2));
 				} else {
-					magikArgs.push('-draw', 'image over 40,0 0,0 "./resource/killicons/' + data[0].FILENAME + '"');
-					magikArgs.push('-draw', 'text ' + (40 + width) + ',20 ' + Util.escape(username));
+					magikArgs.push('-draw', 'image over 40,' + (height / 2 - iheight / 2) + ' 0,0 "./resource/killicons/' + data[0].FILENAME + '"');
+					magikArgs.push('-draw', 'text ' + (70 + width) + ',50 ' + Util.escape(username));
 				}
 				
 				magikArgs.push(fpath);
