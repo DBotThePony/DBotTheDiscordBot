@@ -44,11 +44,13 @@ MySQL.query('SELECT COUNT(*) AS `CNT` FROM `killicons`', function(err, data) {
 	});
 });
 
-const Font = 'TF2';
-const FontSize = 28;
+Util.mkdir(DBot.WebRoot + '/killfeed');
 
-if (true)
-	return;
+const Font = 'TF2';
+const FontSize = 42;
+const bg = 'rgb(241,233,203)';
+const red = 'rgb(163,87,74)';
+const blu = 'rgb(85,124,131)';
 
 module.exports = {
 	name: 'kill',
@@ -59,7 +61,91 @@ module.exports = {
 	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
+		if (!args[0])
+			return DBot.CommandError('No user', 'kill', args, 1);
 		
+		let username = args[0];
+		
+		if (typeof username == 'object')
+			username = username.username;
+		
+		if (!args[1])
+			return DBot.CommandError('No weapon name', 'kill', args, 1);
+		
+		let weapon = args[1].toLowerCase();
+		
+		let username2 = args[2];
+		
+		if (typeof username2 == 'object')
+			username2 = username2.username;
+		
+		let sha = DBot.HashString(username + ' ' + weapon + ' ' + username2);
+		let fpath = DBot.WebRoot + '/killfeed/' + sha + '.png';
+		let fpathU = DBot.URLRoot + '/killfeed/' + sha + '.png';
+		
+		fs.stat(fpath, function(err, stat) {
+			if (stat) {
+				msg.reply(fpathU);
+				return;
+			}
+			
+			MySQL.query('SELECT * FROM `killicons` WHERE `NAME` LIKE ' + Util.escape('%' + weapon + '%') + ' OR `CLASSNAME` LIKE ' + Util.escape('%' + weapon + '%'), function(err, data) {
+				if (err) {
+					msg.reply('<internal pony error>');
+					return;
+				}
+				
+				if (!data || !data[0]) {
+					msg.reply('No such weapon');
+					return;
+				}
+				
+				let filename = data[0].FILENAME;
+				
+				let width = Number(data[0].WIDTH);
+				let height = 70;
+				let calcWidthFirst = username.length * FontSize * 1.2;
+				let calcWidthLast = 0;
+				
+				if (username2)
+					calcWidthLast = username2.length * FontSize * 1.2 + 60;
+				
+				let totalWidth = calcWidthFirst + width + calcWidthLast - 50;
+				
+				let magikArgs = [
+					'-size', totalWidth + 'x' + height,
+					'canvas:' + bg,
+					'-font', Font,
+					'-pointsize', FontSize,
+					'-fill', red,
+					'-weight', '700',
+				];
+				
+				if (username2) {
+					magikArgs.push('-gravity', 'center', '-draw', 'image over -10,0 0,0 "./resource/killicons/' + data[0].FILENAME + '"');
+					magikArgs.push('-gravity', 'northwest', '-draw', 'text 40,20 ' + Util.escape(username));
+					magikArgs.push('-fill', blu, '-gravity', 'northeast', '-draw', 'text 40,20 ' + Util.escape(username2));
+				} else {
+					magikArgs.push('-draw', 'image over 40,0 0,0 "./resource/killicons/' + data[0].FILENAME + '"');
+					magikArgs.push('-draw', 'text ' + (40 + width) + ',20 ' + Util.escape(username));
+				}
+				
+				magikArgs.push(fpath);
+				
+				let magik = spawn('convert', magikArgs);
+				
+				Util.Redirect(magik);
+				
+				magik.on('close', function(code) {
+					if (code != 0) {
+						msg.reply('<internal pony error>');
+						return;
+					}
+					
+					msg.reply(fpathU);
+				});
+			});
+		});
 	}
 }
 
