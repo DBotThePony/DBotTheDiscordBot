@@ -43,7 +43,11 @@ module.exports = {
 								if (STOP)
 									return;
 								
-								msg.channel.sendFile(data, str + '.png').catch(function() {
+								msg.channel.sendFile(data, str + '.png')
+								.then(function() {
+									msg.channel.stopTyping();
+								})
+								.catch(function() {
 									if (STOP)
 										return;
 									
