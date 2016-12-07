@@ -5,6 +5,23 @@ const Discord = require('discord.js');
 const bot = new Discord.Client();
 var token = "MjQ4NzU2MjM1ODg3ODM3MTk0.Cw8Xzg.wAxaM4qN6docKitkQe-PDud_IM0";
 
+let stdin = process.openStdin();
+
+stdin.addListener('data', function(data) {
+	let str = data.toString().trim();
+	
+	if (str.substr(0, 5) == 'eval ') {
+		let code = str.substr(5);
+		console.log('eval(' + code + ')...')
+		
+		try {
+			console.log('--> ', eval(code));
+		} catch(err) {
+			console.error(err);
+		}
+	}
+});
+
 require('./app/init.js');
 DBot.bot = bot;
 DBot.client = bot;
