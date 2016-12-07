@@ -70,6 +70,9 @@ module.exports = {
 								} else {
 									fs.writeFile(fpath, result.raw_body, function(err) {
 										msg.channel.sendFile(result.raw_body, str + '.png')
+										.then(function() {
+											msg.channel.stopTyping();
+										})
 										.catch(function() {
 											if (STOP)
 												return;
@@ -164,6 +167,9 @@ DBot.RegisterCommand({
 									
 									fs.writeFile(fpath, decoded, function(err) {
 										msg.channel.sendFile(decoded, str + '.png')
+										.then(function() {
+											msg.channel.stopTyping();
+										})
 										.catch(function() {
 											if (STOP)
 												return;
