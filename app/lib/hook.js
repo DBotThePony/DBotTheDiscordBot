@@ -53,6 +53,7 @@ var botHooks = [
 	['guildEmojiUpdate', 'EmojiUpdated'],
 	['guildMemberAdd', 'ClientJoinsServer'],
 	['guildMemberAvailable', 'ClientJoinedServer'],
+	['guildMemberUpdate', 'MemberChanges'],
 	['guildMemberRemove', 'ClientLeftServer'],
 	['guildUnavailable', 'ServerWentsDown'],
 	['guildUpdate', 'ServerChanges'],
@@ -239,4 +240,3 @@ setInterval(UpdateUserVars, 20000);
 hook.Add('BotOnline', 'UpdateUserVars', function() {
 	setTimeout(UpdateUserVars, 3000);
 });
-
