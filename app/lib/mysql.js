@@ -176,15 +176,19 @@ DBot.ServerIsInitialized = function(obj) {
 }
 
 hook.Add('CheckValidMessage', 'MySQL.Checker', function(msg) {
-	if (!DBot.UserIsInitialized(msg.author))
+	if (!DBot.UserIsInitialized(msg.author)) {
+		DBot.DefineUser(msg.author);
 		return true;
+	}
 	
 	if (!DBot.IsPM(msg)) {
-		if (!DBot.ChannelIsInitialized(msg.channel))
+		if (!DBot.ServerIsInitialized(msg.channel.guild)) {
+			DBot.DefineServer(msg.channel.guild);
 			return true;
-		
-		if (!DBot.ServerIsInitialized(msg.channel.guild))
+		} else if (!DBot.ChannelIsInitialized(msg.channel)) {
+			DBot.DefineChannel(msg.channel);
 			return true;
+		}
 	}
 });
 
