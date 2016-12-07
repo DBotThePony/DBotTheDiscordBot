@@ -273,27 +273,3 @@ Util.ReadString = function(buf, offestStart) {
 	return [utf8.decode(output), i - offestStart + 1];
 }
 
-// Buffer based string
-class BufferedString {
-	constructor(str) {
-		this.offset = 0;
-		this.buf = Buffer.from('');
-		
-		if (str) {
-			this.append(str);
-		}
-	}
-	
-	append(str) {
-		let s = str.toString();
-		
-		this.buf.write(s, this.offset, s.length, 'utf8');
-		this.offset += s.length;
-	}
-	
-	toString() {
-		return this.buf.toString();
-	}
-}
-
-Util.BufferedString = BufferedString
