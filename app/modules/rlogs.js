@@ -10,14 +10,9 @@ let updateRoleRules = function(role) {
 		return;
 	
 	let members = role.members.array();
+	let sRole = sql.Role(role);
 	
-	if (updating[role.uid])
-		return;
-	
-	updating[role.uid] = true;
-	
-	MySQL.query('SELECT `MEMBER`, restore_member(`member_roles`.`MEMBER`) as `USER` FROM `member_roles` WHERE `ROLE` = get_role_id_combined("' + role.id + '", "' + role.guild.id + '")', function(err, data) {
-		updating[role.uid] = undefined;
+	MySQL.query('SELECT `MEMBER`, restore_member(`member_roles`.`MEMBER`) as `USER` FROM `member_roles` WHERE `ROLE` = ' + sRole, function(err, data) {
 		if (err) throw err;
 		data = data || {};
 		
@@ -32,8 +27,8 @@ let updateRoleRules = function(role) {
 			}
 			
 			if (!hit) {
-				MySQL.query('INSERT INTO `roles_log` (`MEMBER`, `ROLE`, `TYPE`, `STAMP`) VALUES (get_member_id("' + member.id + '", "' + role.guild.id + '"), get_role_id_combined("' + role.id + '", "' + role.guild.id + '"), 1, "' + CurTime() + '")');
-				MySQL.query('REPLACE INTO `member_roles` VALUES(get_member_id("' + member.id + '", "' + role.guild.id + '"), get_role_id_combined("' + role.id + '", "' + role.guild.id + '"))');
+				MySQL.query('INSERT INTO `roles_log` (`MEMBER`, `ROLE`, `TYPE`, `STAMP`) VALUES (get_member_id("' + member.id + '", "' + role.guild.id + '"), ' + sRole + ', 1, "' + CurTime() + '")');
+				MySQL.query('REPLACE INTO `member_roles` VALUES(get_member_id("' + member.id + '", "' + role.guild.id + '"), ' + sRole + ')');
 			}
 		}
 		
@@ -48,8 +43,8 @@ let updateRoleRules = function(role) {
 			}
 			
 			if (!hit) {
-				MySQL.query('INSERT INTO `roles_log` (`MEMBER`, `ROLE`, `TYPE`, `STAMP`) VALUES ("' + row.MEMBER + '", get_role_id_combined("' + role.id + '", "' + role.guild.id + '"), 0, "' + CurTime() + '")');
-				MySQL.query('DELETE FROM `member_roles` WHERE `MEMBER` = "' + row.MEMBER + '" AND `ROLE` = get_role_id_combined("' + role.id + '", "' + role.guild.id + '")');
+				MySQL.query('INSERT INTO `roles_log` (`MEMBER`, `ROLE`, `TYPE`, `STAMP`) VALUES ("' + row.MEMBER + '", ' + sRole + ', 0, "' + CurTime() + '")');
+				MySQL.query('DELETE FROM `member_roles` WHERE `MEMBER` = "' + row.MEMBER + '" AND `ROLE` = ' + sRole);
 			}
 		}
 	});
