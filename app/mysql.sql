@@ -535,14 +535,6 @@ CREATE TABLE IF NOT EXISTS `member_names` (
 	PRIMARY KEY (`ID`)
 );
 
-DROP FUNCTION IF EXISTS `get_role_id`;
-DROP FUNCTION IF EXISTS `get_channel_id`;
-DROP FUNCTION IF EXISTS `get_server_id`;
-DROP FUNCTION IF EXISTS `get_user_id`;
-DROP FUNCTION IF EXISTS `get_member_id`;
-DROP FUNCTION IF EXISTS `restore_member_id`;
-DROP FUNCTION IF EXISTS `restore_member`;
-
 -- ///Functions///
 
 CREATE FUNCTION IF NOT EXISTS `get_role_id_combined`(fUID VARCHAR(64), fSERVER2 VARCHAR(64))
