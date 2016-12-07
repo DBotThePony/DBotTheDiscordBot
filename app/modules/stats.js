@@ -323,157 +323,146 @@ DBot.RegisterCommand({
 			let channels = Channels.length;
 			let users = Users.length;
 			
-			// Generic Server Stats
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__chars_server` WHERE `UID` = ' + ID, function(err, data) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__words_server` WHERE `UID` = ' + ID, function(err, data2) {
-			MySQL.query('SELECT COUNT(DISTINCT `WORD`) as `cnt` FROM `stats__words_server` WHERE `UID` = ' + ID, function(err, data3) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__images_server` WHERE `UID` = ' + ID, function(err, data4) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__phrases_server` WHERE `UID` = ' + ID, function(err, data5) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__command_server` WHERE `UID` = ' + ID, function(err, data6) {
-			MySQL.query('SELECT `COMMAND`, SUM(`COUNT`) as `summ` FROM `stats__command_server` WHERE `UID` = ' + ID + ' GROUP BY `COMMAND` ORDER BY `summ` DESC LIMIT 0, 1', function(err, data7) {
+			let q = 'SELECT SUM(`COUNT`) as `cnt` FROM `stats__chars_server` WHERE `UID` = ' + ID + ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__words_server` WHERE `UID` = ' + ID + ';\
+			SELECT COUNT(DISTINCT `WORD`) as `cnt` FROM `stats__words_server` WHERE `UID` = ' + ID + ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__images_server` WHERE `UID` = ' + ID + ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__phrases_server` WHERE `UID` = ' + ID + ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__command_server` WHERE `UID` = ' + ID + ';\
+			SELECT `COMMAND`, SUM(`COUNT`) as `summ` FROM `stats__command_server` WHERE `UID` = ' + ID + ' GROUP BY `COMMAND` ORDER BY `summ` DESC LIMIT 0, 1;';
 			
-			// Server Stats by user
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__uchars_server` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID, function(err, data8) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__uwords_server` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID, function(err, data9) {
-			MySQL.query('SELECT COUNT(DISTINCT `WORD`) as `cnt` FROM `stats__uwords_server` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID, function(err, data10) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__uimages_server` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID, function(err, data11) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__uphrases_server` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID, function(err, data12) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__command_userver` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID, function(err, data13) {
-			MySQL.query('SELECT `COMMAND`, SUM(`COUNT`) as `summ` FROM `stats__command_userver` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID + ' GROUP BY `COMMAND` ORDER BY `summ` DESC LIMIT 0, 1', function(err, data14) {
-				msg.channel.stopTyping();
-				try {
-					data = data || {};
-					data2 = data2 || {};
-					data3 = data3 || {};
-					data4 = data4 || {};
-					data5 = data5 || {};
-					data6 = data6 || {};
-					data7 = data7 || {};
-					data8 = data8 || {};
-					data9 = data9 || {};
-					data10 = data10 || {};
-					data11 = data11 || {};
-					data12 = data12 || {};
-					data13 = data13 || {};
-					data14 = data14 || {};
+			let qU = 'SELECT SUM(`COUNT`) as `cnt` FROM `stats__uchars_server` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID + ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__uwords_server` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID + ';\
+			SELECT COUNT(DISTINCT `WORD`) as `cnt` FROM `stats__uwords_server` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID + ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__uimages_server` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID + ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__uphrases_server` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID + ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__command_userver` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID + ';\
+			SELECT `COMMAND`, SUM(`COUNT`) as `summ` FROM `stats__command_userver` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID + ' GROUP BY `COMMAND` ORDER BY `summ` DESC LIMIT 0, 1'+ ';';
+			
+			// Generic Server Stats
+			MySQLM.query(q, function(err, data) {
+				
+				// Server Stats by user
+				MySQLM.query(qU, function(err, uData) {
+					msg.channel.stopTyping();
 					
-					var TotalChars = data[0] && data[0].cnt || 0;
-					var TotalWordsSaid = data2[0] && data2[0].cnt || 0;
-					var TotalUniqueWords = data3[0] && data3[0].cnt || 0;
-					var TotalImagesSend = data4[0] && data4[0].cnt || 0;
-					var TotalPhrasesSaid = data5[0] && data5[0].cnt || 0;
-					var TotalCommandsExecuted = data6[0] && data6[0].cnt || 0;
-					
-					var MostUsedCommand = data7[0] && data7[0].COMMAND || '<unknown>';
-					var MostUsedCommand_count = data7[0] && data7[0].summ || 0;
-					
-					var TotalChars_USR = data8[0] && data8[0].cnt || 0;
-					var TotalWordsSaid_USR = data9[0] && data9[0].cnt || 0;
-					var TotalUniqueWords_USR = data10[0] && data10[0].cnt || 0;
-					var TotalImagesSend_USR = data11[0] && data11[0].cnt || 0;
-					var TotalPhrasesSaid_USR = data12[0] && data12[0].cnt || 0;
-					var TotalCommandsExecuted_USR = data13[0] && data13[0].cnt || 0;
-					
-					var MostUsedCommand_USR = data14[0] && data14[0].COMMAND || '<unknown>';
-					var MostUsedCommand_count_USR = data14[0] && data14[0].summ || 0;
-					
-					var output = '\n```';
-					
-					output += '------ Infos\n';
-					output += 'Server Name:                                     ' + msg.channel.guild.name + '\n';
-					output += 'Server ID:                                       ' + msg.channel.guild.id + '\n';
-					output += 'Server Owner:                                    @' + msg.channel.guild.owner.user.username + '\n';
-					output += 'Server ID in my Database:                        ' + ID + '\n';
-					output += 'Server region:                                   ' + msg.channel.guild.region + '\n';
-					output += 'Server default channel:                          #' + msg.channel.guild.defaultChannel.name + '\n';
-					output += 'Server avatar URL:                               ' + (msg.channel.guild.iconURL || '<no avatar>') + '\n';
-					output += 'Server is large?:                                ' + (msg.channel.guild.large && 'yes' || 'no') + '\n';
-					output += '------ Statistics\n';
-					
-					output += 'Total Channels on this server:                   ' + numeral(channels).format('0,0') + '\n';
-					output += 'Total Users on this server:                      ' + numeral(users).format('0,0') + '\n';
-					output += 'Total chars printed by all users:                ' + numeral(TotalChars).format('0,0') + '\n';
-					output += 'Total words said by all users:                   ' + numeral(TotalWordsSaid).format('0,0') + '\n';
-					output += 'Total unique words:                              ' + numeral(TotalUniqueWords).format('0,0') + '\n';
-					output += 'Total images sended:                             ' + numeral(TotalImagesSend).format('0,0') + '\n';
-					output += 'Total phrases said by all users:                 ' + numeral(TotalPhrasesSaid).format('0,0') + '\n';
-					output += 'Total amount of commands executed:               ' + numeral(TotalCommandsExecuted).format('0,0') + '\n';
-					output += 'Most command used:                               ' + MostUsedCommand + '; Times Executed: ' + numeral(MostUsedCommand_count).format('0,0') + '\n';
-					
-					output += '------ Your stats on this server\n';
-					
-					output += 'Total chars printed by you:                      ' + numeral(TotalChars_USR).format('0,0') + '\n';
-					output += 'Total words said by you:                         ' + numeral(TotalWordsSaid_USR).format('0,0') + '\n';
-					output += 'Total unique words said by you:                  ' + numeral(TotalUniqueWords_USR).format('0,0') + '\n';
-					output += 'Total images sended by you:                      ' + numeral(TotalImagesSend_USR).format('0,0') + '\n';
-					output += 'Total phrases said by you:                       ' + numeral(TotalPhrasesSaid_USR).format('0,0') + '\n';
-					output += 'Total amount of commands executed by you:        ' + numeral(TotalCommandsExecuted_USR).format('0,0') + '\n';
-					output += 'Most command used by you:                        ' + MostUsedCommand_USR + '; Times Executed: ' + MostUsedCommand_count_USR + '\n';
-					
-					output += '```\nAlso try stats (global statistics) and cstats (channel statistics)';
-					
-					msg.reply(output);
-				} catch(err) {
-					console.error(err);
-					msg.reply('<internal pony error>');
-				}
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
+					try {
+						for (let i = 0; i <= 6; i++) {
+							uData[i] = uData[i] || [];
+							data[i] = data[i] || [];
+							uData[i][0] = uData[i][0] || {};
+							data[i][0] = data[i][0] || {};
+						}
+						
+						data = data || {};
+						uData = uData || {};
+						
+						let TotalChars = data[0][0].cnt || 0;
+						let TotalWordsSaid = data[1][0].cnt || 0;
+						let TotalUniqueWords = data[2][0].cnt || 0;
+						let TotalImagesSend = data[3][0].cnt || 0;
+						let TotalPhrasesSaid = data[4][0].cnt || 0;
+						let TotalCommandsExecuted = data[5][0].cnt || 0;
+						
+						let MostUsedCommand = data[6][0].COMMAND || '<unknown>';
+						let MostUsedCommand_count = data[6][0].summ || 0;
+						
+						let TotalChars_USER = uData[0][0].cnt || 0;
+						let TotalWordsSaid_USER = uData[1][0].cnt || 0;
+						let TotalUniqueWords_USER = uData[2][0].cnt || 0;
+						let TotalImagesSend_USER = uData[3][0].cnt || 0;
+						let TotalPhrasesSaid_USER = uData[4][0].cnt || 0;
+						let TotalCommandsExecuted_USER = uData[5][0].cnt || 0;
+						
+						let MostUsedCommand_USER = uData[6][0].COMMAND || '<unknown>';
+						let MostUsedCommand_count_USER = uData[6][0].summ || 0;
+						
+						let output = '\n```';
+						
+						output += '------ Infos\n';
+						output += 'Server Name:                                     ' + msg.channel.guild.name + '\n';
+						output += 'Server ID:                                       ' + msg.channel.guild.id + '\n';
+						output += 'Server Owner:                                    @' + msg.channel.guild.owner.user.username + '\n';
+						output += 'Server ID in my Database:                        ' + ID + '\n';
+						output += 'Server region:                                   ' + msg.channel.guild.region + '\n';
+						output += 'Server default channel:                          #' + msg.channel.guild.defaultChannel.name + '\n';
+						output += 'Server avatar URL:                               ' + (msg.channel.guild.iconURL || '<no avatar>') + '\n';
+						output += 'Server is large?:                                ' + (msg.channel.guild.large && 'yes' || 'no') + '\n';
+						output += '------ Statistics\n';
+						
+						output += 'Total Channels on this server:                   ' + numeral(channels).format('0,0') + '\n';
+						output += 'Total Users on this server:                      ' + numeral(users).format('0,0') + '\n';
+						output += 'Total chars printed by all users:                ' + numeral(TotalChars).format('0,0') + '\n';
+						output += 'Total words said by all users:                   ' + numeral(TotalWordsSaid).format('0,0') + '\n';
+						output += 'Total unique words:                              ' + numeral(TotalUniqueWords).format('0,0') + '\n';
+						output += 'Total images sended:                             ' + numeral(TotalImagesSend).format('0,0') + '\n';
+						output += 'Total phrases said by all users:                 ' + numeral(TotalPhrasesSaid).format('0,0') + '\n';
+						output += 'Total amount of commands executed:               ' + numeral(TotalCommandsExecuted).format('0,0') + '\n';
+						output += 'Most command used:                               ' + MostUsedCommand + '; Times Executed: ' + numeral(MostUsedCommand_count).format('0,0') + '\n';
+						
+						output += '------ Your stats on this server\n';
+						
+						output += 'Total chars printed by you:                      ' + numeral(TotalChars_USER).format('0,0') + '\n';
+						output += 'Total words said by you:                         ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
+						output += 'Total unique words said by you:                  ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
+						output += 'Total images sended by you:                      ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
+						output += 'Total phrases said by you:                       ' + numeral(TotalPhrasesSaid_USER).format('0,0') + '\n';
+						output += 'Total amount of commands executed by you:        ' + numeral(TotalCommandsExecuted_USER).format('0,0') + '\n';
+						output += 'Most command used by you:                        ' + MostUsedCommand_USER + '; Times Executed: ' + MostUsedCommand_count_USER + '\n';
+						
+						output += '```\nAlso try stats (global statistics) and cstats (channel statistics)';
+						
+						msg.reply(output);
+					} catch(err) {
+						console.error(err);
+						msg.reply('<internal pony error>');
+					}
+				});
 			});
 		} else {
 			let UID = DBot.GetUserID(msg.author);
 			
+			let qU = 'SELECT SUM(`COUNT`) as `cnt` FROM `stats__uchars_server` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID + ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__uwords_server` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID + ';\
+			SELECT COUNT(DISTINCT `WORD`) as `cnt` FROM `stats__uwords_server` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID + ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__uimages_server` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID + ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__uphrases_server` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID + ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__command_userver` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID + ';\
+			SELECT `COMMAND`, SUM(`COUNT`) as `summ` FROM `stats__command_userver` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID + ' GROUP BY `COMMAND` ORDER BY `summ` DESC LIMIT 0, 1'+ ';';
+			
 			// Server Stats by user
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__uchars_server` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID, function(err, data8) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__uwords_server` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID, function(err, data9) {
-			MySQL.query('SELECT COUNT(DISTINCT `WORD`) as `cnt` FROM `stats__uwords_server` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID, function(err, data10) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__uimages_server` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID, function(err, data11) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__uphrases_server` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID, function(err, data12) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__command_userver` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID, function(err, data13) {
-			MySQL.query('SELECT `COMMAND`, SUM(`COUNT`) as `summ` FROM `stats__command_userver` WHERE `UID` = ' + UID + ' AND `USERVER` = ' + ID + ' GROUP BY `COMMAND` ORDER BY `summ` DESC LIMIT 0, 1', function(err, data14) {
+			MySQLM.query(qU, function(err, uData) {
 				msg.channel.stopTyping();
 				
 				try {
-					data8 = data8 || {};
-					data9 = data9 || {};
-					data10 = data10 || {};
-					data11 = data11 || {};
-					data12 = data12 || {};
-					data13 = data13 || {};
-					data14 = data14 || {};
+					for (let i = 0; i <= 6; i++) {
+						uData[i] = uData[i] || [];
+						uData[i][0] = uData[i][0] || {};
+					}
 					
-					let TotalChars_USR = data8[0] && data8[0].cnt || 0;
-					let TotalWordsSaid_USR = data9[0] && data9[0].cnt || 0;
-					let TotalUniqueWords_USR = data10[0] && data10[0].cnt || 0;
-					let TotalImagesSend_USR = data11[0] && data11[0].cnt || 0;
-					let TotalPhrasesSaid_USR = data12[0] && data12[0].cnt || 0;
-					let TotalCommandsExecuted_USR = data13[0] && data13[0].cnt || 0;
+					uData = uData || {};
 					
-					let MostUsedCommand_USR = data14[0] && data14[0].COMMAND || '<unknown>';
-					let MostUsedCommand_count_USR = data14[0] && data14[0].summ || 0;
+					let TotalChars_USER = uData[0][0].cnt || 0;
+					let TotalWordsSaid_USER = uData[1][0].cnt || 0;
+					let TotalUniqueWords_USER = uData[2][0].cnt || 0;
+					let TotalImagesSend_USER = uData[3][0].cnt || 0;
+					let TotalPhrasesSaid_USER = uData[4][0].cnt || 0;
+					let TotalCommandsExecuted_USER = uData[5][0].cnt || 0;
+					
+					let MostUsedCommand_USER = uData[6][0].COMMAND || '<unknown>';
+					let MostUsedCommand_count_USER = uData[6][0].summ || 0;
 					
 					let output = '\n```';
 					
 					output += '------ @' + args[0].username + ' stats on this server\n';
 					
-					output += 'Total chars printed:                          ' + numeral(TotalChars_USR).format('0,0') + '\n';
-					output += 'Total words said:                             ' + numeral(TotalWordsSaid_USR).format('0,0') + '\n';
-					output += 'Total unique words said:                      ' + numeral(TotalUniqueWords_USR).format('0,0') + '\n';
-					output += 'Total images sended:                          ' + numeral(TotalImagesSend_USR).format('0,0') + '\n';
-					output += 'Total phrases said:                           ' + numeral(TotalPhrasesSaid_USR).format('0,0') + '\n';
-					output += 'Total amount of commands executed:            ' + numeral(TotalCommandsExecuted_USR).format('0,0') + '\n';
-					output += 'Most command used:                            ' + MostUsedCommand_USR + '; Times Executed: ' + MostUsedCommand_count_USR + '\n';
+					output += 'Total chars printed:                          ' + numeral(TotalChars_USER).format('0,0') + '\n';
+					output += 'Total words said:                             ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
+					output += 'Total unique words said:                      ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
+					output += 'Total images sended:                          ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
+					output += 'Total phrases said:                           ' + numeral(TotalPhrasesSaid_USER).format('0,0') + '\n';
+					output += 'Total amount of commands executed:            ' + numeral(TotalCommandsExecuted_USER).format('0,0') + '\n';
+					output += 'Most command used:                            ' + MostUsedCommand_USER + '; Times Executed: ' + MostUsedCommand_count_USER + '\n';
 					
 					output += '```';
 					
@@ -482,12 +471,6 @@ DBot.RegisterCommand({
 					console.error(err);
 					msg.reply('<internal pony error>');
 				}
-			});
-			});
-			});
-			});
-			});
-			});
 			});
 		}
 	}
@@ -516,148 +499,138 @@ DBot.RegisterCommand({
 			let UID = DBot.GetUserID(msg.author);
 			
 			// Generic Server Stats
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__chars_channel` WHERE `UID` = ' + ID, function(err, data) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__words_channel` WHERE `UID` = ' + ID, function(err, data2) {
-			MySQL.query('SELECT COUNT(DISTINCT `WORD`) as `cnt` FROM `stats__words_channel` WHERE `UID` = ' + ID, function(err, data3) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__images_channel` WHERE `UID` = ' + ID, function(err, data4) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__phrases_channel` WHERE `UID` = ' + ID, function(err, data5) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__command_channel` WHERE `UID` = ' + ID, function(err, data6) {
-			MySQL.query('SELECT `COMMAND`, SUM(`COUNT`) as `summ` FROM `stats__command_channel` WHERE `UID` = ' + ID + ' GROUP BY `COMMAND` ORDER BY `summ` DESC LIMIT 0, 1', function(err, data7) {
+			let q = 'SELECT SUM(`COUNT`) as `cnt` FROM `stats__chars_channel` WHERE `UID` = ' + ID +  ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__words_channel` WHERE `UID` = ' + ID +  ';\
+			SELECT COUNT(DISTINCT `WORD`) as `cnt` FROM `stats__words_channel` WHERE `UID` = ' + ID +  ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__images_channel` WHERE `UID` = ' + ID +  ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__phrases_channel` WHERE `UID` = ' + ID +  ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__command_channel` WHERE `UID` = ' + ID +  ';\
+			SELECT `COMMAND`, SUM(`COUNT`) as `summ` FROM `stats__command_channel` WHERE `UID` = ' + ID + ' GROUP BY `COMMAND` ORDER BY `summ` DESC LIMIT 0, 1' +  ';';
 			
 			// Channel Stats by user
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__uchars_channel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID, function(err, data8) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__uwords_channel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID, function(err, data9) {
-			MySQL.query('SELECT COUNT(DISTINCT `WORD`) as `cnt` FROM `stats__uwords_channel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID, function(err, data10) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__uimages_channel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID, function(err, data11) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__uphrases_channel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID, function(err, data12) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__command_uchannel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID, function(err, data13) {
-			MySQL.query('SELECT `COMMAND`, SUM(`COUNT`) as `summ` FROM `stats__command_uchannel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID + ' GROUP BY `COMMAND` ORDER BY `summ` DESC LIMIT 0, 1', function(err, data14) {
-				msg.channel.stopTyping();
-				try {
-					data = data || {};
-					data2 = data2 || {};
-					data3 = data3 || {};
-					data4 = data4 || {};
-					data5 = data5 || {};
-					data6 = data6 || {};
-					data7 = data7 || {};
-					data8 = data8 || {};
-					data9 = data9 || {};
-					data10 = data10 || {};
-					data11 = data11 || {};
-					data12 = data12 || {};
-					data13 = data13 || {};
-					data14 = data14 || {};
+			let qU = 'SELECT SUM(`COUNT`) as `cnt` FROM `stats__uchars_channel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID +  ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__uwords_channel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID +  ';\
+			SELECT COUNT(DISTINCT `WORD`) as `cnt` FROM `stats__uwords_channel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID +  ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__uimages_channel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID +  ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__uphrases_channel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID +  ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__command_uchannel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID +  ';\
+			SELECT `COMMAND`, SUM(`COUNT`) as `summ` FROM `stats__command_uchannel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID + ' GROUP BY `COMMAND` ORDER BY `summ` DESC LIMIT 0, 1' +  ';';
+			
+			MySQLM.query(q, function(err, data) {
+				MySQLM.query(qU, function(err, uData) {
+					msg.channel.stopTyping();
 					
-					let TotalChars = data[0] && data[0].cnt || 0;
-					let TotalWordsSaid = data2[0] && data2[0].cnt || 0;
-					let TotalUniqueWords = data3[0] && data3[0].cnt || 0;
-					let TotalImagesSend = data4[0] && data4[0].cnt || 0;
-					let TotalPhrasesSaid = data5[0] && data5[0].cnt || 0;
-					let TotalCommandsExecuted = data6[0] && data6[0].cnt || 0;
-					
-					let MostUsedCommand = data7[0] && data7[0].COMMAND || '<unknown>';
-					let MostUsedCommand_count = data7[0] && data7[0].summ || 0;
-					
-					let TotalChars_USR = data8[0] && data8[0].cnt || 0;
-					let TotalWordsSaid_USR = data9[0] && data9[0].cnt || 0;
-					let TotalUniqueWords_USR = data10[0] && data10[0].cnt || 0;
-					let TotalImagesSend_USR = data11[0] && data11[0].cnt || 0;
-					let TotalPhrasesSaid_USR = data12[0] && data12[0].cnt || 0;
-					let TotalCommandsExecuted_USR = data13[0] && data13[0].cnt || 0;
-					
-					let MostUsedCommand_USR = data14[0] && data14[0].COMMAND || '<unknown>';
-					let MostUsedCommand_count_USR = data14[0] && data14[0].summ || 0;
-					
-					let output = '\n```';
-					
-					output += '------ Infos\n';
-					output += 'Channel Name:                                 ' + msg.channel.name + '\n';
-					output += 'Channel ID:                                   ' + msg.channel.id + '\n';
-					output += 'Channel ID in my Database:                    ' + ID + '\n';
-					output += 'Is default channel?:                          ' + (msg.channel.guild.defaultChannel.id == msg.channel.id && 'yes' || 'no') + '\n';
-					output += '------ Statistics\n';
-					
-					output += 'Total chars printed by all users:             ' + numeral(TotalChars).format('0,0') + '\n';
-					output += 'Total words said by all users:                ' + numeral(TotalWordsSaid).format('0,0') + '\n';
-					output += 'Total unique words:                           ' + numeral(TotalUniqueWords).format('0,0') + '\n';
-					output += 'Total images sended:                          ' + numeral(TotalImagesSend).format('0,0') + '\n';
-					output += 'Total phrases said by all users:              ' + numeral(TotalPhrasesSaid).format('0,0') + '\n';
-					output += 'Total amount of commands executed:            ' + numeral(TotalCommandsExecuted).format('0,0') + '\n';
-					output += 'Most command used:                            ' + MostUsedCommand + '; Times Executed: ' + numeral(MostUsedCommand_count).format('0,0') + '\n';
-					
-					output += '------ Your stats on this channel\n';
-					
-					output += 'Total chars printed by you:                   ' + numeral(TotalChars_USR).format('0,0') + '\n';
-					output += 'Total words said by you:                      ' + numeral(TotalWordsSaid_USR).format('0,0') + '\n';
-					output += 'Total unique words said by you:               ' + numeral(TotalUniqueWords_USR).format('0,0') + '\n';
-					output += 'Total images sended by you:                   ' + numeral(TotalImagesSend_USR).format('0,0') + '\n';
-					output += 'Total phrases said by you:                    ' + numeral(TotalPhrasesSaid_USR).format('0,0') + '\n';
-					output += 'Total amount of commands executed by you:     ' + numeral(TotalCommandsExecuted_USR).format('0,0') + '\n';
-					output += 'Most command used by you:                     ' + MostUsedCommand_USR + '; Times Executed: ' + numeral(MostUsedCommand_count_USR).format('0,0') + '\n';
-					
-					output += '```\nAlso try stats (global statistics) and sstats (server statistics)';
-					
-					msg.reply(output);
-				} catch(err) {
-					console.error(err);
-					msg.reply('<internal pony error>');
-				}
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
+					try {
+						for (let i = 0; i <= 6; i++) {
+							uData[i] = uData[i] || [];
+							data[i] = data[i] || [];
+							uData[i][0] = uData[i][0] || {};
+							data[i][0] = data[i][0] || {};
+						}
+						
+						data = data || {};
+						uData = uData || {};
+						
+						let TotalChars = data[0][0].cnt || 0;
+						let TotalWordsSaid = data[1][0].cnt || 0;
+						let TotalUniqueWords = data[2][0].cnt || 0;
+						let TotalImagesSend = data[3][0].cnt || 0;
+						let TotalPhrasesSaid = data[4][0].cnt || 0;
+						let TotalCommandsExecuted = data[5][0].cnt || 0;
+						
+						let MostUsedCommand = data[6][0].COMMAND || '<unknown>';
+						let MostUsedCommand_count = data[6][0].summ || 0;
+						
+						let TotalChars_USER = uData[0][0].cnt || 0;
+						let TotalWordsSaid_USER = uData[1][0].cnt || 0;
+						let TotalUniqueWords_USER = uData[2][0].cnt || 0;
+						let TotalImagesSend_USER = uData[3][0].cnt || 0;
+						let TotalPhrasesSaid_USER = uData[4][0].cnt || 0;
+						let TotalCommandsExecuted_USER = uData[5][0].cnt || 0;
+						
+						let MostUsedCommand_USER = uData[6][0].COMMAND || '<unknown>';
+						let MostUsedCommand_count_USER = uData[6][0].summ || 0;
+						
+						let output = '\n```';
+						
+						output += '------ Infos\n';
+						output += 'Channel Name:                                 ' + msg.channel.name + '\n';
+						output += 'Channel ID:                                   ' + msg.channel.id + '\n';
+						output += 'Channel ID in my Database:                    ' + ID + '\n';
+						output += 'Is default channel?:                          ' + (msg.channel.guild.defaultChannel.id == msg.channel.id && 'yes' || 'no') + '\n';
+						output += '------ Statistics\n';
+						
+						output += 'Total chars printed by all users:             ' + numeral(TotalChars).format('0,0') + '\n';
+						output += 'Total words said by all users:                ' + numeral(TotalWordsSaid).format('0,0') + '\n';
+						output += 'Total unique words:                           ' + numeral(TotalUniqueWords).format('0,0') + '\n';
+						output += 'Total images sended:                          ' + numeral(TotalImagesSend).format('0,0') + '\n';
+						output += 'Total phrases said by all users:              ' + numeral(TotalPhrasesSaid).format('0,0') + '\n';
+						output += 'Total amount of commands executed:            ' + numeral(TotalCommandsExecuted).format('0,0') + '\n';
+						output += 'Most command used:                            ' + MostUsedCommand + '; Times Executed: ' + numeral(MostUsedCommand_count).format('0,0') + '\n';
+						
+						output += '------ Your stats on this channel\n';
+						
+						output += 'Total chars printed by you:                   ' + numeral(TotalChars_USER).format('0,0') + '\n';
+						output += 'Total words said by you:                      ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
+						output += 'Total unique words said by you:               ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
+						output += 'Total images sended by you:                   ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
+						output += 'Total phrases said by you:                    ' + numeral(TotalPhrasesSaid_USER).format('0,0') + '\n';
+						output += 'Total amount of commands executed by you:     ' + numeral(TotalCommandsExecuted_USER).format('0,0') + '\n';
+						output += 'Most command used by you:                     ' + MostUsedCommand_USER + '; Times Executed: ' + numeral(MostUsedCommand_count_USER).format('0,0') + '\n';
+						
+						output += '```\nAlso try stats (global statistics) and sstats (server statistics)';
+						
+						msg.reply(output);
+					} catch(err) {
+						console.error(err);
+						msg.reply('<internal pony error>');
+					}
+				});
 			});
 		} else {
 			let UID = DBot.GetUserID(args[0]);
 			
 			// Channel Stats by user
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__uchars_channel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID, function(err, data8) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__uwords_channel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID, function(err, data9) {
-			MySQL.query('SELECT COUNT(DISTINCT `WORD`) as `cnt` FROM `stats__uwords_channel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID, function(err, data10) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__uimages_channel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID, function(err, data11) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__uphrases_channel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID, function(err, data12) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__command_uchannel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID, function(err, data13) {
-			MySQL.query('SELECT `COMMAND`, SUM(`COUNT`) as `summ` FROM `stats__command_uchannel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID + ' GROUP BY `COMMAND` ORDER BY `summ` DESC LIMIT 0, 1', function(err, data14) {
+			let q = 'SELECT SUM(`COUNT`) as `cnt` FROM `stats__uchars_channel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID +  ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__uwords_channel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID +  ';\
+			SELECT COUNT(DISTINCT `WORD`) as `cnt` FROM `stats__uwords_channel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID +  ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__uimages_channel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID +  ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__uphrases_channel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID +  ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__command_uchannel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID +  ';\
+			SELECT `COMMAND`, SUM(`COUNT`) as `summ` FROM `stats__command_uchannel` WHERE `UID` = ' + UID + ' AND `CHANNEL` = ' + ID + ' GROUP BY `COMMAND` ORDER BY `summ` DESC LIMIT 0, 1' +  ';';
+			
+			MySQLM.qeury(q, function(err, uData) {
 				msg.channel.stopTyping();
+				
 				try {
-					data8 = data8 || {};
-					data9 = data9 || {};
-					data10 = data10 || {};
-					data11 = data11 || {};
-					data12 = data12 || {};
-					data13 = data13 || {};
-					data14 = data14 || {};
+					for (let i = 0; i <= 6; i++) {
+						uData[i] = uData[i] || [];
+						uData[i][0] = uData[i][0] || {};
+					}
 					
-					let TotalChars_USR = data8[0] && data8[0].cnt || 0;
-					let TotalWordsSaid_USR = data9[0] && data9[0].cnt || 0;
-					let TotalUniqueWords_USR = data10[0] && data10[0].cnt || 0;
-					let TotalImagesSend_USR = data11[0] && data11[0].cnt || 0;
-					let TotalPhrasesSaid_USR = data12[0] && data12[0].cnt || 0;
-					let TotalCommandsExecuted_USR = data13[0] && data13[0].cnt || 0;
+					uData = uData || {};
 					
-					let MostUsedCommand_USR = data14[0] && data14[0].COMMAND || '<unknown>';
-					let MostUsedCommand_count_USR = data14[0] && data14[0].summ || 0;
+					let TotalChars_USER = uData[0][0].cnt || 0;
+					let TotalWordsSaid_USER = uData[1][0].cnt || 0;
+					let TotalUniqueWords_USER = uData[2][0].cnt || 0;
+					let TotalImagesSend_USER = uData[3][0].cnt || 0;
+					let TotalPhrasesSaid_USER = uData[4][0].cnt || 0;
+					let TotalCommandsExecuted_USER = uData[5][0].cnt || 0;
+					
+					let MostUsedCommand_USER = uData[6][0].COMMAND || '<unknown>';
+					let MostUsedCommand_count_USER = uData[6][0].summ || 0;
 					
 					let output = '\n```';
+					
 					output += '------ @' + args[0].username + ' stats on this channel\n';
 					
-					output += 'Total chars printed:                        ' + numeral(TotalChars_USR).format('0,0') + '\n';
-					output += 'Total words said:                           ' + numeral(TotalWordsSaid_USR).format('0,0') + '\n';
-					output += 'Total unique words said:                    ' + numeral(TotalUniqueWords_USR).format('0,0') + '\n';
-					output += 'Total images sended:                        ' + numeral(TotalImagesSend_USR).format('0,0') + '\n';
-					output += 'Total phrases said:                         ' + numeral(TotalPhrasesSaid_USR).format('0,0') + '\n';
-					output += 'Total amount of commands executed:          ' + numeral(TotalCommandsExecuted_USR).format('0,0') + '\n';
-					output += 'Most command used:                          ' + MostUsedCommand_USR + '; Times Executed: ' + numeral(MostUsedCommand_count_USR).format('0,0') + '\n';
+					output += 'Total chars printed:                        ' + numeral(TotalChars_USER).format('0,0') + '\n';
+					output += 'Total words said:                           ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
+					output += 'Total unique words said:                    ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
+					output += 'Total images sended:                        ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
+					output += 'Total phrases said:                         ' + numeral(TotalPhrasesSaid_USER).format('0,0') + '\n';
+					output += 'Total amount of commands executed:          ' + numeral(TotalCommandsExecuted_USER).format('0,0') + '\n';
+					output += 'Most command used:                          ' + MostUsedCommand_USER + '; Times Executed: ' + numeral(MostUsedCommand_count_USER).format('0,0') + '\n';
 					
 					output += '```';
 					
@@ -666,12 +639,6 @@ DBot.RegisterCommand({
 					console.error(err);
 					msg.reply('<internal pony error>');
 				}
-			});
-			});
-			});
-			});
-			});
-			});
 			});
 		}
 	}
