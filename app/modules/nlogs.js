@@ -3,6 +3,8 @@ const moment = require('moment');
 const utf8 = require('utf8');
 const hDuration = require('humanize-duration');
 
+cvars.ServerVar('name_notify', '0', [FCVAR_BOOLONLY], 'Enable nickname changes notifications');
+
 hook.Add('UpdateMemberVars', 'NameLogs', function(member) {
 	try {
 		if (!DBot.UserIsInitialized(member.user))
@@ -11,6 +13,22 @@ hook.Add('UpdateMemberVars', 'NameLogs', function(member) {
 		let uid = DBot.GetUserID(member.user);
 		let sid = DBot.GetServerID(member.guild);
 		let name = member.nickname || member.user.username;
+		
+		member.oldNickname = member.oldNickname || name;
+		
+		let notifications = cvars.Server(member.guild).getVar('notifications').getBool();
+		let name_notify = cvars.Server(member.guild).getVar('name_notify').getBool();
+		
+		if (member.oldNickname != name && notifications && name_notify) {
+			let channel = DBot.GetNotificationChannel(member.guild);
+			
+			if (channel) {
+				channel.sendMessage('```\nUser @' + member.oldNickname + ' (@' + member.user.username + ') has changes his nick to @' + name + '\n```');
+			}
+		}
+		
+		member.oldNickname = name;
+		
 		let time = CurTime();
 		member.NTime = member.NTime || time;
 		let delta = time - member.NTime;
