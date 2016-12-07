@@ -105,11 +105,11 @@ module.exports = {
 				let width = Number(data[0].WIDTH);
 				let iheight = Number(data[0].HEIGHT);
 				let height = 70;
-				let calcWidthFirst = username.length * FontSize * .8;
+				let calcWidthFirst = username.length * FontSize * .75;
 				let calcWidthLast = 0;
 				
 				if (username2)
-					calcWidthLast = username2.length * FontSize * .8 + 60;
+					calcWidthLast = username2.length * FontSize * .75 + 50;
 				
 				let totalWidth = calcWidthFirst + width + calcWidthLast - 50;
 				
