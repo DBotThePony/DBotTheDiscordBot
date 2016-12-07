@@ -7,6 +7,7 @@ DBot.URLRoot = 'https://' + DBot.URLRootBare;
 DBot.DBot = '141004095145115648';
 
 require('./lib/util.js');
+require('./lib/sql.js');
 
 require('./lib/hook.js');
 require('./lib/mysql.js');

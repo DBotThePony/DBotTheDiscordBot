@@ -97,12 +97,11 @@ CREATE TABLE IF NOT EXISTS `meme_cache` (
 );
 
 CREATE TABLE IF NOT EXISTS `name_logs` (
-	`ID` int(11) NOT NULL,
-	`SERVER` int(11) NOT NULL,
+	`MEMBER` int(11) NOT NULL,
 	`NAME` varchar(255) NOT NULL,
 	`LASTUSE` int(11) NOT NULL,
 	`TIME` double NOT NULL,
-	PRIMARY KEY (`ID`, `SERVER`, `NAME`)
+	PRIMARY KEY (`MEMBER`, `NAME`)
 );
 
 CREATE TABLE IF NOT EXISTS `roles_id` (

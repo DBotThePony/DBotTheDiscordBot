@@ -7,11 +7,8 @@ cvars.ServerVar('name_notify', '0', [FCVAR_BOOLONLY], 'Enable nickname changes n
 
 hook.Add('UpdateMemberVars', 'NameLogs', function(member) {
 	try {
-		if (!DBot.UserIsInitialized(member.user))
-			return;
-		
-		let uid = DBot.GetUserID(member.user);
-		let sid = DBot.GetServerID(member.guild);
+		let uid = member.user.id;
+		let sid = member.guild.id;
 		let name = member.nickname || member.user.username;
 		
 		member.oldNickname = member.oldNickname || name;
@@ -35,7 +32,7 @@ hook.Add('UpdateMemberVars', 'NameLogs', function(member) {
 		
 		member.NTime = time;
 		
-		MySQL.query('INSERT INTO `name_logs` (`ID`, `SERVER`, `NAME`, `LASTUSE`, `TIME`) VALUES (' + uid + ', ' + sid + ', ' + Util.escape(name) + ', ' + time + ', ' + delta + ') ON DUPLICATE KEY UPDATE `LASTUSE` = ' + time + ', `TIME` = `TIME` + ' + delta);
+		MySQL.query('INSERT INTO `name_logs` (`MEMBER`, `NAME`, `LASTUSE`, `TIME`) VALUES (' + sql.Member(member) + ', ' + Util.escape(name) + ', ' + time + ', ' + delta + ') ON DUPLICATE KEY UPDATE `LASTUSE` = ' + time + ', `TIME` = `TIME` + ' + delta);
 	} catch(err) {
 		console.error(err);
 	}
