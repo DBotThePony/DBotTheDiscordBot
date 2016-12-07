@@ -719,58 +719,61 @@ DBot.RegisterCommand({
 				}
 			}
 			
+			let mQuery = 'SELECT SUM(`COUNT`) as `cnt` FROM `stats__chars_client` WHERE `UID` = ' + ID + ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__words_client` WHERE `UID` = ' + ID + ';\
+			SELECT COUNT(DISTINCT `WORD`) as `cnt` FROM `stats__words_client` WHERE `UID` = ' + ID + ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__images_client` WHERE `UID` = ' + ID + ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__phrases_client` WHERE `UID` = ' + ID + ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__command_client` WHERE `UID` = ' + ID + ';\
+			SELECT `COMMAND`, SUM(`COUNT`) as `summ` FROM `stats__command_client`  WHERE `UID` = ' + ID + ' GROUP BY `COMMAND` ORDER BY `summ` DESC LIMIT 0, 1;\
+			';
+			
+			let mQueryG = '\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__chars_client`;\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__words_client`;\
+			SELECT COUNT(DISTINCT `WORD`) as `cnt` FROM `stats__words_client`;\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__images_client`;\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__phrases_client`;\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__command_client`;\
+			SELECT `COMMAND`, SUM(`COUNT`) as `summ` FROM `stats__command_client` GROUP BY `COMMAND` ORDER BY `summ` DESC LIMIT 0, 1;\
+			';
+			
 			// Global stats
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__chars_client`', function(err, data) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__words_client`', function(err, data2) {
-			MySQL.query('SELECT COUNT(DISTINCT `WORD`) as `cnt` FROM `stats__words_client`', function(err, data3) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__images_client`', function(err, data4) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__phrases_client`', function(err, data5) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__command_client`', function(err, data6) {
-			MySQL.query('SELECT `COMMAND`, SUM(`COUNT`) as `summ` FROM `stats__command_client` GROUP BY `COMMAND` ORDER BY `summ` DESC LIMIT 0, 1', function(err, data7) {
+			MySQLM.query(mQueryG, function(err, data) {
+			
 			// Global stats for user
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__chars_client` WHERE `UID` = ' + ID, function(err, data8) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__words_client` WHERE `UID` = ' + ID, function(err, data9) {
-			MySQL.query('SELECT COUNT(DISTINCT `WORD`) as `cnt` FROM `stats__words_client` WHERE `UID` = ' + ID, function(err, data10) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__images_client` WHERE `UID` = ' + ID, function(err, data11) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__phrases_client` WHERE `UID` = ' + ID, function(err, data12) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__command_client` WHERE `UID` = ' + ID, function(err, data13) {
-			MySQL.query('SELECT `COMMAND`, SUM(`COUNT`) as `summ` FROM `stats__command_client`  WHERE `UID` = ' + ID + ' GROUP BY `COMMAND` ORDER BY `summ` DESC LIMIT 0, 1', function(err, data14) {
+			MySQLM.query(mQuery, function(err, uData) {
 				msg.channel.stopTyping();
 				try {
+					for (let i = 0; i <= 6; i++) {
+						uData[i] = uData[i] || [];
+						data[i] = data[i] || [];
+						uData[i][0] = uData[i][0] || {};
+						data[i][0] = data[i][0] || {};
+					}
+					
 					data = data || {};
-					data2 = data2 || {};
-					data3 = data3 || {};
-					data4 = data4 || {};
-					data5 = data5 || {};
-					data6 = data6 || {};
-					data7 = data7 || {};
-					data8 = data8 || {};
-					data9 = data9 || {};
-					data10 = data10 || {};
-					data11 = data11 || {};
-					data12 = data12 || {};
-					data13 = data13 || {};
-					data14 = data14 || {};
+					uData = uData || {};
 					
-					let TotalChars = data[0] && data[0].cnt || 0;
-					let TotalWordsSaid = data2[0] && data2[0].cnt || 0;
-					let TotalUniqueWords = data3[0] && data3[0].cnt || 0;
-					let TotalImagesSend = data4[0] && data4[0].cnt || 0;
-					let TotalPhrasesSaid = data5[0] && data5[0].cnt || 0;
-					let TotalCommandsExecuted = data6[0] && data6[0].cnt || 0;
+					let TotalChars = data[0][0].cnt || 0;
+					let TotalWordsSaid = data[1][0].cnt || 0;
+					let TotalUniqueWords = data[2][0].cnt || 0;
+					let TotalImagesSend = data[3][0].cnt || 0;
+					let TotalPhrasesSaid = data[4][0].cnt || 0;
+					let TotalCommandsExecuted = data[5][0].cnt || 0;
 					
-					let MostUsedCommand = data7[0] && data7[0].COMMAND || '<unknown>';
-					let MostUsedCommand_count = data7[0] && data7[0].summ || 0;
+					let MostUsedCommand = data[6][0].COMMAND || '<unknown>';
+					let MostUsedCommand_count = data[6][0].summ || 0;
 					
-					let TotalChars_USER = data8[0] && data8[0].cnt || 0;
-					let TotalWordsSaid_USER = data9[0] && data9[0].cnt || 0;
-					let TotalUniqueWords_USER = data10[0] && data10[0].cnt || 0;
-					let TotalImagesSend_USER = data11[0] && data11[0].cnt || 0;
-					let TotalPhrasesSaid_USER = data12[0] && data12[0].cnt || 0;
-					let TotalCommandsExecuted_USER = data13[0] && data13[0].cnt || 0;
+					let TotalChars_USER = uData[0][0].cnt || 0;
+					let TotalWordsSaid_USER = uData[1][0].cnt || 0;
+					let TotalUniqueWords_USER = uData[2][0].cnt || 0;
+					let TotalImagesSend_USER = uData[3][0].cnt || 0;
+					let TotalPhrasesSaid_USER = uData[4][0].cnt || 0;
+					let TotalCommandsExecuted_USER = uData[5][0].cnt || 0;
 					
-					let MostUsedCommand_USER = data14[0] && data14[0].COMMAND || '<unknown>';
-					let MostUsedCommand_count_USER = data14[0] && data14[0].summ || 0;
+					let MostUsedCommand_USER = uData[6][0].COMMAND || '<unknown>';
+					let MostUsedCommand_count_USER = uData[6][0].summ || 0;
 					
 					let output = '\n```';
 					
@@ -806,49 +809,37 @@ DBot.RegisterCommand({
 				}
 			});
 			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
-			});
 		} else {
 			let ID = DBot.GetUserID(args[0]);
 			
+			let mQuery = 'SELECT SUM(`COUNT`) as `cnt` FROM `stats__chars_client` WHERE `UID` = ' + ID + ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__words_client` WHERE `UID` = ' + ID + ';\
+			SELECT COUNT(DISTINCT `WORD`) as `cnt` FROM `stats__words_client` WHERE `UID` = ' + ID + ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__images_client` WHERE `UID` = ' + ID + ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__phrases_client` WHERE `UID` = ' + ID + ';\
+			SELECT SUM(`COUNT`) as `cnt` FROM `stats__command_client` WHERE `UID` = ' + ID + ';\
+			SELECT `COMMAND`, SUM(`COUNT`) as `summ` FROM `stats__command_client`  WHERE `UID` = ' + ID + ' GROUP BY `COMMAND` ORDER BY `summ` DESC LIMIT 0, 1;\
+			';
+			
 			// Global stats for user
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__chars_client` WHERE `UID` = ' + ID, function(err, data8) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__words_client` WHERE `UID` = ' + ID, function(err, data9) {
-			MySQL.query('SELECT COUNT(DISTINCT `WORD`) as `cnt` FROM `stats__words_client` WHERE `UID` = ' + ID, function(err, data10) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__images_client` WHERE `UID` = ' + ID, function(err, data11) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__phrases_client` WHERE `UID` = ' + ID, function(err, data12) {
-			MySQL.query('SELECT SUM(`COUNT`) as `cnt` FROM `stats__command_client` WHERE `UID` = ' + ID, function(err, data13) {
-			MySQL.query('SELECT `COMMAND`, SUM(`COUNT`) as `summ` FROM `stats__command_client`  WHERE `UID` = ' + ID + ' GROUP BY `COMMAND` ORDER BY `summ` DESC LIMIT 0, 1', function(err, data14) {
+			MySQLM.query(mQuery, function(err, uData) {
 				msg.channel.stopTyping();
 				
 				try {
-					data8 = data8 || {};
-					data9 = data9 || {};
-					data10 = data10 || {};
-					data11 = data11 || {};
-					data12 = data12 || {};
-					data13 = data13 || {};
-					data14 = data14 || {};
+					for (let i = 0; i <= 6; i++) {
+						uData[i] = uData[i] || [];
+						uData[i][0] = uData[i][0] || {};
+					}
 					
-					let TotalChars_USER = data8[0] && data8[0].cnt || 0;
-					let TotalWordsSaid_USER = data9[0] && data9[0].cnt || 0;
-					let TotalUniqueWords_USER = data10[0] && data10[0].cnt || 0;
-					let TotalImagesSend_USER = data11[0] && data11[0].cnt || 0;
-					let TotalPhrasesSaid_USER = data12[0] && data12[0].cnt || 0;
-					let TotalCommandsExecuted_USER = data13[0] && data13[0].cnt || 0;
+					let TotalChars_USER = uData[0][0].cnt || 0;
+					let TotalWordsSaid_USER = uData[1][0].cnt || 0;
+					let TotalUniqueWords_USER = uData[2][0].cnt || 0;
+					let TotalImagesSend_USER = uData[3][0].cnt || 0;
+					let TotalPhrasesSaid_USER = uData[4][0].cnt || 0;
+					let TotalCommandsExecuted_USER = uData[5][0].cnt || 0;
 					
-					let MostUsedCommand_USER = data14[0] && data14[0].COMMAND || '<unknown>';
-					let MostUsedCommand_count_USER = data14[0] && data14[0].summ || 0;
+					let MostUsedCommand_USER = uData[6][0].COMMAND || '<unknown>';
+					let MostUsedCommand_count_USER = uData[6][0].summ || 0;
 					
 					let output = '\n```';
 					
@@ -869,12 +860,6 @@ DBot.RegisterCommand({
 					console.error(err);
 					msg.reply('<internal pony error>');
 				}
-			});
-			});
-			});
-			});
-			});
-			});
 			});
 		}
 	},
