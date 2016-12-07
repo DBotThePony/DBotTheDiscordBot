@@ -19,6 +19,9 @@ module.exports = {
 		if (!args[0])
 			return 'You need at least one emoji';
 		
+		if (args.length > 5)
+			return 'Fokk you, too many of them!';
+		
 		let STOP = false;
 		
 		msg.channel.startTyping();
@@ -104,6 +107,9 @@ DBot.RegisterCommand({
 	func: function(args, cmd, msg) {
 		if (!args[0])
 			return 'You need at least one emoji';
+		
+		if (args.length > 5)
+			return 'Fokk you, too many of them!';
 		
 		var STOP = false;
 		
