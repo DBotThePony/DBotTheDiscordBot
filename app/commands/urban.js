@@ -12,7 +12,7 @@ module.exports = {
 	desc: 'Get a definition of word',
 	
 	func: function(args, cmd, msg) {
-		MySQL.query('SELECT * FROM urbancache WHERE WORD = ' + DBot.MySQL.escape(cmd), function(err, data) {
+		MySQL.query('SELECT * FROM urbancache WHERE WORD = ' + Util.escape(cmd), function(err, data) {
 			if (err)
 				return;
 			
@@ -38,12 +38,12 @@ module.exports = {
 					msg.reply(tags + '\nDefinition: ' + def + '\nExample: ```' + example + '```');
 					
 					var q = 'REPLACE INTO urbancache (WORD, DEFINITION, TAGS, ULINK, DEXAMPLE, USTAMP) VALUES ('
-						+ DBot.MySQL.escape(cmd) + ', '
-						+ DBot.MySQL.escape(def) + ', '
-						+ DBot.MySQL.escape(tags) + ', '
-						+ DBot.MySQL.escape(link) + ', '
-						+ DBot.MySQL.escape(example) + ', '
-						+ DBot.MySQL.escape(curr + 3600) + ')';
+						+ Util.escape(cmd) + ', '
+						+ Util.escape(def) + ', '
+						+ Util.escape(tags) + ', '
+						+ Util.escape(link) + ', '
+						+ Util.escape(example) + ', '
+						+ Util.escape(curr + 3600) + ')';
 					
 					MySQL.query(q);
 				});

@@ -219,7 +219,7 @@ module.exports = {
 					}
 				});
 			} else {
-				MySQL.query('INSERT INTO timers_ids (TITLE, STAMP, HASH, NOTIFY) VALUES (' + MySQL.escape(title) + ', ' + unix + ', "' + sha + '", 0)', function(err, data) {
+				MySQL.query('INSERT INTO timers_ids (TITLE, STAMP, HASH, NOTIFY) VALUES (' + Util.escape(title) + ', ' + unix + ', "' + sha + '", 0)', function(err, data) {
 					if (err) {
 						msg.reply('I just don\'t know what went wrong!');
 						console.error(err);
@@ -314,9 +314,9 @@ DBot.RegisterCommand({
 			return 'Must specify timer ID' + Util.HighlightHelp(['rtimer'], 2, args);
 		
 		var id = DBot.GetUserID(msg.author);
-		MySQL.query('SELECT "TIMERID" FROM timers_users WHERE "ID" = ' + id + ' AND "TIMERID" = ' + MySQL.escape(args[0]), function(err, data) {
+		MySQL.query('SELECT "TIMERID" FROM timers_users WHERE "ID" = ' + id + ' AND "TIMERID" = ' + Util.escape(args[0]), function(err, data) {
 			if (data && data[0]) {
-				MySQL.query('DELETE FROM timers_users WHERE "ID" = ' + id + ' AND "TIMERID" = ' + MySQL.escape(args[0]));
+				MySQL.query('DELETE FROM timers_users WHERE "ID" = ' + id + ' AND "TIMERID" = ' + Util.escape(args[0]));
 				msg.reply('Timer deleted successfully');
 			} else {
 				msg.reply('No such timer ;n;');

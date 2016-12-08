@@ -17,7 +17,7 @@ SELECT
 			"COMMAND"
 		ORDER BY
 			"MostUsedCommand_count" DESC
-		LIMIT 0, 1
+		LIMIT 1
 	)
 FROM
 	stats__chars_server,
@@ -63,7 +63,7 @@ UNION
 		"COMMAND"
 	ORDER BY
 		"MostUsedCommand_count" DESC
-	LIMIT 0, 1
+	LIMIT 1
 )
 
 
@@ -74,7 +74,7 @@ SELECT
 	stats__images_server."COUNT" as "TotalImagesSend",
 	stats__phrases_server."COUNT" as "TotalPhrasesSaid",
 	(SELECT SUM(stats__command_server."COUNT") FROM stats__command_server WHERE stats__command_server."UID" = 1) as "TotalCommandsExecuted",
-	(SELECT stats__command_server."COMMAND" FROM stats__command_server WHERE stats__command_server."UID" = '1' GROUP BY stats__command_server."COMMAND" ORDER BY SUM("COUNT") DESC LIMIT 0, 1) as "MostUsedCommand",
+	(SELECT stats__command_server."COMMAND" FROM stats__command_server WHERE stats__command_server."UID" = '1' GROUP BY stats__command_server."COMMAND" ORDER BY SUM("COUNT") DESC LIMIT 1) as "MostUsedCommand",
 	(SELECT SUM(stats__command_server."COUNT") FROM stats__command_server WHERE stats__command_server."COMMAND" = "MostUsedCommand" AND stats__command_server."UID" = '1') as "MostUsedCommand_count"
 FROM
 	stats__chars_server,
@@ -96,8 +96,8 @@ WHERE
 (SELECT stats__images_channel."COUNT" as "DATA" FROM stats__images_channel WHERE "UID" = 1) UNION
 (SELECT stats__phrases_channel."COUNT" as "DATA" FROM stats__phrases_channel WHERE "UID" = 1) UNION
 (SELECT SUM(stats__command_channel."COUNT") as "DATA" FROM stats__command_channel WHERE "UID" = 1) UNION
-(SELECT "COMMAND" as "DATA" FROM stats__command_channel WHERE "UID" = 1 GROUP BY "COMMAND" ORDER BY SUM("COUNT") DESC LIMIT 0, 1) UNION
-(SELECT SUM("COUNT") as "DATA" FROM stats__command_channel WHERE "UID" = 1 GROUP BY "COMMAND" ORDER BY "DATA" DESC LIMIT 0, 1)
+(SELECT "COMMAND" as "DATA" FROM stats__command_channel WHERE "UID" = 1 GROUP BY "COMMAND" ORDER BY SUM("COUNT") DESC LIMIT 1) UNION
+(SELECT SUM("COUNT") as "DATA" FROM stats__command_channel WHERE "UID" = 1 GROUP BY "COMMAND" ORDER BY "DATA" DESC LIMIT 1)
 
 
 (SELECT SUM(stats__words_channel."COUNT") FROM stats__words_channel WHERE "UID" = ' + ID + ') as "TotalWordsSaid",\
@@ -105,7 +105,7 @@ WHERE
 (SELECT stats__images_channel."COUNT" FROM stats__images_channel WHERE "UID" = ' + ID + ') as "TotalImagesSend",\
 (SELECT stats__phrases_channel."COUNT" FROM stats__phrases_channel WHERE "UID" = ' + ID + ') as "TotalPhrasesSaid",\
 (SELECT SUM(stats__command_channel."COUNT") FROM stats__command_channel WHERE "UID" = ' + ID + ') as "TotalCommandsExecuted",\
-(SELECT stats__command_channel."COMMAND" FROM stats__command_channel WHERE "UID" = ' + ID + ' GROUP BY stats__command_channel."COMMAND" ORDER BY SUM("COUNT") DESC LIMIT 0, 1) as "MostUsedCommand",\
+(SELECT stats__command_channel."COMMAND" FROM stats__command_channel WHERE "UID" = ' + ID + ' GROUP BY stats__command_channel."COMMAND" ORDER BY SUM("COUNT") DESC LIMIT 1) as "MostUsedCommand",\
 (SELECT SUM(stats__command_channel."COUNT") FROM stats__command_channel WHERE stats__command_channel."COMMAND" = "MostUsedCommand" AND "UID" = ' + ID + ') as "MostUsedCommand_count"\
 
 
@@ -115,7 +115,7 @@ WHERE
 'SELECT SUM("COUNT") as "cnt" FROM stats__uimages_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID
 'SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID
 'SELECT SUM("COUNT") as "cnt" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID
-'SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 0, 1'
+'SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1'
 */
 
 hook.Add('OnHumanMessage', 'Statistics', function(msg) {
@@ -174,7 +174,7 @@ hook.Add('OnHumanMessage', 'Statistics', function(msg) {
 	}
 	
 	for (var i in Words) {
-		var word = MySQL.escape(Words[i].toLowerCase().replace(new RegExp('[^a-zA-Z0-9à-ÿÀ-ß]', 'g'), ''));
+		var word = Util.escape(Words[i].toLowerCase().replace(new RegExp('[^a-zA-Z0-9à-ÿÀ-ß]', 'g'), ''));
 		
 		if (word == "''")
 			continue;
@@ -342,7 +342,7 @@ DBot.RegisterCommand({
 			SELECT SUM("COUNT") as "cnt" FROM stats__images_server WHERE "UID" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_server WHERE "UID" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__command_server WHERE "UID" = ' + ID + ';\
-			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_server WHERE "UID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 0, 1;';
+			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_server WHERE "UID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1;';
 			
 			let qU = 'SELECT SUM("COUNT") as "cnt" FROM stats__uchars_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__uwords_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
@@ -350,7 +350,7 @@ DBot.RegisterCommand({
 			SELECT SUM("COUNT") as "cnt" FROM stats__uimages_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
-			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 0, 1'+ ';';
+			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1'+ ';';
 			
 			// Generic Server Stats
 			MySQLM.query(q, function(err, data) {
@@ -441,7 +441,7 @@ DBot.RegisterCommand({
 			SELECT SUM("COUNT") as "cnt" FROM stats__uimages_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
-			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 0, 1'+ ';';
+			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1'+ ';';
 			
 			// Server Stats by user
 			MySQLM.query(qU, function(err, uData) {
@@ -518,7 +518,7 @@ DBot.RegisterCommand({
 			SELECT SUM("COUNT") as "cnt" FROM stats__images_channel WHERE "UID" = ' + ID +  ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_channel WHERE "UID" = ' + ID +  ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__command_channel WHERE "UID" = ' + ID +  ';\
-			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_channel WHERE "UID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 0, 1' +  ';';
+			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_channel WHERE "UID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1' +  ';';
 			
 			// Channel Stats by user
 			let qU = 'SELECT SUM("COUNT") as "cnt" FROM stats__uchars_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
@@ -527,7 +527,7 @@ DBot.RegisterCommand({
 			SELECT SUM("COUNT") as "cnt" FROM stats__uimages_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
-			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 0, 1' +  ';';
+			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1' +  ';';
 			
 			MySQLM.query(q, function(err, data) {
 				MySQLM.query(qU, function(err, uData) {
@@ -610,7 +610,7 @@ DBot.RegisterCommand({
 			SELECT SUM("COUNT") as "cnt" FROM stats__uimages_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
-			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 0, 1' +  ';';
+			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1' +  ';';
 			
 			MySQLM.qeury(q, function(err, uData) {
 				msg.channel.stopTyping();
@@ -705,7 +705,7 @@ DBot.RegisterCommand({
 			SELECT SUM("COUNT") as "cnt" FROM stats__images_client WHERE "UID" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_client WHERE "UID" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__command_client WHERE "UID" = ' + ID + ';\
-			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_client  WHERE "UID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 0, 1;\
+			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_client  WHERE "UID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1;\
 			';
 			
 			let mQueryG = '\
@@ -715,7 +715,7 @@ DBot.RegisterCommand({
 			SELECT SUM("COUNT") as "cnt" FROM stats__images_client;\
 			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_client;\
 			SELECT SUM("COUNT") as "cnt" FROM stats__command_client;\
-			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_client GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 0, 1;\
+			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_client GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1;\
 			';
 			
 			// Global stats
@@ -798,7 +798,7 @@ DBot.RegisterCommand({
 			SELECT SUM("COUNT") as "cnt" FROM stats__images_client WHERE "UID" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_client WHERE "UID" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__command_client WHERE "UID" = ' + ID + ';\
-			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_client  WHERE "UID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 0, 1;\
+			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_client  WHERE "UID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1;\
 			';
 			
 			// Global stats for user
@@ -861,7 +861,7 @@ DBot.RegisterCommand({
 		msg.channel.startTyping();
 		
 		var ID = DBot.GetServerID(msg.channel.guild);
-		var query = 'SELECT user_id."UID" as "USERID", user_id."ID" as "ID", user_names."USERNAME" as "USERNAME", stats__uphrases_server."COUNT" as "COUNT" FROM user_id, user_names, stats__uphrases_server WHERE stats__uphrases_server."UID" = user_id."ID" AND user_names."ID" = user_id."ID" AND stats__uphrases_server."USERVER" = ' + ID + ' ORDER BY "COUNT" DESC LIMIT 0, 10';
+		var query = 'SELECT user_id."UID" as "USERID", user_id."ID" as "ID", user_names."USERNAME" as "USERNAME", stats__uphrases_server."COUNT" as "COUNT" FROM user_id, user_names, stats__uphrases_server WHERE stats__uphrases_server."UID" = user_id."ID" AND user_names."ID" = user_id."ID" AND stats__uphrases_server."USERVER" = ' + ID + ' ORDER BY "COUNT" DESC LIMIT 10';
 		
 		MySQL.query(query, function(err, data) {
 			try {
@@ -928,7 +928,7 @@ DBot.RegisterCommand({
 			return 'Oh! This is PM x3';
 		
 		var ID = DBot.GetChannelID(msg.channel);
-		var query = 'SELECT user_id."UID" as "USERID", user_id."ID" as "ID", user_names."USERNAME" as "USERNAME", stats__uphrases_channel."COUNT" as "COUNT" FROM user_id, user_names, stats__uphrases_channel WHERE stats__uphrases_channel."UID" = user_id."ID" AND user_names."ID" = user_id."ID" AND stats__uphrases_channel."CHANNEL" = ' + ID + ' ORDER BY "COUNT" DESC LIMIT 0, 10';
+		var query = 'SELECT user_id."UID" as "USERID", user_id."ID" as "ID", user_names."USERNAME" as "USERNAME", stats__uphrases_channel."COUNT" as "COUNT" FROM user_id, user_names, stats__uphrases_channel WHERE stats__uphrases_channel."UID" = user_id."ID" AND user_names."ID" = user_id."ID" AND stats__uphrases_channel."CHANNEL" = ' + ID + ' ORDER BY "COUNT" DESC LIMIT 10';
 		
 		msg.channel.startTyping();
 		
@@ -1025,8 +1025,8 @@ DBot.RegisterCommand({
 		msg.channel.startTyping();
 		
 		if (typeof args[0] != 'object') {
-			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_client WHERE "COMMAND" != "more" AND "COMMAND" != "retry" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 0, 10', function(err, data) {
-				MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_client WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetUserID(msg.author) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 0, 10', function(err, data2) {
+			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_client WHERE "COMMAND" != "more" AND "COMMAND" != "retry" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data) {
+				MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_client WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetUserID(msg.author) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
 					msg.channel.stopTyping();
 					try {
 						var output = 'Global command usage statistics\nCommand                   Used times\n```';
@@ -1055,7 +1055,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_client WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetUserID(args[0]) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 0, 10', function(err, data2) {
+			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_client WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetUserID(args[0]) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
 				msg.channel.stopTyping();
 				
 				try {
@@ -1095,8 +1095,8 @@ DBot.RegisterCommand({
 		msg.channel.startTyping();
 		
 		if (typeof args[0] != 'object') {
-			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_server WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetServerID(msg.channel.guild) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 0, 10', function(err, data) {
-				MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_userver WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetUserID(msg.author) + '" AND "USERVER" = "' + DBot.GetServerID(msg.channel.guild) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 0, 10', function(err, data2) {
+			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_server WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetServerID(msg.channel.guild) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data) {
+				MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_userver WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetUserID(msg.author) + '" AND "USERVER" = "' + DBot.GetServerID(msg.channel.guild) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
 					msg.channel.stopTyping();
 					
 					try {
@@ -1126,7 +1126,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_userver WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetUserID(args[0]) + '" AND "USERVER" = "' + DBot.GetServerID(msg.channel.guild) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 0, 10', function(err, data2) {
+			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_userver WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetUserID(args[0]) + '" AND "USERVER" = "' + DBot.GetServerID(msg.channel.guild) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
 				msg.channel.stopTyping();
 				
 				try {
@@ -1166,8 +1166,8 @@ DBot.RegisterCommand({
 		msg.channel.startTyping();
 		
 		if (typeof args[0] != 'object') {
-			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_channel WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetChannelID(msg.channel) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 0, 10', function(err, data) {
-				MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_uchannel WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetUserID(msg.author) + '" AND "CHANNEL" = "' + DBot.GetChannelID(msg.channel) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 0, 10', function(err, data2) {
+			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_channel WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetChannelID(msg.channel) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data) {
+				MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_uchannel WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetUserID(msg.author) + '" AND "CHANNEL" = "' + DBot.GetChannelID(msg.channel) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
 					msg.channel.stopTyping();
 					try {
 						var output = 'This channel command usage statistics\nCommand                    Used times\n```';
@@ -1196,7 +1196,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_uchannel WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetUserID(args[0]) + '" AND "CHANNEL" = "' + DBot.GetChannelID(msg.channel) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 0, 10', function(err, data2) {
+			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_uchannel WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetUserID(args[0]) + '" AND "CHANNEL" = "' + DBot.GetChannelID(msg.channel) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
 				msg.channel.stopTyping();
 				try {
 					var output =  '@' + args[0].username + ' command usage statistics on this channel\nCommand                    Used times\n```';

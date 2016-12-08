@@ -124,7 +124,7 @@ DBot.RegisterCommand({
 			"ENTRY"\
 		ORDER BY\
 			"ENTRY" DESC\
-		LIMIT 0, 10';
+		LIMIT 10';
 		
 		MySQL.query(funckingQuery, function(err, data) {
 			if (err) {

@@ -33,7 +33,7 @@ DBot.RegisterCommand({
 			}
 		}
 		
-		MySQL.query('INSERT INTO votes_list ("SERVER", "NAME", "STAMP") VALUES (' + DBot.GetServerID(msg.channel.guild) + ', ' + MySQL.escape(utf8.encode(args[0])) + ', ' + CurTime() + ')', function(err, data) {
+		MySQL.query('INSERT INTO votes_list ("SERVER", "NAME", "STAMP") VALUES (' + DBot.GetServerID(msg.channel.guild) + ', ' + Util.escape(utf8.encode(args[0])) + ', ' + CurTime() + ')', function(err, data) {
 			if (err) {
 				msg.reply('Internal pony error');
 				return;

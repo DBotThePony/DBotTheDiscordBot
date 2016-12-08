@@ -83,7 +83,7 @@ class ConVar {
 		
 		MySQL.query('SELECT "VALUE" FROM cvar_' + this.realm + ' WHERE "ID" = ' + this.id + ' AND "CVAR" = "' + this.name + '"', function(err, data) {
 			if (!data || !data[0]) {
-				MySQL.query('INSERT INTO cvar_' + me.realm + ' ("ID", "CVAR", "VALUE") VALUES (' + me.id + ', "' + me.name + '", ' + MySQL.escape(utf8.encode(me.defValue)) + ')');
+				MySQL.query('INSERT INTO cvar_' + me.realm + ' ("ID", "CVAR", "VALUE") VALUES (' + me.id + ', "' + me.name + '", ' + Util.escape(utf8.encode(me.defValue)) + ')');
 			} else {
 				me.value = utf8.decode(data[0].VALUE);
 			}
@@ -212,7 +212,7 @@ class ConVar {
 		
 		let oldVal = this.value;
 		this.value = val;
-		MySQL.query('UPDATE cvar_' + this.realm + ' SET "VALUE" = ' + MySQL.escape(utf8.encode(val)) + ' WHERE "ID" = "' + this.id + '" AND "CVAR" = "' + this.name + '"');
+		MySQL.query('UPDATE cvar_' + this.realm + ' SET "VALUE" = ' + Util.escape(utf8.encode(val)) + ' WHERE "ID" = "' + this.id + '" AND "CVAR" = "' + this.name + '"');
 		
 		this.session.onValueChanged(this, oldVal, val);
 		this.onValueChanged(oldVal, val);

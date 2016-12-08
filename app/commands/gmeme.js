@@ -23,7 +23,7 @@ var UpdateMemes = function() {
 		for (var i in memes) {
 			var val = memes[i];
 			
-			MySQL.query('REPLACE INTO meme_cache (ID, URL, NAME) VALUES (' + DBot.MySQL.escape(val.id) + ', ' + DBot.MySQL.escape(val.url) + ', ' + DBot.MySQL.escape(val.name) + ')');
+			MySQL.query('REPLACE INTO meme_cache (ID, URL, NAME) VALUES (' + Util.escape(val.id) + ', ' + Util.escape(val.url) + ', ' + Util.escape(val.name) + ')');
 		}
 	});
 }
@@ -51,7 +51,7 @@ module.exports = {
 	desc: 'Random meme from https://imgflip.com/',
 	
 	func: function(args, cmd, msg) {
-		MySQL.query('SELECT URL, NAME FROM meme_cache ORDER BY RAND() LIMIT 1, 1', function(err, data) {
+		MySQL.query('SELECT URL, NAME FROM meme_cache ORDER BY RAND() LIMIT 1', function(err, data) {
 			var meme = data[0];
 			
 			msg.reply('\n' + meme.NAME + '\n' + meme.URL);

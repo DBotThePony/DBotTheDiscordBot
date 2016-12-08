@@ -29,7 +29,7 @@ module.exports = {
 		for (let arg of args) {
 			let str = arg.replace(toReplace, '');
 			
-			MySQL.query('SELECT EMOJI FROM steam_emoji_fail WHERE EMOJI = ' + MySQL.escape(str), function(err, data) {
+			MySQL.query('SELECT EMOJI FROM steam_emoji_fail WHERE EMOJI = ' + Util.escape(str), function(err, data) {
 				if (STOP)
 					return;
 				
@@ -68,7 +68,7 @@ module.exports = {
 								if (result.raw_body.toString() == '') {
 									STOP = true;
 									msg.reply('Invalid Emoji: ' + str + '!');
-									MySQL.query('INSERT INTO steam_emoji_fail VALUES (' + MySQL.escape(str) + ')');
+									MySQL.query('INSERT INTO steam_emoji_fail VALUES (' + Util.escape(str) + ')');
 									msg.channel.stopTyping();
 								} else {
 									fs.writeFile(fpath, result.raw_body, function(err) {
@@ -118,7 +118,7 @@ DBot.RegisterCommand({
 		for (let arg of args) {
 			let str = arg.replace(toReplace, '');
 			
-			MySQL.query('SELECT EMOJI FROM steam_emoji_fail WHERE EMOJI = ' + MySQL.escape(str), function(err, data) {
+			MySQL.query('SELECT EMOJI FROM steam_emoji_fail WHERE EMOJI = ' + Util.escape(str), function(err, data) {
 				if (STOP)
 					return;
 				
@@ -157,7 +157,7 @@ DBot.RegisterCommand({
 								if (result.raw_body.toString() == '') {
 									STOP = true;
 									msg.reply('Invalid Emoji: ' + str + '!');
-									MySQL.query('INSERT INTO steam_emoji_fail VALUES (' + MySQL.escape(str) + ')');
+									MySQL.query('INSERT INTO steam_emoji_fail VALUES (' + Util.escape(str) + ')');
 									msg.channel.stopTyping();
 								} else {
 									let body = result.raw_body.toString();

@@ -33,8 +33,11 @@ let pgConnection = new pg.Client(pgConfig);
 
 DBot.MySQL = connection;
 DBot.MySQLM = connectionMulti;
-MySQL = connection;
-MySQLM = connectionMulti;
+// MySQL = connection;
+// MySQLM = connectionMulti;
+
+MySQL = pgConnection;
+MySQLM = pgConnection;
 
 let sql = fs.readFileSync('./app/mysql.sql', 'utf8').replace(/\r/gi, '');
 let sqlPg = fs.readFileSync('./app/postgres.sql', 'utf8').replace(/\r/gi, '');
@@ -59,6 +62,33 @@ connection.connect(function(err) {
 		});
 	}
 });
+
+pgConnection.oldQuery = pgConnection.query;
+
+pgConnection.query = function(query, callback) {
+	let oldStack = new Error().stack;
+	
+	pgConnection.oldQuery(query, function(err, data) {
+		if (err) {
+			if (!callback) {
+				let newErr = new Error(err.message + '\n' + query);
+				newErr.stack = 'PostgreSQL ERROR: ' + err.message + '\n' + query + '\n' + oldStack;
+				
+				throw newErr;
+			}
+		}
+		
+		if (callback) {
+			try {
+				callback(err, data);
+			} catch(newErr) {
+				let e = new Error(newErr);
+				e.stack = e.stack + '\n ------- \n' + oldStack.substr(6);
+				throw e; // Rethrow
+			}
+		}
+	});
+}
 
 pgConnection.connect(function(err) {
 	if (err)
@@ -249,7 +279,7 @@ DBot.DefineUser = function(user) {
 }
 
 hook.Add('UserInitialized', 'MySQL.Saves', function(user, id) {
-	MySQL.query('REPLACE INTO user_names ("ID", "USERNAME") VALUES (' + id + ', ' + MySQL.escape(utf8.encode(user.username)) + ')', function(err) {
+	MySQL.query('REPLACE INTO user_names ("ID", "USERNAME") VALUES (' + id + ', ' + Util.escape(utf8.encode(user.username)) + ')', function(err) {
 		if (!err)
 			return;
 		
@@ -286,7 +316,7 @@ DBot.DefineChannel = function(channel) {
 }
 
 hook.Add('ChannelInitialized', 'MySQL.Saves', function(channel, id) {
-	MySQL.query('REPLACE INTO channel_names ("ID", "NAME") VALUES (' + id + ', ' + MySQL.escape(utf8.encode(channel.name)) + ')', function(err) {
+	MySQL.query('REPLACE INTO channel_names ("ID", "NAME") VALUES (' + id + ', ' + Util.escape(utf8.encode(channel.name)) + ')', function(err) {
 		if (!err)
 			return;
 		
@@ -342,7 +372,7 @@ DBot.DefineGuild = function(guild) {
 }
 
 hook.Add('ServerInitialized', 'MySQL.Saves', function(server, id) {
-	MySQL.query('REPLACE INTO server_names ("ID", "NAME") VALUES (' + id + ', ' + MySQL.escape(utf8.encode(server.name)) + ')', function(err) {
+	MySQL.query('REPLACE INTO server_names ("ID", "NAME") VALUES (' + id + ', ' + Util.escape(utf8.encode(server.name)) + ')', function(err) {
 		if (!err)
 			return;
 		
