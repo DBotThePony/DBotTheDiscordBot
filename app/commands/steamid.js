@@ -143,7 +143,12 @@ module.exports = {
 							SteamID3 = steamid3;
 							SteamID64 = id;
 							
-							MySQL.query('REPLACE INTO steamid VALUES (' + Util.escape(SteamID64) + ', ' + Util.escape(SteamID) + ', ' + Util.escape(SteamID3) + ', ' + Util.escape(profile) + ')');
+							MySQL.query('INSERT INTO steamid VALUES\
+							(' + Util.escape(SteamID64) + ', ' + Util.escape(SteamID) + ', ' + Util.escape(SteamID3) + ', ' + Util.escape(profile) + ') ON CONFLICT UPDATE SET\
+							"STEAMID64" = ' + Util.escape(SteamID64) + ',\
+							"STEAMID" = ' + Util.escape(SteamID) + ',\
+							"STEAMID3" = ' + Util.escape(SteamID3) + ',\
+							"CUSTOMID" = ' + Util.escape(profile));
 							
 							continueFunc();
 						});

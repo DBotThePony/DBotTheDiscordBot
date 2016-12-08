@@ -23,7 +23,7 @@ var UpdateMemes = function() {
 		for (var i in memes) {
 			var val = memes[i];
 			
-			MySQL.query('REPLACE INTO meme_cache (ID, URL, NAME) VALUES (' + Util.escape(val.id) + ', ' + Util.escape(val.url) + ', ' + Util.escape(val.name) + ')');
+			MySQL.query('INSERT INTO meme_cache ("ID", "URL", "NAME") VALUES (' + Util.escape(val.id) + ', ' + Util.escape(val.url) + ', ' + Util.escape(val.name) + ') ON CONFLICT UPDATE SET "URL" = ' + Util.escape(val.url) + ', "NAME" = ' + Util.escape(val.name));
 		}
 	});
 }

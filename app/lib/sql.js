@@ -241,7 +241,7 @@ DBot.DefineUser = function(user) {
 }
 
 hook.Add('UserInitialized', 'MySQL.Saves', function(user, id) {
-	MySQL.query('REPLACE INTO user_names ("ID", "USERNAME") VALUES (' + id + ', ' + Util.escape(user.username) + ')', function(err) {
+	MySQL.query('REPLACE INTO user_names ("ID", "USERNAME") VALUES (' + id + ', ' + Util.escape(user.username) + ') ON CONFLICT UPDATE SET "USERNAME" = ' + Util.escape(user.username), function(err) {
 		if (!err)
 			return;
 		
@@ -278,7 +278,7 @@ DBot.DefineChannel = function(channel) {
 }
 
 hook.Add('ChannelInitialized', 'MySQL.Saves', function(channel, id) {
-	MySQL.query('REPLACE INTO channel_names ("ID", "NAME") VALUES (' + id + ', ' + Util.escape(channel.name) + ')', function(err) {
+	MySQL.query('REPLACE INTO channel_names ("ID", "NAME") VALUES (' + id + ', ' + Util.escape(channel.name) + ') ON CONFLICT UPDATE SET "NAME" = ' + Util.escape(channel.name), function(err) {
 		if (!err)
 			return;
 		
@@ -294,7 +294,7 @@ DBot.DefineRole = function(role) {
 	MySQL.query('SELECT ' + sql.Role(role) + ' AS "ID"', function(err, data) {
 		if (err) throw err;
 		role.uid = data[0].ID;
-		MySQL.query('REPLACE INTO roles_names VALUES (' + Util.escape(role.uid) + ', ' + Util.escape(role.name) + ')');
+		MySQL.query('INSERT INTO roles_names VALUES (' + Util.escape(role.uid) + ', ' + Util.escape(role.name) + ') ON CONFLICT UPDATE SET "NAME" = ' + Util.escape(role.name));
 		hook.Run('RoleInitialized', role, role.uid);
 	});
 }
@@ -306,7 +306,7 @@ DBot.DefineMember = function(member) {
 	MySQL.query('SELECT ' + sql.Member(member) + ' AS "ID"', function(err, data) {
 		if (err) throw err;
 		member.uid = data[0].ID;
-		MySQL.query('REPLACE INTO member_names VALUES (' + Util.escape(member.uid) + ', ' + Util.escape(member.nickname || member.user.username) + ')');
+		MySQL.query('INSERT INTO member_names VALUES (' + Util.escape(member.uid) + ', ' + Util.escape(member.nickname || member.user.username) + ') ON CONFLICT UPDATE SET "NAME" = ' + Util.escape(member.nickname || member.user.username));
 		hook.Run('MemberInitialized', member, member.uid);
 	});
 }
@@ -334,7 +334,7 @@ DBot.DefineGuild = function(guild) {
 }
 
 hook.Add('ServerInitialized', 'MySQL.Saves', function(server, id) {
-	MySQL.query('REPLACE INTO server_names ("ID", "NAME") VALUES (' + id + ', ' + Util.escape(utf8.encode(server.name)) + ')', function(err) {
+	MySQL.query('REPLACE INTO server_names ("ID", "NAME") VALUES (' + id + ', ' + Util.escape(utf8.encode(server.name)) + ') ON CONFLICT UPDATE SET "NAME" = ' + Util.escape(server.name), function(err) {
 		if (!err)
 			return;
 		

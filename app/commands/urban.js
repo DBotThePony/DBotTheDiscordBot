@@ -37,13 +37,19 @@ module.exports = {
 					
 					msg.reply(tags + '\nDefinition: ' + def + '\nExample: ```' + example + '```');
 					
-					var q = 'REPLACE INTO urbancache (WORD, DEFINITION, TAGS, ULINK, DEXAMPLE, USTAMP) VALUES ('
+					var q = 'INSERT INTO urbancache ("WORD", "DEFINITION", "TAGS", "ULINK", "DEXAMPLE", "USTAMP") VALUES ('
 						+ Util.escape(cmd) + ', '
 						+ Util.escape(def) + ', '
 						+ Util.escape(tags) + ', '
 						+ Util.escape(link) + ', '
 						+ Util.escape(example) + ', '
-						+ Util.escape(curr + 3600) + ')';
+						+ Util.escape(curr + 3600) + ') ON CONFLICT UPDATE SET\
+						"WORD" = ' + Util.escape(cmd) + ',\
+						"DEFINITION" = ' + Util.escape(def) + ',\
+						"TAGS" = ' + Util.escape(tags) + ',\
+						"ULINK" = ' + Util.escape(link) + ',\
+						"DEXAMPLE" = ' + Util.escape(example) + ', \
+						"USTAMP" = ' + Util.escape(curr + 3600);
 					
 					MySQL.query(q);
 				});

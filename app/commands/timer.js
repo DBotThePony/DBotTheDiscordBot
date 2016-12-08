@@ -215,7 +215,7 @@ module.exports = {
 					
 					if (data[0].STAMP > CurTime()) {
 						NOTIFY[data[0].ID] = data[0].STAMP;
-						MySQL.query('REPLACE INTO timers_users VALUES (' + DBot.GetUserID(msg.author) + ', ' + data[0].ID + ')');
+						MySQL.query('INSERT INTO timers_users VALUES (' + DBot.GetUserID(msg.author) + ', ' + data[0].ID + ') ON CONFLICT DO NOTHING');
 					}
 				});
 			} else {
@@ -239,7 +239,7 @@ module.exports = {
 					
 					stream.end();
 					
-					MySQL.query('REPLACE INTO timers_users VALUES (' + DBot.GetUserID(msg.author) + ', ' + timerID + ')');
+					MySQL.query('INSERT INTO timers_users VALUES (' + DBot.GetUserID(msg.author) + ', ' + timerID + ') ON CONFLICT DO NOTHING');
 					NOTIFY[timerID] = unix;
 					
 					stream.on('finish', function() {

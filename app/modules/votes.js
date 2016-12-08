@@ -94,7 +94,7 @@ DBot.RegisterCommand({
 				
 				var voteData = data[0];
 				
-				MySQL.query('REPLACE INTO votes_text VALUES (' + voteID + ', ' + Util.escape(newCMD) + ')', function(err) {
+				MySQL.query('INSERT INTO votes_text VALUES (' + voteID + ', ' + Util.escape(newCMD) + ') ON CONFLICT UPDATE SET "TEXT" = ' + Util.escape(newCMD), function(err) {
 					if (err) {
 						msg.reply('Internal pony error');
 						return;
@@ -123,7 +123,7 @@ DBot.RegisterCommand({
 				var voteID = data[0].ID;
 				var voteData = data[0];
 				
-				MySQL.query('REPLACE INTO votes_text VALUES (' + voteID + ', ' + Util.escape(newCMD) + ')', function(err) {
+				MySQL.query('INSERT INTO votes_text VALUES (' + voteID + ', ' + Util.escape(newCMD) + ') ON CONFLICT UPDATE SET "TEXT" = ' + Util.escape(newCMD), function(err) {
 					if (err) {
 						msg.reply('Internal pony error');
 						return;

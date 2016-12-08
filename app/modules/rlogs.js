@@ -28,7 +28,7 @@ let updateRoleRules = function(role) {
 			
 			if (!hit) {
 				MySQL.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (' + sql.Member(member) + ', ' + sRole + ', 1, "' + CurTime() + '")');
-				MySQL.query('REPLACE INTO member_roles VALUES(' + sql.Member(member) + ', ' + sRole + ')');
+				MySQL.query('INSERT INTO member_roles VALUES (' + sql.Member(member) + ', ' + sRole + ') ON CONFLICT DO NOTHING');
 			}
 		}
 		
