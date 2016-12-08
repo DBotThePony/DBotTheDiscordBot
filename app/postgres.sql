@@ -525,3 +525,120 @@ CREATE TABLE IF NOT EXISTS killicons (
 	"WIDTH" INTEGER NOT NULL,
 	"HEIGHT" INTEGER NOT NULL
 );
+
+DROP FUNCTION IF EXISTS get_role_id_combined(fUID VARCHAR(64), fSERVER2 VARCHAR(64));
+DROP FUNCTION IF EXISTS get_role_id(fUID VARCHAR(64), fSERVER INTEGER);
+DROP FUNCTION IF EXISTS get_channel_id(fUID VARCHAR(64), sID INTEGER);
+DROP FUNCTION IF EXISTS get_server_id(sID VARCHAR(64));
+DROP FUNCTION IF EXISTS get_user_id(sID VARCHAR(64));
+DROP FUNCTION IF EXISTS get_member_id(userid VARCHAR(64), server VARCHAR(64));
+DROP FUNCTION IF EXISTS restore_member_id(memberid INTEGER);
+DROP FUNCTION IF EXISTS restore_member(memberid INTEGER);
+
+CREATE FUNCTION get_role_id_combined(fUID VARCHAR(64), fSERVER2 VARCHAR(64))
+RETURNS INTEGER AS $$
+DECLARE id INTEGER;
+DECLARE fSERVER INTEGER;
+BEGIN
+	fSERVER := get_server_id(fSERVER2);
+	
+	SELECT roles_id.ID INTO id FROM roles_id WHERE roles_id.UID = fUID AND roles_id.SERVER = fSERVER;
+	
+	IF (id IS NULL) THEN
+		INSERT INTO roles_id (SERVER, UID) VALUES (fSERVER, fUID);
+		SELECT last_insert_id() INTO id;
+	END IF;
+	
+	RETURN id;
+END; $$ LANGUAGE plpgsql;
+
+CREATE FUNCTION get_role_id(fUID VARCHAR(64), fSERVER INTEGER)
+RETURNS INTEGER AS $$
+DECLARE id INTEGER;
+BEGIN
+	SELECT roles_id.ID INTO id FROM roles_id WHERE roles_id.UID = fUID AND roles_id.SERVER = fSERVER;
+	
+	IF (id IS NULL) THEN
+		INSERT INTO roles_id (SERVER, UID) VALUES (fSERVER, fUID);
+		SELECT last_insert_id() INTO id;
+	END IF;
+	
+	RETURN id;
+END; $$ LANGUAGE plpgsql;
+
+CREATE FUNCTION get_channel_id(fUID VARCHAR(64), sID INTEGER)
+RETURNS INTEGER AS $$
+DECLARE id INTEGER;
+BEGIN
+	SELECT channel_id.ID INTO id FROM channel_id WHERE channel_id.UID = fUID;
+	
+	IF (id IS NULL) THEN
+		INSERT INTO channel_id (UID, SID) VALUES (fUID, sID);
+		SELECT last_insert_id() INTO id;
+	END IF;
+	
+	RETURN id;
+END; $$ LANGUAGE plpgsql;
+
+CREATE FUNCTION get_server_id(sID VARCHAR(64))
+RETURNS INTEGER AS $$
+DECLARE id INTEGER;
+BEGIN
+	SELECT server_id.ID INTO id FROM server_id WHERE server_id.UID = sID;
+	
+	IF (id IS NULL) THEN
+		INSERT INTO server_id (UID) VALUES (sID);
+		SELECT last_insert_id() INTO id;
+	END IF;
+	
+	RETURN id;
+END; $$ LANGUAGE plpgsql;
+
+CREATE FUNCTION get_user_id(sID VARCHAR(64))
+RETURNS INTEGER AS $$
+DECLARE id INTEGER;
+BEGIN
+	SELECT user_id.ID INTO id FROM user_id WHERE user_id.UID = sID;
+	
+	IF (id IS NULL) THEN
+		INSERT INTO user_id (UID) VALUES (sID);
+		SELECT last_insert_id() INTO id;
+	END IF;
+	
+	RETURN id;
+END; $$ LANGUAGE plpgsql;
+
+CREATE FUNCTION get_member_id(userid VARCHAR(64), server VARCHAR(64))
+RETURNS INTEGER AS $$
+DECLARE id INTEGER;
+DECLARE usr_internal_id INTEGER;
+DECLARE ser_internal_id INTEGER;
+BEGIN
+	usr_internal_id := get_user_id(userid);
+	ser_internal_id := get_server_id(server);
+	
+	SELECT member_id.ID INTO id FROM member_id WHERE member_id.USER = usr_internal_id AND member_id.SERVER = ser_internal_id;
+	
+	IF (id IS NULL) THEN
+		INSERT INTO member_id (USER, SERVER) VALUES (usr_internal_id, ser_internal_id);
+		SELECT last_insert_id() INTO id;
+	END IF;
+	
+	RETURN id;
+END; $$ LANGUAGE plpgsql;
+
+CREATE FUNCTION restore_member_id(memberid INTEGER)
+RETURNS INTEGER AS $$
+BEGIN
+	RETURN (SELECT member_id.USER FROM member_id WHERE member_id.ID = memberid);
+END $$ LANGUAGE plpgsql;
+
+CREATE FUNCTION restore_member(memberid INTEGER)
+RETURNS VARCHAR(64) as $$
+DECLARE iuid INTEGER;
+BEGIN
+	SET iuid = restore_member_id(memberid);
+	
+	RETURN (SELECT user_id.UID FROM user_id WHERE user_id.ID = iuid);
+END; $$ LANGUAGE plpgsql;
+
