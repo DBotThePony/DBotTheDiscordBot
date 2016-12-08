@@ -55,7 +55,7 @@ pgConnection.query = function(query, callback) {
 					}
 				}
 				
-				callback(err, obj);
+				callback(err, obj, data);
 			} catch(newErr) {
 				let e = new Error(newErr);
 				e.stack = newErr.stack + '\n ------- \n' + oldStack.substr(6);

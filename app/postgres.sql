@@ -537,94 +537,88 @@ DROP FUNCTION IF EXISTS restore_member(memberid INTEGER);
 
 CREATE FUNCTION get_role_id_combined(fUID VARCHAR(64), fSERVER2 VARCHAR(64))
 RETURNS INTEGER AS $$
-DECLARE id INTEGER;
+DECLARE last_id INTEGER;
 DECLARE fSERVER INTEGER;
 BEGIN
 	fSERVER := get_server_id(fSERVER2);
 	
-	SELECT "roles_id"."ID" INTO id FROM "roles_id" WHERE "roles_id"."UID" = fUID AND "roles_id"."SERVER" = fSERVER;
+	SELECT "roles_id"."ID" INTO last_id FROM "roles_id" WHERE "roles_id"."UID" = fUID AND "roles_id"."SERVER" = fSERVER;
 	
-	IF (id IS NULL) THEN
-		INSERT INTO "roles_id" ("SERVER", "UID") VALUES ("fSERVER", "fUID");
-		SELECT last_insert_id() INTO id;
+	IF (last_id IS NULL) THEN
+		INSERT INTO "roles_id" ("SERVER", "UID") VALUES (fSERVER, fUID) RETURNING "ID" INTO last_id;
 	END IF;
 	
-	RETURN id;
+	RETURN last_id;
 END; $$ LANGUAGE plpgsql;
 
 CREATE FUNCTION get_role_id(fUID VARCHAR(64), fSERVER INTEGER)
 RETURNS INTEGER AS $$
-DECLARE id INTEGER;
+DECLARE last_id INTEGER;
 BEGIN
-	SELECT "roles_id"."ID" INTO id FROM "roles_id" WHERE "roles_id"."UID" = fUID AND "roles_id"."SERVER" = fSERVER;
+	SELECT "roles_id"."ID" INTO last_id FROM "roles_id" WHERE "roles_id"."UID" = fUID AND "roles_id"."SERVER" = fSERVER;
 	
-	IF (id IS NULL) THEN
-		INSERT INTO "roles_id" ("SERVER", "UID") VALUES ("fSERVER", "fUID");
-		SELECT last_insert_id() INTO id;
+	IF (last_id IS NULL) THEN
+		INSERT INTO "roles_id" ("SERVER", "UID") VALUES (fSERVER, fUID) RETURNING "ID" INTO last_id;
 	END IF;
 	
-	RETURN id;
+	RETURN last_id;
 END; $$ LANGUAGE plpgsql;
 
 CREATE FUNCTION get_channel_id(fUID VARCHAR(64), sID INTEGER)
 RETURNS INTEGER AS $$
-DECLARE id INTEGER;
+DECLARE last_id INTEGER;
 BEGIN
-	SELECT "channel_id"."ID" INTO id FROM "channel_id" WHERE "channel_id"."UID" = "fUID";
+	SELECT "channel_id"."ID" INTO last_id FROM "channel_id" WHERE "channel_id"."UID" = fUID;
 	
-	IF (id IS NULL) THEN
-		INSERT INTO "channel_id" ("UID", "SID") VALUES ("fUID", "sID");
-		SELECT last_insert_id() INTO id;
+	IF (last_id IS NULL) THEN
+		INSERT INTO "channel_id" ("UID", "SID") VALUES (fUID, sID) RETURNING "ID" INTO last_id;
 	END IF;
 	
-	RETURN id;
+	RETURN last_id;
 END; $$ LANGUAGE plpgsql;
 
 CREATE FUNCTION get_server_id(sID VARCHAR(64))
 RETURNS INTEGER AS $$
-DECLARE id INTEGER;
+DECLARE last_id INTEGER;
 BEGIN
-	SELECT "server_id"."ID" INTO id FROM "server_id" WHERE "server_id"."UID" = "sID";
+	SELECT "server_id"."ID" INTO last_id FROM "server_id" WHERE "server_id"."UID" = sID;
 	
-	IF (id IS NULL) THEN
-		INSERT INTO "server_id" ("UID") VALUES ("sID");
-		SELECT last_insert_id() INTO id;
+	IF (last_id IS NULL) THEN
+		INSERT INTO "server_id" ("UID") VALUES (sID) RETURNING "ID" INTO last_id;
 	END IF;
 	
-	RETURN id;
+	RETURN last_id;
 END; $$ LANGUAGE plpgsql;
 
 CREATE FUNCTION get_user_id(sID VARCHAR(64))
 RETURNS INTEGER AS $$
-DECLARE id INTEGER;
+DECLARE last_id INTEGER;
 BEGIN
-	SELECT "user_id"."ID" INTO id FROM "user_id" WHERE "user_id"."UID" = "sID";
+	SELECT "user_id"."ID" INTO last_id FROM "user_id" WHERE "user_id"."UID" = sID;
 	
-	IF (id IS NULL) THEN
-		INSERT INTO "user_id" ("UID") VALUES ("sID");
-		SELECT last_insert_id() INTO id;
+	IF (last_id IS NULL) THEN
+		INSERT INTO "user_id" ("UID") VALUES (sID) RETURNING "ID" INTO last_id;
 	END IF;
 	
-	RETURN id;
+	RETURN last_id;
 END; $$ LANGUAGE plpgsql;
 
 CREATE FUNCTION get_member_id(userid VARCHAR(64), server VARCHAR(64))
 RETURNS INTEGER AS $$
-DECLARE id INTEGER;
+DECLARE last_id INTEGER;
 DECLARE usr_internal_id INTEGER;
 DECLARE ser_internal_id INTEGER;
 BEGIN
 	usr_internal_id := get_user_id(userid);
 	ser_internal_id := get_server_id(server);
 	
-	SELECT "member_id"."ID" INTO id FROM "member_id" WHERE "member_id"."USER" = usr_internal_id AND "member_id"."SERVER" = ser_internal_id;
+	SELECT "member_id"."ID" INTO last_id FROM "member_id" WHERE "member_id"."USER" = usr_internal_id AND "member_id"."SERVER" = ser_internal_id;
 	
-	IF (id IS NULL) THEN
-		INSERT INTO "member_id" ("USER", "SERVER") VALUES (usr_internal_id, ser_internal_id);
-		SELECT last_insert_id() INTO id;
+	IF (last_id IS NULL) THEN
+		INSERT INTO "member_id" ("USER", "SERVER") VALUES (usr_internal_id, ser_internal_id) RETURNING "ID" INTO last_id;
 	END IF;
 	
-	RETURN id;
+	RETURN last_id;
 END; $$ LANGUAGE plpgsql;
 
 CREATE FUNCTION restore_member_id(memberid INTEGER)
