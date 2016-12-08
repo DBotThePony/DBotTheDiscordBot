@@ -80,10 +80,27 @@ pgConnection.query = function(query, callback) {
 		
 		if (callback) {
 			try {
-				callback(err, data);
+				let obj = {};
+				let cID = 0;
+				
+				if (data) {
+					for (let row of data.rows) {
+						obj[cID] = row;
+						cID++;
+						
+						for (let i in row) {
+							if (typeof i == 'string') {
+								row[i.toUpperCase()] = row[i];
+								row[i.toLowerCase()] = row[i];
+							}
+						}
+					}
+				}
+				
+				callback(err, obj);
 			} catch(newErr) {
 				let e = new Error(newErr);
-				e.stack = e.stack + '\n ------- \n' + oldStack.substr(6);
+				e.stack = newErr.stack + '\n ------- \n' + oldStack.substr(6);
 				throw e; // Rethrow
 			}
 		}
