@@ -33,14 +33,14 @@ class TagBase {
 		if (!this.ready)
 			return;
 		
-		MySQL.query('INSERT INTO tags__' + this.space + '_' + this.realm + ' (UID, TAG) VALUES (' + this.uid + ', "' + tag + '")');
+		MySQL.query('INSERT INTO tags__' + this.space + '_' + this.realm + ' (UID, TAG) VALUES (' + Util.escape(this.uid) + ', ' + Util.escape(tag) + ')');
 	}
 	
 	onUnBanned(tag) {
 		if (!this.ready)
 			return;
 		
-		MySQL.query('DELETE FROM tags__' + this.space + '_' + this.realm + ' WHERE UID = ' + this.uid + ' AND TAG = "' + tag + '"');
+		MySQL.query('DELETE FROM tags__' + this.space + '_' + this.realm + ' WHERE UID = ' + Util.escape(this.uid) + ' AND TAG = ' + Util.escape(tag) + '');
 	}
 	
 	addTag(tag) {
@@ -95,7 +95,7 @@ class TagBase {
 	reset() {
 		var Me = this;
 		
-		MySQL.query('DELETE FROM tags__' + this.space + '_' + this.realm + ' WHERE UID = ' + this.uid, function(err, data) {
+		MySQL.query('DELETE FROM tags__' + this.space + '_' + this.realm + ' WHERE UID = ' + Util.escape(this.uid), function(err, data) {
 			Me.bans = [];
 			var bans = Me.defBans;
 			
@@ -115,7 +115,7 @@ class TagBase {
 		
 		this.defBans = DBot.tags[this.space].bans;
 		
-		var query = 'SELECT UID FROM tags__' + this.space + '_' + this.realm + '_init WHERE UID = ' + this.uid;
+		var query = 'SELECT UID FROM tags__' + this.space + '_' + this.realm + '_init WHERE UID = ' + Util.escape(this.uid);
 		
 		var Me = this;
 		
@@ -129,9 +129,9 @@ class TagBase {
 				}
 				
 				hook.Run('TagsInitialized', Me.realm, obj, Me.space, Me);
-				MySQL.query('INSERT INTO tags__' + Me.space + '_' + Me.realm + '_init (UID) VALUES (' + Me.uid + ')');
+				MySQL.query('INSERT INTO tags__' + Me.space + '_' + Me.realm + '_init (UID) VALUES (' + Util.escape(Me.uid) + ')');
 			} else {
-				MySQL.query('SELECT TAG FROM tags__' + Me.space + '_' + Me.realm + ' WHERE UID = ' + Me.uid, function(err, data) {
+				MySQL.query('SELECT TAG FROM tags__' + Me.space + '_' + Me.realm + ' WHERE UID = ' + Util.escape(Me.uid), function(err, data) {
 					for (var i in data) {
 						Me.banTag(data[i].TAG);
 					}

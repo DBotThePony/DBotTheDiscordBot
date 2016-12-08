@@ -241,7 +241,7 @@ DBot.DefineUser = function(user) {
 }
 
 hook.Add('UserInitialized', 'MySQL.Saves', function(user, id) {
-	MySQL.query('REPLACE INTO user_names ("ID", "USERNAME") VALUES (' + id + ', ' + Util.escape(user.username) + ') ON CONFLICT UPDATE SET "USERNAME" = ' + Util.escape(user.username), function(err) {
+	MySQL.query('INSERT INTO user_names ("ID", "USERNAME") VALUES (' + id + ', ' + Util.escape(user.username) + ') ON CONFLICT UPDATE SET "USERNAME" = ' + Util.escape(user.username), function(err) {
 		if (!err)
 			return;
 		
@@ -278,7 +278,7 @@ DBot.DefineChannel = function(channel) {
 }
 
 hook.Add('ChannelInitialized', 'MySQL.Saves', function(channel, id) {
-	MySQL.query('REPLACE INTO channel_names ("ID", "NAME") VALUES (' + id + ', ' + Util.escape(channel.name) + ') ON CONFLICT UPDATE SET "NAME" = ' + Util.escape(channel.name), function(err) {
+	MySQL.query('INSERT INTO channel_names ("ID", "NAME") VALUES (' + id + ', ' + Util.escape(channel.name) + ') ON CONFLICT UPDATE SET "NAME" = ' + Util.escape(channel.name), function(err) {
 		if (!err)
 			return;
 		
@@ -334,7 +334,7 @@ DBot.DefineGuild = function(guild) {
 }
 
 hook.Add('ServerInitialized', 'MySQL.Saves', function(server, id) {
-	MySQL.query('REPLACE INTO server_names ("ID", "NAME") VALUES (' + id + ', ' + Util.escape(utf8.encode(server.name)) + ') ON CONFLICT UPDATE SET "NAME" = ' + Util.escape(server.name), function(err) {
+	MySQL.query('INSERT INTO server_names ("ID", "NAME") VALUES (' + id + ', ' + Util.escape(utf8.encode(server.name)) + ') ON CONFLICT UPDATE SET "NAME" = ' + Util.escape(server.name), function(err) {
 		if (!err)
 			return;
 		
