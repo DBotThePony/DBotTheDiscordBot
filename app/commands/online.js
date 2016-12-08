@@ -27,7 +27,7 @@ hook.Add('UpdateUserVars', 'LastSeen', function(user) {
 		let get = DBot.GetUserID(user);
 		
 		if (curStatus != 'offline') {
-			MySQL.query('UPDATE lastonline SET LASTONLINE = ' + ctime + ' WHERE "ID" = ' + get, function(err, data) {
+			MySQL.query('UPDATE lastonline SET "LASTONLINE" = ' + ctime + ' WHERE "ID" = ' + get, function(err, data) {
 				if (err) {
 					console.error('Failed to update lastonline entry: ' + err);
 				}

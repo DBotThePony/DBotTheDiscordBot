@@ -147,29 +147,29 @@ hook.Add('OnHumanMessage', 'Statistics', function(msg) {
 	
 	let finalQuery = '';
 	
-	finalQuery += ('INSERT INTO stats__phrases_client ("UID", "COUNT") VALUES (' + userID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
-	finalQuery += ('INSERT INTO stats__chars_client ("UID", "COUNT") VALUES (' + userID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + length +';');
+	finalQuery += ('INSERT INTO stats__phrases_client ("UID", "COUNT") VALUES (' + userID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_client."COUNT" + 1;');
+	finalQuery += ('INSERT INTO stats__chars_client ("UID", "COUNT") VALUES (' + userID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_client."COUNT" + ' + length +';');
 	
 	if (Images) {
-		finalQuery += ('INSERT INTO stats__images_client ("UID", "COUNT") VALUES (' + userID + ', ' + Images + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + Images + ';');
+		finalQuery += ('INSERT INTO stats__images_client ("UID", "COUNT") VALUES (' + userID + ', ' + Images + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__images_client."COUNT" + ' + Images + ';');
 	}
 	
 	if (extra) {
-		finalQuery += ('INSERT INTO stats__phrases_channel ("UID", "COUNT") VALUES (' + channelID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__uphrases_channel ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__phrases_server ("UID", "COUNT") VALUES (' + serverID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__uphrases_server ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__phrases_channel ("UID", "COUNT") VALUES (' + channelID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_channel."COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__uphrases_channel ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', 1) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uphrases_channel."COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__phrases_server ("UID", "COUNT") VALUES (' + serverID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_server."COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__uphrases_server ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', 1) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uphrases_server."COUNT" + 1;');
 		
-		finalQuery += ('INSERT INTO stats__chars_channel ("UID", "COUNT") VALUES (' + channelID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + length +';');
-		finalQuery += ('INSERT INTO stats__uchars_channel ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + length +';');
-		finalQuery += ('INSERT INTO stats__chars_server ("UID", "COUNT") VALUES (' + serverID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + length +';');
-		finalQuery += ('INSERT INTO stats__uchars_server ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + length +';');
+		finalQuery += ('INSERT INTO stats__chars_channel ("UID", "COUNT") VALUES (' + channelID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_channel."COUNT" + ' + length +';');
+		finalQuery += ('INSERT INTO stats__uchars_channel ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + length + ') ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uchars_channel."COUNT" + ' + length +';');
+		finalQuery += ('INSERT INTO stats__chars_server ("UID", "COUNT") VALUES (' + serverID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_server."COUNT" + ' + length +';');
+		finalQuery += ('INSERT INTO stats__uchars_server ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + length + ') ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uchars_server."COUNT" + ' + length +';');
 		
 		if (Images) {
-			finalQuery += ('INSERT INTO stats__images_channel ("UID", "COUNT") VALUES (' + channelID + ', ' + Images + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + Images + ';');
-			finalQuery += ('INSERT INTO stats__uimages_channel ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + Images + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + Images + ';');
-			finalQuery += ('INSERT INTO stats__images_server ("UID", "COUNT") VALUES (' + serverID + ', ' + Images + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + Images + ';');
-			finalQuery += ('INSERT INTO stats__uimages_server ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + Images + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + Images + ';');
+			finalQuery += ('INSERT INTO stats__images_channel ("UID", "COUNT") VALUES (' + channelID + ', ' + Images + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__images_channel."COUNT" + ' + Images + ';');
+			finalQuery += ('INSERT INTO stats__uimages_channel ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + Images + ') ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uimages_channel."COUNT" + ' + Images + ';');
+			finalQuery += ('INSERT INTO stats__images_server ("UID", "COUNT") VALUES (' + serverID + ', ' + Images + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__images_server."COUNT" + ' + Images + ';');
+			finalQuery += ('INSERT INTO stats__uimages_server ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + Images + ') ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uimages_server."COUNT" + ' + Images + ';');
 		}
 	}
 	
@@ -185,13 +185,13 @@ hook.Add('OnHumanMessage', 'Statistics', function(msg) {
 		if (word.length > 32)
 			continue;
 		
-		finalQuery += ('INSERT INTO stats__words_client ("UID", "WORD", "COUNT") VALUES (' + userID + ', ' + word + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__words_client ("UID", "WORD", "COUNT") VALUES (' + userID + ', ' + word + ', 1) ON CONFLICT ("UID", "WORD") DO UPDATE SET "COUNT" = stats__words_client."COUNT" + 1;');
 		
 		if (extra) {
-			finalQuery += ('INSERT INTO stats__words_channel ("UID", "WORD", "COUNT") VALUES (' + channelID + ', ' + word + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
-			finalQuery += ('INSERT INTO stats__uwords_channel ("UID", "CHANNEL", "WORD", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + word + ', 1) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = "COUNT" + 1;');
-			finalQuery += ('INSERT INTO stats__words_server ("UID", "WORD", "COUNT") VALUES (' + serverID + ', ' + word + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
-			finalQuery += ('INSERT INTO stats__uwords_server ("UID", "USERVER", "WORD", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + word + ', 1) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+			finalQuery += ('INSERT INTO stats__words_channel ("UID", "WORD", "COUNT") VALUES (' + channelID + ', ' + word + ', 1) ON CONFLICT ("UID", "WORD") DO UPDATE SET "COUNT" = stats__words_channel."COUNT" + 1;');
+			finalQuery += ('INSERT INTO stats__uwords_channel ("UID", "CHANNEL", "WORD", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + word + ', 1) ON CONFLICT ("UID", "CHANNEL", "WORD") DO UPDATE SET "COUNT" = stats__uwords_channel."COUNT" + 1;');
+			finalQuery += ('INSERT INTO stats__words_server ("UID", "WORD", "COUNT") VALUES (' + serverID + ', ' + word + ', 1) ON CONFLICT ("UID", "WORD") DO UPDATE SET "COUNT" = stats__words_server."COUNT" + 1;');
+			finalQuery += ('INSERT INTO stats__uwords_server ("UID", "USERVER", "WORD", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + word + ', 1) ON CONFLICT ("UID", "USERVER", "WORD") DO UPDATE SET "COUNT" = stats__uwords_server."COUNT" + 1;');
 		}
 	}
 	
@@ -223,13 +223,13 @@ hook.Add('OnMessageEdit', 'Statistics', function(oldMessage, msg) {
 		extra = false;
 	}
 	
-	finalQuery += ('INSERT INTO stats__phrases_client_e ("UID", "COUNT") VALUES (' + userID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+	finalQuery += ('INSERT INTO stats__phrases_client_e ("UID", "COUNT") VALUES (' + userID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_client_e."COUNT" + 1;');
 	
 	if (extra) {
-		finalQuery += ('INSERT INTO stats__phrases_channel_e ("UID", "COUNT") VALUES (' + channelID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__uphrases_channel_e ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', 1) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__phrases_server_e ("UID", "COUNT") VALUES (' + serverID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__uphrases_server_e ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', 1) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__phrases_channel_e ("UID", "COUNT") VALUES (' + channelID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_channel_e."COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__uphrases_channel_e ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', 1) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uphrases_channel_e."COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__phrases_server_e ("UID", "COUNT") VALUES (' + serverID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_server_e."COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__uphrases_server_e ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', 1) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uphrases_server_e."COUNT" + 1;');
 	}
 	
 	MySQLM.query(finalQuery);
@@ -260,19 +260,19 @@ hook.Add('OnMessageDeleted', 'Statistics', function(msg) {
 		extra = false;
 	}
 	
-	finalQuery += ('INSERT INTO stats__phrases_client_d ("UID", "COUNT") VALUES (' + userID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
-	finalQuery += ('INSERT INTO stats__chars_client_d ("UID", "COUNT") VALUES (' + userID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + length +';');
+	finalQuery += ('INSERT INTO stats__phrases_client_d ("UID", "COUNT") VALUES (' + userID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_client_d."COUNT" + 1;');
+	finalQuery += ('INSERT INTO stats__chars_client_d ("UID", "COUNT") VALUES (' + userID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_client_d."COUNT" + ' + length +';');
 	
 	if (extra) {
-		finalQuery += ('INSERT INTO stats__phrases_channel_d ("UID", "COUNT") VALUES (' + channelID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__uphrases_channel_d ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', 1) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__phrases_server_d ("UID", "COUNT") VALUES (' + serverID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__uphrases_server_d ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', 1) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__phrases_channel_d ("UID", "COUNT") VALUES (' + channelID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_channel_d."COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__uphrases_channel_d ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', 1) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uphrases_channel_d."COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__phrases_server_d ("UID", "COUNT") VALUES (' + serverID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_server_d."COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__uphrases_server_d ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', 1) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uphrases_server_d."COUNT" + 1;');
 		
-		finalQuery += ('INSERT INTO stats__chars_channel_d ("UID", "COUNT") VALUES (' + channelID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + length +';');
-		finalQuery += ('INSERT INTO stats__uchars_channel_d ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + length + ') ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = "COUNT" + ' + length +';');
-		finalQuery += ('INSERT INTO stats__chars_server_d ("UID", "COUNT") VALUES (' + serverID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + length +';');
-		finalQuery += ('INSERT INTO stats__uchars_server_d ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + length + ') ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = "COUNT" + ' + length +';');
+		finalQuery += ('INSERT INTO stats__chars_channel_d ("UID", "COUNT") VALUES (' + channelID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_channel_d."COUNT" + ' + length +';');
+		finalQuery += ('INSERT INTO stats__uchars_channel_d ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + length + ') ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uchars_channel_d."COUNT" + ' + length +';');
+		finalQuery += ('INSERT INTO stats__chars_server_d ("UID", "COUNT") VALUES (' + serverID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_server_d."COUNT" + ' + length +';');
+		finalQuery += ('INSERT INTO stats__uchars_server_d ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + length + ') ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uchars_server_d."COUNT" + ' + length +';');
 	}
 	
 	MySQLM.query(finalQuery);
@@ -294,14 +294,14 @@ hook.Add('CommandExecuted', 'Statistics', function(commandID, user, args, cmd, m
 		extra = false;
 	}
 	
-	finalQuery += ('INSERT INTO stats__command_client ("UID", "COMMAND", "COUNT") VALUES (' + userID + ', ' + Util.escape(commandID) + ', 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+	finalQuery += ('INSERT INTO stats__command_client ("UID", "COMMAND", "COUNT") VALUES (' + userID + ', ' + Util.escape(commandID) + ', 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = stats__command_client."COUNT" + 1;');
 	
 	if (extra) {
-		finalQuery += ('INSERT INTO stats__command_channel ("UID", "COMMAND", "COUNT") VALUES (' + channelID + ', ' + Util.escape(commandID) + ', 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__command_server ("UID", "COMMAND", "COUNT") VALUES (' + serverID + ', ' + Util.escape(commandID) + ', 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__command_channel ("UID", "COMMAND", "COUNT") VALUES (' + channelID + ', ' + Util.escape(commandID) + ', 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = stats__command_channel."COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__command_server ("UID", "COMMAND", "COUNT") VALUES (' + serverID + ', ' + Util.escape(commandID) + ', 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = stats__command_server."COUNT" + 1;');
 		
-		finalQuery += ('INSERT INTO stats__command_uchannel ("UID", "CHANNEL", "COMMAND", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + Util.escape(commandID) + ', 1) ON CONFLICT ("UID", "COMMAND", "CHANNEL") DO UPDATE SET "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__command_userver ("UID", "USERVER", "COMMAND", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + Util.escape(commandID) + ', 1) ON CONFLICT ("UID", "COMMAND", "USERVER") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__command_uchannel ("UID", "CHANNEL", "COMMAND", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + Util.escape(commandID) + ', 1) ON CONFLICT ("UID", "COMMAND", "CHANNEL") DO UPDATE SET "COUNT" = stats__command_uchannel."COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__command_userver ("UID", "USERVER", "COMMAND", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + Util.escape(commandID) + ', 1) ON CONFLICT ("UID", "COMMAND", "USERVER") DO UPDATE SET "COUNT" = stats__command_userver."COUNT" + 1;');
 	}
 	
 	MySQLM.query(finalQuery);
