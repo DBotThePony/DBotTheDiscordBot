@@ -236,6 +236,7 @@ Util.HaveValue = function(arr, val) {
 Util.escape = function(str) {
 	let strObj = str.toString()
 	.replace(/'/gi, '\'\'')
+	.replace(/\\/gi, '\\\\')
 	.replace(/\//gi, '\/');
 	
 	strObj = '\'' + strObj + '\'';

@@ -26,6 +26,8 @@ sql.Role = function(obj) {
 	return 'get_role_id_combined(\'' + obj.id + '\', \'' + obj.guild.id + '\')';
 }
 
+sql.escape = Util.escape
+
 let concatNames = function(tab) {
 	return '"' + tab.join('", "') + '"';
 }

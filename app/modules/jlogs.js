@@ -4,11 +4,11 @@ const utf8 = require('utf8');
 const hDuration = require('humanize-duration');
 
 hook.Add('ValidClientJoinsServer', 'JLogs', function(user, server, member) {
-	MySQL.query('INSERT INTO joinleft_log ("USER", "SERVER", "STAMP", "STATUS") VALUES (get_user_id(' + Util.escape(user.id) + '), get_server_id(' + Util.escape(server.id) + '), ' + CurTime() + ', 1)');
+	MySQL.query('INSERT INTO joinleft_log ("USER", "SERVER", "STAMP", "STATUS") VALUES (' + sql.User(user) + ', ' + sql.Server(server) + ', ' + CurTime() + ', 1)');
 });
 
 hook.Add('ValidClientLeftServer', 'JLogs', function(user, server, member) {
-	MySQL.query('INSERT INTO joinleft_log ("USER", "SERVER", "STAMP", "STATUS") VALUES (get_user_id(' + Util.escape(user.id) + '), get_server_id(' + Util.escape(server.id) + '), ' + CurTime() + ', 0)');
+	MySQL.query('INSERT INTO joinleft_log ("USER", "SERVER", "STAMP", "STATUS") VALUES (' + sql.User(user) + ', ' + sql.Server(server) + ', ' + CurTime() + ', 0)');
 });
 
 DBot.RegisterCommand({

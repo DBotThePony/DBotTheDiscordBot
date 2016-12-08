@@ -285,7 +285,7 @@ DBot.DefineUser = function(user) {
 	
 	LoadingUser[id] = true;
 	
-	MySQL.query('SELECT get_user_id("' + id + '") AS "ID"', function(err, data) {
+	MySQL.query('SELECT ' + sql.User(user) + ' AS "ID"', function(err, data) {
 		if (err) throw err;
 		DBot.UsersIDs[id] = data[0].ID;
 		DBot.UsersIDs_R[data[0].ID] = user;
@@ -296,7 +296,7 @@ DBot.DefineUser = function(user) {
 }
 
 hook.Add('UserInitialized', 'MySQL.Saves', function(user, id) {
-	MySQL.query('REPLACE INTO user_names ("ID", "USERNAME") VALUES (' + id + ', ' + Util.escape(utf8.encode(user.username)) + ')', function(err) {
+	MySQL.query('REPLACE INTO user_names ("ID", "USERNAME") VALUES (' + id + ', ' + Util.escape(user.username) + ')', function(err) {
 		if (!err)
 			return;
 		
@@ -324,7 +324,7 @@ DBot.DefineChannel = function(channel) {
 	if (!serverID)
 		throw 'Server ID was never defined';
 	
-	MySQL.query('SELECT get_channel_id("' + id + '", "' + serverID + '") AS "ID"', function(err, data) {
+	MySQL.query('SELECT ' + sql.Channel(channel) + ' AS "ID"', function(err, data) {
 		if (err) throw err;
 		DBot.ChannelIDs[id] = data[0].ID;
 		DBot.ChannelIDs_R[data[0].ID] = channel;
@@ -333,7 +333,7 @@ DBot.DefineChannel = function(channel) {
 }
 
 hook.Add('ChannelInitialized', 'MySQL.Saves', function(channel, id) {
-	MySQL.query('REPLACE INTO channel_names ("ID", "NAME") VALUES (' + id + ', ' + Util.escape(utf8.encode(channel.name)) + ')', function(err) {
+	MySQL.query('REPLACE INTO channel_names ("ID", "NAME") VALUES (' + id + ', ' + Util.escape(channel.name) + ')', function(err) {
 		if (!err)
 			return;
 		
@@ -346,7 +346,7 @@ DBot.DefineRole = function(role) {
 	let id = role.id;
 	let uid = DBot.GetServerID(role.guild);
 	
-	MySQL.query('SELECT get_role_id("' + id + '", ' + uid + ') AS "ID"', function(err, data) {
+	MySQL.query('SELECT ' + sql.Role(role) + ' AS "ID"', function(err, data) {
 		if (err) throw err;
 		role.uid = data[0].ID;
 		MySQL.query('REPLACE INTO roles_names VALUES (' + Util.escape(role.uid) + ', ' + Util.escape(role.name) + ')');
@@ -358,7 +358,7 @@ DBot.DefineMember = function(member) {
 	let id = member.user.id;
 	let uid = member.guild.id;
 	
-	MySQL.query('SELECT get_member_id("' + id + '", ' + uid + ') AS "ID"', function(err, data) {
+	MySQL.query('SELECT ' + sql.Member(member) + ' AS "ID"', function(err, data) {
 		if (err) throw err;
 		member.uid = data[0].ID;
 		MySQL.query('REPLACE INTO member_names VALUES (' + Util.escape(member.uid) + ', ' + Util.escape(member.nickname || member.user.username) + ')');
@@ -371,7 +371,7 @@ DBot.DefineGuild = function(guild) {
 	if (DBot.ServersIDs[id])
 		return;
 	
-	MySQL.query('SELECT get_server_id("' + id + '") AS "ID"', function(err, data) {
+	MySQL.query('SELECT ' + sql.Server(guild) + ' AS "ID"', function(err, data) {
 		if (err) throw err;
 		DBot.ServersIDs[id] = data[0].ID;
 		DBot.ServersIDs_R[data[0].ID] = guild;
