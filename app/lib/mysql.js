@@ -37,6 +37,7 @@ MySQL = connection;
 MySQLM = connectionMulti;
 
 let sql = fs.readFileSync('./app/mysql.sql', 'utf8').replace(/\r/gi, '');
+let sqlPg = fs.readFileSync('./app/postgres.sql', 'utf8').replace(/\r/gi, '');
 let split = sql.split('-- ///Functions///');
 let sqlData = split[0];
 let sqlFuncs = split[1];
@@ -63,12 +64,10 @@ pgConnection.connect(function(err) {
 	if (err)
 		throw err;
 	
-	let sSplit = sqlData.split(';');
-	
-	for (let q of sSplit) {
-		if (q.replace(/(\n| )/gi, '') == '')
-			continue;
-	}
+	pgConnection.query(sqlPg, function(err) {
+		if (err)
+			throw err;
+	});
 });
 
 connectionMulti.connect(function(err) {
