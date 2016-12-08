@@ -96,9 +96,9 @@ body {
 <script src='/bot/moment.js'></script>
 <script src='/bot/numeral.js'></script>
 <script src='/bot/jquery-3.0.0.min.js'></script>
-<script type='application/javascript'>";
+<script type='application/javascript'>`;
 
-stuff[1] = "var countdown;
+stuff[1] = `var countdown;
 var nums;
 
 var func = function() {
@@ -210,7 +210,7 @@ module.exports = {
 		
 		fs.stat(fpath, function(err, stat) {
 			if (stat) {
-				MySQL.query('SELECT ID, STAMP FROM timers_ids WHERE HASH = \'' + sha + '\'', function(err, data) {
+				MySQL.query('SELECT "ID", "STAMP" FROM timers_ids WHERE "HASH" = \'' + sha + '\'', function(err, data) {
 					msg.reply('Timer already created: ' + fpathURL);
 					
 					if (data[0].STAMP > CurTime()) {
@@ -219,14 +219,14 @@ module.exports = {
 					}
 				});
 			} else {
-				MySQL.query('INSERT INTO timers_ids (TITLE, STAMP, HASH, NOTIFY) VALUES (' + Util.escape(title) + ', ' + unix + ', \'' + sha + '\', false)', function(err, data) {
+				MySQL.query('INSERT INTO timers_ids ("TITLE", "STAMP", "HASH", "NOTIFY") VALUES (' + Util.escape(title) + ', ' + unix + ', \'' + sha + '\', false) RETURNING "ID"', function(err, data, originalData) {
 					if (err) {
 						msg.reply('I just don\'t know what went wrong!');
 						console.error(err);
 						return;
 					}
 					
-					var timerID = data.insertId;
+					var timerID = data[0].ID;
 					var stream = fs.createWriteStream(fpath);
 					
 					stream.write(stuff[0]);
