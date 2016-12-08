@@ -81,6 +81,8 @@ pgConnection.connect(function(err) {
 	pgConnection.query(sqlPg, function(err) {
 		if (err)
 			throw err;
+		
+		hook.Run('SQLInitialize');
 	});
 });
 
