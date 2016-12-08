@@ -1,15 +1,7 @@
 
-const mysql = require('mysql');
 const utf8 = require('utf8');
 const fs = require('fs');
 const pg = require('pg');
-
-const sqlConfig = {
-	host     : 'localhost',
-	user     : 'discord_bot',
-	password : '',
-	database : 'discord_bot'
-}
 
 const pgConfig = {
 	user: 'notdbot', //env var: PGUSER
@@ -19,49 +11,15 @@ const pgConfig = {
 	port: 5432, //env var: PGPORT
 }
 
-const sqlConfigMulti = {
-	multipleStatements: true,
-	host     : 'localhost',
-	user     : 'discord_bot',
-	password : '',
-	database : 'discord_bot'
-}
-
-var connection = mysql.createConnection(sqlConfig);
-var connectionMulti = mysql.createConnection(sqlConfigMulti);
 let pgConnection = new pg.Client(pgConfig);
-
-DBot.MySQL = connection;
-DBot.MySQLM = connectionMulti;
-// MySQL = connection;
-// MySQLM = connectionMulti;
 
 MySQL = pgConnection;
 MySQLM = pgConnection;
 
-let sql = fs.readFileSync('./app/mysql.sql', 'utf8').replace(/\r/gi, '');
-let sqlPg = fs.readFileSync('./app/postgres.sql', 'utf8').replace(/\r/gi, '');
-let split = sql.split('-- ///Functions///');
-let sqlData = split[0];
-let sqlFuncs = split[1];
+DBot.MySQL = MySQL;
+DBot.MySQLM = MySQLM;
 
-connection.connect(function(err) {
-	if (err)
-		return;
-	
-	connection.query('SET NAMES utf8mb4');
-	
-	let fSplit = sqlFuncs.split('//');
-	
-	for (let f of fSplit) {
-		if (f.replace(/(\n| )/gi, '') == '')
-			continue;
-		
-		connection.query(f, function(err) {
-			if (err) throw err;
-		});
-	}
-});
+let sqlPg = fs.readFileSync('./app/postgres.sql', 'utf8').replace(/\r/gi, '');
 
 pgConnection.oldQuery = pgConnection.query;
 
@@ -114,19 +72,6 @@ pgConnection.connect(function(err) {
 	pgConnection.query(sqlPg, function(err) {
 		if (err)
 			throw err;
-	});
-});
-
-connectionMulti.connect(function(err) {
-	if (err)
-		return;
-	
-	connectionMulti.query('SET NAMES utf8');
-	
-	connectionMulti.query(sqlData, function(err) {
-		if (err) throw err;
-		
-		hook.Run('SQLInitialize');
 	});
 });
 

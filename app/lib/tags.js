@@ -18,14 +18,14 @@ DBot.CreateTagsSpace = function(space, defBans) {
 	DBot.tagCache.client[space] = {};
 	DBot.tagCache.channel[space] = {};
 	
-	MySQL.query('CREATE TABLE IF NOT EXISTS `tags__' + space + '_client_init` (UID INTEGER NOT NULL)');
-	MySQL.query('CREATE TABLE IF NOT EXISTS `tags__' + space + '_client` (UID INTEGER NOT NULL, TAG VARCHAR(64) NOT NULL)');
+	MySQL.query('CREATE TABLE IF NOT EXISTS "tags__' + space + '_client_init" (UID INTEGER NOT NULL)');
+	MySQL.query('CREATE TABLE IF NOT EXISTS "tags__' + space + '_client" (UID INTEGER NOT NULL, TAG VARCHAR(64) NOT NULL)');
 	
-	MySQL.query('CREATE TABLE IF NOT EXISTS `tags__' + space + '_server_init` (UID INTEGER NOT NULL)');
-	MySQL.query('CREATE TABLE IF NOT EXISTS `tags__' + space + '_server` (UID INTEGER NOT NULL, TAG VARCHAR(64) NOT NULL)');
+	MySQL.query('CREATE TABLE IF NOT EXISTS "tags__' + space + '_server_init" (UID INTEGER NOT NULL)');
+	MySQL.query('CREATE TABLE IF NOT EXISTS "tags__' + space + '_server" (UID INTEGER NOT NULL, TAG VARCHAR(64) NOT NULL)');
 	
-	MySQL.query('CREATE TABLE IF NOT EXISTS `tags__' + space + '_channel_init` (UID INTEGER NOT NULL)');
-	MySQL.query('CREATE TABLE IF NOT EXISTS `tags__' + space + '_channel` (UID INTEGER NOT NULL, TAG VARCHAR(64) NOT NULL)');
+	MySQL.query('CREATE TABLE IF NOT EXISTS "tags__' + space + '_channel_init" (UID INTEGER NOT NULL)');
+	MySQL.query('CREATE TABLE IF NOT EXISTS "tags__' + space + '_channel" (UID INTEGER NOT NULL, TAG VARCHAR(64) NOT NULL)');
 }
 
 class TagBase {
