@@ -1,13 +1,22 @@
 
-var mysql = require('mysql');
+const mysql = require('mysql');
 const utf8 = require('utf8');
 const fs = require('fs');
+const pg = require('pg');
 
 const sqlConfig = {
 	host     : 'localhost',
 	user     : 'discord_bot',
 	password : '',
 	database : 'discord_bot'
+}
+
+const pgConfig = {
+	user: 'notdbot', //env var: PGUSER
+	database: 'notdbot', //env var: PGDATABASE
+	password: 'notdbot', //env var: PGPASSWORD
+	host: 'localhost', // Server hosting the postgres database
+	port: 5432, //env var: PGPORT
 }
 
 const sqlConfigMulti = {
@@ -20,6 +29,7 @@ const sqlConfigMulti = {
 
 var connection = mysql.createConnection(sqlConfig);
 var connectionMulti = mysql.createConnection(sqlConfigMulti);
+let pgConnection = new pg.Client(pgConfig);
 
 DBot.MySQL = connection;
 DBot.MySQLM = connectionMulti;
@@ -37,7 +47,6 @@ connection.connect(function(err) {
 	
 	connection.query('SET NAMES utf8mb4');
 	
-	let total = sqlFuncs.length;
 	let fSplit = sqlFuncs.split('//');
 	
 	for (let f of fSplit) {
@@ -47,6 +56,18 @@ connection.connect(function(err) {
 		connection.query(f, function(err) {
 			if (err) throw err;
 		});
+	}
+});
+
+pgConnection.connect(function(err) {
+	if (err)
+		throw err;
+	
+	let sSplit = sqlData.split(';');
+	
+	for (let q of sSplit) {
+		if (q.replace(/(\n| )/gi, '') == '')
+			continue;
 	}
 });
 
