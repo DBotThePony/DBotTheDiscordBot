@@ -542,10 +542,10 @@ DECLARE fSERVER INTEGER;
 BEGIN
 	fSERVER := get_server_id(fSERVER2);
 	
-	SELECT roles_id.ID INTO id FROM roles_id WHERE roles_id.UID = fUID AND roles_id.SERVER = fSERVER;
+	SELECT "roles_id"."ID" INTO id FROM "roles_id" WHERE "roles_id"."UID" = fUID AND "roles_id"."SERVER" = fSERVER;
 	
 	IF (id IS NULL) THEN
-		INSERT INTO roles_id (SERVER, UID) VALUES (fSERVER, fUID);
+		INSERT INTO "roles_id" ("SERVER", "UID") VALUES ("fSERVER", "fUID");
 		SELECT last_insert_id() INTO id;
 	END IF;
 	
@@ -556,10 +556,10 @@ CREATE FUNCTION get_role_id(fUID VARCHAR(64), fSERVER INTEGER)
 RETURNS INTEGER AS $$
 DECLARE id INTEGER;
 BEGIN
-	SELECT roles_id.ID INTO id FROM roles_id WHERE roles_id.UID = fUID AND roles_id.SERVER = fSERVER;
+	SELECT "roles_id"."ID" INTO id FROM "roles_id" WHERE "roles_id"."UID" = fUID AND "roles_id"."SERVER" = fSERVER;
 	
 	IF (id IS NULL) THEN
-		INSERT INTO roles_id (SERVER, UID) VALUES (fSERVER, fUID);
+		INSERT INTO "roles_id" ("SERVER", "UID") VALUES ("fSERVER", "fUID");
 		SELECT last_insert_id() INTO id;
 	END IF;
 	
@@ -570,10 +570,10 @@ CREATE FUNCTION get_channel_id(fUID VARCHAR(64), sID INTEGER)
 RETURNS INTEGER AS $$
 DECLARE id INTEGER;
 BEGIN
-	SELECT channel_id.ID INTO id FROM channel_id WHERE channel_id.UID = fUID;
+	SELECT "channel_id"."ID" INTO id FROM "channel_id" WHERE "channel_id"."UID" = "fUID";
 	
 	IF (id IS NULL) THEN
-		INSERT INTO channel_id (UID, SID) VALUES (fUID, sID);
+		INSERT INTO "channel_id" ("UID", "SID") VALUES ("fUID", "sID");
 		SELECT last_insert_id() INTO id;
 	END IF;
 	
@@ -584,10 +584,10 @@ CREATE FUNCTION get_server_id(sID VARCHAR(64))
 RETURNS INTEGER AS $$
 DECLARE id INTEGER;
 BEGIN
-	SELECT server_id.ID INTO id FROM server_id WHERE server_id.UID = sID;
+	SELECT "server_id"."ID" INTO id FROM "server_id" WHERE "server_id"."UID" = "sID";
 	
 	IF (id IS NULL) THEN
-		INSERT INTO server_id (UID) VALUES (sID);
+		INSERT INTO "server_id" ("UID") VALUES ("sID");
 		SELECT last_insert_id() INTO id;
 	END IF;
 	
@@ -598,10 +598,10 @@ CREATE FUNCTION get_user_id(sID VARCHAR(64))
 RETURNS INTEGER AS $$
 DECLARE id INTEGER;
 BEGIN
-	SELECT user_id.ID INTO id FROM user_id WHERE user_id.UID = sID;
+	SELECT "user_id"."ID" INTO id FROM "user_id" WHERE "user_id"."UID" = "sID";
 	
 	IF (id IS NULL) THEN
-		INSERT INTO user_id (UID) VALUES (sID);
+		INSERT INTO "user_id" ("UID") VALUES ("sID");
 		SELECT last_insert_id() INTO id;
 	END IF;
 	
@@ -617,10 +617,10 @@ BEGIN
 	usr_internal_id := get_user_id(userid);
 	ser_internal_id := get_server_id(server);
 	
-	SELECT member_id.ID INTO id FROM member_id WHERE member_id.USER = usr_internal_id AND member_id.SERVER = ser_internal_id;
+	SELECT "member_id"."ID" INTO id FROM "member_id" WHERE "member_id"."USER" = usr_internal_id AND "member_id"."SERVER" = ser_internal_id;
 	
 	IF (id IS NULL) THEN
-		INSERT INTO member_id (USER, SERVER) VALUES (usr_internal_id, ser_internal_id);
+		INSERT INTO "member_id" ("USER", "SERVER") VALUES (usr_internal_id, ser_internal_id);
 		SELECT last_insert_id() INTO id;
 	END IF;
 	
@@ -637,8 +637,8 @@ CREATE FUNCTION restore_member(memberid INTEGER)
 RETURNS VARCHAR(64) as $$
 DECLARE iuid INTEGER;
 BEGIN
-	SET iuid = restore_member_id(memberid);
+	iuid := restore_member_id(memberid);
 	
-	RETURN (SELECT user_id.UID FROM user_id WHERE user_id.ID = iuid);
+	RETURN (SELECT "user_id"."UID" FROM "user_id" WHERE "user_id"."ID" = iuid);
 END; $$ LANGUAGE plpgsql;
 
