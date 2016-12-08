@@ -370,25 +370,25 @@ DBot.RegisterCommand({
 						data = data || {};
 						uData = uData || {};
 						
-						let TotalChars = data[0][0].cnt || 0;
-						let TotalWordsSaid = data[1][0].cnt || 0;
-						let TotalUniqueWords = data[2][0].cnt || 0;
-						let TotalImagesSend = data[3][0].cnt || 0;
-						let TotalPhrasesSaid = data[4][0].cnt || 0;
-						let TotalCommandsExecuted = data[5][0].cnt || 0;
+						let TotalChars = data[0].cnt || 0;
+						let TotalWordsSaid = data[1].cnt || 0;
+						let TotalUniqueWords = data[2].cnt || 0;
+						let TotalImagesSend = data[3].cnt || 0;
+						let TotalPhrasesSaid = data[4].cnt || 0;
+						let TotalCommandsExecuted = data[5].cnt || 0;
 						
-						let MostUsedCommand = data[6][0].COMMAND || '<unknown>';
-						let MostUsedCommand_count = data[6][0].summ || 0;
+						let MostUsedCommand = data[6].COMMAND || '<unknown>';
+						let MostUsedCommand_count = data[6].summ || 0;
 						
-						let TotalChars_USER = uData[0][0].cnt || 0;
-						let TotalWordsSaid_USER = uData[1][0].cnt || 0;
-						let TotalUniqueWords_USER = uData[2][0].cnt || 0;
-						let TotalImagesSend_USER = uData[3][0].cnt || 0;
-						let TotalPhrasesSaid_USER = uData[4][0].cnt || 0;
-						let TotalCommandsExecuted_USER = uData[5][0].cnt || 0;
+						let TotalChars_USER = uData[0].cnt || 0;
+						let TotalWordsSaid_USER = uData[1].cnt || 0;
+						let TotalUniqueWords_USER = uData[2].cnt || 0;
+						let TotalImagesSend_USER = uData[3].cnt || 0;
+						let TotalPhrasesSaid_USER = uData[4].cnt || 0;
+						let TotalCommandsExecuted_USER = uData[5].cnt || 0;
 						
-						let MostUsedCommand_USER = uData[6][0].COMMAND || '<unknown>';
-						let MostUsedCommand_count_USER = uData[6][0].summ || 0;
+						let MostUsedCommand_USER = uData[6].COMMAND || '<unknown>';
+						let MostUsedCommand_count_USER = uData[6].summ || 0;
 						
 						let output = '\n```';
 						
@@ -455,15 +455,15 @@ DBot.RegisterCommand({
 					
 					uData = uData || {};
 					
-					let TotalChars_USER = uData[0][0].cnt || 0;
-					let TotalWordsSaid_USER = uData[1][0].cnt || 0;
-					let TotalUniqueWords_USER = uData[2][0].cnt || 0;
-					let TotalImagesSend_USER = uData[3][0].cnt || 0;
-					let TotalPhrasesSaid_USER = uData[4][0].cnt || 0;
-					let TotalCommandsExecuted_USER = uData[5][0].cnt || 0;
+					let TotalChars_USER = uData[0].cnt || 0;
+					let TotalWordsSaid_USER = uData[1].cnt || 0;
+					let TotalUniqueWords_USER = uData[2].cnt || 0;
+					let TotalImagesSend_USER = uData[3].cnt || 0;
+					let TotalPhrasesSaid_USER = uData[4].cnt || 0;
+					let TotalCommandsExecuted_USER = uData[5].cnt || 0;
 					
-					let MostUsedCommand_USER = uData[6][0].COMMAND || '<unknown>';
-					let MostUsedCommand_count_USER = uData[6][0].summ || 0;
+					let MostUsedCommand_USER = uData[6].COMMAND || '<unknown>';
+					let MostUsedCommand_count_USER = uData[6].summ || 0;
 					
 					let output = '\n```';
 					
@@ -544,25 +544,25 @@ DBot.RegisterCommand({
 						data = data || {};
 						uData = uData || {};
 						
-						let TotalChars = data[0][0].cnt || 0;
-						let TotalWordsSaid = data[1][0].cnt || 0;
-						let TotalUniqueWords = data[2][0].cnt || 0;
-						let TotalImagesSend = data[3][0].cnt || 0;
-						let TotalPhrasesSaid = data[4][0].cnt || 0;
-						let TotalCommandsExecuted = data[5][0].cnt || 0;
+						let TotalChars = data[0].cnt || 0;
+						let TotalWordsSaid = data[1].cnt || 0;
+						let TotalUniqueWords = data[2].cnt || 0;
+						let TotalImagesSend = data[3].cnt || 0;
+						let TotalPhrasesSaid = data[4].cnt || 0;
+						let TotalCommandsExecuted = data[5].cnt || 0;
 						
-						let MostUsedCommand = data[6][0].COMMAND || '<unknown>';
-						let MostUsedCommand_count = data[6][0].summ || 0;
+						let MostUsedCommand = data[6].COMMAND || '<unknown>';
+						let MostUsedCommand_count = data[6].summ || 0;
 						
-						let TotalChars_USER = uData[0][0].cnt || 0;
-						let TotalWordsSaid_USER = uData[1][0].cnt || 0;
-						let TotalUniqueWords_USER = uData[2][0].cnt || 0;
-						let TotalImagesSend_USER = uData[3][0].cnt || 0;
-						let TotalPhrasesSaid_USER = uData[4][0].cnt || 0;
-						let TotalCommandsExecuted_USER = uData[5][0].cnt || 0;
+						let TotalChars_USER = uData[0].cnt || 0;
+						let TotalWordsSaid_USER = uData[1].cnt || 0;
+						let TotalUniqueWords_USER = uData[2].cnt || 0;
+						let TotalImagesSend_USER = uData[3].cnt || 0;
+						let TotalPhrasesSaid_USER = uData[4].cnt || 0;
+						let TotalCommandsExecuted_USER = uData[5].cnt || 0;
 						
-						let MostUsedCommand_USER = uData[6][0].COMMAND || '<unknown>';
-						let MostUsedCommand_count_USER = uData[6][0].summ || 0;
+						let MostUsedCommand_USER = uData[6].COMMAND || '<unknown>';
+						let MostUsedCommand_count_USER = uData[6].summ || 0;
 						
 						let output = '\n```';
 						
@@ -623,15 +623,15 @@ DBot.RegisterCommand({
 					
 					uData = uData || {};
 					
-					let TotalChars_USER = uData[0][0].cnt || 0;
-					let TotalWordsSaid_USER = uData[1][0].cnt || 0;
-					let TotalUniqueWords_USER = uData[2][0].cnt || 0;
-					let TotalImagesSend_USER = uData[3][0].cnt || 0;
-					let TotalPhrasesSaid_USER = uData[4][0].cnt || 0;
-					let TotalCommandsExecuted_USER = uData[5][0].cnt || 0;
+					let TotalChars_USER = uData[0].cnt || 0;
+					let TotalWordsSaid_USER = uData[1].cnt || 0;
+					let TotalUniqueWords_USER = uData[2].cnt || 0;
+					let TotalImagesSend_USER = uData[3].cnt || 0;
+					let TotalPhrasesSaid_USER = uData[4].cnt || 0;
+					let TotalCommandsExecuted_USER = uData[5].cnt || 0;
 					
-					let MostUsedCommand_USER = uData[6][0].COMMAND || '<unknown>';
-					let MostUsedCommand_count_USER = uData[6][0].summ || 0;
+					let MostUsedCommand_USER = uData[6].COMMAND || '<unknown>';
+					let MostUsedCommand_count_USER = uData[6].summ || 0;
 					
 					let output = '\n```';
 					
@@ -722,8 +722,9 @@ DBot.RegisterCommand({
 			MySQLM.query(mQueryG, function(err, data) {
 			
 			// Global stats for user
-			MySQLM.query(mQuery, function(err, uData) {
+			MySQLM.query(mQuery, function(err, uData, orig) {
 				msg.channel.stopTyping();
+				
 				try {
 					for (let i = 0; i <= 6; i++) {
 						uData[i] = uData[i] || [];
@@ -735,25 +736,25 @@ DBot.RegisterCommand({
 					data = data || {};
 					uData = uData || {};
 					
-					let TotalChars = data[0][0].cnt || 0;
-					let TotalWordsSaid = data[1][0].cnt || 0;
-					let TotalUniqueWords = data[2][0].cnt || 0;
-					let TotalImagesSend = data[3][0].cnt || 0;
-					let TotalPhrasesSaid = data[4][0].cnt || 0;
-					let TotalCommandsExecuted = data[5][0].cnt || 0;
+					let TotalChars = data[0].cnt || 0;
+					let TotalWordsSaid = data[1].cnt || 0;
+					let TotalUniqueWords = data[2].cnt || 0;
+					let TotalImagesSend = data[3].cnt || 0;
+					let TotalPhrasesSaid = data[4].cnt || 0;
+					let TotalCommandsExecuted = data[5].cnt || 0;
 					
-					let MostUsedCommand = data[6][0].COMMAND || '<unknown>';
-					let MostUsedCommand_count = data[6][0].summ || 0;
+					let MostUsedCommand = data[6].COMMAND || '<unknown>';
+					let MostUsedCommand_count = data[6].summ || 0;
 					
-					let TotalChars_USER = uData[0][0].cnt || 0;
-					let TotalWordsSaid_USER = uData[1][0].cnt || 0;
-					let TotalUniqueWords_USER = uData[2][0].cnt || 0;
-					let TotalImagesSend_USER = uData[3][0].cnt || 0;
-					let TotalPhrasesSaid_USER = uData[4][0].cnt || 0;
-					let TotalCommandsExecuted_USER = uData[5][0].cnt || 0;
+					let TotalChars_USER = uData[0].cnt || 0;
+					let TotalWordsSaid_USER = uData[1].cnt || 0;
+					let TotalUniqueWords_USER = uData[2].cnt || 0;
+					let TotalImagesSend_USER = uData[3].cnt || 0;
+					let TotalPhrasesSaid_USER = uData[4].cnt || 0;
+					let TotalCommandsExecuted_USER = uData[5].cnt || 0;
 					
-					let MostUsedCommand_USER = uData[6][0].COMMAND || '<unknown>';
-					let MostUsedCommand_count_USER = uData[6][0].summ || 0;
+					let MostUsedCommand_USER = uData[6].COMMAND || '<unknown>';
+					let MostUsedCommand_count_USER = uData[6].summ || 0;
 					
 					let output = '\n```';
 					
@@ -811,15 +812,15 @@ DBot.RegisterCommand({
 						uData[i][0] = uData[i][0] || {};
 					}
 					
-					let TotalChars_USER = uData[0][0].cnt || 0;
-					let TotalWordsSaid_USER = uData[1][0].cnt || 0;
-					let TotalUniqueWords_USER = uData[2][0].cnt || 0;
-					let TotalImagesSend_USER = uData[3][0].cnt || 0;
-					let TotalPhrasesSaid_USER = uData[4][0].cnt || 0;
-					let TotalCommandsExecuted_USER = uData[5][0].cnt || 0;
+					let TotalChars_USER = uData[0].cnt || 0;
+					let TotalWordsSaid_USER = uData[1].cnt || 0;
+					let TotalUniqueWords_USER = uData[2].cnt || 0;
+					let TotalImagesSend_USER = uData[3].cnt || 0;
+					let TotalPhrasesSaid_USER = uData[4].cnt || 0;
+					let TotalCommandsExecuted_USER = uData[5].cnt || 0;
 					
-					let MostUsedCommand_USER = uData[6][0].COMMAND || '<unknown>';
-					let MostUsedCommand_count_USER = uData[6][0].summ || 0;
+					let MostUsedCommand_USER = uData[6].COMMAND || '<unknown>';
+					let MostUsedCommand_count_USER = uData[6].summ || 0;
 					
 					let output = '\n```';
 					
