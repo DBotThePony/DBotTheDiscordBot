@@ -12,7 +12,7 @@ let updateRoleRules = function(role) {
 	let members = role.members.array();
 	let sRole = sql.Role(role);
 	
-	MySQL.query('SELECT "MEMBER", restore_member("member_roles"."MEMBER") as "USER" FROM member_roles WHERE "ROLE" = ' + sRole, function(err, data) {
+	MySQL.query('SELECT "MEMBER", restore_member(member_roles."MEMBER") as "USER" FROM member_roles WHERE "ROLE" = ' + sRole, function(err, data) {
 		if (err) throw err;
 		data = data || {};
 		
@@ -27,8 +27,8 @@ let updateRoleRules = function(role) {
 			}
 			
 			if (!hit) {
-				MySQL.query('INSERT INTO "roles_log" ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (get_member_id("' + member.id + '", "' + role.guild.id + '"), ' + sRole + ', 1, "' + CurTime() + '")');
-				MySQL.query('REPLACE INTO "member_roles" VALUES(get_member_id("' + member.id + '", "' + role.guild.id + '"), ' + sRole + ')');
+				MySQL.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (get_member_id("' + member.id + '", "' + role.guild.id + '"), ' + sRole + ', 1, "' + CurTime() + '")');
+				MySQL.query('REPLACE INTO member_roles VALUES(get_member_id("' + member.id + '", "' + role.guild.id + '"), ' + sRole + ')');
 			}
 		}
 		
@@ -43,7 +43,7 @@ let updateRoleRules = function(role) {
 			}
 			
 			if (!hit) {
-				MySQL.query('INSERT INTO "roles_log" ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES ("' + row.MEMBER + '", ' + sRole + ', 0, "' + CurTime() + '")');
+				MySQL.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES ("' + row.MEMBER + '", ' + sRole + ', 0, "' + CurTime() + '")');
 				MySQL.query('DELETE FROM member_roles WHERE "MEMBER" = "' + row.MEMBER + '" AND "ROLE" = ' + sRole);
 			}
 		}
@@ -64,26 +64,26 @@ hook.Add('MemberChanges', 'Default', function(oldM, newM) {
 
 /*
 SELECT
-	"roles_log"."ID" AS "ENTRY",
-	"roles_log"."MEMBER",
-	"roles_log"."ROLE",
-	"roles_log"."TYPE",
-	"roles_log"."STAMP",
-	"roles_names"."NAME" AS "ROLENAME",
-	"member_id"."USER" AS "USERID",
-	"member_names"."NAME" AS "MEMBERNAME"
+	roles_log."ID" AS "ENTRY",
+	roles_log."MEMBER",
+	roles_log."ROLE",
+	roles_log."TYPE",
+	roles_log."STAMP",
+	roles_names."NAME" AS "ROLENAME",
+	member_id."USER" AS "USERID",
+	member_names."NAME" AS "MEMBERNAME"
 FROM
-	"roles_log",
-	"roles_names",
-	"member_id",
-	"server_id",
-	"member_names"
+	roles_log,
+	roles_names,
+	member_id,
+	server_id,
+	member_names
 WHERE
-	"server_id"."ID" = 6 AND
-	"roles_log"."MEMBER" = "member_id"."ID" AND
-	"member_id"."SERVER" = "server_id"."ID" AND
-	"roles_names"."ROLEID" = "roles_log"."ROLE" AND
-	"member_names"."ID" = "member_id"."ID"
+	server_id."ID" = 6 AND
+	roles_log."MEMBER" = member_id."ID" AND
+	member_id."SERVER" = server_id."ID" AND
+	roles_names."ROLEID" = roles_log."ROLE" AND
+	member_names."ID" = member_id."ID"
 GROUP BY
 	"ENTRY"
 ORDER BY
@@ -102,24 +102,24 @@ DBot.RegisterCommand({
 			return 'Onoh! It is PM ;n;';
 		
 		let funckingQuery = 'SELECT\
-			"roles_log"."ID" AS "ENTRY",\
-			"roles_log"."ROLE",\
-			"roles_log"."TYPE",\
-			"roles_log"."STAMP",\
-			"roles_names"."NAME" AS "ROLENAME",\
-			"member_names"."NAME" AS "MEMBERNAME"\
+			roles_log."ID" AS "ENTRY",\
+			roles_log."ROLE",\
+			roles_log."TYPE",\
+			roles_log."STAMP",\
+			roles_names."NAME" AS "ROLENAME",\
+			member_names."NAME" AS "MEMBERNAME"\
 		FROM\
-			"roles_log",\
-			"roles_names",\
-			"member_id",\
-			"server_id",\
-			"member_names"\
+			roles_log,\
+			roles_names,\
+			member_id,\
+			server_id,\
+			member_names\
 		WHERE\
-			"server_id"."ID" = get_server_id(\'' + msg.channel.guild.id + '\') AND\
-			"roles_log"."MEMBER" = "member_id"."ID" AND\
-			"member_id"."SERVER" = "server_id"."ID" AND\
-			"roles_names"."ROLEID" = "roles_log"."ROLE" AND\
-			"member_names"."ID" = "member_id"."ID"\
+			server_id."ID" = get_server_id(\'' + msg.channel.guild.id + '\') AND\
+			roles_log."MEMBER" = member_id."ID" AND\
+			member_id."SERVER" = server_id."ID" AND\
+			roles_names."ROLEID" = roles_log."ROLE" AND\
+			member_names."ID" = member_id."ID"\
 		GROUP BY\
 			"ENTRY"\
 		ORDER BY\

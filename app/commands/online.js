@@ -7,7 +7,7 @@ const moment = require('moment');
 hook.Add('SQLInitialize', 'uptime-bot', function() {
 	MySQL.query('SELECT * FROM uptime_bot', function(err, data) {
 		if (!data || !data[0]) {
-			MySQL.query('INSERT INTO "uptime_bot" VALUES (' + CurTime() + ', 0)');
+			MySQL.query('INSERT INTO uptime_bot VALUES (' + CurTime() + ', 0)');
 		}
 	});
 });
@@ -27,19 +27,19 @@ hook.Add('UpdateUserVars', 'LastSeen', function(user) {
 		let get = DBot.GetUserID(user);
 		
 		if (curStatus != 'offline') {
-			MySQL.query('UPDATE "lastonline" SET "LASTONLINE" = ' + ctime + ' WHERE "ID" = ' + get, function(err, data) {
+			MySQL.query('UPDATE lastonline SET LASTONLINE = ' + ctime + ' WHERE "ID" = ' + get, function(err, data) {
 				if (err) {
 					console.error('Failed to update lastonline entry: ' + err);
 				}
 			});
 			
-			MySQL.query('UPDATE "uptime" SET "TOTAL_ONLINE" = "TOTAL_ONLINE" + "' + delta + '" WHERE "ID" = ' + get, function(err, data) {
+			MySQL.query('UPDATE uptime SET "TOTAL_ONLINE" = "TOTAL_ONLINE" + "' + delta + '" WHERE "ID" = ' + get, function(err, data) {
 				if (err) {
 					console.error('Failed to update lastonline entry: ' + err);
 				}
 			});
 		} else {
-			MySQL.query('UPDATE "uptime" SET "TOTAL_OFFLINE" = "TOTAL_OFFLINE" + "' + delta + '" WHERE "ID" = ' + get, function(err, data) {
+			MySQL.query('UPDATE uptime SET "TOTAL_OFFLINE" = "TOTAL_OFFLINE" + "' + delta + '" WHERE "ID" = ' + get, function(err, data) {
 				if (err) {
 					console.error('Failed to update lastonline entry: ' + err);
 				}
@@ -47,19 +47,19 @@ hook.Add('UpdateUserVars', 'LastSeen', function(user) {
 		}
 		
 		if (curStatus == 'online') {
-			MySQL.query('UPDATE "uptime" SET "ONLINE" = "ONLINE" + "' + delta + '" WHERE "ID" = ' + get, function(err, data) {
+			MySQL.query('UPDATE uptime SET "ONLINE" = "ONLINE" + "' + delta + '" WHERE "ID" = ' + get, function(err, data) {
 				if (err) {
 					console.error('Failed to update lastonline entry: ' + err);
 				}
 			});
 		} else if (curStatus == 'idle') {
-			MySQL.query('UPDATE "uptime" SET "AWAY" = "AWAY" + "' + delta + '" WHERE "ID" = ' + get, function(err, data) {
+			MySQL.query('UPDATE uptime SET "AWAY" = "AWAY" + "' + delta + '" WHERE "ID" = ' + get, function(err, data) {
 				if (err) {
 					console.error('Failed to update lastonline entry: ' + err);
 				}
 			});
 		} else if (curStatus == 'dnd') {
-			MySQL.query('UPDATE "uptime" SET "DNT" = "DNT" + "' + delta + '" WHERE "ID" = ' + get, function(err, data) {
+			MySQL.query('UPDATE uptime SET "DNT" = "DNT" + "' + delta + '" WHERE "ID" = ' + get, function(err, data) {
 				if (err) {
 					console.error('Failed to update lastonline entry: ' + err);
 				}
@@ -75,7 +75,7 @@ hook.Add('UserInitialized', 'LastSeen', function(user) {
 		if (data && data[0])
 			return;
 		
-		MySQL.query('INSERT INTO "lastonline" VALUES (' + DBot.GetUserID(user) + ', ' + Math.floor(CurTime()) + ')', function(err, data) {
+		MySQL.query('INSERT INTO lastonline VALUES (' + DBot.GetUserID(user) + ', ' + Math.floor(CurTime()) + ')', function(err, data) {
 			if (err) {
 				console.error('Failed to create lastonline entry: ' + err);
 			}
@@ -86,7 +86,7 @@ hook.Add('UserInitialized', 'LastSeen', function(user) {
 		if (data && data[0])
 			return;
 		
-		MySQL.query('INSERT INTO "uptime" ("ID", "STAMP") VALUES (' + DBot.GetUserID(user) + ', ' + Math.floor(CurTime()) + ')', function(err, data) {
+		MySQL.query('INSERT INTO uptime ("ID", "STAMP") VALUES (' + DBot.GetUserID(user) + ', ' + Math.floor(CurTime()) + ')', function(err, data) {
 			if (err) {
 				console.error('Failed to create lastonline entry: ' + err);
 			}
@@ -102,7 +102,7 @@ hook.Add('BotOnline', 'BotUptime', function() {
 	
 	INIT = true;
 	setInterval(function() {
-		MySQL.query('UPDATE "uptime_bot" SET "AMOUNT" = "AMOUNT" + 1');
+		MySQL.query('UPDATE uptime_bot SET "AMOUNT" = "AMOUNT" + 1');
 	}, 1000);
 });
 
@@ -124,7 +124,7 @@ module.exports = {
 		
 		var uid = DBot.GetUserID(args[0]);
 		
-		MySQL.query('SELECT "LASTONLINE" FROM lastonline WHERE "ID" = ' + uid, function(err, data) {
+		MySQL.query('SELECT LASTONLINE FROM lastonline WHERE "ID" = ' + uid, function(err, data) {
 			if (err || !data || !data[0]) {
 				msg.reply('<internal pony error>');
 				return;

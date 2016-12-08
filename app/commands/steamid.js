@@ -125,7 +125,7 @@ module.exports = {
 							var data = result.body.response.players;
 							
 							if (!data[0]) {
-								MySQL.query('INSERT INTO "steamid_fail" ("STEAMID64") VALUES ("' + id + '")');
+								MySQL.query('INSERT INTO steamid_fail ("STEAMID64") VALUES ("' + id + '")');
 								msg.reply('No such steam account: ' + id);
 								msg.channel.stopTyping();
 								return;
@@ -143,7 +143,7 @@ module.exports = {
 							SteamID3 = steamid3;
 							SteamID64 = id;
 							
-							MySQL.query('REPLACE INTO "steamid" VALUES (' + MySQL.escape(SteamID64) + ', ' + MySQL.escape(SteamID) + ', ' + MySQL.escape(SteamID3) + ', ' + MySQL.escape(profile) + ')');
+							MySQL.query('REPLACE INTO steamid VALUES (' + MySQL.escape(SteamID64) + ', ' + MySQL.escape(SteamID) + ', ' + MySQL.escape(SteamID3) + ', ' + MySQL.escape(profile) + ')');
 							
 							continueFunc();
 						});
@@ -186,7 +186,7 @@ module.exports = {
 							var res = result.body;
 							
 							if (!res.response || res.response.success == 42) {
-								MySQL.query('INSERT INTO "steamid_fail" ("CUSTOMID") VALUES (' + MySQL.escape(toManipulate) + ')');
+								MySQL.query('INSERT INTO steamid_fail ("CUSTOMID") VALUES (' + MySQL.escape(toManipulate) + ')');
 								msg.reply('No such Steam account: ' + toManipulate);
 								msg.channel.stopTyping();
 							} else {

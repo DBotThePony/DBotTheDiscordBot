@@ -72,7 +72,7 @@ module.exports = {
 				
 				msg.reply('\n```' + cmd + '\nInfo - ' + finalPercent + '%```');
 				
-				MySQL.query('INSERT INTO "infometr" ("PHRASE", "VALUE") VALUES (' + MySQL.escape(utf8.encode(cmd.toLowerCase())) + ', "' + finalPercent + '")');
+				MySQL.query('INSERT INTO infometr ("PHRASE", "VALUE") VALUES (' + MySQL.escape(utf8.encode(cmd.toLowerCase())) + ', "' + finalPercent + '")');
 			}
 		});
 		

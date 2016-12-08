@@ -27,7 +27,7 @@ setInterval(function() {
 			(function() {
 				var id = ID;
 				
-				MySQL.query('UPDATE "timers_ids" SET "NOTIFY" = 1 WHERE "ID" = ' + id);
+				MySQL.query('UPDATE timers_ids SET "NOTIFY" = 1 WHERE "ID" = ' + id);
 				
 				MySQL.query('SELECT "TITLE", "HASH" FROM timers_ids WHERE "ID" = ' + id, function(err, data2) {
 					MySQL.query('SELECT "ID" FROM timers_users WHERE "TIMERID" = ' + id, function(err, data) {
@@ -215,7 +215,7 @@ module.exports = {
 					
 					if (data[0].STAMP > CurTime()) {
 						NOTIFY[data[0].ID] = data[0].STAMP;
-						MySQL.query('REPLACE INTO "timers_users" VALUES (' + DBot.GetUserID(msg.author) + ', ' + data[0].ID + ')');
+						MySQL.query('REPLACE INTO timers_users VALUES (' + DBot.GetUserID(msg.author) + ', ' + data[0].ID + ')');
 					}
 				});
 			} else {
@@ -239,7 +239,7 @@ module.exports = {
 					
 					stream.end();
 					
-					MySQL.query('REPLACE INTO "timers_users" VALUES (' + DBot.GetUserID(msg.author) + ', ' + timerID + ')');
+					MySQL.query('REPLACE INTO timers_users VALUES (' + DBot.GetUserID(msg.author) + ', ' + timerID + ')');
 					NOTIFY[timerID] = unix;
 					
 					stream.on('finish', function() {

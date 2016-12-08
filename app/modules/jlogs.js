@@ -4,11 +4,11 @@ const utf8 = require('utf8');
 const hDuration = require('humanize-duration');
 
 hook.Add('ValidClientJoinsServer', 'JLogs', function(user, server, member) {
-	MySQL.query('INSERT INTO "joinleft_log" ("USER", "SERVER", "STAMP", "STATUS") VALUES (get_user_id(' + Util.escape(user.id) + '), get_server_id(' + Util.escape(server.id) + '), ' + CurTime() + ', 1)');
+	MySQL.query('INSERT INTO joinleft_log ("USER", "SERVER", "STAMP", "STATUS") VALUES (get_user_id(' + Util.escape(user.id) + '), get_server_id(' + Util.escape(server.id) + '), ' + CurTime() + ', 1)');
 });
 
 hook.Add('ValidClientLeftServer', 'JLogs', function(user, server, member) {
-	MySQL.query('INSERT INTO "joinleft_log" ("USER", "SERVER", "STAMP", "STATUS") VALUES (get_user_id(' + Util.escape(user.id) + '), get_server_id(' + Util.escape(server.id) + '), ' + CurTime() + ', 0)');
+	MySQL.query('INSERT INTO joinleft_log ("USER", "SERVER", "STAMP", "STATUS") VALUES (get_user_id(' + Util.escape(user.id) + '), get_server_id(' + Util.escape(server.id) + '), ' + CurTime() + ', 0)');
 });
 
 DBot.RegisterCommand({
@@ -22,7 +22,7 @@ DBot.RegisterCommand({
 		if (DBot.IsPM(msg))
 			return 'Onoh! It is PM ;n;';
 		
-		MySQL.query('SELECT "joinleft_log"."STAMP", "joinleft_log"."STATUS", "user_names"."USERNAME" as "USERNAME" FROM joinleft_log, "user_names" WHERE "joinleft_log"."SERVER" = ' + DBot.GetServerID(msg.channel.guild) + ' AND "user_names"."ID" = "joinleft_log"."USER" ORDER BY "joinleft_log"."ID" DESC LIMIT 0, 10', function(err, data) {
+		MySQL.query('SELECT joinleft_log."STAMP", joinleft_log."STATUS", user_names."USERNAME" as "USERNAME" FROM joinleft_log, user_names WHERE joinleft_log."SERVER" = ' + DBot.GetServerID(msg.channel.guild) + ' AND user_names."ID" = joinleft_log."USER" ORDER BY joinleft_log."ID" DESC LIMIT 0, 10', function(err, data) {
 			if (err) {
 				msg.reply('WTF');
 				return;
