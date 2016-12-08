@@ -1,4 +1,11 @@
 
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'discord_user_status') THEN
+        CREATE TYPE discord_user_status AS ENUM ('online', 'away', 'dnd', 'offline');
+    END IF;
+END$$;
+
 CREATE TABLE IF NOT EXISTS channel_id (
 	"ID" SERIAL PRIMARY KEY,
 	"UID" varchar(64) NOT NULL,
@@ -425,6 +432,12 @@ CREATE TABLE IF NOT EXISTS uptime (
 	PRIMARY KEY ("ID")
 );
 
+CREATE TABLE IF NOT EXISTS user_status (
+	"ID" int NOT NULL,
+	"STATUS" discord_user_status NOT NULL,
+	PRIMARY KEY ("ID")
+);
+
 CREATE TABLE IF NOT EXISTS uptime_bot (
 	"START" int NOT NULL,
 	"AMOUNT" int NOT NULL
@@ -533,7 +546,39 @@ DROP FUNCTION IF EXISTS get_server_id(sID VARCHAR(64));
 DROP FUNCTION IF EXISTS get_user_id(sID VARCHAR(64));
 DROP FUNCTION IF EXISTS get_member_id(userid VARCHAR(64), server VARCHAR(64));
 DROP FUNCTION IF EXISTS restore_member_id(memberid INTEGER);
+DROP FUNCTION IF EXISTS tags_tables(fName VARCHAR(64));
 DROP FUNCTION IF EXISTS restore_member(memberid INTEGER);
+
+CREATE FUNCTION tags_tables(fName VARCHAR(64))
+RETURNS void AS $$
+BEGIN
+	EXECUTE format('CREATE TABLE IF NOT EXISTS %I (
+		UID INTEGER NOT NULL
+	);', CONCAT('tags__', fName, '_client_init'));
+	
+	EXECUTE format('CREATE TABLE IF NOT EXISTS %I (
+		UID INTEGER NOT NULL,
+		TAG VARCHAR(64) NOT NULL
+	);', CONCAT('tags__', fName, '_client'));
+	
+	EXECUTE format('CREATE TABLE IF NOT EXISTS %I (
+		UID INTEGER NOT NULL
+	);', CONCAT('tags__', fName, '_server_init'));
+	
+	EXECUTE format('CREATE TABLE IF NOT EXISTS %I (
+		UID INTEGER NOT NULL,
+		TAG VARCHAR(64) NOT NULL
+	);', CONCAT('tags__', fName, '_server'));
+	
+	EXECUTE format('CREATE TABLE IF NOT EXISTS %I (
+		UID INTEGER NOT NULL
+	);', CONCAT('tags__', fName, '_channel_init'));
+	
+	EXECUTE format('CREATE TABLE IF NOT EXISTS %I (
+		UID INTEGER NOT NULL,
+		TAG VARCHAR(64) NOT NULL
+	);', CONCAT('tags__', fName, '_channel'));
+END; $$ LANGUAGE plpgsql;
 
 CREATE FUNCTION get_role_id_combined(fUID VARCHAR(64), fSERVER2 VARCHAR(64))
 RETURNS INTEGER AS $$
