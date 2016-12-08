@@ -32,7 +32,7 @@ hook.Add('UpdateMemberVars', 'NameLogs', function(member) {
 		
 		member.NTime = time;
 		
-		MySQL.query('INSERT INTO name_logs ("MEMBER", "NAME", "LASTUSE", "TIME") VALUES (' + sql.Member(member) + ', ' + Util.escape(name) + ', ' + Math.floor(time) + ', ' + delta + ') ON CONFLICT ("MEMBER", "NAME") DO UPDATE SET "LASTUSE" = ' + Util.escape(Math.floor(time)) + ', "TIME" = "TIME" + ' + Util.escape(delta));
+		MySQL.query('INSERT INTO name_logs ("MEMBER", "NAME", "LASTUSE", "TIME") VALUES (' + sql.Member(member) + ', ' + Util.escape(name) + ', ' + Math.floor(time) + ', ' + delta + ') ON CONFLICT ("MEMBER", "NAME") DO UPDATE SET "LASTUSE" = ' + Util.escape(Math.floor(time)) + ', "TIME" = name_logs."TIME" + ' + Util.escape(delta));
 	} catch(err) {
 		console.error(err);
 	}
