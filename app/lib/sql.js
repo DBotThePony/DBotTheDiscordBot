@@ -83,14 +83,6 @@ connectionMulti.connect(function(err) {
 	});
 });
 
-DBot.Query = function(str, callback) {
-	DBot.MySQL.query(str, callback);
-}
-
-DBot.query = function(str, callback) {
-	DBot.MySQL.query(str, callback);
-}
-
 DBot.ChannelIDs = {};
 DBot.ServersIDs = {};
 DBot.UsersIDs = {};
@@ -246,7 +238,7 @@ DBot.DefineUser = function(user) {
 	
 	LoadingUser[id] = true;
 	
-	DBot.query('SELECT get_user_id("' + id + '") AS "ID"', function(err, data) {
+	MySQL.query('SELECT get_user_id("' + id + '") AS "ID"', function(err, data) {
 		if (err) throw err;
 		DBot.UsersIDs[id] = data[0].ID;
 		DBot.UsersIDs_R[data[0].ID] = user;
@@ -285,7 +277,7 @@ DBot.DefineChannel = function(channel) {
 	if (!serverID)
 		throw 'Server ID was never defined';
 	
-	DBot.query('SELECT get_channel_id("' + id + '", "' + serverID + '") AS "ID"', function(err, data) {
+	MySQL.query('SELECT get_channel_id("' + id + '", "' + serverID + '") AS "ID"', function(err, data) {
 		if (err) throw err;
 		DBot.ChannelIDs[id] = data[0].ID;
 		DBot.ChannelIDs_R[data[0].ID] = channel;
@@ -332,7 +324,7 @@ DBot.DefineGuild = function(guild) {
 	if (DBot.ServersIDs[id])
 		return;
 	
-	DBot.query('SELECT get_server_id("' + id + '") AS "ID"', function(err, data) {
+	MySQL.query('SELECT get_server_id("' + id + '") AS "ID"', function(err, data) {
 		if (err) throw err;
 		DBot.ServersIDs[id] = data[0].ID;
 		DBot.ServersIDs_R[data[0].ID] = guild;
