@@ -209,8 +209,8 @@ var replaceBlocks = [
 	
 	[/\*\*(([^*][^*])*)\*\*/gi, '<b>$1</b>'],
 	[/\*(([^\*])*)\*/gi, '<i>$1</i>'],
-	[/```(([^`][^`][^`])*)```/gi, '<span class="codeblock">$1</span>'],
-	[/[^`]`(([^`])*)`[^`]/gi, '<span class="codeblock_s">$1</span>'],
+	[/```(([^"][^"][^"])*)```/gi, '<span class="codeblock">$1</span>'],
+	[/[^"]"(([^"])*)"[^"]/gi, '<span class="codeblock_s">$1</span>'],
 	[/\n/gi, '<br>'],
 ];
 

@@ -231,7 +231,7 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 	SpamScore[cCommand.id]++;
 	
 	if (SpamScore[cCommand.id] > 4) {
-		msg.reply('You all, stop spamming `' + cCommand.id + '`');
+		msg.reply('You all, stop spamming "' + cCommand.id + '"');
 		return;
 	}
 	
@@ -580,7 +580,7 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		var related = findRelated(command);
 		
 		if (related[0] && related[0][1] > 1) {
-			output += '\nMaybe you mean `' + related[0][0] + '`?';
+			output += '\nMaybe you mean "' + related[0][0] + '"?';
 		}
 		
 		msg.reply(output);

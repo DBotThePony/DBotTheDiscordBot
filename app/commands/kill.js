@@ -3,7 +3,7 @@ const fs = require('fs');
 const child_process = require('child_process');
 const spawn = child_process.spawn;
 
-MySQL.query('SELECT COUNT(*) AS `CNT` FROM `killicons`', function(err, data) {
+MySQL.query('SELECT COUNT(*) AS CNT FROM killicons', function(err, data) {
 	if (data && data[0] && data[0].CNT != 0)
 		return;
 	
@@ -89,7 +89,7 @@ module.exports = {
 				return;
 			}
 			
-			MySQL.query('SELECT * FROM `killicons` WHERE `NAME` LIKE ' + Util.escape('%' + weapon + '%') + ' OR `CLASSNAME` LIKE ' + Util.escape('%' + weapon + '%'), function(err, data) {
+			MySQL.query('SELECT * FROM killicons WHERE "NAME" LIKE ' + Util.escape('%' + weapon + '%') + ' OR "CLASSNAME" LIKE ' + Util.escape('%' + weapon + '%'), function(err, data) {
 				if (err) {
 					msg.reply('<internal pony error>');
 					return;

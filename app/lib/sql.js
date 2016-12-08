@@ -7,27 +7,27 @@ sql.query = function(str, callback) {
 }
 
 sql.Member = function(obj) {
-	return 'get_member_id("' + obj.user.id + '", "' + obj.guild.id + '")';
+	return 'get_member_id(\'' + obj.user.id + '\', \'' + obj.guild.id + '\')';
 }
 
 sql.User = function(obj) {
-	return 'get_user_id("' + obj.id + '")';
+	return 'get_user_id(\'' + obj.id + '\')';
 }
 
 sql.Channel = function(obj) {
-	return 'get_channel_id("' + obj.id + '", ' + sql.Server(obj.guild) + ')';
+	return 'get_channel_id(\'' + obj.id + '\', ' + sql.Server(obj.guild) + ')';
 }
 
 sql.Server = function(obj) {
-	return 'get_server_id("' + obj.id + '")';
+	return 'get_server_id(\'' + obj.id + '\')';
 }
 
 sql.Role = function(obj) {
-	return 'get_role_id_combined("' + obj.id + '", "' + obj.guild.id + '")';
+	return 'get_role_id_combined(\'' + obj.id + '\', \'' + obj.guild.id + '\')';
 }
 
 let concatNames = function(tab) {
-	return '`' + tab.join('`, `') + '`';
+	return '"' + tab.join('", "') + '"';
 }
 
 let concatValues = function(tab) {
@@ -48,7 +48,7 @@ sql.Insert = function(tab, keys) {
 		vals.push('(' + concatValues(arguments[i]) + ')');
 	}
 	
-	return 'INSERT INTO `' + tab + '` (' + concatNames(keys) + ') VALUES ' + vals.join(', ');
+	return 'INSERT INTO ' + tab + ' (' + concatNames(keys) + ') VALUES ' + vals.join(', ');
 }
 
 sql.Replace = function(tab, keys) {
@@ -58,5 +58,5 @@ sql.Replace = function(tab, keys) {
 		vals.push('(' + concatValues(arguments[i]) + ')');
 	}
 	
-	return 'REPLACE INTO `' + tab + '` (' + concatNames(keys) + ') VALUES ' + vals.join(', ');
+	return 'REPLACE INTO ' + tab + ' (' + concatNames(keys) + ') VALUES ' + vals.join(', ');
 }

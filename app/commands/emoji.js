@@ -4636,7 +4636,7 @@ module.exports = {
 								continueFunc();
 						}, function(result) {
 							msg.channel.stopTyping();
-							msg.reply('Failed to download image. `HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '` URL: ' + emojiBase + p1 + '.png');
+							msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '" URL: ' + emojiBase + p1 + '.png');
 						});
 					});
 				})(emojiCollection.length, flop);

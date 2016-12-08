@@ -32,7 +32,7 @@ hook.Add('UpdateMemberVars', 'NameLogs', function(member) {
 		
 		member.NTime = time;
 		
-		MySQL.query('INSERT INTO `name_logs` (`MEMBER`, `NAME`, `LASTUSE`, `TIME`) VALUES (' + sql.Member(member) + ', ' + Util.escape(name) + ', ' + time + ', ' + delta + ') ON DUPLICATE KEY UPDATE `LASTUSE` = ' + time + ', `TIME` = `TIME` + ' + delta);
+		MySQL.query('INSERT INTO "name_logs" ("MEMBER", "NAME", "LASTUSE", "TIME") VALUES (' + sql.Member(member) + ', ' + Util.escape(name) + ', ' + time + ', ' + delta + ') ON DUPLICATE KEY UPDATE "LASTUSE" = ' + time + ', "TIME" = "TIME" + ' + delta);
 	} catch(err) {
 		console.error(err);
 	}
@@ -54,7 +54,7 @@ DBot.RegisterCommand({
 		if (typeof args[0] != 'object')
 			return 'Must be an user ;n;';
 		
-		MySQL.query('SELECT `NAME`, `LASTUSE`, `TIME` FROM `name_logs` WHERE `ID` = ' + DBot.GetUserID(args[0]) + ' AND `SERVER` = ' + DBot.GetServerID(msg.channel.guild) + ' ORDER BY `LASTUSE` DESC', function(err, data) {
+		MySQL.query('SELECT "NAME", "LASTUSE", "TIME" FROM name_logs WHERE "ID" = ' + DBot.GetUserID(args[0]) + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild) + ' ORDER BY "LASTUSE" DESC', function(err, data) {
 			if (err || !data || !data[0]) {
 				msg.reply('WTF');
 				return;

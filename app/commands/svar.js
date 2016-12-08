@@ -22,7 +22,7 @@ module.exports = {
 		var isPrivate = cvar.haveFlag(FCVAR_PROTECTED);
 		
 		if (isPrivate && !msg.member.hasPermission('MANAGE_GUILD'))
-			return 'Variable have `FCVAR_PROTECTED` flag and you don\'t have `MANAGE_GUILD` permissions! Uh oh! ;n;';
+			return 'Variable have "FCVAR_PROTECTED" flag and you don\'t have "MANAGE_GUILD" permissions! Uh oh! ;n;';
 		
 		if (args[1] === undefined) {
 			if (isPrivate) {
@@ -32,7 +32,7 @@ module.exports = {
 			}
 		} else {
 			if (!msg.member.hasPermission('MANAGE_GUILD') && msg.author.id != DBot.DBot)
-				return 'You must have `MANAGE_GUILD` rights to set server variables';
+				return 'You must have "MANAGE_GUILD" rights to set server variables';
 			
 			let trySet = cvar.setValue(args[1]);
 			
@@ -40,9 +40,9 @@ module.exports = {
 				msg.reply('```' + cvars.ErrorMessages[trySet[1]] + '\n\n' + Util.HighlightHelp(['svar'], 3, args, true) + '```');
 			} else {
 				if (isPrivate) {
-					msg.author.sendMessage('```Server variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
+					msg.author.sendMessage('```Server variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '```"');
 				} else {
-					msg.channel.sendMessage('```Server variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
+					msg.channel.sendMessage('```Server variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '```"');
 				}
 			}
 		}
@@ -138,7 +138,7 @@ DBot.RegisterCommand({
 		var isPrivate = cvar.haveFlag(FCVAR_PROTECTED);
 		
 		if (isPrivate && !msg.member.hasPermission('MANAGE_GUILD'))
-			return 'Variable have `FCVAR_PROTECTED` flag and you don\'t have `MANAGE_GUILD` permissions! Uh oh! ;n;';
+			return 'Variable have "FCVAR_PROTECTED" flag and you don\'t have "MANAGE_GUILD" permissions! Uh oh! ;n;';
 		
 		if (args[1] === undefined) {
 			if (isPrivate) {
@@ -148,7 +148,7 @@ DBot.RegisterCommand({
 			}
 		} else {
 			if (!msg.member.hasPermission('MANAGE_GUILD') && msg.author.id != DBot.DBot)
-				return 'You must have `MANAGE_GUILD` rights to set channel variables';
+				return 'You must have "MANAGE_GUILD" rights to set channel variables';
 			
 			let trySet = cvar.setValue(args[1]);
 			
@@ -156,9 +156,9 @@ DBot.RegisterCommand({
 				msg.reply('```' + cvars.ErrorMessages[trySet[1]] + '\n\n' + Util.HighlightHelp(['cvar'], 3, args, true) + '```');
 			} else {
 				if (isPrivate) {
-					msg.author.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
+					msg.author.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '```"');
 				} else {
-					msg.channel.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
+					msg.channel.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '```"');
 				}
 			}
 		}
@@ -201,7 +201,7 @@ DBot.RegisterCommand({
 		let isPrivate = cvar.haveFlag(FCVAR_PROTECTED);
 		
 		if (isPrivate && !msg.member.hasPermission('MANAGE_GUILD'))
-			return 'Variable have `FCVAR_PROTECTED` flag and you don\'t have `MANAGE_GUILD` permissions! Uh oh! ;n;';
+			return 'Variable have "FCVAR_PROTECTED" flag and you don\'t have "MANAGE_GUILD" permissions! Uh oh! ;n;';
 		
 		if (args[2] === undefined) {
 			if (isPrivate) {
@@ -211,7 +211,7 @@ DBot.RegisterCommand({
 			}
 		} else {
 			if (!msg.member.hasPermission('MANAGE_GUILD') && msg.author.id != DBot.DBot)
-				return 'You must have `MANAGE_GUILD` rights to set channel variables';
+				return 'You must have "MANAGE_GUILD" rights to set channel variables';
 			
 			let trySet = cvar.setValue(args[2]);
 			
@@ -219,9 +219,9 @@ DBot.RegisterCommand({
 				msg.reply(DBot.CommandError(cvars.ErrorMessages[trySet[1]], 'mcvar', args, 3));
 			} else {
 				if (isPrivate) {
-					msg.author.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
+					msg.author.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '```"');
 				} else {
-					channel.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
+					channel.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '```"');
 				}
 			}
 		}
@@ -253,7 +253,7 @@ DBot.RegisterCommand({
 			if (!trySet[0]) {
 				msg.reply('```' + cvars.ErrorMessages[trySet[1]] + '\n\n' + Util.HighlightHelp(['uvar'], 3, args, true) + '```');
 			} else {
-				msg.author.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
+				msg.author.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '```"');
 			}
 		}
 	}

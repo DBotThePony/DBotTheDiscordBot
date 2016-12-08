@@ -151,7 +151,7 @@ hook.Add('OnMessage', 'LastURLInChannel', function(msg) {
 	
 	var Message = msg.content;
 	
-	var get = Message.match(new RegExp('https?://([^ `\n]*)', 'g'));
+	var get = Message.match(new RegExp('https?://([^ "\n]*)', 'g'));
 	
 	if (!get)
 		return;

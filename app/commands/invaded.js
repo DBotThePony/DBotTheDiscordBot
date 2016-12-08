@@ -99,7 +99,7 @@ module.exports = {
 			fPath = newPath;
 			ContinueFunc();
 		}, function(result) {
-			msg.reply('Failed to download image. `HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '`');
+			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
 		});
 	}
 }

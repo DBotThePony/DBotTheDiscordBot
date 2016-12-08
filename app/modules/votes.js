@@ -12,7 +12,7 @@ DBot.RegisterCommand({
 			return 'Onoh! It is PM! ;n;';
 		
 		if (!msg.member.hasPermission('MANAGE_CHANNELS'))
-			return 'You must have `MANAGE_CHANNELS` rights ;n;';
+			return 'You must have "MANAGE_CHANNELS" rights ;n;';
 		
 		if (!args[0])
 			return 'Name of vote is required' + Util.HighlightHelp(['createvote'], 2, args);
@@ -33,7 +33,7 @@ DBot.RegisterCommand({
 			}
 		}
 		
-		MySQL.query('INSERT INTO `votes_list` (`SERVER`, `NAME`, `STAMP`) VALUES (' + DBot.GetServerID(msg.channel.guild) + ', ' + MySQL.escape(utf8.encode(args[0])) + ', ' + CurTime() + ')', function(err, data) {
+		MySQL.query('INSERT INTO "votes_list" ("SERVER", "NAME", "STAMP") VALUES (' + DBot.GetServerID(msg.channel.guild) + ', ' + MySQL.escape(utf8.encode(args[0])) + ', ' + CurTime() + ')', function(err, data) {
 			if (err) {
 				msg.reply('Internal pony error');
 				return;
@@ -42,7 +42,7 @@ DBot.RegisterCommand({
 			var uid = data.insertId;
 			
 			for (let i = 1; i < args.length; i++) {
-				MySQL.query('INSERT INTO `votes_choices` (`VOTE`, `CHOICEID`, `NAME`) VALUES (' + uid + ', ' + i + ', ' + Util.escape(args[i]) + ')');
+				MySQL.query('INSERT INTO "votes_choices" ("VOTE", "CHOICEID", "NAME") VALUES (' + uid + ', ' + i + ', ' + Util.escape(args[i]) + ')');
 			}
 			
 			msg.reply('Vote created! Vote ID: #' + uid);
@@ -62,7 +62,7 @@ DBot.RegisterCommand({
 			return 'Onoh! It is PM! ;n;';
 		
 		if (!msg.member.hasPermission('MANAGE_CHANNELS'))
-			return 'You must have `MANAGE_CHANNELS` rights ;n;';
+			return 'You must have "MANAGE_CHANNELS" rights ;n;';
 		
 		if (!args[0])
 			return 'Name of vote is required' + Util.HighlightHelp(['votetext'], 2, args);
@@ -76,7 +76,7 @@ DBot.RegisterCommand({
 		}
 		
 		if (voteID) {
-			MySQL.query('SELECT * FROM `votes_list` WHERE `ID` = ' + voteID + ' AND `SERVER` = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
+			MySQL.query('SELECT * FROM votes_list WHERE "ID" = ' + voteID + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
 				if (err) {
 					msg.reply('Internal pony error');
 					return;
@@ -94,7 +94,7 @@ DBot.RegisterCommand({
 				
 				var voteData = data[0];
 				
-				MySQL.query('REPLACE INTO `votes_text` VALUES (' + voteID + ', ' + Util.escape(newCMD) + ')', function(err) {
+				MySQL.query('REPLACE INTO "votes_text" VALUES (' + voteID + ', ' + Util.escape(newCMD) + ')', function(err) {
 					if (err) {
 						msg.reply('Internal pony error');
 						return;
@@ -104,7 +104,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			MySQL.query('SELECT * FROM `votes_list` WHERE `NAME` LIKE ' + Util.escape('%' + args[0] + '%') + ' AND `SERVER` = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
+			MySQL.query('SELECT * FROM votes_list WHERE "NAME" LIKE ' + Util.escape('%' + args[0] + '%') + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
 				if (err) {
 					msg.reply('Internal pony error');
 					return;
@@ -123,7 +123,7 @@ DBot.RegisterCommand({
 				var voteID = data[0].ID;
 				var voteData = data[0];
 				
-				MySQL.query('REPLACE INTO `votes_text` VALUES (' + voteID + ', ' + Util.escape(newCMD) + ')', function(err) {
+				MySQL.query('REPLACE INTO "votes_text" VALUES (' + voteID + ', ' + Util.escape(newCMD) + ')', function(err) {
 					if (err) {
 						msg.reply('Internal pony error');
 						return;
@@ -147,7 +147,7 @@ DBot.RegisterCommand({
 			return 'Onoh! It is PM! ;n;';
 		
 		if (!msg.member.hasPermission('MANAGE_CHANNELS'))
-			return 'You must have `MANAGE_CHANNELS` rights ;n;';
+			return 'You must have "MANAGE_CHANNELS" rights ;n;';
 		
 		if (!args[0])
 			return 'Name of vote is required' + Util.HighlightHelp(['votetext'], 2, args);
@@ -155,7 +155,7 @@ DBot.RegisterCommand({
 		var voteID = Util.ToNumber(cmd);
 		
 		if (voteID) {
-			MySQL.query('SELECT * FROM `votes_list` WHERE `ID` = ' + voteID + ' AND `SERVER` = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
+			MySQL.query('SELECT * FROM votes_list WHERE "ID" = ' + voteID + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
 				if (err) {
 					msg.reply('Internal pony error');
 					return;
@@ -178,7 +178,7 @@ DBot.RegisterCommand({
 				
 				var voteData = data[0];
 				
-				MySQL.query('UPDATE `votes_list` SET `CLOSED` = true WHERE `ID` = ' + voteID, function(err) {
+				MySQL.query('UPDATE "votes_list" SET "CLOSED" = true WHERE "ID" = ' + voteID, function(err) {
 					if (err) {
 						msg.reply('Internal pony error');
 						return;
@@ -188,7 +188,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			MySQL.query('SELECT * FROM `votes_list` WHERE `NAME` LIKE ' + Util.escape('%' + args[0] + '%') + ' AND `SERVER` = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
+			MySQL.query('SELECT * FROM votes_list WHERE "NAME" LIKE ' + Util.escape('%' + args[0] + '%') + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
 				if (err) {
 					msg.reply('Internal pony error');
 					return;
@@ -212,7 +212,7 @@ DBot.RegisterCommand({
 				var voteID = data[0].ID;
 				var voteData = data[0];
 				
-				MySQL.query('UPDATE `votes_list` SET `CLOSED` = true WHERE `ID` = ' + voteID, function(err) {
+				MySQL.query('UPDATE "votes_list" SET "CLOSED" = true WHERE "ID" = ' + voteID, function(err) {
 					if (err) {
 						msg.reply('Internal pony error');
 						return;
@@ -236,7 +236,7 @@ DBot.RegisterCommand({
 			return 'Onoh! It is PM! ;n;';
 		
 		if (!msg.member.hasPermission('MANAGE_CHANNELS'))
-			return 'You must have `MANAGE_CHANNELS` rights ;n;';
+			return 'You must have "MANAGE_CHANNELS" rights ;n;';
 		
 		if (!args[0])
 			return 'Name of vote is required' + Util.HighlightHelp(['votetext'], 2, args);
@@ -244,7 +244,7 @@ DBot.RegisterCommand({
 		var voteID = Util.ToNumber(cmd);
 		
 		if (voteID) {
-			MySQL.query('SELECT * FROM `votes_list` WHERE `ID` = ' + voteID + ' AND `SERVER` = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
+			MySQL.query('SELECT * FROM votes_list WHERE "ID" = ' + voteID + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
 				if (err) {
 					msg.reply('Internal pony error');
 					return;
@@ -267,7 +267,7 @@ DBot.RegisterCommand({
 				
 				var voteData = data[0];
 				
-				MySQL.query('UPDATE `votes_list` SET `CLOSED` = false WHERE `ID` = ' + voteID, function(err) {
+				MySQL.query('UPDATE "votes_list" SET "CLOSED" = false WHERE "ID" = ' + voteID, function(err) {
 					if (err) {
 						msg.reply('Internal pony error');
 						return;
@@ -277,7 +277,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			MySQL.query('SELECT * FROM `votes_list` WHERE `NAME` LIKE ' + Util.escape('%' + args[0] + '%') + ' AND `SERVER` = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
+			MySQL.query('SELECT * FROM votes_list WHERE "NAME" LIKE ' + Util.escape('%' + args[0] + '%') + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
 				if (err) {
 					msg.reply('Internal pony error');
 					return;
@@ -301,7 +301,7 @@ DBot.RegisterCommand({
 				var voteID = data[0].ID;
 				var voteData = data[0];
 				
-				MySQL.query('UPDATE `votes_list` SET `CLOSED` = false WHERE `ID` = ' + voteID, function(err) {
+				MySQL.query('UPDATE "votes_list" SET "CLOSED" = false WHERE "ID" = ' + voteID, function(err) {
 					if (err) {
 						msg.reply('Internal pony error');
 						return;
@@ -326,7 +326,7 @@ DBot.RegisterCommand({
 			return 'Onoh! It is PM! ;n;';
 		
 		if (!msg.member.hasPermission('MANAGE_CHANNELS'))
-			return 'You must have `MANAGE_CHANNELS` rights ;n;';
+			return 'You must have "MANAGE_CHANNELS" rights ;n;';
 		
 		if (!args[0])
 			return 'Name of vote is required' + Util.HighlightHelp(['votetext'], 2, args);
@@ -334,7 +334,7 @@ DBot.RegisterCommand({
 		var voteID = Util.ToNumber(cmd);
 		
 		if (voteID) {
-			MySQL.query('SELECT * FROM `votes_list` WHERE `ID` = ' + voteID + ' AND `SERVER` = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
+			MySQL.query('SELECT * FROM votes_list WHERE "ID" = ' + voteID + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
 				if (err) {
 					msg.reply('Internal pony error');
 					return;
@@ -347,7 +347,7 @@ DBot.RegisterCommand({
 				
 				var voteData = data[0];
 				
-				MySQL.query('UPDATE `votes_list` SET `CHANNEL` = ' + DBot.GetChannelID(msg.channel) + ' WHERE `ID` = ' + voteID, function(err) {
+				MySQL.query('UPDATE "votes_list" SET "CHANNEL" = ' + DBot.GetChannelID(msg.channel) + ' WHERE "ID" = ' + voteID, function(err) {
 					if (err) {
 						msg.reply('Internal pony error');
 						return;
@@ -357,7 +357,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			MySQL.query('SELECT * FROM `votes_list` WHERE `NAME` LIKE ' + Util.escape('%' + args[0] + '%') + ' AND `SERVER` = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
+			MySQL.query('SELECT * FROM votes_list WHERE "NAME" LIKE ' + Util.escape('%' + args[0] + '%') + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
 				if (err) {
 					msg.reply('Internal pony error');
 					return;
@@ -371,7 +371,7 @@ DBot.RegisterCommand({
 				var voteID = data[0].ID;
 				var voteData = data[0];
 				
-				MySQL.query('UPDATE `votes_list` SET `CHANNEL` = ' + DBot.GetChannelID(msg.channel) + ' WHERE `ID` = ' + voteID, function(err) {
+				MySQL.query('UPDATE "votes_list" SET "CHANNEL" = ' + DBot.GetChannelID(msg.channel) + ' WHERE "ID" = ' + voteID, function(err) {
 					if (err) {
 						msg.reply('Internal pony error');
 						return;
@@ -396,7 +396,7 @@ DBot.RegisterCommand({
 			return 'Onoh! It is PM! ;n;';
 		
 		if (!msg.member.hasPermission('MANAGE_CHANNELS'))
-			return 'You must have `MANAGE_CHANNELS` rights ;n;';
+			return 'You must have "MANAGE_CHANNELS" rights ;n;';
 		
 		if (!args[0])
 			return 'Name of vote is required' + Util.HighlightHelp(['votetext'], 2, args);
@@ -404,7 +404,7 @@ DBot.RegisterCommand({
 		var voteID = Util.ToNumber(cmd);
 		
 		if (voteID) {
-			MySQL.query('SELECT * FROM `votes_list` WHERE `ID` = ' + voteID + ' AND `SERVER` = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
+			MySQL.query('SELECT * FROM votes_list WHERE "ID" = ' + voteID + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
 				if (err) {
 					msg.reply('Internal pony error');
 					return;
@@ -417,7 +417,7 @@ DBot.RegisterCommand({
 				
 				var voteData = data[0];
 				
-				MySQL.query('UPDATE `votes_list` SET `CHANNEL` = NULL WHERE `ID` = ' + voteID, function(err) {
+				MySQL.query('UPDATE "votes_list" SET "CHANNEL" = NULL WHERE "ID" = ' + voteID, function(err) {
 					if (err) {
 						msg.reply('Internal pony error');
 						return;
@@ -427,7 +427,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			MySQL.query('SELECT * FROM `votes_list` WHERE `NAME` LIKE ' + Util.escape('%' + args[0] + '%') + ' AND `SERVER` = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
+			MySQL.query('SELECT * FROM votes_list WHERE "NAME" LIKE ' + Util.escape('%' + args[0] + '%') + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
 				if (err) {
 					msg.reply('Internal pony error');
 					return;
@@ -441,7 +441,7 @@ DBot.RegisterCommand({
 				var voteID = data[0].ID;
 				var voteData = data[0];
 				
-				MySQL.query('UPDATE `votes_list` SET `CHANNEL` = NULL WHERE `ID` = ' + voteID, function(err) {
+				MySQL.query('UPDATE "votes_list" SET "CHANNEL" = NULL WHERE "ID" = ' + voteID, function(err) {
 					if (err) {
 						msg.reply('Internal pony error');
 						return;
@@ -487,7 +487,7 @@ DBot.RegisterCommand({
 		var voteID = Util.ToNumber(args[0]);
 		
 		if (voteID) {
-			MySQL.query('SELECT * FROM `votes_list` WHERE `ID` = ' + voteID + ' AND `SERVER` = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
+			MySQL.query('SELECT * FROM votes_list WHERE "ID" = ' + voteID + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
 				if (err) {
 					msg.reply('Internal pony error');
 					return;
@@ -505,13 +505,13 @@ DBot.RegisterCommand({
 				
 				var voteData = data[0];
 				
-				MySQL.query('SELECT `CHOICEID`, `NAME`, `VOTES` FROM `votes_choices` WHERE `VOTE` = ' + voteID, function(err, data) {
+				MySQL.query('SELECT "CHOICEID", "NAME", "VOTES" FROM votes_choices WHERE "VOTE" = ' + voteID, function(err, data) {
 					if (err) {
 						msg.reply('Internal pony error');
 						return;
 					}
 					
-					MySQL.query('SELECT `TEXT` FROM `votes_text` WHERE `ID` = ' + voteID, function(err, textData) {
+					MySQL.query('SELECT "TEXT" FROM votes_text WHERE "ID" = ' + voteID, function(err, textData) {
 						if (err) {
 							msg.reply('Internal pony error');
 							return;
@@ -549,7 +549,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			MySQL.query('SELECT * FROM `votes_list` WHERE `NAME` LIKE ' + Util.escape('%' + cmd + '%') + ' AND `SERVER` = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
+			MySQL.query('SELECT * FROM votes_list WHERE "NAME" LIKE ' + Util.escape('%' + cmd + '%') + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
 				if (err) {
 					msg.reply('Internal pony error');
 					return;
@@ -568,13 +568,13 @@ DBot.RegisterCommand({
 				var voteID = data[0].ID;
 				var voteData = data[0];
 				
-				MySQL.query('SELECT `CHOICEID`, `NAME`, `VOTES` FROM `votes_choices` WHERE `VOTE` = ' + voteID, function(err, data) {
+				MySQL.query('SELECT "CHOICEID", "NAME", "VOTES" FROM votes_choices WHERE "VOTE" = ' + voteID, function(err, data) {
 					if (err) {
 						msg.reply('Internal pony error');
 						return;
 					}
 					
-					MySQL.query('SELECT `TEXT` FROM `votes_text` WHERE `ID` = ' + voteID, function(err, textData) {
+					MySQL.query('SELECT "TEXT" FROM votes_text WHERE "ID" = ' + voteID, function(err, textData) {
 						if (err) {
 							msg.reply('Internal pony error');
 							return;
@@ -641,7 +641,7 @@ DBot.RegisterCommand({
 		}
 		
 		if (voteID) {
-			MySQL.query('SELECT * FROM `votes_list` WHERE `ID` = ' + voteID + ' AND `SERVER` = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
+			MySQL.query('SELECT * FROM votes_list WHERE "ID" = ' + voteID + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
 				if (err) {
 					msg.reply('Internal pony error');
 					return;
@@ -664,14 +664,14 @@ DBot.RegisterCommand({
 				
 				var voteData = data[0];
 				
-				MySQL.query('SELECT `CHOICE` FROM `votes_votes` WHERE `VOTE` = ' + voteID, function(err, data) {
+				MySQL.query('SELECT "CHOICE" FROM votes_votes WHERE "VOTE" = ' + voteID, function(err, data) {
 					if (err) {
 						msg.reply('Internal pony error');
 						return;
 					}
 					
 					if (data && data[0]) {
-						MySQL.query('SELECT `NAME` FROM `votes_choices` WHERE `VOTE` = ' + voteID + ' AND `CHOICEID` = ' + data[0].CHOICE, function(err, data) {
+						MySQL.query('SELECT "NAME" FROM votes_choices WHERE "VOTE" = ' + voteID + ' AND "CHOICEID" = ' + data[0].CHOICE, function(err, data) {
 							msg.reply('You are already voted for ' + utf8.decode(data[0].NAME) + ' in ' + utf8.decode(voteData.NAME) + '!');
 						});
 						
@@ -681,7 +681,7 @@ DBot.RegisterCommand({
 					var choiceID = Util.ToNumber(args[1]);
 					
 					if (choiceID) {
-						MySQL.query('SELECT `NAME` FROM `votes_choices` WHERE `VOTE` = ' + voteID + ' AND `CHOICEID` = ' + choiceID, function(err, data) {
+						MySQL.query('SELECT "NAME" FROM votes_choices WHERE "VOTE" = ' + voteID + ' AND "CHOICEID" = ' + choiceID, function(err, data) {
 							if (err) {
 								msg.reply('Internal pony error');
 								return;
@@ -692,13 +692,13 @@ DBot.RegisterCommand({
 								return;
 							}
 							
-							MySQL.query('INSERT INTO `votes_votes` VALUE (' + voteID + ', ' + userID + ', ' + choiceID + ')', function(err) {
+							MySQL.query('INSERT INTO "votes_votes" VALUE (' + voteID + ', ' + userID + ', ' + choiceID + ')', function(err) {
 								if (err) {
 									msg.reply('Internal pony error');
 									return;
 								}
 								
-								MySQL.query('UPDATE `votes_choices` SET `VOTES` = `VOTES` + 1 WHERE `VOTE` = ' + voteID + ' AND `CHOICEID` = ' + choiceID, function(err) {
+								MySQL.query('UPDATE "votes_choices" SET "VOTES" = "VOTES" + 1 WHERE "VOTE" = ' + voteID + ' AND "CHOICEID" = ' + choiceID, function(err) {
 									if (err) {
 										msg.reply('Internal pony error');
 										return;
@@ -709,7 +709,7 @@ DBot.RegisterCommand({
 							});
 						});
 					} else {
-						MySQL.query('SELECT `CHOICEID`, `NAME` FROM `votes_choices` WHERE `VOTE` = ' + voteID + ' AND `NAME` LIKE ' + Util.escape('%' + voteCMD + '%'), function(err, data) {
+						MySQL.query('SELECT "CHOICEID", "NAME" FROM votes_choices WHERE "VOTE" = ' + voteID + ' AND "NAME" LIKE ' + Util.escape('%' + voteCMD + '%'), function(err, data) {
 							if (err) {
 								msg.reply('Internal pony error');
 								return;
@@ -722,13 +722,13 @@ DBot.RegisterCommand({
 							
 							var choiceID = data[0].CHOICEID;
 							
-							MySQL.query('INSERT INTO `votes_votes` VALUE (' + voteID + ', ' + userID + ', ' + choiceID + ')', function(err) {
+							MySQL.query('INSERT INTO "votes_votes" VALUE (' + voteID + ', ' + userID + ', ' + choiceID + ')', function(err) {
 								if (err) {
 									msg.reply('Internal pony error');
 									return;
 								}
 								
-								MySQL.query('UPDATE `votes_choices` SET `VOTES` = `VOTES` + 1 WHERE `VOTE` = ' + voteID + ' AND `CHOICEID` = ' + choiceID, function(err) {
+								MySQL.query('UPDATE "votes_choices" SET "VOTES" = "VOTES" + 1 WHERE "VOTE" = ' + voteID + ' AND "CHOICEID" = ' + choiceID, function(err) {
 									if (err) {
 										msg.reply('Internal pony error');
 										return;
@@ -742,7 +742,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			MySQL.query('SELECT * FROM `votes_list` WHERE `NAME` LIKE ' + Util.escape('%' + args[0] + '%') + ' AND `SERVER` = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
+			MySQL.query('SELECT * FROM votes_list WHERE "NAME" LIKE ' + Util.escape('%' + args[0] + '%') + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
 				if (err) {
 					msg.reply('Internal pony error');
 					return;
@@ -766,14 +766,14 @@ DBot.RegisterCommand({
 				var voteID = data[0].ID;
 				var voteData = data[0];
 				
-				MySQL.query('SELECT `CHOICE` FROM `votes_votes` WHERE `VOTE` = ' + voteID, function(err, data) {
+				MySQL.query('SELECT "CHOICE" FROM votes_votes WHERE "VOTE" = ' + voteID, function(err, data) {
 					if (err) {
 						msg.reply('Internal pony error');
 						return;
 					}
 					
 					if (data && data[0]) {
-						MySQL.query('SELECT `NAME` FROM `votes_choices` WHERE `VOTE` = ' + voteID + ' AND `CHOICEID` = ' + data[0].CHOICE, function(err, data) {
+						MySQL.query('SELECT "NAME" FROM votes_choices WHERE "VOTE" = ' + voteID + ' AND "CHOICEID" = ' + data[0].CHOICE, function(err, data) {
 							msg.reply('You are already voted for ' + utf8.decode(data[0].NAME) + ' in ' + utf8.decode(voteData.NAME) + '!');
 						});
 						
@@ -783,7 +783,7 @@ DBot.RegisterCommand({
 					var choiceID = Util.ToNumber(args[1]);
 					
 					if (choiceID) {
-						MySQL.query('SELECT `NAME` FROM `votes_choices` WHERE `VOTE` = ' + voteID + ' AND `CHOICEID` = ' + choiceID, function(err, data) {
+						MySQL.query('SELECT "NAME" FROM votes_choices WHERE "VOTE" = ' + voteID + ' AND "CHOICEID" = ' + choiceID, function(err, data) {
 							if (err) {
 								msg.reply('Internal pony error');
 								return;
@@ -794,13 +794,13 @@ DBot.RegisterCommand({
 								return;
 							}
 							
-							MySQL.query('INSERT INTO `votes_votes` VALUE (' + voteID + ', ' + userID + ', ' + choiceID + ')', function(err) {
+							MySQL.query('INSERT INTO "votes_votes" VALUE (' + voteID + ', ' + userID + ', ' + choiceID + ')', function(err) {
 								if (err) {
 									msg.reply('Internal pony error');
 									return;
 								}
 								
-								MySQL.query('UPDATE `votes_choices` SET `VOTES` = `VOTES` + 1 WHERE `VOTE` = ' + voteID + ' AND `CHOICEID` = ' + choiceID, function(err) {
+								MySQL.query('UPDATE "votes_choices" SET "VOTES" = "VOTES" + 1 WHERE "VOTE" = ' + voteID + ' AND "CHOICEID" = ' + choiceID, function(err) {
 									if (err) {
 										msg.reply('Internal pony error');
 										return;
@@ -811,7 +811,7 @@ DBot.RegisterCommand({
 							});
 						});
 					} else {
-						MySQL.query('SELECT `CHOICEID`, `NAME` FROM `votes_choices` WHERE `VOTE` = ' + voteID + ' AND `NAME` LIKE ' + Util.escape('%' + voteCMD + '%'), function(err, data) {
+						MySQL.query('SELECT "CHOICEID", "NAME" FROM votes_choices WHERE "VOTE" = ' + voteID + ' AND "NAME" LIKE ' + Util.escape('%' + voteCMD + '%'), function(err, data) {
 							if (err) {
 								msg.reply('Internal pony error');
 								return;
@@ -824,13 +824,13 @@ DBot.RegisterCommand({
 							
 							var choiceID = data[0].CHOICEID;
 							
-							MySQL.query('INSERT INTO `votes_votes` VALUE (' + voteID + ', ' + userID + ', ' + choiceID + ')', function(err) {
+							MySQL.query('INSERT INTO "votes_votes" VALUE (' + voteID + ', ' + userID + ', ' + choiceID + ')', function(err) {
 								if (err) {
 									msg.reply('Internal pony error');
 									return;
 								}
 								
-								MySQL.query('UPDATE `votes_choices` SET `VOTES` = `VOTES` + 1 WHERE `VOTE` = ' + voteID + ' AND `CHOICEID` = ' + choiceID, function(err) {
+								MySQL.query('UPDATE "votes_choices" SET "VOTES" = "VOTES" + 1 WHERE "VOTE" = ' + voteID + ' AND "CHOICEID" = ' + choiceID, function(err) {
 									if (err) {
 										msg.reply('Internal pony error');
 										return;

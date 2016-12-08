@@ -96,7 +96,7 @@ module.exports = {
 			ContinueFunc();
 		}, function(result) {
 			msg.channel.stopTyping();
-			msg.reply('Failed to download image. `HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '`');
+			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
 		});
 	}
 }

@@ -51,7 +51,7 @@ module.exports = {
 	desc: 'Random meme from https://imgflip.com/',
 	
 	func: function(args, cmd, msg) {
-		MySQL.query('SELECT URL, NAME FROM `meme_cache` ORDER BY RAND() LIMIT 1, 1', function(err, data) {
+		MySQL.query('SELECT URL, NAME FROM meme_cache ORDER BY RAND() LIMIT 1, 1', function(err, data) {
 			var meme = data[0];
 			
 			msg.reply('\n' + meme.NAME + '\n' + meme.URL);

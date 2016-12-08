@@ -117,7 +117,7 @@ module.exports = {
 			if (msgNew)
 				msgNew.delete(0);
 			
-			msg.reply('Failed to download image. `HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '`');
+			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
 		});
 	}
 }

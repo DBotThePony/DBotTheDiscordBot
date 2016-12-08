@@ -9,7 +9,7 @@ var NOTIFY = {};
 
 hook.Add('BotOnline', 'Timers', function() {
 	INIT = true;
-	MySQL.query('SELECT ID, STAMP FROM `timers_ids` WHERE NOTIFY = 0', function(err, data) {
+	MySQL.query('SELECT ID, STAMP FROM timers_ids WHERE NOTIFY = 0', function(err, data) {
 		for (var i in data) {
 			NOTIFY[data[i].ID] = data[i].STAMP;
 		}
@@ -27,10 +27,10 @@ setInterval(function() {
 			(function() {
 				var id = ID;
 				
-				MySQL.query('UPDATE `timers_ids` SET `NOTIFY` = 1 WHERE `ID` = ' + id);
+				MySQL.query('UPDATE "timers_ids" SET "NOTIFY" = 1 WHERE "ID" = ' + id);
 				
-				MySQL.query('SELECT `TITLE`, `HASH` FROM `timers_ids` WHERE `ID` = ' + id, function(err, data2) {
-					MySQL.query('SELECT `ID` FROM `timers_users` WHERE `TIMERID` = ' + id, function(err, data) {
+				MySQL.query('SELECT "TITLE", "HASH" FROM timers_ids WHERE "ID" = ' + id, function(err, data2) {
+					MySQL.query('SELECT "ID" FROM timers_users WHERE "TIMERID" = ' + id, function(err, data) {
 						for (var I in data) {
 							var row = data[I];
 							var user = DBot.GetUser(row.ID);
@@ -96,9 +96,9 @@ body {
 <script src='/bot/moment.js'></script>
 <script src='/bot/numeral.js'></script>
 <script src='/bot/jquery-3.0.0.min.js'></script>
-<script type='application/javascript'>`;
+<script type='application/javascript'>";
 
-stuff[1] = `var countdown;
+stuff[1] = "var countdown;
 var nums;
 
 var func = function() {
@@ -210,12 +210,12 @@ module.exports = {
 		
 		fs.stat(fpath, function(err, stat) {
 			if (stat) {
-				MySQL.query('SELECT ID, STAMP FROM `timers_ids` WHERE HASH = "' + sha + '"', function(err, data) {
+				MySQL.query('SELECT ID, STAMP FROM timers_ids WHERE HASH = "' + sha + '"', function(err, data) {
 					msg.reply('Timer already created: ' + fpathURL);
 					
 					if (data[0].STAMP > CurTime()) {
 						NOTIFY[data[0].ID] = data[0].STAMP;
-						MySQL.query('REPLACE INTO `timers_users` VALUES (' + DBot.GetUserID(msg.author) + ', ' + data[0].ID + ')');
+						MySQL.query('REPLACE INTO "timers_users" VALUES (' + DBot.GetUserID(msg.author) + ', ' + data[0].ID + ')');
 					}
 				});
 			} else {
@@ -239,7 +239,7 @@ module.exports = {
 					
 					stream.end();
 					
-					MySQL.query('REPLACE INTO `timers_users` VALUES (' + DBot.GetUserID(msg.author) + ', ' + timerID + ')');
+					MySQL.query('REPLACE INTO "timers_users" VALUES (' + DBot.GetUserID(msg.author) + ', ' + timerID + ')');
 					NOTIFY[timerID] = unix;
 					
 					stream.on('finish', function() {
@@ -261,7 +261,7 @@ DBot.RegisterCommand({
 	func: function(args, cmd, msg) {
 		var id = DBot.GetUserID(msg.author);
 		
-		MySQL.query('SELECT `TIMERID` FROM `timers_users` WHERE `ID` = ' + id, function(err, data) {
+		MySQL.query('SELECT "TIMERID" FROM timers_users WHERE "ID" = ' + id, function(err, data) {
 			var timerz = [];
 			
 			var continueFunc = function() {
@@ -287,7 +287,7 @@ DBot.RegisterCommand({
 				(function() {
 					var id2 = data[i].TIMERID;
 					
-					MySQL.query('SELECT * FROM `timers_ids` WHERE `ID` = ' + id2 + ' AND `NOTIFY` = 0', function(err, data) {
+					MySQL.query('SELECT * FROM timers_ids WHERE "ID" = ' + id2 + ' AND "NOTIFY" = 0', function(err, data) {
 						count--;
 						
 						if (data && data[0])
@@ -314,9 +314,9 @@ DBot.RegisterCommand({
 			return 'Must specify timer ID' + Util.HighlightHelp(['rtimer'], 2, args);
 		
 		var id = DBot.GetUserID(msg.author);
-		MySQL.query('SELECT `TIMERID` FROM `timers_users` WHERE `ID` = ' + id + ' AND `TIMERID` = ' + MySQL.escape(args[0]), function(err, data) {
+		MySQL.query('SELECT "TIMERID" FROM timers_users WHERE "ID" = ' + id + ' AND "TIMERID" = ' + MySQL.escape(args[0]), function(err, data) {
 			if (data && data[0]) {
-				MySQL.query('DELETE FROM `timers_users` WHERE `ID` = ' + id + ' AND `TIMERID` = ' + MySQL.escape(args[0]));
+				MySQL.query('DELETE FROM timers_users WHERE "ID" = ' + id + ' AND "TIMERID" = ' + MySQL.escape(args[0]));
 				msg.reply('Timer deleted successfully');
 			} else {
 				msg.reply('No such timer ;n;');

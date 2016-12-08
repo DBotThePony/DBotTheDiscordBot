@@ -90,16 +90,16 @@ module.exports = {
 			msg.channel.stopTyping();
 			var output = '\n';
 			
-			output += 'Player SteamID(32): `' + SteamID + '`\n';
-			output += 'Player SteamID3: `' + SteamID3 + '`\n';
-			output += 'Player SteamID64: `' + SteamID64 + '`\n';
+			output += 'Player SteamID(32): "' + SteamID + '"\n';
+			output += 'Player SteamID3: "' + SteamID3 + '"\n';
+			output += 'Player SteamID64: "' + SteamID64 + '"\n';
 			output += 'Player Profile URL: https://steamcommunity.com/id/' + CustomProfileURL + '\n';
 			
 			msg.reply(output);
 		}
 		
 		var getFunc = function(id) {
-			MySQL.query('SELECT * FROM `steamid_fail` WHERE `STEAMID64` = "' + id + '"', function(err, data2) {
+			MySQL.query('SELECT * FROM steamid_fail WHERE "STEAMID64" = "' + id + '"', function(err, data2) {
 				if (err) {
 					msg.channel.stopTyping();
 					console.error(err);
@@ -112,7 +112,7 @@ module.exports = {
 					return
 				}
 				
-				MySQL.query('SELECT * FROM `steamid` WHERE `STEAMID64` = "' + id + '"', function(err, data) {
+				MySQL.query('SELECT * FROM steamid WHERE "STEAMID64" = "' + id + '"', function(err, data) {
 					if (data && data[0]) {
 						SteamID = data[0].STEAMID;
 						SteamID64 = data[0].STEAMID64;
@@ -125,7 +125,7 @@ module.exports = {
 							var data = result.body.response.players;
 							
 							if (!data[0]) {
-								MySQL.query('INSERT INTO `steamid_fail` (`STEAMID64`) VALUES ("' + id + '")');
+								MySQL.query('INSERT INTO "steamid_fail" ("STEAMID64") VALUES ("' + id + '")');
 								msg.reply('No such steam account: ' + id);
 								msg.channel.stopTyping();
 								return;
@@ -143,7 +143,7 @@ module.exports = {
 							SteamID3 = steamid3;
 							SteamID64 = id;
 							
-							MySQL.query('REPLACE INTO `steamid` VALUES (' + MySQL.escape(SteamID64) + ', ' + MySQL.escape(SteamID) + ', ' + MySQL.escape(SteamID3) + ', ' + MySQL.escape(profile) + ')');
+							MySQL.query('REPLACE INTO "steamid" VALUES (' + MySQL.escape(SteamID64) + ', ' + MySQL.escape(SteamID) + ', ' + MySQL.escape(SteamID3) + ', ' + MySQL.escape(profile) + ')');
 							
 							continueFunc();
 						});
@@ -166,14 +166,14 @@ module.exports = {
 		} else {
 			// assume this is Custom Steam Profile
 			
-			MySQL.query('SELECT * FROM `steamid_fail` WHERE `CUSTOMID` = ' + MySQL.escape(toManipulate), function(err, data2) {
+			MySQL.query('SELECT * FROM steamid_fail WHERE "CUSTOMID" = ' + MySQL.escape(toManipulate), function(err, data2) {
 				if (data2[0]) {
 					msg.channel.stopTyping();
 					msg.reply('No such Steam account: ' + toManipulate);
 					return
 				}
 				
-				MySQL.query('SELECT * FROM `steamid` WHERE `CUSTOMID` = ' + MySQL.escape(toManipulate), function(err, data) {
+				MySQL.query('SELECT * FROM steamid WHERE "CUSTOMID" = ' + MySQL.escape(toManipulate), function(err, data) {
 					if (data && data[0]) {
 						SteamID = data[0].STEAMID;
 						SteamID64 = data[0].STEAMID64;
@@ -186,7 +186,7 @@ module.exports = {
 							var res = result.body;
 							
 							if (!res.response || res.response.success == 42) {
-								MySQL.query('INSERT INTO `steamid_fail` (`CUSTOMID`) VALUES (' + MySQL.escape(toManipulate) + ')');
+								MySQL.query('INSERT INTO "steamid_fail" ("CUSTOMID") VALUES (' + MySQL.escape(toManipulate) + ')');
 								msg.reply('No such Steam account: ' + toManipulate);
 								msg.channel.stopTyping();
 							} else {

@@ -19,7 +19,7 @@ module.exports = {
 			return '<internal pony error>';
 		
 		if (!me.hasPermission('CHANGE_NICKNAME'))
-			return 'I must have `CHANGE_NICKNAME` permission ;w;';
+			return 'I must have "CHANGE_NICKNAME" permission ;w;';
 		
 		if (!args[0])
 			return 'Nu name ;n;';

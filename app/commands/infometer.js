@@ -14,7 +14,7 @@ module.exports = {
 	desc: 'How much proven info is?',
 	
 	func: function(args, cmd, msg) {
-		MySQL.query('SELECT `VALUE` FROM `infometr` WHERE `PHRASE` = ' + MySQL.escape(utf8.encode(cmd.toLowerCase())), function(err, data) {
+		MySQL.query('SELECT "VALUE" FROM infometr WHERE "PHRASE" = ' + MySQL.escape(utf8.encode(cmd.toLowerCase())), function(err, data) {
 			if (data && data[0]) {
 				msg.reply('\n```' + cmd + '\nInfo - ' + data[0].VALUE + '%```');
 			} else {
@@ -72,7 +72,7 @@ module.exports = {
 				
 				msg.reply('\n```' + cmd + '\nInfo - ' + finalPercent + '%```');
 				
-				MySQL.query('INSERT INTO `infometr` (`PHRASE`, `VALUE`) VALUES (' + MySQL.escape(utf8.encode(cmd.toLowerCase())) + ', "' + finalPercent + '")');
+				MySQL.query('INSERT INTO "infometr" ("PHRASE", "VALUE") VALUES (' + MySQL.escape(utf8.encode(cmd.toLowerCase())) + ', "' + finalPercent + '")');
 			}
 		});
 		

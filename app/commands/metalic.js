@@ -19,7 +19,7 @@ module.exports = {
 	alias: ['bmetalic', 'bmetallic', 'metallic'],
 	
 	help_args: '<url>',
-	desc: 'Blends an image with metal texture\nUses `bumpmap` filter',
+	desc: 'Blends an image with metal texture\nUses "bumpmap" filter',
 	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
@@ -85,7 +85,7 @@ module.exports = {
 			ContinueFunc();
 		}, function(result) {
 			msg.channel.stopTyping();
-			msg.reply('Failed to download image. `HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '`');
+			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
 		});
 	}
 }
@@ -95,7 +95,7 @@ DBot.RegisterCommand({
 	alias: ['cmetallic'],
 	
 	help_args: '<url>',
-	desc: 'Blends an image with metal texture\nUses `color-burn` filter',
+	desc: 'Blends an image with metal texture\nUses "color-burn" filter',
 	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
@@ -161,7 +161,7 @@ DBot.RegisterCommand({
 			ContinueFunc();
 		}, function(result) {
 			msg.channel.stopTyping();
-			msg.reply('Failed to download image. `HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '`');
+			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
 		});
 	}
 });

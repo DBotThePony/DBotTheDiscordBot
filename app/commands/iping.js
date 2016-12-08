@@ -65,7 +65,7 @@ module.exports = {
 			
 			dns.lookup(ip, {family: 4, hints: dns.ADDRCONFIG | dns.V4MAPPED, all: false}, function(err, address) {
 				if (err) {
-					msg.reply('DNS Returned: `You have broken fingers. Wrong DNS name!`');
+					msg.reply('DNS Returned: "You have broken fingers. Wrong DNS name!"');
 					return;
 				}
 				

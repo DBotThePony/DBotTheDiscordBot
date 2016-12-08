@@ -104,7 +104,7 @@ module.exports = {
 						}
 					}, function(result) {
 						msg.channel.stopTyping();
-						msg.reply('Failed to download image. `HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '` URL: ' + urlStrings[i]);
+						msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '" URL: ' + urlStrings[i]);
 					});
 				}
 			}
@@ -202,7 +202,7 @@ DBot.RegisterCommand({
 						}
 					}, function(result) {
 						msg.channel.stopTyping();
-						msg.reply('Failed to download image. `HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '` URL: ' + urlStrings[i]);
+						msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '" URL: ' + urlStrings[i]);
 					});
 				}
 			}
