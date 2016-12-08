@@ -15,14 +15,14 @@ class CommandBanClass {
 		if (!this.ready)
 			return;
 		
-		MySQL.query('INSERT INTO command_bans_' + this.realm + ' (UID, COMMAND) VALUES (' + this.uid + ', "' + command + '")');
+		MySQL.query('INSERT INTO command_bans_' + this.realm + ' (UID, COMMAND) VALUES (' + this.uid + ', \'' + command + '\')');
 	}
 	
 	onUnBanned(command) {
 		if (!this.ready)
 			return;
 		
-		MySQL.query('DELETE FROM command_bans_' + this.realm + ' WHERE UID = ' + this.uid + ' AND COMMAND = "' + command + '"');
+		MySQL.query('DELETE FROM command_bans_' + this.realm + ' WHERE UID = ' + this.uid + ' AND COMMAND = \'' + command + '\'');
 	}
 	
 	addCommand(command) {

@@ -9,7 +9,7 @@ var NOTIFY = {};
 
 hook.Add('BotOnline', 'Timers', function() {
 	INIT = true;
-	MySQL.query('SELECT ID, STAMP FROM timers_ids WHERE NOTIFY = 0', function(err, data) {
+	MySQL.query('SELECT ID, STAMP FROM timers_ids WHERE NOTIFY = false', function(err, data) {
 		for (var i in data) {
 			NOTIFY[data[i].ID] = data[i].STAMP;
 		}
@@ -27,7 +27,7 @@ setInterval(function() {
 			(function() {
 				var id = ID;
 				
-				MySQL.query('UPDATE timers_ids SET "NOTIFY" = 1 WHERE "ID" = ' + id);
+				MySQL.query('UPDATE timers_ids SET "NOTIFY" = true WHERE "ID" = ' + id);
 				
 				MySQL.query('SELECT "TITLE", "HASH" FROM timers_ids WHERE "ID" = ' + id, function(err, data2) {
 					MySQL.query('SELECT "ID" FROM timers_users WHERE "TIMERID" = ' + id, function(err, data) {
@@ -210,7 +210,7 @@ module.exports = {
 		
 		fs.stat(fpath, function(err, stat) {
 			if (stat) {
-				MySQL.query('SELECT ID, STAMP FROM timers_ids WHERE HASH = "' + sha + '"', function(err, data) {
+				MySQL.query('SELECT ID, STAMP FROM timers_ids WHERE HASH = \'' + sha + '\'', function(err, data) {
 					msg.reply('Timer already created: ' + fpathURL);
 					
 					if (data[0].STAMP > CurTime()) {
@@ -219,7 +219,7 @@ module.exports = {
 					}
 				});
 			} else {
-				MySQL.query('INSERT INTO timers_ids (TITLE, STAMP, HASH, NOTIFY) VALUES (' + Util.escape(title) + ', ' + unix + ', "' + sha + '", 0)', function(err, data) {
+				MySQL.query('INSERT INTO timers_ids (TITLE, STAMP, HASH, NOTIFY) VALUES (' + Util.escape(title) + ', ' + unix + ', \'' + sha + '\', false)', function(err, data) {
 					if (err) {
 						msg.reply('I just don\'t know what went wrong!');
 						console.error(err);
@@ -287,7 +287,7 @@ DBot.RegisterCommand({
 				(function() {
 					var id2 = data[i].TIMERID;
 					
-					MySQL.query('SELECT * FROM timers_ids WHERE "ID" = ' + id2 + ' AND "NOTIFY" = 0', function(err, data) {
+					MySQL.query('SELECT * FROM timers_ids WHERE "ID" = ' + id2 + ' AND "NOTIFY" = false', function(err, data) {
 						count--;
 						
 						if (data && data[0])

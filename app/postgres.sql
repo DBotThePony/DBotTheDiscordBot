@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS channel_id (
 );
 
 CREATE TABLE IF NOT EXISTS channel_names (
-	"ID" int NOT NULL,
+	"ID" int NOT NULL PRIMARY KEY,
 	"NAME" varchar(64) NOT NULL
 );
 
@@ -77,12 +77,12 @@ CREATE TABLE IF NOT EXISTS joinleft_log (
 );
 
 CREATE TABLE IF NOT EXISTS lastonline (
-	"ID" SERIAL,
+	"ID" SERIAL PRIMARY KEY,
 	"LASTONLINE" int NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS meme_cache (
-	"ID" SERIAL,
+	"ID" SERIAL PRIMARY KEY,
 	"URL" varchar(64) NOT NULL,
 	"NAME" varchar(128) NOT NULL
 );
@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS server_id (
 );
 
 CREATE TABLE IF NOT EXISTS server_names (
-	"ID" int NOT NULL,
+	"ID" int NOT NULL PRIMARY KEY,
 	"NAME" varchar(64) NOT NULL
 );
 
@@ -513,12 +513,12 @@ CREATE TABLE IF NOT EXISTS roles_log (
 );
 
 CREATE TABLE IF NOT EXISTS member_names (
-	"ID" SERIAL,
+	"ID" int PRIMARY KEY,
 	"NAME" VARCHAR(64) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS killicons (
-	"ID" SERIAL,
+	"ID" SERIAL PRIMARY KEY,
 	"NAME" VARCHAR(64) NOT NULL,
 	"FILENAME" VARCHAR(64) NOT NULL,
 	"CLASSNAME" VARCHAR(64) NOT NULL,
@@ -624,7 +624,7 @@ END; $$ LANGUAGE plpgsql;
 CREATE FUNCTION restore_member_id(memberid INTEGER)
 RETURNS INTEGER AS $$
 BEGIN
-	RETURN (SELECT member_id.USER FROM member_id WHERE member_id.ID = memberid);
+	RETURN (SELECT "member_id"."USER" FROM "member_id" WHERE "member_id"."ID" = memberid);
 END $$ LANGUAGE plpgsql;
 
 CREATE FUNCTION restore_member(memberid INTEGER)

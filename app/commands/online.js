@@ -33,13 +33,13 @@ hook.Add('UpdateUserVars', 'LastSeen', function(user) {
 				}
 			});
 			
-			MySQL.query('UPDATE uptime SET "TOTAL_ONLINE" = "TOTAL_ONLINE" + "' + delta + '" WHERE "ID" = ' + get, function(err, data) {
+			MySQL.query('UPDATE uptime SET "TOTAL_ONLINE" = "TOTAL_ONLINE" + ' + Util.escape(delta) + ' WHERE "ID" = ' + get, function(err, data) {
 				if (err) {
 					console.error('Failed to update lastonline entry: ' + err);
 				}
 			});
 		} else {
-			MySQL.query('UPDATE uptime SET "TOTAL_OFFLINE" = "TOTAL_OFFLINE" + "' + delta + '" WHERE "ID" = ' + get, function(err, data) {
+			MySQL.query('UPDATE uptime SET "TOTAL_OFFLINE" = "TOTAL_OFFLINE" + ' + Util.escape(delta) + ' WHERE "ID" = ' + get, function(err, data) {
 				if (err) {
 					console.error('Failed to update lastonline entry: ' + err);
 				}
@@ -47,19 +47,19 @@ hook.Add('UpdateUserVars', 'LastSeen', function(user) {
 		}
 		
 		if (curStatus == 'online') {
-			MySQL.query('UPDATE uptime SET "ONLINE" = "ONLINE" + "' + delta + '" WHERE "ID" = ' + get, function(err, data) {
+			MySQL.query('UPDATE uptime SET "ONLINE" = "ONLINE" + ' + Util.escape(delta) + ' WHERE "ID" = ' + get, function(err, data) {
 				if (err) {
 					console.error('Failed to update lastonline entry: ' + err);
 				}
 			});
 		} else if (curStatus == 'idle') {
-			MySQL.query('UPDATE uptime SET "AWAY" = "AWAY" + "' + delta + '" WHERE "ID" = ' + get, function(err, data) {
+			MySQL.query('UPDATE uptime SET "AWAY" = "AWAY" + ' + Util.escape(delta) + ' WHERE "ID" = ' + get, function(err, data) {
 				if (err) {
 					console.error('Failed to update lastonline entry: ' + err);
 				}
 			});
 		} else if (curStatus == 'dnd') {
-			MySQL.query('UPDATE uptime SET "DNT" = "DNT" + "' + delta + '" WHERE "ID" = ' + get, function(err, data) {
+			MySQL.query('UPDATE uptime SET "DNT" = "DNT" + ' + Util.escape(delta) + ' WHERE "ID" = ' + get, function(err, data) {
 				if (err) {
 					console.error('Failed to update lastonline entry: ' + err);
 				}

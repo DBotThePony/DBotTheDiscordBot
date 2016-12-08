@@ -99,7 +99,7 @@ module.exports = {
 		}
 		
 		var getFunc = function(id) {
-			MySQL.query('SELECT * FROM steamid_fail WHERE "STEAMID64" = "' + id + '"', function(err, data2) {
+			MySQL.query('SELECT * FROM steamid_fail WHERE "STEAMID64" = ' + Util.escape(id) + '', function(err, data2) {
 				if (err) {
 					msg.channel.stopTyping();
 					console.error(err);
@@ -112,7 +112,7 @@ module.exports = {
 					return
 				}
 				
-				MySQL.query('SELECT * FROM steamid WHERE "STEAMID64" = "' + id + '"', function(err, data) {
+				MySQL.query('SELECT * FROM steamid WHERE "STEAMID64" = ' + Util.escape(id) + '', function(err, data) {
 					if (data && data[0]) {
 						SteamID = data[0].STEAMID;
 						SteamID64 = data[0].STEAMID64;
@@ -125,7 +125,7 @@ module.exports = {
 							var data = result.body.response.players;
 							
 							if (!data[0]) {
-								MySQL.query('INSERT INTO steamid_fail ("STEAMID64") VALUES ("' + id + '")');
+								MySQL.query('INSERT INTO steamid_fail ("STEAMID64") VALUES (' + Util.escape(id) + ')');
 								msg.reply('No such steam account: ' + id);
 								msg.channel.stopTyping();
 								return;
@@ -144,7 +144,7 @@ module.exports = {
 							SteamID64 = id;
 							
 							MySQL.query('INSERT INTO steamid VALUES\
-							(' + Util.escape(SteamID64) + ', ' + Util.escape(SteamID) + ', ' + Util.escape(SteamID3) + ', ' + Util.escape(profile) + ') ON CONFLICT UPDATE SET\
+							(' + Util.escape(SteamID64) + ', ' + Util.escape(SteamID) + ', ' + Util.escape(SteamID3) + ', ' + Util.escape(profile) + ') ON CONFLICT ("STEAMID64") DO UPDATE SET\
 							"STEAMID64" = ' + Util.escape(SteamID64) + ',\
 							"STEAMID" = ' + Util.escape(SteamID) + ',\
 							"STEAMID3" = ' + Util.escape(SteamID3) + ',\

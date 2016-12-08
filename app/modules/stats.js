@@ -147,36 +147,36 @@ hook.Add('OnHumanMessage', 'Statistics', function(msg) {
 	
 	let finalQuery = '';
 	
-	finalQuery += ('INSERT INTO stats__phrases_client ("UID", "COUNT") VALUES (' + userID + ', 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
-	finalQuery += ('INSERT INTO stats__chars_client ("UID", "COUNT") VALUES (' + userID + ', ' + length + ') ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + ' + length +';');
+	finalQuery += ('INSERT INTO stats__phrases_client ("UID", "COUNT") VALUES (' + userID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+	finalQuery += ('INSERT INTO stats__chars_client ("UID", "COUNT") VALUES (' + userID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + length +';');
 	
 	if (Images) {
-		finalQuery += ('INSERT INTO stats__images_client ("UID", "COUNT") VALUES (' + userID + ', ' + Images + ') ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + ' + Images + ';');
+		finalQuery += ('INSERT INTO stats__images_client ("UID", "COUNT") VALUES (' + userID + ', ' + Images + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + Images + ';');
 	}
 	
 	if (extra) {
-		finalQuery += ('INSERT INTO stats__phrases_channel ("UID", "COUNT") VALUES (' + channelID + ', 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__uphrases_channel ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__phrases_server ("UID", "COUNT") VALUES (' + serverID + ', 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__uphrases_server ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__phrases_channel ("UID", "COUNT") VALUES (' + channelID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__uphrases_channel ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__phrases_server ("UID", "COUNT") VALUES (' + serverID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__uphrases_server ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
 		
-		finalQuery += ('INSERT INTO stats__chars_channel ("UID", "COUNT") VALUES (' + channelID + ', ' + length + ') ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + ' + length +';');
-		finalQuery += ('INSERT INTO stats__uchars_channel ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + length + ') ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + ' + length +';');
-		finalQuery += ('INSERT INTO stats__chars_server ("UID", "COUNT") VALUES (' + serverID + ', ' + length + ') ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + ' + length +';');
-		finalQuery += ('INSERT INTO stats__uchars_server ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + length + ') ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + ' + length +';');
+		finalQuery += ('INSERT INTO stats__chars_channel ("UID", "COUNT") VALUES (' + channelID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + length +';');
+		finalQuery += ('INSERT INTO stats__uchars_channel ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + length +';');
+		finalQuery += ('INSERT INTO stats__chars_server ("UID", "COUNT") VALUES (' + serverID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + length +';');
+		finalQuery += ('INSERT INTO stats__uchars_server ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + length +';');
 		
 		if (Images) {
-			finalQuery += ('INSERT INTO stats__images_channel ("UID", "COUNT") VALUES (' + channelID + ', ' + Images + ') ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + ' + Images + ';');
-			finalQuery += ('INSERT INTO stats__uimages_channel ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + Images + ') ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + ' + Images + ';');
-			finalQuery += ('INSERT INTO stats__images_server ("UID", "COUNT") VALUES (' + serverID + ', ' + Images + ') ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + ' + Images + ';');
-			finalQuery += ('INSERT INTO stats__uimages_server ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + Images + ') ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + ' + Images + ';');
+			finalQuery += ('INSERT INTO stats__images_channel ("UID", "COUNT") VALUES (' + channelID + ', ' + Images + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + Images + ';');
+			finalQuery += ('INSERT INTO stats__uimages_channel ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + Images + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + Images + ';');
+			finalQuery += ('INSERT INTO stats__images_server ("UID", "COUNT") VALUES (' + serverID + ', ' + Images + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + Images + ';');
+			finalQuery += ('INSERT INTO stats__uimages_server ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + Images + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + Images + ';');
 		}
 	}
 	
 	for (var i in Words) {
 		var word = Util.escape(Words[i].toLowerCase().replace(new RegExp('[^a-zA-Z0-9à-ÿÀ-ß]', 'g'), ''));
 		
-		if (word == "''")
+		if (word == '\'\'')
 			continue;
 		
 		if (word == '')
@@ -185,13 +185,13 @@ hook.Add('OnHumanMessage', 'Statistics', function(msg) {
 		if (word.length > 32)
 			continue;
 		
-		finalQuery += ('INSERT INTO stats__words_client ("UID", "WORD", "COUNT") VALUES (' + userID + ', ' + word + ', 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__words_client ("UID", "WORD", "COUNT") VALUES (' + userID + ', ' + word + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
 		
 		if (extra) {
-			finalQuery += ('INSERT INTO stats__words_channel ("UID", "WORD", "COUNT") VALUES (' + channelID + ', ' + word + ', 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
-			finalQuery += ('INSERT INTO stats__uwords_channel ("UID", "CHANNEL", "WORD", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + word + ', 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
-			finalQuery += ('INSERT INTO stats__words_server ("UID", "WORD", "COUNT") VALUES (' + serverID + ', ' + word + ', 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
-			finalQuery += ('INSERT INTO stats__uwords_server ("UID", "USERVER", "WORD", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + word + ', 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
+			finalQuery += ('INSERT INTO stats__words_channel ("UID", "WORD", "COUNT") VALUES (' + channelID + ', ' + word + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+			finalQuery += ('INSERT INTO stats__uwords_channel ("UID", "CHANNEL", "WORD", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + word + ', 1) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+			finalQuery += ('INSERT INTO stats__words_server ("UID", "WORD", "COUNT") VALUES (' + serverID + ', ' + word + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+			finalQuery += ('INSERT INTO stats__uwords_server ("UID", "USERVER", "WORD", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + word + ', 1) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = "COUNT" + 1;');
 		}
 	}
 	
@@ -223,13 +223,13 @@ hook.Add('OnMessageEdit', 'Statistics', function(oldMessage, msg) {
 		extra = false;
 	}
 	
-	finalQuery += ('INSERT INTO stats__phrases_client_e ("UID", "COUNT") VALUES (' + userID + ', 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
+	finalQuery += ('INSERT INTO stats__phrases_client_e ("UID", "COUNT") VALUES (' + userID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
 	
 	if (extra) {
-		finalQuery += ('INSERT INTO stats__phrases_channel_e ("UID", "COUNT") VALUES (' + channelID + ', 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__uphrases_channel_e ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__phrases_server_e ("UID", "COUNT") VALUES (' + serverID + ', 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__uphrases_server_e ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__phrases_channel_e ("UID", "COUNT") VALUES (' + channelID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__uphrases_channel_e ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', 1) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__phrases_server_e ("UID", "COUNT") VALUES (' + serverID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__uphrases_server_e ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', 1) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = "COUNT" + 1;');
 	}
 	
 	MySQLM.query(finalQuery);
@@ -260,19 +260,19 @@ hook.Add('OnMessageDeleted', 'Statistics', function(msg) {
 		extra = false;
 	}
 	
-	finalQuery += ('INSERT INTO stats__phrases_client_d ("UID", "COUNT") VALUES (' + userID + ', 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
-	finalQuery += ('INSERT INTO stats__chars_client_d ("UID", "COUNT") VALUES (' + userID + ', ' + length + ') ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + ' + length +';');
+	finalQuery += ('INSERT INTO stats__phrases_client_d ("UID", "COUNT") VALUES (' + userID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+	finalQuery += ('INSERT INTO stats__chars_client_d ("UID", "COUNT") VALUES (' + userID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + length +';');
 	
 	if (extra) {
-		finalQuery += ('INSERT INTO stats__phrases_channel_d ("UID", "COUNT") VALUES (' + channelID + ', 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__uphrases_channel_d ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__phrases_server_d ("UID", "COUNT") VALUES (' + serverID + ', 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__uphrases_server_d ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__phrases_channel_d ("UID", "COUNT") VALUES (' + channelID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__uphrases_channel_d ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', 1) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__phrases_server_d ("UID", "COUNT") VALUES (' + serverID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__uphrases_server_d ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', 1) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = "COUNT" + 1;');
 		
-		finalQuery += ('INSERT INTO stats__chars_channel_d ("UID", "COUNT") VALUES (' + channelID + ', ' + length + ') ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + ' + length +';');
-		finalQuery += ('INSERT INTO stats__uchars_channel_d ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + length + ') ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + ' + length +';');
-		finalQuery += ('INSERT INTO stats__chars_server_d ("UID", "COUNT") VALUES (' + serverID + ', ' + length + ') ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + ' + length +';');
-		finalQuery += ('INSERT INTO stats__uchars_server_d ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + length + ') ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + ' + length +';');
+		finalQuery += ('INSERT INTO stats__chars_channel_d ("UID", "COUNT") VALUES (' + channelID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + length +';');
+		finalQuery += ('INSERT INTO stats__uchars_channel_d ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + length + ') ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = "COUNT" + ' + length +';');
+		finalQuery += ('INSERT INTO stats__chars_server_d ("UID", "COUNT") VALUES (' + serverID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = "COUNT" + ' + length +';');
+		finalQuery += ('INSERT INTO stats__uchars_server_d ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + length + ') ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = "COUNT" + ' + length +';');
 	}
 	
 	MySQLM.query(finalQuery);
@@ -294,14 +294,14 @@ hook.Add('CommandExecuted', 'Statistics', function(commandID, user, args, cmd, m
 		extra = false;
 	}
 	
-	finalQuery += ('INSERT INTO stats__command_client ("UID", "COMMAND", "COUNT") VALUES (' + userID + ', "' + commandID + '", 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
+	finalQuery += ('INSERT INTO stats__command_client ("UID", "COMMAND", "COUNT") VALUES (' + userID + ', ' + Util.escape(commandID) + ', 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = "COUNT" + 1;');
 	
 	if (extra) {
-		finalQuery += ('INSERT INTO stats__command_channel ("UID", "COMMAND", "COUNT") VALUES (' + channelID + ', "' + commandID + '", 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__command_server ("UID", "COMMAND", "COUNT") VALUES (' + serverID + ', "' + commandID + '", 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__command_channel ("UID", "COMMAND", "COUNT") VALUES (' + channelID + ', ' + Util.escape(commandID) + ', 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__command_server ("UID", "COMMAND", "COUNT") VALUES (' + serverID + ', ' + Util.escape(commandID) + ', 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = "COUNT" + 1;');
 		
-		finalQuery += ('INSERT INTO stats__command_uchannel ("UID", "CHANNEL", "COMMAND", "COUNT") VALUES (' + userID + ', ' + channelID + ', "' + commandID + '", 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__command_userver ("UID", "USERVER", "COMMAND", "COUNT") VALUES (' + userID + ', ' + serverID + ', "' + commandID + '", 1) ON DUPLICATE KEY UPDATE "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__command_uchannel ("UID", "CHANNEL", "COMMAND", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + Util.escape(commandID) + ', 1) ON CONFLICT ("UID", "COMMAND", "CHANNEL") DO UPDATE SET "COUNT" = "COUNT" + 1;');
+		finalQuery += ('INSERT INTO stats__command_userver ("UID", "USERVER", "COMMAND", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + Util.escape(commandID) + ', 1) ON CONFLICT ("UID", "COMMAND", "USERVER") DO UPDATE SET "COUNT" = "COUNT" + 1;');
 	}
 	
 	MySQLM.query(finalQuery);
@@ -1026,7 +1026,7 @@ DBot.RegisterCommand({
 		
 		if (typeof args[0] != 'object') {
 			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_client WHERE "COMMAND" != "more" AND "COMMAND" != "retry" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data) {
-				MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_client WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetUserID(msg.author) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
+				MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_client WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = \'' + DBot.GetUserID(msg.author) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
 					msg.channel.stopTyping();
 					try {
 						var output = 'Global command usage statistics\nCommand                   Used times\n```';
@@ -1055,7 +1055,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_client WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetUserID(args[0]) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
+			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_client WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = \'' + DBot.GetUserID(args[0]) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
 				msg.channel.stopTyping();
 				
 				try {
@@ -1095,8 +1095,8 @@ DBot.RegisterCommand({
 		msg.channel.startTyping();
 		
 		if (typeof args[0] != 'object') {
-			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_server WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetServerID(msg.channel.guild) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data) {
-				MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_userver WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetUserID(msg.author) + '" AND "USERVER" = "' + DBot.GetServerID(msg.channel.guild) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
+			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_server WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = \'' + DBot.GetServerID(msg.channel.guild) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data) {
+				MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_userver WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = \'' + DBot.GetUserID(msg.author) + '\' AND "USERVER" = \'' + DBot.GetServerID(msg.channel.guild) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
 					msg.channel.stopTyping();
 					
 					try {
@@ -1126,7 +1126,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_userver WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetUserID(args[0]) + '" AND "USERVER" = "' + DBot.GetServerID(msg.channel.guild) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
+			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_userver WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = \'' + DBot.GetUserID(args[0]) + '\' AND "USERVER" = \'' + DBot.GetServerID(msg.channel.guild) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
 				msg.channel.stopTyping();
 				
 				try {
@@ -1166,8 +1166,8 @@ DBot.RegisterCommand({
 		msg.channel.startTyping();
 		
 		if (typeof args[0] != 'object') {
-			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_channel WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetChannelID(msg.channel) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data) {
-				MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_uchannel WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetUserID(msg.author) + '" AND "CHANNEL" = "' + DBot.GetChannelID(msg.channel) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
+			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_channel WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = \'' + DBot.GetChannelID(msg.channel) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data) {
+				MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_uchannel WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = \'' + DBot.GetUserID(msg.author) + '\' AND "CHANNEL" = \'' + DBot.GetChannelID(msg.channel) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
 					msg.channel.stopTyping();
 					try {
 						var output = 'This channel command usage statistics\nCommand                    Used times\n```';
@@ -1196,7 +1196,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_uchannel WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = "' + DBot.GetUserID(args[0]) + '" AND "CHANNEL" = "' + DBot.GetChannelID(msg.channel) + '" GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
+			MySQL.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_uchannel WHERE "COMMAND" != "more" AND "COMMAND" != "retry" AND "UID" = \'' + DBot.GetUserID(args[0]) + '\' AND "CHANNEL" = \'' + DBot.GetChannelID(msg.channel) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
 				msg.channel.stopTyping();
 				try {
 					var output =  '@' + args[0].username + ' command usage statistics on this channel\nCommand                    Used times\n```';

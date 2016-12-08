@@ -43,7 +43,7 @@ module.exports = {
 						+ Util.escape(tags) + ', '
 						+ Util.escape(link) + ', '
 						+ Util.escape(example) + ', '
-						+ Util.escape(curr + 3600) + ') ON CONFLICT UPDATE SET\
+						+ Util.escape(curr + 3600) + ') ON CONFLICT ("WORD") DO UPDATE SET\
 						"WORD" = ' + Util.escape(cmd) + ',\
 						"DEFINITION" = ' + Util.escape(def) + ',\
 						"TAGS" = ' + Util.escape(tags) + ',\

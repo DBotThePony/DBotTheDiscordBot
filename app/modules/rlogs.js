@@ -27,7 +27,7 @@ let updateRoleRules = function(role) {
 			}
 			
 			if (!hit) {
-				MySQL.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (' + sql.Member(member) + ', ' + sRole + ', 1, "' + CurTime() + '")');
+				MySQL.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (' + sql.Member(member) + ', ' + sRole + ', true, ' + Util.escape(Math.floor(CurTime())) + ')');
 				MySQL.query('INSERT INTO member_roles VALUES (' + sql.Member(member) + ', ' + sRole + ') ON CONFLICT DO NOTHING');
 			}
 		}
@@ -43,8 +43,8 @@ let updateRoleRules = function(role) {
 			}
 			
 			if (!hit) {
-				MySQL.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES ("' + row.MEMBER + '", ' + sRole + ', 0, "' + CurTime() + '")');
-				MySQL.query('DELETE FROM member_roles WHERE "MEMBER" = "' + row.MEMBER + '" AND "ROLE" = ' + sRole);
+				MySQL.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (\'' + row.MEMBER + '\', ' + sRole + ', false, ' + Util.escape(Math.floor(CurTime())) + ')');
+				MySQL.query('DELETE FROM member_roles WHERE "MEMBER" = \'' + row.MEMBER + '\' AND "ROLE" = ' + sRole);
 			}
 		}
 	});
