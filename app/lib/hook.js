@@ -187,6 +187,9 @@ var UpdateUserVars = function() {
 	if (!IsOnline())
 		return;
 	
+	if (!hook.Table['UpdateMemberVars'] && !hook.Table['UpdateUserVars'])
+		return;
+	
 	var total = usersCache.length;
 	if (total == 0)
 		return;
