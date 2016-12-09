@@ -19,6 +19,6 @@
 		"figlet": "latest",
 		"unirest": "latest",
 		"humanize-duration": "latest",
-		"mysql": "latest"
+		"pg": "latest"
 	}
 }
