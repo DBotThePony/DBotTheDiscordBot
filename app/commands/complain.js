@@ -58,10 +58,17 @@ DBot.RegisterCommand({
 					output += '\nChannel: ' + row.CHANNELNAME + ' <#' + row.CHANNELID + '>';
 				}
 				
-				output += '\nMessage: \n```\n' + row.CONTENT + '\n```';
+				output += '\nMessage: \n\t' + utf8.decode(row.CONTENT).replace(/\n/gi, '\n\t') + '\n\n';
 			}
 			
-			msg.author.sendMessage(output);
+			DrawText(output, function(err, fpath, fpathU) {
+				if (err) {
+					msg.reply('Failed to draw complains!');
+					return;
+				}
+				
+				msg.author.sendMessage(fpathU);
+			}, 24);
 			
 			if (!DBot.IsPM(msg))
 				msg.reply('Sended over PM');
