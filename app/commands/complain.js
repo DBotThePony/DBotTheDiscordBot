@@ -24,9 +24,9 @@ module.exports = {
 			sid = DBot.GetServerID(msg.channel.guild);
 		}
 		
-		var stuff = [Util.escape(sid), Util.escape(cid), Util.escape(uid), Util.escape(CurTime()), Util.escape(utf8.encode(cmd))];
+		var stuff = [Util.escape(sid), Util.escape(cid), Util.escape(uid), Util.escape(Math.floor(CurTime())), Util.escape(utf8.encode(cmd))];
 		
-		MySQL.query('INSERT INTO complains VALUES (NULL, ' + stuff.join(',') + ')');
+		MySQL.query('INSERT INTO complains ("SERVER", "CHANNEL", "USER", "STAMP", "CONTENT") VALUES (' + stuff.join(',') + ')');
 		
 		return 'Complain sended! Yay!';
 	}
