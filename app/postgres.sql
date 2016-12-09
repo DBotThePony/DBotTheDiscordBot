@@ -550,6 +550,14 @@ DROP FUNCTION IF EXISTS tags_tables(fName VARCHAR(64));
 DROP FUNCTION IF EXISTS restore_member(memberid INTEGER);
 DROP FUNCTION IF EXISTS user_status_heartbeat(cTime int);
 DROP FUNCTION IF EXISTS update_nicknames_stats(cTime int);
+DROP FUNCTION IF EXISTS stats_hit(user_id_raw varchar(64), message_length int, words varchar(64)[], images_seneded int);
+DROP FUNCTION IF EXISTS stats_hit(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), message_length int, words VARCHAR(64)[], images_seneded int);
+DROP FUNCTION IF EXISTS stats_edit(user_id_raw varchar(64));
+DROP FUNCTION IF EXISTS stats_edit(user_id_raw varchar(64), channel_id_raw varchar(64), server_id_raw varchar(64));
+DROP FUNCTION IF EXISTS stats_delete(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), message_length int);
+DROP FUNCTION IF EXISTS stats_delete(user_id_raw VARCHAR(64), message_length int);
+DROP FUNCTION IF EXISTS stats_command(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), command varchar(64));
+DROP FUNCTION IF EXISTS stats_command(user_id_raw VARCHAR(64), command varchar(64));
 
 CREATE FUNCTION tags_tables(fName VARCHAR(64))
 RETURNS void AS $$
@@ -580,6 +588,156 @@ BEGIN
 		UID INTEGER NOT NULL,
 		TAG VARCHAR(64) NOT NULL
 	);', CONCAT('tags__', fName, '_channel'));
+END; $$ LANGUAGE plpgsql;
+
+CREATE FUNCTION stats_hit(user_id_raw varchar(64), message_length int, words varchar(64)[], images_seneded int)
+RETURNS void AS $$
+DECLARE user_id INTEGER;
+DECLARE word VARCHAR(64);
+BEGIN
+	user_id := get_user_id(user_id_raw);
+	
+	INSERT INTO stats__phrases_client ("UID", "COUNT") VALUES (user_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_client."COUNT" + 1;
+	INSERT INTO stats__chars_client ("UID", "COUNT") VALUES (user_id, message_length) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_client."COUNT" + message_length;
+	
+	FOREACH word IN ARRAY words LOOP
+		INSERT INTO stats__words_client ("UID", "WORD", "COUNT") VALUES (user_id, word, 1) ON CONFLICT ("UID", "WORD") DO UPDATE SET "COUNT" = stats__words_client."COUNT" + 1;
+	END LOOP;
+	
+	IF (images_seneded > 0) THEN
+		INSERT INTO stats__images_client ("UID", "COUNT") VALUES (user_id, images_seneded) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__images_client."COUNT" + images_seneded;
+	END IF;
+END; $$ LANGUAGE plpgsql;
+
+CREATE FUNCTION stats_edit(user_id_raw varchar(64))
+RETURNS void AS $$
+DECLARE user_id INTEGER;
+BEGIN
+	user_id := get_user_id(user_id_raw);
+	
+	INSERT INTO stats__phrases_client_e ("UID", "COUNT") VALUES (user_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_client_e."COUNT" + 1;
+END; $$ LANGUAGE plpgsql;
+
+CREATE FUNCTION stats_edit(user_id_raw varchar(64), channel_id_raw varchar(64), server_id_raw varchar(64))
+RETURNS void AS $$
+DECLARE user_id INTEGER;
+DECLARE server_id INTEGER;
+DECLARE channel_id INTEGER;
+BEGIN
+	user_id := get_user_id(user_id_raw);
+	server_id := get_server_id(server_id_raw);
+	channel_id := get_channel_id(channel_id_raw, server_id);
+	
+	INSERT INTO stats__phrases_client_e ("UID", "COUNT") VALUES (user_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_client_e."COUNT" + 1;
+	INSERT INTO stats__phrases_channel_e ("UID", "COUNT") VALUES (channel_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_channel_e."COUNT" + 1;
+	INSERT INTO stats__uphrases_channel_e ("UID", "CHANNEL", "COUNT") VALUES (user_id, channel_id, 1) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uphrases_channel_e."COUNT" + 1;
+	INSERT INTO stats__phrases_server_e ("UID", "COUNT") VALUES (server_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_server_e."COUNT" + 1;
+	INSERT INTO stats__uphrases_server_e ("UID", "USERVER", "COUNT") VALUES (user_id, server_id, 1) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uphrases_server_e."COUNT" + 1;
+END; $$ LANGUAGE plpgsql;
+
+CREATE FUNCTION stats_hit(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), message_length int, words VARCHAR(64)[], images_seneded int)
+RETURNS void AS $$
+DECLARE user_id INTEGER;
+DECLARE server_id INTEGER;
+DECLARE channel_id INTEGER;
+DECLARE word VARCHAR(64);
+BEGIN
+	user_id := get_user_id(user_id_raw);
+	server_id := get_server_id(server_id_raw);
+	channel_id := get_channel_id(channel_id_raw, server_id);
+	
+	INSERT INTO stats__phrases_client ("UID", "COUNT") VALUES (user_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_client."COUNT" + 1;
+	INSERT INTO stats__chars_client ("UID", "COUNT") VALUES (user_id, message_length) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_client."COUNT" + message_length;
+	
+	INSERT INTO stats__phrases_channel ("UID", "COUNT") VALUES (channel_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_channel."COUNT" + 1;
+	INSERT INTO stats__uphrases_channel ("UID", "CHANNEL", "COUNT") VALUES (user_id, channel_id, 1) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uphrases_channel."COUNT" + 1;
+	INSERT INTO stats__phrases_server ("UID", "COUNT") VALUES (server_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_server."COUNT" + 1;
+	INSERT INTO stats__uphrases_server ("UID", "USERVER", "COUNT") VALUES (user_id, server_id, 1) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uphrases_server."COUNT" + 1;
+	
+	INSERT INTO stats__chars_channel ("UID", "COUNT") VALUES (channel_id, message_length) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_channel."COUNT" + message_length;
+	INSERT INTO stats__uchars_channel ("UID", "CHANNEL", "COUNT") VALUES (user_id, channel_id, message_length) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uchars_channel."COUNT" + message_length;
+	INSERT INTO stats__chars_server ("UID", "COUNT") VALUES (server_id, message_length) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_server."COUNT" + message_length;
+	INSERT INTO stats__uchars_server ("UID", "USERVER", "COUNT") VALUES (user_id, server_id, message_length) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uchars_server."COUNT" + message_length;
+	
+	FOREACH word IN ARRAY words LOOP
+		INSERT INTO stats__words_client ("UID", "WORD", "COUNT") VALUES (user_id, word, 1) ON CONFLICT ("UID", "WORD") DO UPDATE SET "COUNT" = stats__words_client."COUNT" + 1;
+		
+		INSERT INTO stats__words_channel ("UID", "WORD", "COUNT") VALUES (channel_id, word, 1) ON CONFLICT ("UID", "WORD") DO UPDATE SET "COUNT" = stats__words_channel."COUNT" + 1;
+		INSERT INTO stats__uwords_channel ("UID", "CHANNEL", "WORD", "COUNT") VALUES (user_id, channel_id, word, 1) ON CONFLICT ("UID", "CHANNEL", "WORD") DO UPDATE SET "COUNT" = stats__uwords_channel."COUNT" + 1;
+		INSERT INTO stats__words_server ("UID", "WORD", "COUNT") VALUES (server_id, word, 1) ON CONFLICT ("UID", "WORD") DO UPDATE SET "COUNT" = stats__words_server."COUNT" + 1;
+		INSERT INTO stats__uwords_server ("UID", "USERVER", "WORD", "COUNT") VALUES (user_id, server_id, word, 1) ON CONFLICT ("UID", "USERVER", "WORD") DO UPDATE SET "COUNT" = stats__uwords_server."COUNT" + 1;
+	END LOOP;
+	
+	IF (images_seneded > 0) THEN
+		INSERT INTO stats__images_client ("UID", "COUNT") VALUES (user_id, images_seneded) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__images_client."COUNT" + images_seneded;
+		
+		INSERT INTO stats__images_channel ("UID", "COUNT") VALUES (channel_id, images_seneded) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__images_channel."COUNT" + images_seneded;
+		INSERT INTO stats__uimages_channel ("UID", "CHANNEL", "COUNT") VALUES (user_id, channel_id, images_seneded) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uimages_channel."COUNT" + images_seneded;
+		INSERT INTO stats__images_server ("UID", "COUNT") VALUES (server_id, images_seneded) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__images_server."COUNT" + images_seneded;
+		INSERT INTO stats__uimages_server ("UID", "USERVER", "COUNT") VALUES (user_id, server_id, images_seneded) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uimages_server."COUNT" + images_seneded;
+	END IF;
+END; $$ LANGUAGE plpgsql;
+
+CREATE FUNCTION stats_delete(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), message_length int)
+RETURNS void AS $$
+DECLARE user_id INTEGER;
+DECLARE server_id INTEGER;
+DECLARE channel_id INTEGER;
+BEGIN
+	user_id := get_user_id(user_id_raw);
+	server_id := get_server_id(server_id_raw);
+	channel_id := get_channel_id(channel_id_raw, server_id);
+	
+	INSERT INTO stats__phrases_client_d ("UID", "COUNT") VALUES (user_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_client_d."COUNT" + 1;
+	INSERT INTO stats__chars_client_d ("UID", "COUNT") VALUES (user_id, message_length) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_client_d."COUNT" + message_length;
+
+	INSERT INTO stats__phrases_channel_d ("UID", "COUNT") VALUES (channel_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_channel_d."COUNT" + 1;
+	INSERT INTO stats__uphrases_channel_d ("UID", "CHANNEL", "COUNT") VALUES (user_id, channel_id, 1) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uphrases_channel_d."COUNT" + 1;
+	INSERT INTO stats__phrases_server_d ("UID", "COUNT") VALUES (server_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_server_d."COUNT" + 1;
+	INSERT INTO stats__uphrases_server_d ("UID", "USERVER", "COUNT") VALUES (user_id, server_id, 1) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uphrases_server_d."COUNT" + 1;
+	
+	INSERT INTO stats__chars_channel_d ("UID", "COUNT") VALUES (channel_id, message_length) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_channel_d."COUNT" + message_length;
+	INSERT INTO stats__uchars_channel_d ("UID", "CHANNEL", "COUNT") VALUES (user_id, channel_id, message_length) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uchars_channel_d."COUNT" + message_length;
+	INSERT INTO stats__chars_server_d ("UID", "COUNT") VALUES (server_id, message_length) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_server_d."COUNT" + message_length;
+	INSERT INTO stats__uchars_server_d ("UID", "USERVER", "COUNT") VALUES (user_id, server_id, message_length) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uchars_server_d."COUNT" + message_length;
+END; $$ LANGUAGE plpgsql;
+
+CREATE FUNCTION stats_command(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), command varchar(64))
+RETURNS void AS $$
+DECLARE user_id INTEGER;
+DECLARE server_id INTEGER;
+DECLARE channel_id INTEGER;
+BEGIN
+	user_id := get_user_id(user_id_raw);
+	server_id := get_server_id(server_id_raw);
+	channel_id := get_channel_id(channel_id_raw, server_id);
+	
+	INSERT INTO stats__command_client ("UID", "COMMAND", "COUNT") VALUES (user_id, command, 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = stats__command_client."COUNT" + 1;
+
+	INSERT INTO stats__command_channel ("UID", "COMMAND", "COUNT") VALUES (channel_id, command, 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = stats__command_channel."COUNT" + 1;
+	INSERT INTO stats__command_server ("UID", "COMMAND", "COUNT") VALUES (server_id, command, 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = stats__command_server."COUNT" + 1;
+	
+	INSERT INTO stats__command_uchannel ("UID", "CHANNEL", "COMMAND", "COUNT") VALUES (user_id, channel_id, command, 1) ON CONFLICT ("UID", "COMMAND", "CHANNEL") DO UPDATE SET "COUNT" = stats__command_uchannel."COUNT" + 1;
+	INSERT INTO stats__command_userver ("UID", "USERVER", "COMMAND", "COUNT") VALUES (user_id, server_id, command, 1) ON CONFLICT ("UID", "COMMAND", "USERVER") DO UPDATE SET "COUNT" = stats__command_userver."COUNT" + 1;
+END; $$ LANGUAGE plpgsql;
+
+CREATE FUNCTION stats_command(user_id_raw VARCHAR(64), command varchar(64))
+RETURNS void AS $$
+DECLARE user_id INTEGER;
+BEGIN
+	user_id := get_user_id(user_id_raw);
+	
+	INSERT INTO stats__command_client ("UID", "COMMAND", "COUNT") VALUES (user_id, command, 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = stats__command_client."COUNT" + 1;
+END; $$ LANGUAGE plpgsql;
+
+CREATE FUNCTION stats_delete(user_id_raw VARCHAR(64), message_length int)
+RETURNS void AS $$
+DECLARE user_id INTEGER;
+BEGIN
+	user_id := get_user_id(user_id_raw);
+	
+	INSERT INTO stats__phrases_client_d ("UID", "COUNT") VALUES (user_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_client_d."COUNT" + 1;
+	INSERT INTO stats__chars_client_d ("UID", "COUNT") VALUES (user_id, message_length) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_client_d."COUNT" + message_length;
 END; $$ LANGUAGE plpgsql;
 
 CREATE FUNCTION user_status_heartbeat(cTime int)

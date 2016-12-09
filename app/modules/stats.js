@@ -1,281 +1,50 @@
 
-/*
-SELECT
-	SUM(stats__chars_server."COUNT") as "TotalChars",
-	SUM(stats__words_server."COUNT") as "TotalWordsSaid",
-	COUNT(stats__words_server."WORD") as "TotalUniqueWords",
-	SUM(stats__images_server."COUNT") as "TotalImagesSend",
-	SUM(stats__phrases_server."COUNT") as "TotalPhrasesSaid",
-	SUM(stats__command_server."COUNT") as "TotalCommandsExecuted",
-	(
-		SELECT
-			SUM(stats__command_server."COUNT") as "MostUsedCommand",
-			SUM(stats__command_server."COUNT") as "MostUsedCommand_count"
-		WHERE
-			"UID" = ' + ID + '
-		GROUP BY
-			"COMMAND"
-		ORDER BY
-			"MostUsedCommand_count" DESC
-		LIMIT 1
-	)
-FROM
-	stats__chars_server,
-	stats__images_server,
-	stats__phrases_server,
-	stats__command_server,
-	stats__words_server
-WHERE
-	stats__chars_server."UID" = ' + ID;
-
-
-(
-SELECT
-	SUM(stats__chars_server."COUNT") as "TotalChars",
-	SUM(stats__words_server."COUNT") as "TotalWordsSaid",
-	COUNT(stats__words_server."WORD") as "TotalUniqueWords",
-	SUM(stats__images_server."COUNT") as "TotalImagesSend",
-	SUM(stats__phrases_server."COUNT") as "TotalPhrasesSaid",
-	SUM(stats__command_server."COUNT") as "TotalCommandsExecuted"
-FROM
-	stats__chars_server,
-	stats__images_server,
-	stats__phrases_server,
-	stats__command_server,
-	stats__words_server
-WHERE
-	stats__chars_server."UID" = '1' AND
-	stats__images_server."UID" = '1' AND
-	stats__phrases_server."UID" = '1' AND
-	stats__command_server."UID" = '1' AND
-	stats__words_server."UID" = '1'
-)
-UNION
-(
-	SELECT
-		SUM(stats__command_server."COUNT") as "MostUsedCommand",
-		SUM(stats__command_server."COUNT") as "MostUsedCommand_count"
-	FROM
-		stats__command_server
-	WHERE
-		stats__command_server."UID" = '1'
-	GROUP BY
-		"COMMAND"
-	ORDER BY
-		"MostUsedCommand_count" DESC
-	LIMIT 1
-)
-
-
-SELECT
-	stats__chars_server."COUNT" as "TotalChars",
-	(SELECT SUM(stats__words_server."COUNT") FROM stats__words_server WHERE stats__words_server."UID" = 1) as "TotalWordsSaid",
-	COUNT(DISTINCT stats__words_server."WORD") as "TotalUniqueWords",
-	stats__images_server."COUNT" as "TotalImagesSend",
-	stats__phrases_server."COUNT" as "TotalPhrasesSaid",
-	(SELECT SUM(stats__command_server."COUNT") FROM stats__command_server WHERE stats__command_server."UID" = 1) as "TotalCommandsExecuted",
-	(SELECT stats__command_server."COMMAND" FROM stats__command_server WHERE stats__command_server."UID" = '1' GROUP BY stats__command_server."COMMAND" ORDER BY SUM("COUNT") DESC LIMIT 1) as "MostUsedCommand",
-	(SELECT SUM(stats__command_server."COUNT") FROM stats__command_server WHERE stats__command_server."COMMAND" = "MostUsedCommand" AND stats__command_server."UID" = '1') as "MostUsedCommand_count"
-FROM
-	stats__chars_server,
-	stats__images_server,
-	stats__phrases_server,
-	stats__command_server,
-	stats__words_server
-WHERE
-	stats__chars_server."UID" = '1' AND
-	stats__images_server."UID" = '1' AND
-	stats__phrases_server."UID" = '1' AND
-	stats__command_server."UID" = '1' AND
-	stats__words_server."UID" = '1'
-
-
-(SELECT stats__chars_channel."COUNT" as "DATA" FROM stats__chars_channel WHERE "UID" = 1) UNION
-(SELECT SUM(stats__words_channel."COUNT") as "DATA" FROM stats__words_channel WHERE "UID" = 1) UNION
-(SELECT COUNT(DISTINCT stats__words_channel."WORD") as "DATA" FROM stats__words_channel WHERE "UID" = 1) UNION
-(SELECT stats__images_channel."COUNT" as "DATA" FROM stats__images_channel WHERE "UID" = 1) UNION
-(SELECT stats__phrases_channel."COUNT" as "DATA" FROM stats__phrases_channel WHERE "UID" = 1) UNION
-(SELECT SUM(stats__command_channel."COUNT") as "DATA" FROM stats__command_channel WHERE "UID" = 1) UNION
-(SELECT "COMMAND" as "DATA" FROM stats__command_channel WHERE "UID" = 1 GROUP BY "COMMAND" ORDER BY SUM("COUNT") DESC LIMIT 1) UNION
-(SELECT SUM("COUNT") as "DATA" FROM stats__command_channel WHERE "UID" = 1 GROUP BY "COMMAND" ORDER BY "DATA" DESC LIMIT 1)
-
-
-(SELECT SUM(stats__words_channel."COUNT") FROM stats__words_channel WHERE "UID" = ' + ID + ') as "TotalWordsSaid",\
-(SELECT COUNT(DISTINCT stats__words_channel."WORD") FROM stats__words_channel WHERE "UID" = ' + ID + ') as "TotalUniqueWords",\
-(SELECT stats__images_channel."COUNT" FROM stats__images_channel WHERE "UID" = ' + ID + ') as "TotalImagesSend",\
-(SELECT stats__phrases_channel."COUNT" FROM stats__phrases_channel WHERE "UID" = ' + ID + ') as "TotalPhrasesSaid",\
-(SELECT SUM(stats__command_channel."COUNT") FROM stats__command_channel WHERE "UID" = ' + ID + ') as "TotalCommandsExecuted",\
-(SELECT stats__command_channel."COMMAND" FROM stats__command_channel WHERE "UID" = ' + ID + ' GROUP BY stats__command_channel."COMMAND" ORDER BY SUM("COUNT") DESC LIMIT 1) as "MostUsedCommand",\
-(SELECT SUM(stats__command_channel."COUNT") FROM stats__command_channel WHERE stats__command_channel."COMMAND" = "MostUsedCommand" AND "UID" = ' + ID + ') as "MostUsedCommand_count"\
-
-
-'SELECT SUM("COUNT") as "cnt" FROM stats__uchars_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID
-'SELECT SUM("COUNT") as "cnt" FROM stats__uwords_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID
-'SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__uwords_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID
-'SELECT SUM("COUNT") as "cnt" FROM stats__uimages_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID
-'SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID
-'SELECT SUM("COUNT") as "cnt" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID
-'SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1'
-*/
-
 hook.Add('OnHumanMessage', 'Statistics', function(msg) {
-	if (!DBot.UserIsInitialized(msg.author))
-		return;
-	
-	var channelID;
-	var userID = DBot.GetUserID(msg.author);
-	var serverID;
-	var extra = msg.channel.guild != undefined && msg.channel.type != 'dm';
-	var Words = msg.content.split(' ');
-	var wordsC = Words.length;
-	var length = msg.content.length;
+	let extra = msg.channel.guild != undefined && msg.channel.type != 'dm';
+	let Words = msg.content.split(/ +/gi);
+	let length = msg.content.length;
 	
 	var Images;
 	
 	if (msg.attachments) {
 		Images = msg.attachments.array().length;
-	}
-	
-	try {
-		if (extra) {
-			channelID = DBot.GetChannelID(msg.channel);
-			serverID = DBot.GetServerID(msg.channel.guild);
-		}
-	} catch(err) {
-		extra = false;
-	}
-	
-	let finalQuery = '';
-	
-	finalQuery += ('INSERT INTO stats__phrases_client ("UID", "COUNT") VALUES (' + userID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_client."COUNT" + 1;');
-	finalQuery += ('INSERT INTO stats__chars_client ("UID", "COUNT") VALUES (' + userID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_client."COUNT" + ' + length +';');
-	
-	if (Images) {
-		finalQuery += ('INSERT INTO stats__images_client ("UID", "COUNT") VALUES (' + userID + ', ' + Images + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__images_client."COUNT" + ' + Images + ';');
+	} else {
+		Images = 0;
 	}
 	
 	if (extra) {
-		finalQuery += ('INSERT INTO stats__phrases_channel ("UID", "COUNT") VALUES (' + channelID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_channel."COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__uphrases_channel ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', 1) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uphrases_channel."COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__phrases_server ("UID", "COUNT") VALUES (' + serverID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_server."COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__uphrases_server ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', 1) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uphrases_server."COUNT" + 1;');
-		
-		finalQuery += ('INSERT INTO stats__chars_channel ("UID", "COUNT") VALUES (' + channelID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_channel."COUNT" + ' + length +';');
-		finalQuery += ('INSERT INTO stats__uchars_channel ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + length + ') ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uchars_channel."COUNT" + ' + length +';');
-		finalQuery += ('INSERT INTO stats__chars_server ("UID", "COUNT") VALUES (' + serverID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_server."COUNT" + ' + length +';');
-		finalQuery += ('INSERT INTO stats__uchars_server ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + length + ') ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uchars_server."COUNT" + ' + length +';');
-		
-		if (Images) {
-			finalQuery += ('INSERT INTO stats__images_channel ("UID", "COUNT") VALUES (' + channelID + ', ' + Images + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__images_channel."COUNT" + ' + Images + ';');
-			finalQuery += ('INSERT INTO stats__uimages_channel ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + Images + ') ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uimages_channel."COUNT" + ' + Images + ';');
-			finalQuery += ('INSERT INTO stats__images_server ("UID", "COUNT") VALUES (' + serverID + ', ' + Images + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__images_server."COUNT" + ' + Images + ';');
-			finalQuery += ('INSERT INTO stats__uimages_server ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + Images + ') ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uimages_server."COUNT" + ' + Images + ';');
-		}
+		Postgres.query('SELECT stats_hit(' + sql.Concat(msg.author.id, msg.channel.id, msg.channel.guild.id) + ', ' + length + ', ' + sql.Array(Words) + ', ' + Images + ')', function() {});
+	} else {
+		Postgres.query('SELECT stats_hit(' + Util.escape(msg.author.id) + ', ' + length + ', ' + sql.Array(Words) + ', ' + Images + ')', function() {});
 	}
-	
-	for (var i in Words) {
-		var word = Util.escape(Words[i].toLowerCase().replace(new RegExp('[^a-zA-Z0-9à-ÿÀ-ß]', 'g'), ''));
-		
-		if (word == '\'\'')
-			continue;
-		
-		if (word == '')
-			continue;
-		
-		if (word.length > 32)
-			continue;
-		
-		finalQuery += ('INSERT INTO stats__words_client ("UID", "WORD", "COUNT") VALUES (' + userID + ', ' + word + ', 1) ON CONFLICT ("UID", "WORD") DO UPDATE SET "COUNT" = stats__words_client."COUNT" + 1;');
-		
-		if (extra) {
-			finalQuery += ('INSERT INTO stats__words_channel ("UID", "WORD", "COUNT") VALUES (' + channelID + ', ' + word + ', 1) ON CONFLICT ("UID", "WORD") DO UPDATE SET "COUNT" = stats__words_channel."COUNT" + 1;');
-			finalQuery += ('INSERT INTO stats__uwords_channel ("UID", "CHANNEL", "WORD", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + word + ', 1) ON CONFLICT ("UID", "CHANNEL", "WORD") DO UPDATE SET "COUNT" = stats__uwords_channel."COUNT" + 1;');
-			finalQuery += ('INSERT INTO stats__words_server ("UID", "WORD", "COUNT") VALUES (' + serverID + ', ' + word + ', 1) ON CONFLICT ("UID", "WORD") DO UPDATE SET "COUNT" = stats__words_server."COUNT" + 1;');
-			finalQuery += ('INSERT INTO stats__uwords_server ("UID", "USERVER", "WORD", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + word + ', 1) ON CONFLICT ("UID", "USERVER", "WORD") DO UPDATE SET "COUNT" = stats__uwords_server."COUNT" + 1;');
-		}
-	}
-	
-	MySQLM.query(finalQuery);
 });
 
 hook.Add('OnMessageEdit', 'Statistics', function(oldMessage, msg) {
 	if (msg.author.bot)
 		return;
 	
-	if (!DBot.UserIsInitialized(msg.author))
-		return;
-	
-	let channelID;
-	let userID = DBot.GetUserID(msg.author);
-	let serverID;
 	let extra = msg.channel.guild != undefined && msg.channel.type != 'dm';
-	let Words = msg.content.split(' ');
-	let wordsC = Words.length;
 	let length = msg.content.length;
-	let finalQuery = '';
-	
-	try {
-		if (extra) {
-			channelID = DBot.GetChannelID(msg.channel);
-			serverID = DBot.GetServerID(msg.channel.guild);
-		}
-	} catch(err) {
-		extra = false;
-	}
-	
-	finalQuery += ('INSERT INTO stats__phrases_client_e ("UID", "COUNT") VALUES (' + userID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_client_e."COUNT" + 1;');
 	
 	if (extra) {
-		finalQuery += ('INSERT INTO stats__phrases_channel_e ("UID", "COUNT") VALUES (' + channelID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_channel_e."COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__uphrases_channel_e ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', 1) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uphrases_channel_e."COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__phrases_server_e ("UID", "COUNT") VALUES (' + serverID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_server_e."COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__uphrases_server_e ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', 1) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uphrases_server_e."COUNT" + 1;');
+		Postgres.query('SELECT stats_edit(' + sql.Concat(msg.author.id, msg.channel.id, msg.channel.guild.id) + ');');
+	} else {
+		Postgres.query('SELECT stats_edit(' + Util.escape(msg.author.id) + ');');
 	}
-	
-	MySQLM.query(finalQuery);
 });
 
 hook.Add('OnMessageDeleted', 'Statistics', function(msg) {
 	if (msg.author.bot)
 		return;
 	
-	if (!DBot.UserIsInitialized(msg.author))
-		return;
-	
-	let channelID;
-	let userID = DBot.GetUserID(msg.author);
-	let serverID;
 	let extra = msg.channel.guild != undefined && msg.channel.type != 'dm';
-	let Words = msg.content.split(' ');
-	let wordsC = Words.length;
 	let length = msg.content.length;
-	let finalQuery = '';
-	
-	try {
-		if (extra) {
-			channelID = DBot.GetChannelID(msg.channel);
-			serverID = DBot.GetServerID(msg.channel.guild);
-		}
-	} catch(err) {
-		extra = false;
-	}
-	
-	finalQuery += ('INSERT INTO stats__phrases_client_d ("UID", "COUNT") VALUES (' + userID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_client_d."COUNT" + 1;');
-	finalQuery += ('INSERT INTO stats__chars_client_d ("UID", "COUNT") VALUES (' + userID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_client_d."COUNT" + ' + length +';');
 	
 	if (extra) {
-		finalQuery += ('INSERT INTO stats__phrases_channel_d ("UID", "COUNT") VALUES (' + channelID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_channel_d."COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__uphrases_channel_d ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', 1) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uphrases_channel_d."COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__phrases_server_d ("UID", "COUNT") VALUES (' + serverID + ', 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_server_d."COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__uphrases_server_d ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', 1) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uphrases_server_d."COUNT" + 1;');
-		
-		finalQuery += ('INSERT INTO stats__chars_channel_d ("UID", "COUNT") VALUES (' + channelID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_channel_d."COUNT" + ' + length +';');
-		finalQuery += ('INSERT INTO stats__uchars_channel_d ("UID", "CHANNEL", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + length + ') ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uchars_channel_d."COUNT" + ' + length +';');
-		finalQuery += ('INSERT INTO stats__chars_server_d ("UID", "COUNT") VALUES (' + serverID + ', ' + length + ') ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_server_d."COUNT" + ' + length +';');
-		finalQuery += ('INSERT INTO stats__uchars_server_d ("UID", "USERVER", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + length + ') ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uchars_server_d."COUNT" + ' + length +';');
+		Postgres.query('SELECT stats_delete(' + sql.Concat(msg.author.id, msg.channel.id, msg.channel.guild.id) + ', ' + length + ');');
+	} else {
+		Postgres.query('SELECT stats_delete(' + Util.escape(msg.author.id) + ', ' + length + ');');
 	}
-	
-	MySQLM.query(finalQuery);
 });
 
 hook.Add('CommandExecuted', 'Statistics', function(commandID, user, args, cmd, msg) {
@@ -283,28 +52,12 @@ hook.Add('CommandExecuted', 'Statistics', function(commandID, user, args, cmd, m
 	let serverID;
 	let userID = DBot.GetUserID(user);
 	let extra = msg.channel.guild != undefined && msg.channel.type != 'dm';
-	let finalQuery = '';
-	
-	try {
-		if (extra) {
-			channelID = DBot.GetChannelID(msg.channel);
-			serverID = DBot.GetServerID(msg.channel.guild);
-		}
-	} catch(err) {
-		extra = false;
-	}
-	
-	finalQuery += ('INSERT INTO stats__command_client ("UID", "COMMAND", "COUNT") VALUES (' + userID + ', ' + Util.escape(commandID) + ', 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = stats__command_client."COUNT" + 1;');
 	
 	if (extra) {
-		finalQuery += ('INSERT INTO stats__command_channel ("UID", "COMMAND", "COUNT") VALUES (' + channelID + ', ' + Util.escape(commandID) + ', 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = stats__command_channel."COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__command_server ("UID", "COMMAND", "COUNT") VALUES (' + serverID + ', ' + Util.escape(commandID) + ', 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = stats__command_server."COUNT" + 1;');
-		
-		finalQuery += ('INSERT INTO stats__command_uchannel ("UID", "CHANNEL", "COMMAND", "COUNT") VALUES (' + userID + ', ' + channelID + ', ' + Util.escape(commandID) + ', 1) ON CONFLICT ("UID", "COMMAND", "CHANNEL") DO UPDATE SET "COUNT" = stats__command_uchannel."COUNT" + 1;');
-		finalQuery += ('INSERT INTO stats__command_userver ("UID", "USERVER", "COMMAND", "COUNT") VALUES (' + userID + ', ' + serverID + ', ' + Util.escape(commandID) + ', 1) ON CONFLICT ("UID", "COMMAND", "USERVER") DO UPDATE SET "COUNT" = stats__command_userver."COUNT" + 1;');
+		Postgres.query('SELECT stats_command(' + sql.Concat(msg.author.id, msg.channel.id, msg.channel.guild.id) + ', ' + Util.escape(commandID) + ');');
+	} else {
+		Postgres.query('SELECT stats_command(' + Util.escape(msg.author.id) + ', ' + Util.escape(commandID) + ');');
 	}
-	
-	MySQLM.query(finalQuery);
 });
 
 var numeral = require('numeral');

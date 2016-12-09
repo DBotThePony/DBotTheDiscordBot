@@ -63,3 +63,34 @@ sql.Replace = function(tab, keys) {
 	return 'REPLACE INTO ' + tab + ' (' + concatNames(keys) + ') VALUES ' + vals.join(', ');
 }
 
+sql.Array = function(arr) {
+	let output = 'ARRAY [';
+	let first = true;
+	
+	for (let obj of arr) {
+		if (first) {
+			first = false;
+			output += Util.escape(obj);
+		} else {
+			output += ',' + Util.escape(obj);
+		}
+	}
+	
+	return output + ']';
+}
+
+sql.Concat = function() {
+	let output = '';
+	let first = true;
+	
+	for (let obj of arguments) {
+		if (first) {
+			first = false;
+			output += Util.escape(obj);
+		} else {
+			output += ',' + Util.escape(obj);
+		}
+	}
+	
+	return output;
+}
