@@ -14,67 +14,6 @@ hook.Add('SQLInitialize', 'uptime-bot', function() {
 
 let usersCache = [];
 
-hook.Add('UpdateUserVars', 'LastSeen', function(user) {
-	if (true)
-		return;
-	
-	try {
-		var ctime = Math.floor(CurTime());
-		
-		user.LastSeenTime = user.LastSeenTime || ctime;
-		var delta = ctime - user.LastSeenTime;
-		user.LastSeenTime = ctime;
-		
-		if (delta == 0)
-			return;
-		
-		let curStatus = user.presence.status;
-		let get = DBot.GetUserID(user);
-		
-		if (curStatus != 'offline') {
-			Postgre.query('UPDATE lastonline SET "LASTONLINE" = ' + ctime + ' WHERE "ID" = ' + get, function(err, data) {
-				if (err) {
-					console.error('Failed to update lastonline entry: ' + err);
-				}
-			});
-			
-			Postgre.query('UPDATE uptime SET "TOTAL_ONLINE" = "TOTAL_ONLINE" + ' + Util.escape(delta) + ' WHERE "ID" = ' + get, function(err, data) {
-				if (err) {
-					console.error('Failed to update lastonline entry: ' + err);
-				}
-			});
-		} else {
-			Postgre.query('UPDATE uptime SET "TOTAL_OFFLINE" = "TOTAL_OFFLINE" + ' + Util.escape(delta) + ' WHERE "ID" = ' + get, function(err, data) {
-				if (err) {
-					console.error('Failed to update lastonline entry: ' + err);
-				}
-			});
-		}
-		
-		if (curStatus == 'online') {
-			Postgre.query('UPDATE uptime SET "ONLINE" = "ONLINE" + ' + Util.escape(delta) + ' WHERE "ID" = ' + get, function(err, data) {
-				if (err) {
-					console.error('Failed to update lastonline entry: ' + err);
-				}
-			});
-		} else if (curStatus == 'idle') {
-			Postgre.query('UPDATE uptime SET "AWAY" = "AWAY" + ' + Util.escape(delta) + ' WHERE "ID" = ' + get, function(err, data) {
-				if (err) {
-					console.error('Failed to update lastonline entry: ' + err);
-				}
-			});
-		} else if (curStatus == 'dnd') {
-			Postgre.query('UPDATE uptime SET "DNT" = "DNT" + ' + Util.escape(delta) + ' WHERE "ID" = ' + get, function(err, data) {
-				if (err) {
-					console.error('Failed to update lastonline entry: ' + err);
-				}
-			});
-		}
-	} catch(err) {
-		console.error(err);
-	}
-});
-
 setInterval(function() {
 	let finalQuery = 'BEGIN;';
 	
