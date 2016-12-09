@@ -39,7 +39,25 @@ BEGIN
 			'MANAGE_ROLES_OR_PERMISSIONS'
 		);
 	END IF;
-END$$;
+END
+$$;
+
+CREATE TABLE IF NOT EXISTS font_ids (
+	"ID" SERIAL PRIMARY KEY,
+	"FONT" VARCHAR(256) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS font_sizes (
+	"ID" INTEGER NOT NULL,
+	"CHAR" CHAR(4) NOT NULL,
+	"WIDTH" SMALLINT NOT NULL,
+	PRIMARY KEY ("ID", "CHAR")
+);
+
+CREATE TABLE IF NOT EXISTS font_height (
+	"ID" SERIAL PRIMARY KEY,
+	"HEIGHT" SMALLINT NOT NULL
+);
 
 CREATE TABLE IF NOT EXISTS channel_id (
 	"ID" SERIAL PRIMARY KEY,
@@ -606,6 +624,7 @@ DROP FUNCTION IF EXISTS stats_delete(user_id_raw VARCHAR(64), channel_id_raw VAR
 DROP FUNCTION IF EXISTS stats_delete(user_id_raw VARCHAR(64), message_length INTEGER);
 DROP FUNCTION IF EXISTS stats_command(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), command VARCHAR(64));
 DROP FUNCTION IF EXISTS stats_command(user_id_raw VARCHAR(64), command VARCHAR(64));
+DROP FUNCTION IF EXISTS get_font_id(fName VARCHAR(64));
 
 CREATE FUNCTION tags_tables(fName VARCHAR(64))
 RETURNS void AS $$
@@ -833,6 +852,19 @@ BEGIN
 	
 	IF (last_id IS NULL) THEN
 		INSERT INTO "roles_id" ("SERVER", "UID") VALUES (fSERVER, fUID) RETURNING "ID" INTO last_id;
+	END IF;
+	
+	RETURN last_id;
+END; $$ LANGUAGE plpgsql;
+
+CREATE FUNCTION get_font_id(fName VARCHAR(64))
+RETURNS INTEGER AS $$
+DECLARE last_id INTEGER;
+BEGIN
+	SELECT "font_ids"."ID" INTO last_id FROM "font_ids" WHERE "font_ids"."FONT" = fName;
+	
+	IF (last_id IS NULL) THEN
+		INSERT INTO "font_ids" ("FONT") VALUES (fName) RETURNING "ID" INTO last_id;
 	END IF;
 	
 	RETURN last_id;

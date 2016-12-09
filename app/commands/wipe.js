@@ -105,6 +105,7 @@ module.exports = {
 
 DBot.RegisterCommand({
 	name: 'purge',
+	alias: ['prune'],
 	
 	help_args: '<amount>',
 	desc: 'Wipes messages in current channel\nI need MANAGE_MESSAGES permissions to do that!\nSimilar to wipe command, but deletes always all messages\nand have adjustable limit',

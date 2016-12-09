@@ -6,6 +6,11 @@ const fs = require('fs');
 var font = 'Hack-Regular';
 var size = 48;
 
+hook.Add('PrecacheFonts', 'DrawCommand', function() {
+	IMagick.PrecacheFont(font);
+	IMagick.PrecacheFont('Comic-Sans-MS');
+});
+
 Util.mkdir(DBot.WebRoot + '/text', function() {
 	Util.mkdir(DBot.WebRoot + '/text/temp');
 });
