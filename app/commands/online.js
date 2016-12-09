@@ -5,9 +5,9 @@ const moment = require('moment');
 // TOTAL_OFFLINE because we must count offline time when bot is online.
 
 hook.Add('SQLInitialize', 'uptime-bot', function() {
-	MySQL.query('SELECT * FROM uptime_bot', function(err, data) {
+	Postgre.query('SELECT * FROM uptime_bot', function(err, data) {
 		if (!data || !data[0]) {
-			MySQL.query('INSERT INTO uptime_bot VALUES (' + CurTime() + ', 0)');
+			Postgre.query('INSERT INTO uptime_bot VALUES (' + CurTime() + ', 0)');
 		}
 	});
 });
@@ -27,19 +27,19 @@ hook.Add('UpdateUserVars', 'LastSeen', function(user) {
 		let get = DBot.GetUserID(user);
 		
 		if (curStatus != 'offline') {
-			MySQL.query('UPDATE lastonline SET "LASTONLINE" = ' + ctime + ' WHERE "ID" = ' + get, function(err, data) {
+			Postgre.query('UPDATE lastonline SET "LASTONLINE" = ' + ctime + ' WHERE "ID" = ' + get, function(err, data) {
 				if (err) {
 					console.error('Failed to update lastonline entry: ' + err);
 				}
 			});
 			
-			MySQL.query('UPDATE uptime SET "TOTAL_ONLINE" = "TOTAL_ONLINE" + ' + Util.escape(delta) + ' WHERE "ID" = ' + get, function(err, data) {
+			Postgre.query('UPDATE uptime SET "TOTAL_ONLINE" = "TOTAL_ONLINE" + ' + Util.escape(delta) + ' WHERE "ID" = ' + get, function(err, data) {
 				if (err) {
 					console.error('Failed to update lastonline entry: ' + err);
 				}
 			});
 		} else {
-			MySQL.query('UPDATE uptime SET "TOTAL_OFFLINE" = "TOTAL_OFFLINE" + ' + Util.escape(delta) + ' WHERE "ID" = ' + get, function(err, data) {
+			Postgre.query('UPDATE uptime SET "TOTAL_OFFLINE" = "TOTAL_OFFLINE" + ' + Util.escape(delta) + ' WHERE "ID" = ' + get, function(err, data) {
 				if (err) {
 					console.error('Failed to update lastonline entry: ' + err);
 				}
@@ -47,19 +47,19 @@ hook.Add('UpdateUserVars', 'LastSeen', function(user) {
 		}
 		
 		if (curStatus == 'online') {
-			MySQL.query('UPDATE uptime SET "ONLINE" = "ONLINE" + ' + Util.escape(delta) + ' WHERE "ID" = ' + get, function(err, data) {
+			Postgre.query('UPDATE uptime SET "ONLINE" = "ONLINE" + ' + Util.escape(delta) + ' WHERE "ID" = ' + get, function(err, data) {
 				if (err) {
 					console.error('Failed to update lastonline entry: ' + err);
 				}
 			});
 		} else if (curStatus == 'idle') {
-			MySQL.query('UPDATE uptime SET "AWAY" = "AWAY" + ' + Util.escape(delta) + ' WHERE "ID" = ' + get, function(err, data) {
+			Postgre.query('UPDATE uptime SET "AWAY" = "AWAY" + ' + Util.escape(delta) + ' WHERE "ID" = ' + get, function(err, data) {
 				if (err) {
 					console.error('Failed to update lastonline entry: ' + err);
 				}
 			});
 		} else if (curStatus == 'dnd') {
-			MySQL.query('UPDATE uptime SET "DNT" = "DNT" + ' + Util.escape(delta) + ' WHERE "ID" = ' + get, function(err, data) {
+			Postgre.query('UPDATE uptime SET "DNT" = "DNT" + ' + Util.escape(delta) + ' WHERE "ID" = ' + get, function(err, data) {
 				if (err) {
 					console.error('Failed to update lastonline entry: ' + err);
 				}
@@ -71,27 +71,33 @@ hook.Add('UpdateUserVars', 'LastSeen', function(user) {
 });
 
 hook.Add('UserInitialized', 'LastSeen', function(user) {
-	MySQL.query('SELECT "ID" FROM lastonline WHERE "ID" = ' + DBot.GetUserID(user), function(err, data) {
+	Postgre.query('SELECT "ID" FROM lastonline WHERE "ID" = ' + DBot.GetUserID(user), function(err, data) {
 		if (data && data[0])
 			return;
 		
-		MySQL.query('INSERT INTO lastonline VALUES (' + DBot.GetUserID(user) + ', ' + Math.floor(CurTime()) + ')', function(err, data) {
+		Postgre.query('INSERT INTO lastonline VALUES (' + DBot.GetUserID(user) + ', ' + Math.floor(CurTime()) + ')', function(err, data) {
 			if (err) {
 				console.error('Failed to create lastonline entry: ' + err);
 			}
 		});
 	});
 	
-	MySQL.query('SELECT "ID" FROM uptime WHERE "ID" = ' + DBot.GetUserID(user), function(err, data) {
+	Postgre.query('SELECT "ID" FROM uptime WHERE "ID" = ' + DBot.GetUserID(user), function(err, data) {
 		if (data && data[0])
 			return;
 		
-		MySQL.query('INSERT INTO uptime ("ID", "STAMP") VALUES (' + DBot.GetUserID(user) + ', ' + Math.floor(CurTime()) + ')', function(err, data) {
+		Postgre.query('INSERT INTO uptime ("ID", "STAMP") VALUES (' + DBot.GetUserID(user) + ', ' + Math.floor(CurTime()) + ')', function(err, data) {
 			if (err) {
 				console.error('Failed to create lastonline entry: ' + err);
 			}
 		});
 	});
+	
+	try {
+		Postgre.query('INSERT INTO user_status ("ID", "STATUS") VALUES (' + DBot.GetUserID(user) + ', ' + Util.escape(user.presence.status) + ') ON CONFLICT ("ID") DO UPDATE SET "STATUS" = ' + Util.escape(user.presence.status));
+	} catch(err) {
+		
+	}
 });
 
 var INIT = false;
@@ -102,7 +108,7 @@ hook.Add('BotOnline', 'BotUptime', function() {
 	
 	INIT = true;
 	setInterval(function() {
-		MySQL.query('UPDATE uptime_bot SET "AMOUNT" = "AMOUNT" + 1');
+		Postgre.query('UPDATE uptime_bot SET "AMOUNT" = "AMOUNT" + 1');
 	}, 1000);
 });
 
@@ -124,7 +130,7 @@ module.exports = {
 		
 		var uid = DBot.GetUserID(args[0]);
 		
-		MySQL.query('SELECT LASTONLINE FROM lastonline WHERE "ID" = ' + uid, function(err, data) {
+		Postgre.query('SELECT LASTONLINE FROM lastonline WHERE "ID" = ' + uid, function(err, data) {
 			if (err || !data || !data[0]) {
 				msg.reply('<internal pony error>');
 				return;
@@ -154,7 +160,7 @@ DBot.RegisterCommand({
 		if (typeof args[0] == 'object') {
 			var uid = DBot.GetUserID(args[0]);
 			
-			MySQL.query('SELECT * FROM uptime WHERE "ID" = ' + uid, function(err, data) {
+			Postgre.query('SELECT * FROM uptime WHERE "ID" = ' + uid, function(err, data) {
 				if (err || !data || !data[0]) {
 					msg.reply('<internal pony error>');
 					return;
@@ -189,7 +195,7 @@ DBot.RegisterCommand({
 				msg.channel.sendMessage(output);
 			});
 		} else {
-			MySQL.query('SELECT * FROM uptime_bot', function(err, data) {
+			Postgre.query('SELECT * FROM uptime_bot', function(err, data) {
 				var TOTAL_ONLINE = data[0].AMOUNT;
 				var TOTAL_TIME = CurTime() - data[0].START;
 				var TOTAL_OFFLINE = TOTAL_TIME - TOTAL_ONLINE;

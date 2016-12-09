@@ -2,7 +2,7 @@
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'discord_user_status') THEN
-        CREATE TYPE discord_user_status AS ENUM ('online', 'away', 'dnd', 'offline');
+		CREATE TYPE discord_user_status AS ENUM ('online', 'idle', 'dnd', 'offline');
     END IF;
 END$$;
 

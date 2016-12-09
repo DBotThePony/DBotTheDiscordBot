@@ -19,6 +19,13 @@ MySQLM = pgConnection;
 DBot.MySQL = MySQL;
 DBot.MySQLM = MySQLM;
 
+PG = pgConnection;
+Postgre = pgConnection;
+Postgres = pgConnection;
+DBot.PG = pgConnection;
+DBot.Postgre = pgConnection;
+DBot.Postgres = pgConnection;
+
 let sqlPg = fs.readFileSync('./app/postgres.sql', 'utf8').replace(/\r/gi, '');
 
 pgConnection.oldQuery = pgConnection.query;
