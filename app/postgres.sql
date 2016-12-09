@@ -9,51 +9,51 @@ END$$;
 CREATE TABLE IF NOT EXISTS channel_id (
 	"ID" SERIAL PRIMARY KEY,
 	"UID" char(64) NOT NULL,
-	"SID" int NOT NULL
+	"SID" INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS channel_names (
-	"ID" int NOT NULL PRIMARY KEY,
-	"NAME" varchar(64) NOT NULL
+	"ID" INTEGER NOT NULL PRIMARY KEY,
+	"NAME" VARCHAR(64) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS command_bans_channel (
-	"UID" int NOT NULL,
-	"COMMAND" varchar(64) NOT NULL
+	"UID" INTEGER NOT NULL,
+	"COMMAND" VARCHAR(64) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS command_bans_server (
-	"UID" int NOT NULL,
-	"COMMAND" varchar(64) NOT NULL
+	"UID" INTEGER NOT NULL,
+	"COMMAND" VARCHAR(64) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS complains (
 	"ID" SERIAL PRIMARY KEY,
-	"SERVER" int NOT NULL,
-	"CHANNEL" int NOT NULL,
-	"USER" int NOT NULL,
-	"STAMP" int NOT NULL,
+	"SERVER" INTEGER NOT NULL,
+	"CHANNEL" INTEGER NOT NULL,
+	"USER" INTEGER NOT NULL,
+	"STAMP" INTEGER NOT NULL,
 	"CONTENT" text NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS cvar_channel (
-	"ID" int,
-	"CVAR" varchar(64) NOT NULL,
-	"VALUE" varchar(255) NOT NULL,
+	"ID" INTEGER,
+	"CVAR" VARCHAR(64) NOT NULL,
+	"VALUE" VARCHAR(255) NOT NULL,
 	PRIMARY KEY ("ID", "CVAR")
 );
 
 CREATE TABLE IF NOT EXISTS cvar_client (
-	"ID" int,
-	"CVAR" varchar(64) NOT NULL,
-	"VALUE" varchar(255) NOT NULL,
+	"ID" INTEGER,
+	"CVAR" VARCHAR(64) NOT NULL,
+	"VALUE" VARCHAR(255) NOT NULL,
 	PRIMARY KEY ("ID", "CVAR")
 );
 
 CREATE TABLE IF NOT EXISTS cvar_server (
-	"ID" int,
-	"CVAR" varchar(64) NOT NULL,
-	"VALUE" varchar(255) NOT NULL,
+	"ID" INTEGER,
+	"CVAR" VARCHAR(64) NOT NULL,
+	"VALUE" VARCHAR(255) NOT NULL,
 	PRIMARY KEY ("ID", "CVAR")
 );
 
@@ -71,40 +71,40 @@ CREATE TABLE IF NOT EXISTS fortune_vulgar (
 
 CREATE TABLE IF NOT EXISTS infometr (
 	"ID" SERIAL PRIMARY KEY,
-	"PHRASE" varchar(255) NOT NULL,
-	"VALUE" int NOT NULL
+	"PHRASE" VARCHAR(255) NOT NULL,
+	"VALUE" INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS joinleft_log (
 	"ID" SERIAL PRIMARY KEY,
-	"USER" int NOT NULL,
-	"SERVER" int NOT NULL,
-	"STAMP" int NOT NULL,
+	"USER" INTEGER NOT NULL,
+	"SERVER" INTEGER NOT NULL,
+	"STAMP" INTEGER NOT NULL,
 	"STATUS" boolean NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS lastonline (
 	"ID" SERIAL PRIMARY KEY,
-	"LASTONLINE" int NOT NULL
+	"LASTONLINE" INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS meme_cache (
 	"ID" SERIAL PRIMARY KEY,
-	"URL" varchar(64) NOT NULL,
-	"NAME" varchar(128) NOT NULL
+	"URL" VARCHAR(64) NOT NULL,
+	"NAME" VARCHAR(128) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS name_logs (
-	"MEMBER" int NOT NULL,
-	"NAME" varchar(255) NOT NULL,
-	"LASTUSE" int NOT NULL,
+	"MEMBER" INTEGER NOT NULL,
+	"NAME" VARCHAR(255) NOT NULL,
+	"LASTUSE" INTEGER NOT NULL,
 	"TIME" double precision NOT NULL,
 	PRIMARY KEY ("MEMBER", "NAME")
 );
 
 CREATE TABLE IF NOT EXISTS roles_id (
 	"ID" SERIAL PRIMARY KEY,
-	"SERVER" int NOT NULL,
+	"SERVER" INTEGER NOT NULL,
 	"UID" char(64) NOT NULL
 );
 
@@ -114,285 +114,285 @@ CREATE TABLE IF NOT EXISTS server_id (
 );
 
 CREATE TABLE IF NOT EXISTS server_names (
-	"ID" int NOT NULL PRIMARY KEY,
-	"NAME" varchar(64) NOT NULL
+	"ID" INTEGER NOT NULL PRIMARY KEY,
+	"NAME" VARCHAR(64) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS stats__chars_channel (
-	"UID" int NOT NULL,
+	"UID" INTEGER NOT NULL,
 	"COUNT" bigint NOT NULL,
 	PRIMARY KEY ("UID")
 );
 
 CREATE TABLE IF NOT EXISTS stats__chars_channel_d (
-	"UID" int NOT NULL,
+	"UID" INTEGER NOT NULL,
 	"COUNT" bigint NOT NULL,
 	PRIMARY KEY ("UID")
 );
 
 CREATE TABLE IF NOT EXISTS stats__chars_client (
-	"UID" int NOT NULL,
+	"UID" INTEGER NOT NULL,
 	"COUNT" bigint NOT NULL,
 	PRIMARY KEY ("UID")
 );
 
 CREATE TABLE IF NOT EXISTS stats__chars_client_d (
-	"UID" int NOT NULL,
+	"UID" INTEGER NOT NULL,
 	"COUNT" bigint NOT NULL,
 	PRIMARY KEY ("UID")
 );
 
 CREATE TABLE IF NOT EXISTS stats__chars_server (
-	"UID" int NOT NULL,
+	"UID" INTEGER NOT NULL,
 	"COUNT" bigint NOT NULL,
 	PRIMARY KEY ("UID")
 );
 
 CREATE TABLE IF NOT EXISTS stats__chars_server_d (
-	"UID" int NOT NULL,
+	"UID" INTEGER NOT NULL,
 	"COUNT" bigint NOT NULL,
 	PRIMARY KEY ("UID")
 );
 
 CREATE TABLE IF NOT EXISTS stats__command_channel (
-	"UID" int NOT NULL,
-	"COMMAND" varchar(64) NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"COMMAND" VARCHAR(64) NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "COMMAND")
 );
 
 CREATE TABLE IF NOT EXISTS stats__command_client (
-	"UID" int NOT NULL,
-	"COMMAND" varchar(64) NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"COMMAND" VARCHAR(64) NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "COMMAND")
 );
 
 CREATE TABLE IF NOT EXISTS stats__command_server (
-	"UID" int NOT NULL,
-	"COMMAND" varchar(64) NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"COMMAND" VARCHAR(64) NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "COMMAND")
 );
 
 CREATE TABLE IF NOT EXISTS stats__command_uchannel (
-	"UID" int NOT NULL,
-	"CHANNEL" int NOT NULL,
-	"COMMAND" varchar(64) NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"CHANNEL" INTEGER NOT NULL,
+	"COMMAND" VARCHAR(64) NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "CHANNEL", "COMMAND")
 );
 
 CREATE TABLE IF NOT EXISTS stats__command_userver (
-	"UID" int NOT NULL,
-	"USERVER" int NOT NULL,
-	"COMMAND" varchar(64) NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"USERVER" INTEGER NOT NULL,
+	"COMMAND" VARCHAR(64) NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "USERVER", "COMMAND")
 );
 
 CREATE TABLE IF NOT EXISTS stats__images_channel (
-	"UID" int NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID")
 );
 
 CREATE TABLE IF NOT EXISTS stats__images_client (
-	"UID" int NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID")
 );
 
 CREATE TABLE IF NOT EXISTS stats__images_server (
-	"UID" int NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID")
 );
 
 CREATE TABLE IF NOT EXISTS stats__phrases_channel (
-	"UID" int NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID")
 );
 
 CREATE TABLE IF NOT EXISTS stats__phrases_channel_d (
-	"UID" int NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID")
 );
 
 CREATE TABLE IF NOT EXISTS stats__phrases_channel_e (
-	"UID" int NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID")
 );
 
 CREATE TABLE IF NOT EXISTS stats__phrases_client (
-	"UID" int NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID")
 );
 
 CREATE TABLE IF NOT EXISTS stats__phrases_client_d (
-	"UID" int NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID")
 );
 
 CREATE TABLE IF NOT EXISTS stats__phrases_client_e (
-	"UID" int NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID")
 );
 
 CREATE TABLE IF NOT EXISTS stats__phrases_server (
-	"UID" int NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID")
 );
 
 CREATE TABLE IF NOT EXISTS stats__phrases_server_d (
-	"UID" int NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID")
 );
 
 CREATE TABLE IF NOT EXISTS stats__phrases_server_e (
-	"UID" int NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID")
 );
 
 CREATE TABLE IF NOT EXISTS stats__uchars_channel (
-	"UID" int NOT NULL,
-	"CHANNEL" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"CHANNEL" INTEGER NOT NULL,
 	"COUNT" bigint NOT NULL,
 	PRIMARY KEY ("UID", "CHANNEL")
 );
 
 CREATE TABLE IF NOT EXISTS stats__uchars_channel_d (
-	"UID" int NOT NULL,
-	"CHANNEL" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"CHANNEL" INTEGER NOT NULL,
 	"COUNT" bigint NOT NULL,
 	PRIMARY KEY ("UID", "CHANNEL")
 );
 
 CREATE TABLE IF NOT EXISTS stats__uchars_server (
-	"UID" int NOT NULL,
-	"USERVER" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"USERVER" INTEGER NOT NULL,
 	"COUNT" bigint NOT NULL,
 	PRIMARY KEY ("UID", "USERVER")
 );
 
 CREATE TABLE IF NOT EXISTS stats__uchars_server_d (
-	"UID" int NOT NULL,
-	"USERVER" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"USERVER" INTEGER NOT NULL,
 	"COUNT" bigint NOT NULL,
 	PRIMARY KEY ("UID", "USERVER")
 );
 
 CREATE TABLE IF NOT EXISTS stats__uimages_channel (
-	"UID" int NOT NULL,
-	"CHANNEL" int NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"CHANNEL" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "CHANNEL")
 );
 
 CREATE TABLE IF NOT EXISTS stats__uimages_server (
-	"UID" int NOT NULL,
-	"USERVER" int NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"USERVER" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "USERVER")
 );
 
 CREATE TABLE IF NOT EXISTS stats__uphrases_channel (
-	"UID" int NOT NULL,
-	"CHANNEL" int NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"CHANNEL" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "CHANNEL")
 );
 
 CREATE TABLE IF NOT EXISTS stats__uphrases_channel_d (
-	"UID" int NOT NULL,
-	"CHANNEL" int NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"CHANNEL" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "CHANNEL")
 );
 
 CREATE TABLE IF NOT EXISTS stats__uphrases_channel_e (
-	"UID" int NOT NULL,
-	"CHANNEL" int NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"CHANNEL" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "CHANNEL")
 );
 
 CREATE TABLE IF NOT EXISTS stats__uphrases_server (
-	"UID" int NOT NULL,
-	"USERVER" int NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"USERVER" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "USERVER")
 );
 
 CREATE TABLE IF NOT EXISTS stats__uphrases_server_d (
-	"UID" int NOT NULL,
-	"USERVER" int NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"USERVER" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "USERVER")
 );
 
 CREATE TABLE IF NOT EXISTS stats__uphrases_server_e (
-	"UID" int NOT NULL,
-	"USERVER" int NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"USERVER" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "USERVER")
 );
 
 CREATE TABLE IF NOT EXISTS stats__uwords_channel (
-	"UID" int NOT NULL,
-	"CHANNEL" int NOT NULL,
-	"WORD" varchar(64) NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"CHANNEL" INTEGER NOT NULL,
+	"WORD" VARCHAR(64) NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "WORD", "CHANNEL")
 );
 
 CREATE TABLE IF NOT EXISTS stats__uwords_server (
-	"UID" int NOT NULL,
-	"USERVER" int NOT NULL,
-	"WORD" varchar(64) NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"USERVER" INTEGER NOT NULL,
+	"WORD" VARCHAR(64) NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "WORD", "USERVER")
 );
 
 CREATE TABLE IF NOT EXISTS stats__words_channel (
-	"UID" int NOT NULL,
-	"WORD" varchar(64) NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"WORD" VARCHAR(64) NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "WORD")
 );
 
 CREATE TABLE IF NOT EXISTS stats__words_client (
-	"UID" int NOT NULL,
-	"WORD" varchar(64) NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"WORD" VARCHAR(64) NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "WORD")
 );
 
 CREATE TABLE IF NOT EXISTS stats__words_server (
-	"UID" int NOT NULL,
-	"WORD" varchar(64) NOT NULL,
-	"COUNT" int NOT NULL,
+	"UID" INTEGER NOT NULL,
+	"WORD" VARCHAR(64) NOT NULL,
+	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "WORD")
 );
 
 CREATE TABLE IF NOT EXISTS steam_emoji_fail (
-	"EMOJI" varchar(32) NOT NULL
+	"EMOJI" VARCHAR(32) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS steamid (
 	"STEAMID64" char(64) NOT NULL,
 	"STEAMID" char(32) NOT NULL,
 	"STEAMID3" char(32) NOT NULL,
-	"CUSTOMID" varchar(128) NOT NULL,
+	"CUSTOMID" VARCHAR(128) NOT NULL,
 	PRIMARY KEY ("STEAMID64")
 );
 
@@ -400,56 +400,56 @@ CREATE TABLE IF NOT EXISTS steamid_fail (
 	"STEAMID64" char(64) DEFAULT NULL,
 	"STEAMID" char(32) DEFAULT NULL,
 	"STEAMID3" char(32) DEFAULT NULL,
-	"CUSTOMID" varchar(128) DEFAULT NULL
+	"CUSTOMID" VARCHAR(128) DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS tags__google_server_init (
-	"UID" int NOT NULL
+	"UID" INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS timers_ids (
 	"ID" SERIAL PRIMARY KEY,
-	"TITLE" varchar(128) NOT NULL,
-	"HASH" varchar(64) NOT NULL,
+	"TITLE" VARCHAR(128) NOT NULL,
+	"HASH" VARCHAR(64) NOT NULL,
 	"NOTIFY" boolean NOT NULL,
-	"STAMP" int NOT NULL
+	"STAMP" INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS timers_users (
-	"ID" int NOT NULL,
-	"TIMERID" int NOT NULL,
+	"ID" INTEGER NOT NULL,
+	"TIMERID" INTEGER NOT NULL,
 	PRIMARY KEY ("ID", "TIMERID")
 );
 
 CREATE TABLE IF NOT EXISTS uptime (
-	"ID" int NOT NULL,
+	"ID" INTEGER NOT NULL,
 	"TOTAL_ONLINE" double precision NOT NULL DEFAULT 0,
 	"TOTAL_OFFLINE" double precision NOT NULL DEFAULT 0,
 	"ONLINE" double precision NOT NULL DEFAULT 0,
 	"AWAY" double precision NOT NULL DEFAULT 0,
 	"DNT" double precision NOT NULL DEFAULT 0,
-	"STAMP" int NOT NULL,
+	"STAMP" INTEGER NOT NULL,
 	PRIMARY KEY ("ID")
 );
 
 CREATE TABLE IF NOT EXISTS user_status (
-	"ID" int NOT NULL,
+	"ID" INTEGER NOT NULL,
 	"STATUS" discord_user_status NOT NULL,
 	PRIMARY KEY ("ID")
 );
 
 CREATE TABLE IF NOT EXISTS uptime_bot (
-	"START" int NOT NULL,
-	"AMOUNT" int NOT NULL
+	"START" INTEGER NOT NULL,
+	"AMOUNT" INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS urbancache (
-	"WORD" varchar(64) NOT NULL,
+	"WORD" VARCHAR(64) NOT NULL,
 	"DEFINITION" text NOT NULL,
-	"TAGS" varchar(512) NOT NULL,
-	"ULINK" varchar(64) NOT NULL,
+	"TAGS" VARCHAR(512) NOT NULL,
+	"ULINK" VARCHAR(64) NOT NULL,
 	"DEXAMPLE" text NOT NULL,
-	"USTAMP" int NOT NULL,
+	"USTAMP" INTEGER NOT NULL,
 	PRIMARY KEY ("WORD")
 );
 
@@ -459,44 +459,44 @@ CREATE TABLE IF NOT EXISTS user_id (
 );
 
 CREATE TABLE IF NOT EXISTS user_names (
-	"ID" int NOT NULL,
-	"USERNAME" varchar(64) NOT NULL,
+	"ID" INTEGER NOT NULL,
+	"USERNAME" VARCHAR(64) NOT NULL,
 	PRIMARY KEY ("ID")
 );
 
 CREATE TABLE IF NOT EXISTS users_roles (
-	"USERID" int NOT NULL,
-	"ROLEID" int NOT NULL,
+	"USERID" INTEGER NOT NULL,
+	"ROLEID" INTEGER NOT NULL,
 	PRIMARY KEY ("USERID", "ROLEID")
 );
 
 CREATE TABLE IF NOT EXISTS votes_choices (
-	"VOTE" int NOT NULL,
-	"CHOICEID" int NOT NULL,
-	"NAME" varchar(64) NOT NULL,
-	"VOTES" int NOT NULL DEFAULT 0,
+	"VOTE" INTEGER NOT NULL,
+	"CHOICEID" INTEGER NOT NULL,
+	"NAME" VARCHAR(64) NOT NULL,
+	"VOTES" INTEGER NOT NULL DEFAULT 0,
 	PRIMARY KEY ("VOTE", "CHOICEID")
 );
 
 CREATE TABLE IF NOT EXISTS votes_list (
 	"ID" SERIAL PRIMARY KEY,
-	"SERVER" int NOT NULL,
-	"CHANNEL" int DEFAULT NULL,
-	"NAME" varchar(64) NOT NULL,
-	"STAMP" int NOT NULL,
+	"SERVER" INTEGER NOT NULL,
+	"CHANNEL" INTEGER DEFAULT NULL,
+	"NAME" VARCHAR(64) NOT NULL,
+	"STAMP" INTEGER NOT NULL,
 	"CLOSED" boolean NOT NULL DEFAULT false
 );
 
 CREATE TABLE IF NOT EXISTS votes_text (
-	"ID" int NOT NULL,
+	"ID" INTEGER NOT NULL,
 	"TEXT" text NOT NULL,
 	PRIMARY KEY ("ID")
 );
 
 CREATE TABLE IF NOT EXISTS votes_votes (
-	"VOTE" int NOT NULL,
-	"USER" int NOT NULL,
-	"CHOICE" int NOT NULL,
+	"VOTE" INTEGER NOT NULL,
+	"USER" INTEGER NOT NULL,
+	"CHOICE" INTEGER NOT NULL,
 	PRIMARY KEY ("VOTE", "USER")
 );
 
@@ -526,7 +526,7 @@ CREATE TABLE IF NOT EXISTS roles_log (
 );
 
 CREATE TABLE IF NOT EXISTS member_names (
-	"ID" int PRIMARY KEY,
+	"ID" INTEGER PRIMARY KEY,
 	"NAME" VARCHAR(64) NOT NULL
 );
 
@@ -548,16 +548,16 @@ DROP FUNCTION IF EXISTS get_member_id(userid VARCHAR(64), server VARCHAR(64));
 DROP FUNCTION IF EXISTS restore_member_id(memberid INTEGER);
 DROP FUNCTION IF EXISTS tags_tables(fName VARCHAR(64));
 DROP FUNCTION IF EXISTS restore_member(memberid INTEGER);
-DROP FUNCTION IF EXISTS user_status_heartbeat(cTime int);
-DROP FUNCTION IF EXISTS update_nicknames_stats(cTime int);
-DROP FUNCTION IF EXISTS stats_hit(user_id_raw varchar(64), message_length int, words varchar(64)[], images_seneded int);
-DROP FUNCTION IF EXISTS stats_hit(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), message_length int, words VARCHAR(64)[], images_seneded int);
-DROP FUNCTION IF EXISTS stats_edit(user_id_raw varchar(64));
-DROP FUNCTION IF EXISTS stats_edit(user_id_raw varchar(64), channel_id_raw varchar(64), server_id_raw varchar(64));
-DROP FUNCTION IF EXISTS stats_delete(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), message_length int);
-DROP FUNCTION IF EXISTS stats_delete(user_id_raw VARCHAR(64), message_length int);
-DROP FUNCTION IF EXISTS stats_command(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), command varchar(64));
-DROP FUNCTION IF EXISTS stats_command(user_id_raw VARCHAR(64), command varchar(64));
+DROP FUNCTION IF EXISTS user_status_heartbeat(cTime INTEGER);
+DROP FUNCTION IF EXISTS update_nicknames_stats(cTime INTEGER);
+DROP FUNCTION IF EXISTS stats_hit(user_id_raw VARCHAR(64), message_length INTEGER, words VARCHAR(64)[], images_seneded INTEGER);
+DROP FUNCTION IF EXISTS stats_hit(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), message_length INTEGER, words VARCHAR(64)[], images_seneded INTEGER);
+DROP FUNCTION IF EXISTS stats_edit(user_id_raw VARCHAR(64));
+DROP FUNCTION IF EXISTS stats_edit(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64));
+DROP FUNCTION IF EXISTS stats_delete(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), message_length INTEGER);
+DROP FUNCTION IF EXISTS stats_delete(user_id_raw VARCHAR(64), message_length INTEGER);
+DROP FUNCTION IF EXISTS stats_command(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), command VARCHAR(64));
+DROP FUNCTION IF EXISTS stats_command(user_id_raw VARCHAR(64), command VARCHAR(64));
 
 CREATE FUNCTION tags_tables(fName VARCHAR(64))
 RETURNS void AS $$
@@ -590,7 +590,7 @@ BEGIN
 	);', CONCAT('tags__', fName, '_channel'));
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION stats_hit(user_id_raw varchar(64), message_length int, words varchar(64)[], images_seneded int)
+CREATE FUNCTION stats_hit(user_id_raw VARCHAR(64), message_length INTEGER, words VARCHAR(64)[], images_seneded INTEGER)
 RETURNS void AS $$
 DECLARE user_id INTEGER;
 DECLARE word VARCHAR(64);
@@ -609,7 +609,7 @@ BEGIN
 	END IF;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION stats_edit(user_id_raw varchar(64))
+CREATE FUNCTION stats_edit(user_id_raw VARCHAR(64))
 RETURNS void AS $$
 DECLARE user_id INTEGER;
 BEGIN
@@ -618,7 +618,7 @@ BEGIN
 	INSERT INTO stats__phrases_client_e ("UID", "COUNT") VALUES (user_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_client_e."COUNT" + 1;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION stats_edit(user_id_raw varchar(64), channel_id_raw varchar(64), server_id_raw varchar(64))
+CREATE FUNCTION stats_edit(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64))
 RETURNS void AS $$
 DECLARE user_id INTEGER;
 DECLARE server_id INTEGER;
@@ -635,7 +635,7 @@ BEGIN
 	INSERT INTO stats__uphrases_server_e ("UID", "USERVER", "COUNT") VALUES (user_id, server_id, 1) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uphrases_server_e."COUNT" + 1;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION stats_hit(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), message_length int, words VARCHAR(64)[], images_seneded int)
+CREATE FUNCTION stats_hit(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), message_length INTEGER, words VARCHAR(64)[], images_seneded INTEGER)
 RETURNS void AS $$
 DECLARE user_id INTEGER;
 DECLARE server_id INTEGER;
@@ -678,7 +678,7 @@ BEGIN
 	END IF;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION stats_delete(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), message_length int)
+CREATE FUNCTION stats_delete(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), message_length INTEGER)
 RETURNS void AS $$
 DECLARE user_id INTEGER;
 DECLARE server_id INTEGER;
@@ -702,7 +702,7 @@ BEGIN
 	INSERT INTO stats__uchars_server_d ("UID", "USERVER", "COUNT") VALUES (user_id, server_id, message_length) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uchars_server_d."COUNT" + message_length;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION stats_command(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), command varchar(64))
+CREATE FUNCTION stats_command(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), command VARCHAR(64))
 RETURNS void AS $$
 DECLARE user_id INTEGER;
 DECLARE server_id INTEGER;
@@ -721,7 +721,7 @@ BEGIN
 	INSERT INTO stats__command_userver ("UID", "USERVER", "COMMAND", "COUNT") VALUES (user_id, server_id, command, 1) ON CONFLICT ("UID", "COMMAND", "USERVER") DO UPDATE SET "COUNT" = stats__command_userver."COUNT" + 1;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION stats_command(user_id_raw VARCHAR(64), command varchar(64))
+CREATE FUNCTION stats_command(user_id_raw VARCHAR(64), command VARCHAR(64))
 RETURNS void AS $$
 DECLARE user_id INTEGER;
 BEGIN
@@ -730,7 +730,7 @@ BEGIN
 	INSERT INTO stats__command_client ("UID", "COMMAND", "COUNT") VALUES (user_id, command, 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = stats__command_client."COUNT" + 1;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION stats_delete(user_id_raw VARCHAR(64), message_length int)
+CREATE FUNCTION stats_delete(user_id_raw VARCHAR(64), message_length INTEGER)
 RETURNS void AS $$
 DECLARE user_id INTEGER;
 BEGIN
@@ -740,7 +740,7 @@ BEGIN
 	INSERT INTO stats__chars_client_d ("UID", "COUNT") VALUES (user_id, message_length) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_client_d."COUNT" + message_length;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION user_status_heartbeat(cTime int)
+CREATE FUNCTION user_status_heartbeat(cTime INTEGER)
 RETURNS void AS $$
 BEGIN
 	UPDATE lastonline SET "LASTONLINE" = cTime FROM user_status WHERE user_status."ID" = lastonline."ID" AND user_status."STATUS" != 'offline';
@@ -752,7 +752,7 @@ BEGIN
 	UPDATE uptime SET "TOTAL_OFFLINE" = "TOTAL_OFFLINE" + 5 FROM user_status WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'offline';
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION update_nicknames_stats(cTime int)
+CREATE FUNCTION update_nicknames_stats(cTime INTEGER)
 RETURNS void AS $$
 DECLARE my_row RECORD;
 BEGIN
