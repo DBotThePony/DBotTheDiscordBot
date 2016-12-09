@@ -22,8 +22,8 @@ module.exports = {
 	name: 'cmeme',
 	alias: ['bmeme', 'meme'],
 	
-	help_args: '<url> <top test> [bottom test]',
-	desc: 'Tries to parody meme generator. URL can be user with valid avatar. If you want top text with spaces,\nyou should put test in single or double quotes.\nThere is no need to put bottom text in quotes, all arguments are concated into one bottom string.',
+	help_args: '<url> <top text> [bottom text]',
+	desc: 'Tries to parody meme generator. URL can be user with valid avatar. If you want top text with spaces,\nyou should put text in single or double quotes.\nThere is no need to put bottom text in quotes, all arguments are concated into one bottom string.',
 	allowUserArgument: true,
 	delay: 5,
 	
