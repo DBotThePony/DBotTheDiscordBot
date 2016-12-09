@@ -12,7 +12,12 @@ hook.Add('SQLInitialize', 'uptime-bot', function() {
 	});
 });
 
+let usersCache = [];
+
 hook.Add('UpdateUserVars', 'LastSeen', function(user) {
+	if (true)
+		return;
+	
 	try {
 		var ctime = Math.floor(CurTime());
 		
@@ -70,7 +75,30 @@ hook.Add('UpdateUserVars', 'LastSeen', function(user) {
 	}
 });
 
+setInterval(function() {
+	let finalQuery = 'BEGIN;';
+	
+	for (let user of usersCache) {
+		try {
+			let status = user.presence.status;
+			let ostatus = user.lastStatus;
+			
+			if (status != ostatus) {
+				finalQuery += 'UPDATE user_status SET "STATUS" = \'' + status + '\' WHERE "ID" = ' + DBot.GetUserID(user) + ';';
+				user.lastStatus = status;
+			}
+		} catch(err) {
+			console.error(err);
+		}
+	}
+	
+	finalQuery += 'SELECT user_status_heartbeat(' + Math.floor(CurTime()) + ');COMMIT;';
+	Postgre.query(finalQuery);
+}, 5000);
+
 hook.Add('UserInitialized', 'LastSeen', function(user) {
+	usersCache.push(user);
+	
 	Postgre.query('SELECT "ID" FROM lastonline WHERE "ID" = ' + DBot.GetUserID(user), function(err, data) {
 		if (data && data[0])
 			return;
@@ -95,6 +123,8 @@ hook.Add('UserInitialized', 'LastSeen', function(user) {
 	
 	try {
 		Postgre.query('INSERT INTO user_status ("ID", "STATUS") VALUES (' + DBot.GetUserID(user) + ', ' + Util.escape(user.presence.status) + ') ON CONFLICT ("ID") DO UPDATE SET "STATUS" = ' + Util.escape(user.presence.status));
+		
+		user.lastStatus = user.presence.status;
 	} catch(err) {
 		
 	}

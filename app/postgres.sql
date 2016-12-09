@@ -548,6 +548,7 @@ DROP FUNCTION IF EXISTS get_member_id(userid VARCHAR(64), server VARCHAR(64));
 DROP FUNCTION IF EXISTS restore_member_id(memberid INTEGER);
 DROP FUNCTION IF EXISTS tags_tables(fName VARCHAR(64));
 DROP FUNCTION IF EXISTS restore_member(memberid INTEGER);
+DROP FUNCTION IF EXISTS user_status_heartbeat(cTime int);
 
 CREATE FUNCTION tags_tables(fName VARCHAR(64))
 RETURNS void AS $$
@@ -578,6 +579,18 @@ BEGIN
 		UID INTEGER NOT NULL,
 		TAG VARCHAR(64) NOT NULL
 	);', CONCAT('tags__', fName, '_channel'));
+END; $$ LANGUAGE plpgsql;
+
+CREATE FUNCTION user_status_heartbeat(cTime int)
+RETURNS void AS $$
+BEGIN
+	UPDATE lastonline SET "LASTONLINE" = cTime FROM user_status WHERE user_status."ID" = lastonline."ID" AND user_status."STATUS" != 'offline';
+	
+	UPDATE uptime SET "TOTAL_ONLINE" = "TOTAL_ONLINE" + 5 FROM user_status WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" != 'offline';
+	UPDATE uptime SET "ONLINE" = "ONLINE" + 5 FROM user_status WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'online';
+	UPDATE uptime SET "AWAY" = "AWAY" + 5 FROM user_status WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'idle';
+	UPDATE uptime SET "DNT" = "DNT" + 5 FROM user_status WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'dnd';
+	UPDATE uptime SET "TOTAL_OFFLINE" = "TOTAL_OFFLINE" + 5 FROM user_status WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'offline';
 END; $$ LANGUAGE plpgsql;
 
 CREATE FUNCTION get_role_id_combined(fUID VARCHAR(64), fSERVER2 VARCHAR(64))
