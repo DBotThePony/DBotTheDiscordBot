@@ -241,7 +241,7 @@ Util.escape = function(str) {
 	
 	strObj = '\'' + strObj + '\'';
 	
-	return utf8.encode(strObj);
+	return strObj;
 }
 
 Util.HasValue = Util.HaveValue;
