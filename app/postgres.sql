@@ -8,7 +8,7 @@ END$$;
 
 CREATE TABLE IF NOT EXISTS channel_id (
 	"ID" SERIAL PRIMARY KEY,
-	"UID" varchar(64) NOT NULL,
+	"UID" char(64) NOT NULL,
 	"SID" int NOT NULL
 );
 
@@ -105,12 +105,12 @@ CREATE TABLE IF NOT EXISTS name_logs (
 CREATE TABLE IF NOT EXISTS roles_id (
 	"ID" SERIAL PRIMARY KEY,
 	"SERVER" int NOT NULL,
-	"UID" varchar(64) NOT NULL
+	"UID" char(64) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS server_id (
 	"ID" SERIAL PRIMARY KEY,
-	"UID" varchar(64) NOT NULL
+	"UID" char(64) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS server_names (
@@ -455,7 +455,7 @@ CREATE TABLE IF NOT EXISTS urbancache (
 
 CREATE TABLE IF NOT EXISTS user_id (
 	"ID" SERIAL PRIMARY KEY,
-	"UID" varchar(64) NOT NULL
+	"UID" char(64) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS user_names (
