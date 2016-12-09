@@ -47,7 +47,6 @@ bot.on('message', msg => {
 				return;
 		}
 		
-		
 		if (msg.channel.type == 'dm') {
 			try {
 				DBot.HandleMessage(msg, true)
