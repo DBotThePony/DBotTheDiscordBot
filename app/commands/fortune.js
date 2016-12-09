@@ -136,7 +136,7 @@ module.exports = {
 			if (!Util.HasValue(categories, args[0]))
 				return DBot.CommandError('Invalid fortune category', 'fortune', args, 1);
 			
-			MySQL.query('SELECT "CONTENT" FROM fortune WHERE "CATEGORY" = ' + Util.escape(args[0]) + ' ORDER BY RAND() LIMIT 1', function(err, data) {
+			MySQL.query('SELECT "CONTENT" FROM fortune WHERE "CATEGORY" = ' + Util.escape(args[0]) + ' ORDER BY random() LIMIT 1', function(err, data) {
 				if (err || !data || !data[0]) {
 					return;
 				}
@@ -169,7 +169,7 @@ DBot.RegisterCommand({
 			if (!Util.HasValue(categoriesFull, args[0]))
 				return DBot.CommandError('Invalid fortune category', 'fortune', args, 1);
 			
-			MySQL.query('SELECT "CONTENT" FROM fortune_vulgar WHERE "CATEGORY" = ' + Util.escape(args[0]) + ' ORDER BY RAND() LIMIT 1', function(err, data) {
+			MySQL.query('SELECT "CONTENT" FROM fortune_vulgar WHERE "CATEGORY" = ' + Util.escape(args[0]) + ' ORDER BY random() LIMIT 1', function(err, data) {
 				if (err || !data || !data[0]) {
 					return;
 				}
