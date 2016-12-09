@@ -83,6 +83,22 @@ sql.Array = function(arr) {
 	return output + ']';
 }
 
+sql.UArray = function(arr) {
+	let output = 'ARRAY [';
+	let first = true;
+	
+	for (let obj of arr) {
+		if (first) {
+			first = false;
+			output += obj;
+		} else {
+			output += ',' + obj;
+		}
+	}
+	
+	return output + ']';
+}
+
 sql.Concat = function() {
 	let output = '';
 	let first = true;

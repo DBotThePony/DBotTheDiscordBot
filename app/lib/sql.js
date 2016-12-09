@@ -313,6 +313,15 @@ DBot.DefineRole = function(role) {
 		if (err) throw err;
 		role.uid = data[0].ID;
 		MySQL.query('INSERT INTO roles_names VALUES (' + Util.escape(role.uid) + ', ' + Util.escape(role.name) + ') ON CONFLICT ("ROLEID") DO UPDATE SET "NAME" = ' + Util.escape(role.name));
+		let perms = role.serialize();
+		let arr = [];
+		
+		for (let name in perms) {
+			if (perms[name])
+				arr.push(name);
+		}
+		
+		MySQL.query('DELETE FROM roles_perms WHERE "ID" = ' + role.uid + ';INSERT INTO roles_perms VALUES (' + role.uid + ', ' + sql.Array(arr) + '::discord_permission[]);')
 		hook.Run('RoleInitialized', role, role.uid);
 	});
 }
