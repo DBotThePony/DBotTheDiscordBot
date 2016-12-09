@@ -317,7 +317,12 @@ DBot.DefineRole = function(role) {
 	});
 }
 
+let memberCache = [];
+
 DBot.DefineMember = function(member) {
+	if (member.uid)
+		return;
+	
 	let id = member.user.id;
 	let uid = member.guild.id;
 	
@@ -326,7 +331,25 @@ DBot.DefineMember = function(member) {
 		member.uid = data[0].ID;
 		MySQL.query('INSERT INTO member_names VALUES (' + Util.escape(member.uid) + ', ' + Util.escape(member.nickname || member.user.username) + ') ON CONFLICT ("ID") DO UPDATE SET "NAME" = ' + Util.escape(member.nickname || member.user.username));
 		hook.Run('MemberInitialized', member, member.uid);
+		
+		let hit = false;
+		
+		for (let i in memberCache) {
+			let oldMem = memberCache[i];
+			
+			if (oldMem.uid == member.uid) {
+				memberCache[i] = member;
+				break;
+			}
+		}
+		
+		if (!hit)
+			memberCache.push(member);
 	});
+}
+
+DBot.GetMembers = function() {
+	return memberCache;
 }
 
 DBot.DefineGuild = function(guild) {

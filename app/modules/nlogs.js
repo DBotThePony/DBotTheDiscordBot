@@ -5,38 +5,43 @@ const hDuration = require('humanize-duration');
 
 cvars.ServerVar('name_notify', '0', [FCVAR_BOOLONLY], 'Enable nickname changes notifications');
 
-hook.Add('UpdateMemberVars', 'NameLogs', function(member) {
-	try {
-		let uid = member.user.id;
-		let sid = member.guild.id;
-		let name = member.nickname || member.user.username;
-		
-		member.oldNickname = member.oldNickname || name;
-		
-		let notifications = cvars.Server(member.guild).getVar('notifications').getBool();
-		let name_notify = cvars.Server(member.guild).getVar('name_notify').getBool();
-		
-		if (member.oldNickname != name && notifications && name_notify) {
-			let channel = DBot.GetNotificationChannel(member.guild);
+setInterval(function() {
+	let finalQuery = 'BEGIN;';
+	
+	for (let member of DBot.GetMembers()) {
+		try {
+			let uid = member.user.id;
+			let sid = member.guild.id;
+			let name = member.nickname || member.user.username;
 			
-			if (channel) {
-				channel.sendMessage('```\nUser @' + member.oldNickname + ' (@' + member.user.username + ') has changes his nick to @' + name + '\n```');
+			member.oldNickname = member.oldNickname || name;
+			
+			let notifications = cvars.Server(member.guild).getVar('notifications').getBool();
+			let name_notify = cvars.Server(member.guild).getVar('name_notify').getBool();
+			
+			if (member.oldNickname != name && notifications && name_notify) {
+				let channel = DBot.GetNotificationChannel(member.guild);
+				
+				if (channel) {
+					channel.sendMessage('```\nUser @' + member.oldNickname + ' (@' + member.user.username + ') has changes his nick to @' + name + '\n```');
+				}
 			}
+			
+			member.oldNickname = name;
+			
+			let time = Math.floor(CurTime());
+			let delta = 10;
+			
+			finalQuery += 'INSERT INTO name_logs ("MEMBER", "NAME", "LASTUSE", "TIME") VALUES (' + member.uid + ', ' + Util.escape(name) + ', ' + time + ', ' + delta + ') ON CONFLICT ("MEMBER", "NAME") DO UPDATE SET "LASTUSE" = ' + Util.escape(time) + ', "TIME" = name_logs."TIME" + ' + Util.escape(delta) + ';';
+		} catch(err) {
+			console.error(err);
 		}
-		
-		member.oldNickname = name;
-		
-		let time = CurTime();
-		member.NTime = member.NTime || time;
-		let delta = time - member.NTime;
-		
-		member.NTime = time;
-		
-		MySQL.query('INSERT INTO name_logs ("MEMBER", "NAME", "LASTUSE", "TIME") VALUES (' + sql.Member(member) + ', ' + Util.escape(name) + ', ' + Math.floor(time) + ', ' + delta + ') ON CONFLICT ("MEMBER", "NAME") DO UPDATE SET "LASTUSE" = ' + Util.escape(Math.floor(time)) + ', "TIME" = name_logs."TIME" + ' + Util.escape(delta));
-	} catch(err) {
-		console.error(err);
 	}
-});
+	
+	finalQuery += 'COMMIT;';
+	
+	Postgres.query(finalQuery);
+}, 10000);
 
 DBot.RegisterCommand({
 	name: 'namelog',
