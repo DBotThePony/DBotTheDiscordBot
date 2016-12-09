@@ -162,9 +162,9 @@ var CompareStrings = function(Str1, Str2) {
 		
 		let cond = Str1[I1] == Str2[I1];
 		
-		for (let i11 = -2; i <= 2; i++) {
-			for (let i22 = -2; i <= 2; i++) {
-				if (Str1[I1 + ii1] != '' && Str2[I1 + ii2] != '' && Str1[I1 + ii1] == Str2[I1 + ii2]) {
+		for (let i1 = -2; i <= 2; i++) {
+			for (let i2 = -2; i <= 2; i++) {
+				if (Str1[I1 + i1] != '' && Str2[I1 + i2] != '' && Str1[I1 + i1] == Str2[I1 + i2]) {
 					cond = true;
 					break;
 				}
