@@ -121,7 +121,9 @@ DBot.RegisterCommand({
 			roles_names."ROLEID" = roles_log."ROLE" AND\
 			member_names."ID" = member_id."ID"\
 		GROUP BY\
-			"ENTRY"\
+			"ENTRY",\
+			roles_names."NAME",\
+			member_names."NAME"\
 		ORDER BY\
 			"ENTRY" DESC\
 		LIMIT 10';
@@ -129,6 +131,7 @@ DBot.RegisterCommand({
 		MySQL.query(funckingQuery, function(err, data) {
 			if (err) {
 				msg.reply('WTF');
+				console.error(err);
 				return;
 			}
 			
