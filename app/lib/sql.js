@@ -329,7 +329,6 @@ DBot.DefineMember = function(member) {
 	MySQL.query('SELECT ' + sql.Member(member) + ' AS "ID"', function(err, data) {
 		if (err) throw err;
 		member.uid = data[0].ID;
-		MySQL.query('INSERT INTO member_names VALUES (' + Util.escape(member.uid) + ', ' + Util.escape(member.nickname || member.user.username) + ') ON CONFLICT ("ID") DO UPDATE SET "NAME" = ' + Util.escape(member.nickname || member.user.username));
 		hook.Run('MemberInitialized', member, member.uid);
 		
 		let hit = false;
@@ -337,7 +336,7 @@ DBot.DefineMember = function(member) {
 		for (let i in memberCache) {
 			let oldMem = memberCache[i];
 			
-			if (oldMem.uid == member.uid) {
+			if (oldMem.id == member.id && oldMem.guild.id == member.guild.id) {
 				memberCache[i] = member;
 				break;
 			}

@@ -549,6 +549,7 @@ DROP FUNCTION IF EXISTS restore_member_id(memberid INTEGER);
 DROP FUNCTION IF EXISTS tags_tables(fName VARCHAR(64));
 DROP FUNCTION IF EXISTS restore_member(memberid INTEGER);
 DROP FUNCTION IF EXISTS user_status_heartbeat(cTime int);
+DROP FUNCTION IF EXISTS update_nicknames_stats(cTime int);
 
 CREATE FUNCTION tags_tables(fName VARCHAR(64))
 RETURNS void AS $$
@@ -591,6 +592,15 @@ BEGIN
 	UPDATE uptime SET "AWAY" = "AWAY" + 5 FROM user_status WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'idle';
 	UPDATE uptime SET "DNT" = "DNT" + 5 FROM user_status WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'dnd';
 	UPDATE uptime SET "TOTAL_OFFLINE" = "TOTAL_OFFLINE" + 5 FROM user_status WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'offline';
+END; $$ LANGUAGE plpgsql;
+
+CREATE FUNCTION update_nicknames_stats(cTime int)
+RETURNS void AS $$
+DECLARE my_row RECORD;
+BEGIN
+	FOR my_row IN (SELECT * FROM member_names) LOOP
+		EXECUTE format('INSERT INTO name_logs ("MEMBER", "NAME", "LASTUSE", "TIME") VALUES (%L, %L, %L, 10) ON CONFLICT ("MEMBER", "NAME") DO UPDATE SET "LASTUSE" = %L, "TIME" = name_logs."TIME" + 10;', my_row."ID", my_row."NAME", cTime, cTime);
+	END LOOP;
 END; $$ LANGUAGE plpgsql;
 
 CREATE FUNCTION get_role_id_combined(fUID VARCHAR(64), fSERVER2 VARCHAR(64))

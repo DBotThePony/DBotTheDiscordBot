@@ -10,8 +10,6 @@ setInterval(function() {
 	
 	for (let member of DBot.GetMembers()) {
 		try {
-			let uid = member.user.id;
-			let sid = member.guild.id;
 			let name = member.nickname || member.user.username;
 			
 			member.oldNickname = member.oldNickname || name;
@@ -19,29 +17,39 @@ setInterval(function() {
 			let notifications = cvars.Server(member.guild).getVar('notifications').getBool();
 			let name_notify = cvars.Server(member.guild).getVar('name_notify').getBool();
 			
-			if (member.oldNickname != name && notifications && name_notify) {
-				let channel = DBot.GetNotificationChannel(member.guild);
-				
-				if (channel) {
-					channel.sendMessage('```\nUser @' + member.oldNickname + ' (@' + member.user.username + ') has changes his nick to @' + name + '\n```');
+			if (member.oldNickname != name) {
+				if (notifications && name_notify) {
+					let channel = DBot.GetNotificationChannel(member.guild);
+					
+					if (channel) {
+						channel.sendMessage('```\nUser @' + member.oldNickname + ' (@' + member.user.username + ') has changes his nick to @' + name + '\n```');
+					}
 				}
+				
+				finalQuery += 'UPDATE member_names SET "NAME" = ' + Util.escape(name) + ' WHERE "ID" = ' + member.uid + ';';
 			}
 			
 			member.oldNickname = name;
-			
-			let time = Math.floor(CurTime());
-			let delta = 10;
-			
-			finalQuery += 'INSERT INTO name_logs ("MEMBER", "NAME", "LASTUSE", "TIME") VALUES (' + member.uid + ', ' + Util.escape(name) + ', ' + time + ', ' + delta + ') ON CONFLICT ("MEMBER", "NAME") DO UPDATE SET "LASTUSE" = ' + Util.escape(time) + ', "TIME" = name_logs."TIME" + ' + Util.escape(delta) + ';';
 		} catch(err) {
 			console.error(err);
 		}
 	}
 	
-	finalQuery += 'COMMIT;';
+	finalQuery += 'SELECT update_nicknames_stats(' + Math.floor(CurTime()) + ');COMMIT;';
 	
-	Postgres.query(finalQuery);
+	Postgres.query(finalQuery, function(err) {
+		if (err) {
+			console.error(err);
+			console.error('OOPS, unable to update nicknames!');
+		}
+	});
 }, 10000);
+
+hook.Add('MemberInitialized', 'MemberNameLogs', function(member) {
+	let name = Util.escape(member.nickname || member.user.username);
+	member.oldNickname = member.nickname || member.user.username;
+	MySQL.query('INSERT INTO member_names VALUES (' + Util.escape(member.uid) + ', ' + name + ') ON CONFLICT ("ID") DO UPDATE SET "NAME" = ' + name);
+});
 
 DBot.RegisterCommand({
 	name: 'namelog',
