@@ -48,6 +48,7 @@ Util.mkdir(DBot.WebRoot + '/killfeed');
 
 const Font = 'TF2';
 const FontSize = 42;
+const FontSpacing = .5;
 const bg = 'rgb(241,233,203)';
 const red = 'rgb(163,87,74)';
 const blu = 'rgb(85,124,131)';
@@ -89,7 +90,7 @@ module.exports = {
 				return;
 			}
 			
-			MySQL.query('SELECT * FROM killicons WHERE "NAME" LIKE ' + Util.escape('%' + weapon + '%') + ' OR "CLASSNAME" LIKE ' + Util.escape('%' + weapon + '%'), function(err, data) {
+			MySQL.query('SELECT * FROM killicons WHERE "CLASSNAME" = ' + Util.escape(weapon) + ' OR "NAME" = ' + Util.escape(weapon) + ' OR "NAME" LIKE ' + Util.escape('%' + weapon + '%') + ' OR "CLASSNAME" LIKE ' + Util.escape('%' + weapon + '%'), function(err, data) {
 				if (err) {
 					msg.reply('<internal pony error>');
 					return;
@@ -105,13 +106,13 @@ module.exports = {
 				let width = Number(data[0].WIDTH);
 				let iheight = Number(data[0].HEIGHT);
 				let height = 70;
-				let calcWidthFirst = username.length * FontSize * .75;
+				let calcWidthFirst = (username.length + 1) * FontSize * FontSpacing;
 				let calcWidthLast = 0;
 				
 				if (username2)
-					calcWidthLast = username2.length * FontSize * .75 + 50;
+					calcWidthLast = (username2.length + 1) * FontSize * FontSpacing + 50;
 				
-				let totalWidth = calcWidthFirst + width + calcWidthLast - 50;
+				let totalWidth = calcWidthFirst + width + calcWidthLast - 30;
 				
 				let magikArgs = [
 					'-size', totalWidth + 'x' + height,
@@ -123,12 +124,12 @@ module.exports = {
 				];
 				
 				if (username2) {
-					magikArgs.push('-draw', 'text 40,50 ' + Util.escape(username));
-					magikArgs.push('-draw', 'image over ' + (calcWidthFirst - 10) + ',' + (height / 2 - iheight / 2) + ' 0,0 "./resource/killicons/' + data[0].FILENAME + '"');
-					magikArgs.push('-fill', blu, '-draw', 'text ' + (15 + calcWidthFirst + width) + ',50 ' + Util.escape(username2));
+					magikArgs.push('-draw', Util.MonospaceText(40, 50, username, FontSize, FontSpacing));
+					magikArgs.push('-draw', 'image over ' + (calcWidthFirst + 10) + ',' + (height / 2 - iheight / 2) + ' 0,0 "./resource/killicons/' + data[0].FILENAME + '"');
+					magikArgs.push('-fill', blu, '-draw', Util.MonospaceText(25 + calcWidthFirst + width, 50, username2, FontSize, FontSpacing));
 				} else {
 					magikArgs.push('-draw', 'image over 40,' + (height / 2 - iheight / 2) + ' 0,0 "./resource/killicons/' + data[0].FILENAME + '"');
-					magikArgs.push('-draw', 'text ' + (70 + width) + ',50 ' + Util.escape(username));
+					magikArgs.push('-draw', Util.MonospaceText(60 + width, 50, username, FontSize, FontSpacing));
 				}
 				
 				magikArgs.push(fpath);

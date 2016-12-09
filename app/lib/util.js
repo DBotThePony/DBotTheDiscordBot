@@ -280,3 +280,21 @@ Util.ReadString = function(buf, offestStart) {
 	return [utf8.decode(output), i - offestStart + 1];
 }
 
+Util.MonospaceText = function(x, y, text, size, spaceMult) {
+	let reply = '';
+	
+	for (let i in text) {
+		let Char = text[i];
+		
+		if (Char == '\\')
+			Char = '\\\\';
+		
+		if (Char == '"')
+			Char = '\\"';
+		
+		reply += ' text ' + (x + i * size * spaceMult) + ',' + y + ' "' + Char + '"';
+	}
+	
+	return reply;
+}
+
