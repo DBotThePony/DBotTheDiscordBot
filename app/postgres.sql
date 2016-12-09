@@ -5,6 +5,10 @@ BEGIN
 		CREATE TYPE discord_user_status AS ENUM ('online', 'idle', 'dnd', 'offline');
 	END IF;
 	
+	IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'rgb_color') THEN
+		CREATE TYPE rgb_color AS (red SMALLINT, green SMALLINT, blue SMALLINT);
+	END IF;
+	
 	IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'discord_permission') THEN
 		CREATE TYPE discord_permission AS ENUM (
 			'CREATE_INSTANT_INVITE',
@@ -142,6 +146,14 @@ CREATE TABLE IF NOT EXISTS roles_id (
 CREATE TABLE IF NOT EXISTS roles_perms (
 	"ID" INTEGER PRIMARY KEY,
 	"PERMS" discord_permission[]
+);
+
+CREATE TABLE IF NOT EXISTS roles_options (
+	"ID" INTEGER PRIMARY KEY,
+	"COLOR_R" rgb_color,
+	"HOIST" BOOLEAN,
+	"POSITION" SMALLINT,
+	"MENTION" BOOLEAN
 );
 
 CREATE TABLE IF NOT EXISTS server_id (
