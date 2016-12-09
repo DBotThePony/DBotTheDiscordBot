@@ -67,20 +67,26 @@ DBot.RegisterCommand({
 		if (typeof args[0] != 'object')
 			return 'Must be an user ;n;';
 		
-		MySQL.query('SELECT "NAME", "LASTUSE", "TIME" FROM name_logs WHERE "ID" = ' + DBot.GetUserID(args[0]) + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild) + ' ORDER BY "LASTUSE" DESC', function(err, data) {
-			if (err || !data || !data[0]) {
+		MySQL.query('SELECT "NAME", "LASTUSE", "TIME" FROM name_logs WHERE "MEMBER" = ' + sql.UMember(args[0], msg.channel.guild) + ' ORDER BY "LASTUSE" DESC', function(err, data) {
+			if (err) {
 				msg.reply('WTF');
+				console.error(err);
 				return;
 			}
 			
-			let output = '```\n' + Util.AppendSpaces('Nickname', 20) + Util.AppendSpaces('Total time in use', 30) + Util.AppendSpaces('Last use', 30) + '\n';
+			if (!data || !data[0]) {
+				msg.reply('No data was returned');
+				return;
+			}
+			
+			let output = '```\n' + Util.AppendSpaces('Nickname', 20) + Util.AppendSpaces('Total time in use', 40) + Util.AppendSpaces('Last use', 30) + '\n';
 			
 			for (let row of data) {
 				let date = moment.unix(row.LASTUSE);
 				let total = row.TIME;
 				let name = utf8.decode(row.NAME);
 				
-				output += Util.AppendSpaces(name, 20) + Util.AppendSpaces(hDuration(total * 1000), 30) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.LASTUSE) * 1000) + ' ago)', 30) + '\n';
+				output += Util.AppendSpaces(name, 20) + Util.AppendSpaces(hDuration(Math.floor(total) * 1000), 40) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.LASTUSE) * 1000) + ' ago)', 30) + '\n';
 			}
 			
 			output += '\nLast use and Total time updates about every 20 seconds\n```';

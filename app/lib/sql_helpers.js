@@ -10,6 +10,10 @@ sql.Member = function(obj) {
 	return 'get_member_id(\'' + obj.user.id + '\', \'' + obj.guild.id + '\')';
 }
 
+sql.UMember = function(obj, obj2) {
+	return 'get_member_id(\'' + obj.id + '\', \'' + obj2.id + '\')';
+}
+
 sql.User = function(obj) {
 	return 'get_user_id(\'' + obj.id + '\')';
 }
