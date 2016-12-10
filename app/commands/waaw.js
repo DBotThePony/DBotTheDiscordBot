@@ -18,15 +18,8 @@ var allowed = [
 	'bmp',
 ];
 
-module.exports = {
-	name: 'waaw',
-	
-	help_args: '<url>',
-	desc: 'Reflects image at vertical. Displays only **right** side of image',
-	allowUserArgument: true,
-	delay: 2,
-	
-	func: function(args, cmd, msg) {
+let fn = function(name, toUse) {
+	return function(args, cmd, msg) {
 		var url = args[0];
 		
 		if (typeof(url) == 'object') {
@@ -41,7 +34,7 @@ module.exports = {
 			url = DBot.LastURLImageInChannel(msg.channel);
 			
 			if (!url) {
-				return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['waaw'], 2, args);
+				return 'Invalid url maybe? ;w;' + Util.HighlightHelp([name], 2, args);
 			}
 		}
 		
@@ -52,11 +45,11 @@ module.exports = {
 		var ext = split[split.length - 1].toLowerCase();
 		
 		if (!DBot.HaveValue(allowed, ext))
-			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['waaw'], 2, args);
+			return 'Invalid url maybe? ;w;' + Util.HighlightHelp([name], 2, args);
 		
 		var fPath = DBot.WebRoot + '/reflect/' + hash + '.' + ext;
-		var fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_right.' + ext;
-		var fPathProcessedURL = DBot.URLRoot + '/reflect/' + hash + '_right.' + ext;
+		var fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_' + toUse + '.' + ext;
+		var fPathProcessedURL = DBot.URLRoot + '/reflect/' + hash + '_' + toUse + '.' + ext;
 		
 		var ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
@@ -114,6 +107,17 @@ module.exports = {
 	}
 }
 
+module.exports = {
+	name: 'waaw',
+	
+	help_args: '<url>',
+	desc: 'Reflects image at vertical. Displays only **right** side of image',
+	allowUserArgument: true,
+	delay: 2,
+	
+	func: fn('waaw', 'right'),
+}
+
 DBot.RegisterCommand({
 	name: 'haah',
 	
@@ -122,99 +126,7 @@ DBot.RegisterCommand({
 	allowUserArgument: true,
 	delay: 2,
 	
-	func: function(args, cmd, msg) {
-		var url = args[0];
-		
-		if (typeof(url) == 'object') {
-			url = url.avatarURL;
-			
-			if (!url) {
-				return 'Specified user have no avatar? ;w;';
-			}
-		}
-		
-		if (!url) {
-			url = DBot.LastURLImageInChannel(msg.channel);
-			
-			if (!url) {
-				return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['haah'], 2, args);
-			}
-		}
-		
-		var hash = DBot.HashString(url);
-		var uObj = URL.parse(url);
-		var path = uObj.pathname;
-		var split = path.split('.');
-		var ext = split[split.length - 1].toLowerCase();
-		
-		if (!DBot.HaveValue(allowed, ext))
-			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['haah'], 2, args);
-		
-		var fPath = DBot.WebRoot + '/reflect/' + hash + '.' + ext;
-		var fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_left.' + ext;
-		var fPathProcessedURL = DBot.URLRoot + '/reflect/' + hash + '_left.' + ext;
-		
-		var ContinueFunc = function() {
-			fs.stat(fPathProcessed, function(err, stat) {
-				if (stat && stat.isFile()) {
-					msg.channel.stopTyping();
-					msg.reply(fPathProcessedURL);
-				} else {
-					var magik = spawn('bash', ['./resource/scripts/reflect', fPath]);
-					
-					magik.stderr.on('data', function(data) {
-						console.error(data.toString());
-					});
-					
-					magik.stdout.on('data', function(data) {
-						console.log(data.toString());
-					});
-					
-					magik.on('close', function(code) {
-						if (code == 0) {
-							fs.rename('./' + hash + '_right.' + ext, DBot.WebRoot + '/reflect/' + hash + '_right.' + ext, function() {
-								fs.rename('./' + hash + '_left.' + ext, DBot.WebRoot + '/reflect/' + hash + '_left.' + ext, function() {
-									fs.rename('./' + hash + '_blend.' + ext, DBot.WebRoot + '/reflect/' + hash + '_blend.' + ext, function() {
-										msg.reply(fPathProcessedURL);
-									});
-								});
-							});
-						} else {
-							msg.reply('Uh oh! You are trying to break me ;n; Why? ;n;');
-						}
-						
-						msg.channel.stopTyping();
-					});
-				}
-			});
-		}
-		
-		fs.stat(fPath, function(err, stat) {
-			if (stat && stat.isFile()) {
-				ContinueFunc();
-			} else {
-				unirest.get(url)
-				.encoding(null)
-				.end(function(result) {
-					var body = result.raw_body;
-					
-					if (!body) {
-						msg.channel.stopTyping();
-						return;
-					}
-					
-					fs.writeFile(fPath, body, {flag: 'w'}, function(err) {
-						if (err) {
-							msg.channel.stopTyping();
-							return;
-						}
-						
-						ContinueFunc();
-					});
-				});
-			}
-		});
-	}
+	func: fn('haah', 'left'),
 });
 
 DBot.RegisterCommand({
@@ -225,114 +137,13 @@ DBot.RegisterCommand({
 	allowUserArgument: true,
 	delay: 2,
 	
-	func: function(args, cmd, msg) {
-		var url = args[0];
-		
-		if (typeof(url) == 'object') {
-			url = url.avatarURL;
-			
-			if (!url) {
-				return 'Specified user have no avatar? ;w;';
-			}
-		}
-		
-		if (!url) {
-			url = DBot.LastURLImageInChannel(msg.channel);
-			
-			if (!url) {
-				return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['vblend'], 2, args);
-			}
-		}
-		
-		var hash = DBot.HashString(url);
-		var uObj = URL.parse(url);
-		var path = uObj.pathname;
-		var split = path.split('.');
-		var ext = split[split.length - 1].toLowerCase();
-		
-		if (!DBot.HaveValue(allowed, ext))
-			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['vblend'], 2, args);
-		
-		var fPath = DBot.WebRoot + '/reflect/' + hash + '.' + ext;
-		var fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_blend.' + ext;
-		var fPathProcessedURL = DBot.URLRoot + '/reflect/' + hash + '_blend.' + ext;
-		
-		msg.channel.startTyping();
-		
-		var ContinueFunc = function() {
-			fs.stat(fPathProcessed, function(err, stat) {
-				if (stat && stat.isFile()) {
-					msg.reply(fPathProcessedURL);
-					msg.channel.stopTyping();
-				} else {
-					var magik = spawn('bash', ['./resource/scripts/reflect', fPath]);
-					
-					magik.stderr.on('data', function(data) {
-						console.error(data.toString());
-					});
-					
-					magik.stdout.on('data', function(data) {
-						console.log(data.toString());
-					});
-					
-					magik.on('close', function(code) {
-						if (code == 0) {
-							fs.rename('./' + hash + '_right.' + ext, DBot.WebRoot + '/reflect/' + hash + '_right.' + ext, function() {
-								fs.rename('./' + hash + '_left.' + ext, DBot.WebRoot + '/reflect/' + hash + '_left.' + ext, function() {
-									fs.rename('./' + hash + '_blend.' + ext, DBot.WebRoot + '/reflect/' + hash + '_blend.' + ext, function() {
-										msg.reply(fPathProcessedURL);
-									});
-								});
-							});
-						} else {
-							msg.reply('Uh oh! You are trying to break me ;n; Why? ;n;');
-						}
-						
-						msg.channel.stopTyping();
-					});
-				}
-			});
-		}
-		
-		fs.stat(fPath, function(err, stat) {
-			if (stat && stat.isFile()) {
-				ContinueFunc();
-			} else {
-				unirest.get(url)
-				.encoding(null)
-				.end(function(result) {
-					var body = result.raw_body;
-					
-					if (!body) {
-						msg.channel.stopTyping();
-						return;
-					}
-					
-					fs.writeFile(fPath, body, {flag: 'w'}, function(err) {
-						if (err) {
-							msg.channel.stopTyping();
-							return;
-						}
-						
-						ContinueFunc();
-					});
-				});
-			}
-		});
-	}
+	func: fn('vblend', 'blend'),
 });
 
 // Using Mirrorize
 
-DBot.RegisterCommand({
-	name: 'woow',
-	
-	help_args: '<url>',
-	desc: 'Reflects image at horisontal. Displays only **top** side of image',
-	allowUserArgument: true,
-	delay: 2,
-	
-	func: function(args, cmd, msg) {
+let fn2 = function(name, toUse, dir) {
+	return function(args, cmd, msg) {
 		var url = args[0];
 		
 		if (typeof(url) == 'object') {
@@ -347,7 +158,7 @@ DBot.RegisterCommand({
 			url = DBot.LastURLImageInChannel(msg.channel);
 			
 			if (!url) {
-				return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['woow'], 2, args);
+				return 'Invalid url maybe? ;w;' + Util.HighlightHelp([name], 2, args);
 			}
 		}
 		
@@ -358,11 +169,11 @@ DBot.RegisterCommand({
 		var ext = split[split.length - 1].toLowerCase();
 		
 		if (!DBot.HaveValue(allowed, ext))
-			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['woow'], 2, args);
+			return 'Invalid url maybe? ;w;' + Util.HighlightHelp([name], 2, args);
 		
 		var fPath;
-		var fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_up.png';
-		var fPathProcessedURL = DBot.URLRoot + '/reflect/' + hash + '_up.png';
+		var fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_' + toUse + '.png';
+		var fPathProcessedURL = DBot.URLRoot + '/reflect/' + hash + '_' + toUse + '.png';
 		
 		msg.channel.startTyping();
 		
@@ -372,7 +183,7 @@ DBot.RegisterCommand({
 					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);
 				} else {
-					var magik = spawn('bash', ['./resource/scripts/mirrorize', '-r', 'North', fPath, fPathProcessed]);
+					var magik = spawn('bash', ['./resource/scripts/mirrorize', '-r', dir, fPath, fPathProcessed]);
 					
 					magik.stderr.on('data', function(data) {
 						console.error(data.toString());
@@ -402,7 +213,18 @@ DBot.RegisterCommand({
 			msg.channel.stopTyping();
 			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
 		});
-	}
+	};
+}
+
+DBot.RegisterCommand({
+	name: 'woow',
+	
+	help_args: '<url>',
+	desc: 'Reflects image at horisontal. Displays only **top** side of image',
+	allowUserArgument: true,
+	delay: 2,
+	
+	func: fn2('woow', 'up', 'North'),
 });
 
 DBot.RegisterCommand({
@@ -413,7 +235,11 @@ DBot.RegisterCommand({
 	allowUserArgument: true,
 	delay: 2,
 	
-	func: function(args, cmd, msg) {
+	func: fn2('hooh', 'down', 'south'),
+});
+
+let fn3 = function(name) {
+	return function(args, cmd, msg) {
 		var url = args[0];
 		
 		if (typeof(url) == 'object') {
@@ -428,7 +254,7 @@ DBot.RegisterCommand({
 			url = DBot.LastURLImageInChannel(msg.channel);
 			
 			if (!url) {
-				return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['hooh'], 2, args);
+				return 'Invalid url maybe? ;w;' + Util.HighlightHelp([name], 2, args);
 			}
 		}
 		
@@ -439,11 +265,11 @@ DBot.RegisterCommand({
 		var ext = split[split.length - 1].toLowerCase();
 		
 		if (!DBot.HaveValue(allowed, ext))
-			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['hooh'], 2, args);
+			return 'Invalid url maybe? ;w;' + Util.HighlightHelp([name], 2, args);
 		
 		var fPath;
-		var fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_down.png';
-		var fPathProcessedURL = DBot.URLRoot + '/reflect/' + hash + '_down.png';
+		var fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_' + name + '.png';
+		var fPathProcessedURL = DBot.URLRoot + '/reflect/' + hash + '_' + name + '.png';
 		
 		msg.channel.startTyping();
 		
@@ -453,7 +279,7 @@ DBot.RegisterCommand({
 					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);
 				} else {
-					var magik = spawn('bash', ['./resource/scripts/mirrorize', '-r', 'South', fPath, fPathProcessed]);
+					var magik = spawn('convert', [fPath, '-' + name, fPathProcessed]);
 					
 					magik.stderr.on('data', function(data) {
 						console.error(data.toString());
@@ -484,7 +310,7 @@ DBot.RegisterCommand({
 			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
 		});
 	}
-});
+}
 
 DBot.RegisterCommand({
 	name: 'flip',
@@ -494,77 +320,7 @@ DBot.RegisterCommand({
 	allowUserArgument: true,
 	delay: 2,
 	
-	func: function(args, cmd, msg) {
-		var url = args[0];
-		
-		if (typeof(url) == 'object') {
-			url = url.avatarURL;
-			
-			if (!url) {
-				return 'Specified user have no avatar? ;w;';
-			}
-		}
-		
-		if (!url) {
-			url = DBot.LastURLImageInChannel(msg.channel);
-			
-			if (!url) {
-				return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['flip'], 2, args);
-			}
-		}
-		
-		var hash = DBot.HashString(url);
-		var uObj = URL.parse(url);
-		var path = uObj.pathname;
-		var split = path.split('.');
-		var ext = split[split.length - 1].toLowerCase();
-		
-		if (!DBot.HaveValue(allowed, ext))
-			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['flip'], 2, args);
-		
-		var fPath;
-		var fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_flip.png';
-		var fPathProcessedURL = DBot.URLRoot + '/reflect/' + hash + '_flip.png';
-		
-		msg.channel.startTyping();
-		
-		var ContinueFunc = function() {
-			fs.stat(fPathProcessed, function(err, stat) {
-				if (stat && stat.isFile()) {
-					msg.channel.stopTyping();
-					msg.reply(fPathProcessedURL);
-				} else {
-					var magik = spawn('convert', [fPath, '-flip', fPathProcessed]);
-					
-					magik.stderr.on('data', function(data) {
-						console.error(data.toString());
-					});
-					
-					magik.stdout.on('data', function(data) {
-						console.log(data.toString());
-					});
-					
-					magik.on('close', function(code) {
-						if (code == 0) {
-							msg.reply(fPathProcessedURL);
-						} else {
-							msg.reply('Uh oh! You are trying to break me ;n; Why? ;n;');
-						}
-						
-						msg.channel.stopTyping();
-					});
-				}
-			});
-		}
-		
-		DBot.LoadImageURL(url, function(newPath) {
-			fPath = newPath;
-			ContinueFunc();
-		}, function(result) {
-			msg.channel.stopTyping();
-			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
-		});
-	}
+	func: fn3('flip'),
 });
 
 DBot.RegisterCommand({
@@ -575,76 +331,6 @@ DBot.RegisterCommand({
 	allowUserArgument: true,
 	delay: 2,
 	
-	func: function(args, cmd, msg) {
-		var url = args[0];
-		
-		if (typeof(url) == 'object') {
-			url = url.avatarURL;
-			
-			if (!url) {
-				return 'Specified user have no avatar? ;w;';
-			}
-		}
-		
-		if (!url) {
-			url = DBot.LastURLImageInChannel(msg.channel);
-			
-			if (!url) {
-				return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['flop'], 2, args);
-			}
-		}
-		
-		var hash = DBot.HashString(url);
-		var uObj = URL.parse(url);
-		var path = uObj.pathname;
-		var split = path.split('.');
-		var ext = split[split.length - 1].toLowerCase();
-		
-		if (!DBot.HaveValue(allowed, ext))
-			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['flop'], 2, args);
-		
-		var fPath;
-		var fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_flop.png';
-		var fPathProcessedURL = DBot.URLRoot + '/reflect/' + hash + '_flop.png';
-		
-		msg.channel.startTyping();
-		
-		var ContinueFunc = function() {
-			fs.stat(fPathProcessed, function(err, stat) {
-				if (stat && stat.isFile()) {
-					msg.channel.stopTyping();
-					msg.reply(fPathProcessedURL);
-				} else {
-					var magik = spawn('convert', [fPath, '-flop', fPathProcessed]);
-					
-					magik.stderr.on('data', function(data) {
-						console.error(data.toString());
-					});
-					
-					magik.stdout.on('data', function(data) {
-						console.log(data.toString());
-					});
-					
-					magik.on('close', function(code) {
-						if (code == 0) {
-							msg.reply(fPathProcessedURL);
-						} else {
-							msg.reply('Uh oh! You are trying to break me ;n; Why? ;n;');
-						}
-						
-						msg.channel.stopTyping();
-					});
-				}
-			});
-		}
-		
-		DBot.LoadImageURL(url, function(newPath) {
-			fPath = newPath;
-			ContinueFunc();
-		}, function(result) {
-			msg.channel.stopTyping();
-			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
-		});
-	}
+	func: fn3('flop'),
 });
 
