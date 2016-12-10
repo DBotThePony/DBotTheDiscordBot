@@ -409,6 +409,11 @@ IMagick.DrawText = function(data, callback) {
 					let line = splitLines[lineNum];
 					let charHeight = IMagick.GetFontHeight(font, rFontSize);
 					let previousLength = 0;
+					let calcLineWidth = 0;
+					
+					if (gravity == 'center' || gravity == 'south' || gravity == 'north') {
+						calcLineWidth = IMagick.GetTextSize(line, font, rFontSize)[0];
+					}
 					
 					for (let charNum in line) {
 						let red = Math.cos(lineNum / charHeight * 3 - charNum / line.length * 2) * 127 + 128;
@@ -425,7 +430,7 @@ IMagick.DrawText = function(data, callback) {
 						
 						if (gravity == 'center' || gravity == 'south' || gravity == 'north') {
 							lineArg.push(
-								'text ' + Math.floor((charNum - line.length / 2) * charWidth) + ',0 ' + '"' + chr + '"'
+								'text ' + Math.floor(previousLength + charWidth - calcLineWidth / 2) + ',0 ' + '"' + chr + '"'
 							);
 						} else {
 							lineArg.push(
