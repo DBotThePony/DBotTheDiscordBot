@@ -495,12 +495,12 @@ DBot.IsAskingMe_Command = function(msg) {
 }
 
 DBot.HandleMessage = function(msg, isPrivate, test) {
-	var shift = 1;
+	let shift = 1;
 	
 	if (isPrivate)
 		shift = 0;
 	
-	var rawmessage = msg.content;
+	let rawmessage = msg.content;
 	
 	if (rawmessage == '') {
 		if (test)
@@ -515,15 +515,17 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		return;
 	}
 	
-	var splitted = DBot.TrimArray(rawmessage.split(' '));
+	let splitted = DBot.TrimArray(rawmessage.split(' '));
 	
-	var ServerBans;
-	var ChannelBans;
-	var prefix = '}';
+	let ServerBans;
+	let ChannelBans;
+	let MemberBans;
+	let prefix = '}';
 	
 	if (!isPrivate) {
 		ServerBans = DBot.ServerCBans(msg.channel.guild);
 		ChannelBans = DBot.ChannelCBans(msg.channel);
+		MemberBans = DBot.MemberCBans(msg.member);
 		
 		let sPrefix = cvars.Server(msg.channel.guild).getVar('prefix').getString();
 		let cPrefix = cvars.Channel(msg.channel).getVar('prefix').getString();
@@ -543,24 +545,24 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 			return;
 		}
 		
-		var recreate = [];
+		let recreate = [];
 		recreate.push(prefix);
 		
 		splitted[0] = splitted[0].substr(prefix.length);
 		
-		for (var i in splitted) {
+		for (let i in splitted) {
 			recreate.push(splitted[i]);
 		}
 		
 		splitted = recreate;
 	}
 	
-	var rawCommand = splitted[shift];
+	let rawCommand = splitted[shift];
 	
 	if (!rawCommand)
 		return false;
 	
-	var command = rawCommand.toLowerCase();
+	let command = rawCommand.toLowerCase();
 	
 	/*
 		splitted[shift - 1] = Our ID
@@ -568,7 +570,7 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		splitted[...] = arguments
 	*/
 	
-	var can = hook.Run('CanExecuteCommand', msg.author, command, msg);
+	let can = hook.Run('CanExecuteCommand', msg.author, command, msg);
 	
 	if (can === false)
 		return false;
@@ -577,8 +579,8 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		if (test)
 			return false;
 		
-		var output = 'I don\'t know what to do with that :\\';
-		var related = findRelated(command);
+		let output = 'I don\'t know what to do with that :\\';
+		let related = findRelated(command);
 		
 		if (related[0] && related[0][1] > 1) {
 			output += '\nMaybe you mean "' + related[0][0] + '"?';
@@ -604,7 +606,15 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		return;
 	}
 	
-	var cCommand = DBot.Commands[command];
+	if (MemberBans && MemberBans.isBanned(command)) {
+		if (test)
+			return false;
+		
+		msg.reply('Command is banned from Y.O.U');
+		return;
+	}
+	
+	let cCommand = DBot.Commands[command];
 	
 	if (cCommand.id != command && cCommand.name != command) {
 		if (ServerBans && ServerBans.isBanned(cCommand.id)) {
@@ -643,8 +653,8 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 	if (test)
 		return true;
 	
-	var rawcmd = '';
-	var first = true;
+	let rawcmd = '';
+	let first = true;
 	
 	for (let i = 1 + shift; i < splitted.length; i++) {
 		if (splitted[i] == '')
@@ -658,12 +668,12 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		}
 	}
 	
-	var parsedData = DBot.ParseString(rawcmd);
-	var parsedArgs = parsedData[0];
-	var parsedHandlers = parsedData[1];
+	let parsedData = DBot.ParseString(rawcmd);
+	let parsedArgs = parsedData[0];
+	let parsedHandlers = parsedData[1];
 	
-	var redoneCmd = '';
-	var firstRedone = true;
+	let redoneCmd = '';
+	let firstRedone = true;
 	
 	for (let i in parsedArgs) {
 		if (firstRedone) {

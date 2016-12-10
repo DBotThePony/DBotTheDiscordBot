@@ -3,6 +3,7 @@ DBot.commBanCache = {};
 var cache = DBot.commBanCache;
 cache.server = {};
 cache.channel = {};
+cache.member = {};
 var MySQL = DBot.MySQL;
 
 DBot.DisallowCommandManipulate = [
@@ -113,6 +114,16 @@ DBot.ChannelCBans = function(channel) {
 	return cache.channel[channel.id];
 }
 
+DBot.MemberCBans = function(member) {
+	cache.member[member.id] = cache.member[member.id] || {};
+	
+	if (cache.member[member.id][member.guild.id])
+		return cache.member[member.id][member.guild.id];
+	
+	cache.member[member.id][member.guild.id] = new CommandBanClass(member, 'member', DBot.GetMemberID);
+	return cache.member[member.id][member.guild.id];
+}
+
 hook.Add('PreDeleteChannel', 'ChannelBans', function(obj) {
 	cache.channel[obj.id] = undefined;
 });
@@ -127,4 +138,13 @@ hook.Add('ServerInitialized', 'ServerBans', function(obj) {
 
 hook.Add('ChannelInitialized', 'ChannelBans', function(obj) {
 	DBot.ChannelCBans(obj);
+});
+
+hook.Add('MemberInitialized', 'MemberCommandBans', function(obj) {
+	DBot.MemberCBans(obj);
+});
+
+hook.Add('ClientLeftServer', 'MemberCommandBans', function(obj) {
+	cache.member[member.id] = cache.member[member.id] || {};
+	cache.member[member.id][member.guild.id] = undefined;
 });

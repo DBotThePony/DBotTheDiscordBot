@@ -152,6 +152,17 @@ hook.Add('OnLeftServer', 'MySQL.Handlers', function(server) {
 	hook.Run('PostDeleteServer', server);
 });
 
+DBot.GetMemberID = function(obj) {
+	var id = obj.uid;
+	
+	if (!id) {
+		DBot.DefineMember(obj);
+		throw new Error('Initialize member first (' + (obj && (obj.nickname || obj.user.username) || 'null') + ')');
+	}
+	
+	return id;
+}
+
 DBot.GetUserID = function(obj) {
 	var id = obj.id;
 	
@@ -183,6 +194,17 @@ DBot.GetServerID = function(obj) {
 	}
 	
 	return DBot.ServersIDs[id];
+}
+
+DBot.GetMemberIDSoft = function(obj) {
+	var id = obj.uid;
+	
+	if (!id) {
+		DBot.DefineMember(obj);
+		return false;
+	}
+	
+	return id;
 }
 
 DBot.GetUserIDSoft = function(obj) {
