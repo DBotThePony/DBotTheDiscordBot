@@ -1,7 +1,7 @@
 
 hook.Add('OnHumanMessage', 'Statistics', function(msg) {
 	let extra = msg.channel.guild != undefined && msg.channel.type != 'dm';
-	let Words = msg.content.split(/ +/gi);
+	let Words = msg.content.split(/( |\n)+/gi);
 	let length = msg.content.length;
 	
 	var Images;
