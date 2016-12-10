@@ -642,11 +642,8 @@ DROP FUNCTION IF EXISTS uptdate_last_seen(user_ids INTEGER[], cTime INTEGER);
 
 CREATE FUNCTION uptdate_last_seen(user_ids INTEGER[], cTime INTEGER)
 RETURNS void AS $$
-DECLARE USR INTEGER;
 BEGIN
-	FOREACH USR IN ARRAY user_ids LOOP
-		UPDATE last_seen SET "TIME" = cTime WHERE "ID" = USR;
-	END LOOP;
+	UPDATE last_seen SET "TIME" = cTime WHERE "ID" = ANY(user_ids);
 END; $$ LANGUAGE plpgsql;
 
 CREATE FUNCTION tags_tables(fName VARCHAR(64))
