@@ -15,6 +15,28 @@ Util.mkdir(DBot.WebRoot + '/text', function() {
 	Util.mkdir(DBot.WebRoot + '/text/temp');
 });
 
+let createFunc = function(font, size, gravity) {
+	return function(args, cmd, msg) {
+		if (cmd.length > 8000)
+			return 'wtf are you doing?';
+		
+		IMagick.DrawText({
+			text: cmd,
+			font: font,
+			size: size,
+			gravity: 'Center',
+		}, function(err, fpath, fpathU) {
+			if (err) {
+				msg.reply('<internal pony error>');
+			} else {
+				msg.reply(fpathU);
+			}
+		})
+		
+		return true;
+	}
+}
+
 module.exports = {
 	name: 'draw',
 	alias: ['text', 'drawtext'],
@@ -23,74 +45,7 @@ module.exports = {
 	desc: 'Draws a text as image. Uses Hack font.',
 	argNeeded: true,
 	
-	func: function(args, cmd, msg) {
-		if (cmd.length > 8000)
-			return 'wtf are you doing?';
-		
-		var splitLines = cmd.split('\n');
-		
-		var max = 0;
-		
-		for (var i in splitLines) {
-			if (splitLines[i].length > max)
-				max = splitLines[i].length;
-		}
-		
-		var sha = DBot.HashString(cmd);
-		var fpath = DBot.WebRoot + '/text/' + sha + '.png';
-		var fpathU = DBot.URLRoot + '/text/' + sha + '.png';
-		
-		msg.channel.startTyping();
-		
-		fs.stat(fpath, function(err, stat) {
-			if (stat) {
-				msg.channel.stopTyping();
-				msg.reply(fpathU);
-			} else {
-				var calcHeight = splitLines.length * size * 1.5;
-				var calcWidth = max * size * .6 + 40;
-				
-				var magikArgs = [
-					'-size', calcWidth + 'x' + calcHeight,
-					'canvas:none',
-					'-pointsize', size,
-					'-font', font,
-					'-gravity', 'North',
-					'-fill', 'black',
-				];
-				
-				let buildDraw = '';
-				
-				magikArgs.push('-draw');
-				
-				for (var i in splitLines) {
-					var line = splitLines[i];
-					
-					buildDraw += ' text 0,' + (i * size * 1.5) + ' "' + line.replace(/"/g, "'").replace(/\\/g, "\\\\") + '"';
-				}
-				
-				magikArgs.push(buildDraw);
-				
-				magikArgs.push(fpath);
-				
-				var magik = spawn('convert', magikArgs);
-				
-				Util.Redirect(magik);
-				
-				magik.on('close', function(code) {
-					if (code == 0) {
-						msg.reply(fpathU);
-					} else {
-						msg.reply('<internal pony error>');
-					}
-					
-					msg.channel.stopTyping();
-				});
-			}
-		});
-		
-		return true;
-	}
+	func: createFunc(font, size, 'Center'),
 }
 
 DBot.RegisterPipe(module.exports);
@@ -103,74 +58,7 @@ DBot.RegisterCommandPipe({
 	desc: 'Draws a text as image. Uses Hack font.\nThis uses North West align of text, instead of North',
 	argNeeded: true,
 	
-	func: function(args, cmd, msg) {
-		if (cmd.length > 8000)
-			return 'wtf are you doing?';
-		
-		var splitLines = cmd.split('\n');
-		
-		var max = 0;
-		
-		for (var i in splitLines) {
-			if (splitLines[i].length > max)
-				max = splitLines[i].length;
-		}
-		
-		var sha = DBot.HashString(cmd);
-		var fpath = DBot.WebRoot + '/text/' + sha + '_nw.png';
-		var fpathU = DBot.URLRoot + '/text/' + sha + '_nw.png';
-		
-		msg.channel.startTyping();
-		
-		fs.stat(fpath, function(err, stat) {
-			if (stat) {
-				msg.channel.stopTyping();
-				msg.reply(fpathU);
-			} else {
-				var calcHeight = splitLines.length * size * 1.5;
-				var calcWidth = max * size * .6 + 20;
-				
-				var magikArgs = [
-					'-size', calcWidth + 'x' + calcHeight,
-					'canvas:none',
-					'-pointsize', size,
-					'-font', font,
-					'-gravity', 'NorthWest',
-					'-fill', 'black',
-				];
-				
-				let buildDraw = '';
-				
-				magikArgs.push('-draw');
-				
-				for (var i in splitLines) {
-					var line = splitLines[i];
-					
-					buildDraw += ' text 0,' + (i * size * 1.5) + ' "' + line.replace(/"/g, "'").replace(/\\/g, "\\\\") + '"';
-				}
-				
-				magikArgs.push(buildDraw);
-				
-				magikArgs.push(fpath);
-				
-				var magik = spawn('convert', magikArgs);
-				
-				Util.Redirect(magik);
-				
-				magik.on('close', function(code) {
-					if (code == 0) {
-						msg.reply(fpathU);
-					} else {
-						msg.reply('<internal pony error>');
-					}
-					
-					msg.channel.stopTyping();
-				});
-			}
-		});
-		
-		return true;
-	}
+	func: createFunc(font, size, 'NorthWest'),
 });
 
 DBot.RegisterCommandPipe({
