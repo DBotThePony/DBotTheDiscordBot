@@ -298,6 +298,9 @@ DBot.BuildHelpStringForCommand = function(command) {
 	if (data.descFull)
 		output += data.descFull;
 	
+	if (data.desc_full)
+		output += data.desc_full;
+	
 	return output;
 }
 
