@@ -338,7 +338,9 @@ let updateRole = function(role) {
 			arr.push(name);
 	}
 	
-	MySQL.query('DELETE FROM roles_perms WHERE "ID" = ' + role.uid + ';INSERT INTO roles_perms VALUES (' + role.uid + ', ' + sql.Array(arr) + '::discord_permission[]);');
+	let arr2 = sql.Array(arr) + '::discord_permission[]';
+	
+	MySQL.query('INSERT INTO roles_perms VALUES (' + role.uid + ', ' + arr2 + ') ON CONFLICT ("ID") DO UPDATE SET "PERMS" = ' + arr2 + ';');
 }
 
 DBot.DefineRole = function(role) {
