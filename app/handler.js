@@ -347,7 +347,8 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 					}
 				}
 				
-				rawcmd = rawcmd.replace(/```/gi, '');
+				if (!pipe.no_touch)
+					rawcmd = rawcmd.replace(/```/gi, '');
 				
 				let parsedData = DBot.ParseString(rawcmd, true);
 				let parsedArgs = parsedData[0];
