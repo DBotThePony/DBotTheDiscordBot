@@ -38,24 +38,34 @@ IMagick.GetTextSize = function(text, font, size) {
 	if (!IMagick.PrecacheFonts.includes(font))
 		throw new Error('Font must be precached: ' + font);
 	
-	let width = 0;
+	let widths = [0];
+	let cLine = 0;
 	let mult = size / 14;
 	let height = IMagick.PrecacheFontsDataHeight[font] * mult;
 	
-	text.replace(CharsExp, function(matched, p1) {
+	text.replace(CharsExp2, function(matched, p1) {
 		if (p1 == '\n') {
 			height += IMagick.PrecacheFontsDataHeight[font] * 1.25 * mult;
+			cLine++;
+			widths[cLine] = 0;
 			return '';
 		}
 		
 		if (IMagick.PrecacheFontsData[font][p1]) {
-			width += IMagick.PrecacheFontsData[font][p1] * mult;
+			widths[cLine] += IMagick.PrecacheFontsData[font][p1] * mult;
 		} else {
-			width += 12 * mult;
+			widths[cLine] += 12 * mult;
 		}
 		
 		return '';
 	});
+	
+	let width = 0;
+	
+	for (let w of widths) {
+		if (width < w)
+			width = w;
+	}
 	
 	return [Math.floor(width), Math.floor(height)];
 }
@@ -165,10 +175,14 @@ let loadingStage3 = function() {
 						let aspectRatio = height / width;
 						let aspectRatio2 = width / height;
 						
+						if (oldChar == '\\\\') {
+							width = Math.floor(width / 2);
+						}
+						
 						finalQuery += 'INSERT INTO font_sizes ("ID", "CHAR", "WIDTH") VALUES (\'' + IMagick.FontIDs[font] + '\', ' + Util.escape(Char) + ', \'' + width + '\');';
 						
 						if (Char == 'W') {
-							finalQuery += 'INSERT INTO font_height ("ID", "HEIGHT") VALUES (\'' + IMagick.FontIDs[font] + '\', \'' + height + '\');';
+							finalQuery += 'INSERT INTO font_height ("ID", "HEIGHT") VALUES (\'' + IMagick.FontIDs[font] + '\', \'' + height + '\') ON CONFLICT DO NOTHING;';
 							IMagick.PrecacheFontsDataHeight[font] = height;
 						}
 						
@@ -397,14 +411,19 @@ IMagick.DrawText = function(data, callback) {
 						
 						lineArg.push('-fill', 'rgb(' + Math.floor(red) + ',' + Math.floor(green) + ',' + Math.floor(blue) + ')', '-draw')
 						let charWidth = IMagick.GetCharSize(line[charNum], font, rFontSize)[0];
+						let chr = line[charNum];
+						
+						if (chr == '\\') {
+							chr = '\\\\';
+						}
 						
 						if (gravity == 'center' || gravity == 'south' || gravity == 'north') {
 							lineArg.push(
-								'text ' + Math.floor((charNum - line.length / 2) * charWidth) + ',0 ' + '"' + line[charNum].replace('\\', '\\\\') + '"'
+								'text ' + Math.floor((charNum - line.length / 2) * charWidth) + ',0 ' + '"' + chr + '"'
 							);
 						} else {
 							lineArg.push(
-								'text ' + Math.floor(charNum * charWidth) + ',0 ' + '"' + line[charNum].replace('\\', '\\\\') + '"'
+								'text ' + Math.floor(charNum * charWidth) + ',0 ' + '"' + chr + '"'
 							);
 						}
 					}

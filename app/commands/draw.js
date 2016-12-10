@@ -32,7 +32,7 @@ let createFunc = function(font, size, gravity, lolcat) {
 			} else {
 				msg.reply(fpathU);
 			}
-		})
+		});
 		
 		return true;
 	}
