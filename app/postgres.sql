@@ -532,6 +532,11 @@ CREATE TABLE IF NOT EXISTS user_id (
 	"UID" char(64) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS last_seen (
+	"ID" INTEGER PRIMARY KEY,
+	"TIME" INTEGER NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS user_names (
 	"ID" INTEGER NOT NULL,
 	"USERNAME" VARCHAR(64) NOT NULL,
@@ -633,6 +638,16 @@ DROP FUNCTION IF EXISTS stats_delete(user_id_raw VARCHAR(64), message_length INT
 DROP FUNCTION IF EXISTS stats_command(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), command VARCHAR(64));
 DROP FUNCTION IF EXISTS stats_command(user_id_raw VARCHAR(64), command VARCHAR(64));
 DROP FUNCTION IF EXISTS get_font_id(fName VARCHAR(64));
+DROP FUNCTION IF EXISTS uptdate_last_seen(user_ids INTEGER[], cTime INTEGER);
+
+CREATE FUNCTION uptdate_last_seen(user_ids INTEGER[], cTime INTEGER)
+RETURNS void AS $$
+DECLARE USR INTEGER;
+BEGIN
+	FOREACH USR IN ARRAY user_ids LOOP
+		UPDATE last_seen SET "TIME" = cTime WHERE "ID" = USR;
+	END LOOP;
+END; $$ LANGUAGE plpgsql;
 
 CREATE FUNCTION tags_tables(fName VARCHAR(64))
 RETURNS void AS $$

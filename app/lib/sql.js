@@ -288,8 +288,19 @@ DBot.DefineUser = function(user) {
 		LoadingUser[id] = undefined;
 		hook.Run('UserInitialized', user, data[0].ID);
 		hook.Run('ClientInitialized', user, data[0].ID);
+		Postgre.query('INSERT INTO last_seen VALUES (' + data[0].ID + ', ' + Math.floor(CurTime()) + ') ON CONFLICT ("ID") DO UPDATE SET "TIME" = ' + Math.floor(CurTime()));
 	});
 }
+
+setInterval(function() {
+	let build = [];
+	
+	for (let uid in DBot.UsersIDs_R) {
+		build.push(uid);
+	}
+	
+	Postgre.query('SELECT uptdate_last_seen(' + sql.Array(build) + '::INTEGER[], ' + Math.floor(CurTime()) + ')');
+}, 60000);
 
 DBot.DefineChannel = function(channel) {
 	let id = channel.id;
