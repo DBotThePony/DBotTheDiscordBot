@@ -145,6 +145,6 @@ hook.Add('MemberInitialized', 'MemberCommandBans', function(obj) {
 });
 
 hook.Add('ClientLeftServer', 'MemberCommandBans', function(obj) {
-	cache.member[member.id] = cache.member[member.id] || {};
-	cache.member[member.id][member.guild.id] = undefined;
+	cache.member[obj.id] = cache.member[obj.id] || {};
+	cache.member[obj.id][obj.guild.id] = undefined;
 });
