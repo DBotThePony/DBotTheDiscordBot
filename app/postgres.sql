@@ -833,13 +833,13 @@ END; $$ LANGUAGE plpgsql;
 CREATE FUNCTION user_status_heartbeat(cTime INTEGER)
 RETURNS void AS $$
 BEGIN
-	UPDATE lastonline SET "LASTONLINE" = cTime FROM user_status WHERE user_status."ID" = lastonline."ID" AND user_status."STATUS" != 'offline';
+	UPDATE lastonline SET "LASTONLINE" = cTime FROM user_status, last_seen WHERE user_status."ID" = lastonline."ID" AND user_status."STATUS" != 'offline' AND last_seen."ID" = lastonline."ID" AND last_seen."TIME" > cTime - 120;
 	
-	UPDATE uptime SET "TOTAL_ONLINE" = "TOTAL_ONLINE" + 5 FROM user_status WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" != 'offline';
-	UPDATE uptime SET "ONLINE" = "ONLINE" + 5 FROM user_status WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'online';
-	UPDATE uptime SET "AWAY" = "AWAY" + 5 FROM user_status WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'idle';
-	UPDATE uptime SET "DNT" = "DNT" + 5 FROM user_status WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'dnd';
-	UPDATE uptime SET "TOTAL_OFFLINE" = "TOTAL_OFFLINE" + 5 FROM user_status WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'offline';
+	UPDATE uptime SET "TOTAL_ONLINE" = "TOTAL_ONLINE" + 5 FROM user_status, last_seen WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" != 'offline' AND last_seen."ID" = lastonline."ID" AND last_seen."TIME" > cTime - 120;
+	UPDATE uptime SET "ONLINE" = "ONLINE" + 5 FROM user_status, last_seen WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'online' AND last_seen."ID" = lastonline."ID" AND last_seen."TIME" > cTime - 120;
+	UPDATE uptime SET "AWAY" = "AWAY" + 5 FROM user_status, last_seen WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'idle' AND last_seen."ID" = lastonline."ID" AND last_seen."TIME" > cTime - 120;
+	UPDATE uptime SET "DNT" = "DNT" + 5 FROM user_status, last_seen WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'dnd' AND last_seen."ID" = lastonline."ID" AND last_seen."TIME" > cTime - 120;
+	UPDATE uptime SET "TOTAL_OFFLINE" = "TOTAL_OFFLINE" + 5 FROM user_status, last_seen WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'offline' AND last_seen."ID" = lastonline."ID" AND last_seen."TIME" > cTime - 120;
 END; $$ LANGUAGE plpgsql;
 
 CREATE FUNCTION update_nicknames_stats(cTime INTEGER)
