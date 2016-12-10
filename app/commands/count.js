@@ -84,6 +84,34 @@ let Actions = {
 				
 				msg.reply('I totally remember **' + data[0].COUNT + '** servers!');
 			});
+		} else if (args[1] == 'top' || args[1] == 'top10') {
+			let servers = [];
+			
+			for (let server of DBot.bot.guilds.array()) {
+				let users = server.members.array().length;
+				servers.push(['<' + server.id + '> ' + server.name, users, DBot.GetServerID(server)]);
+			}
+			
+			servers.sort(function(a, b) {
+				if (a[1] < b[1]) {
+					return 1;
+				} else {
+					return -1;
+				}
+				
+				return 0;
+			});
+			
+			let output = '```\n';
+			
+			for (let i = 0; i < 10; i++) {
+				if (!servers[i])
+					break;
+				
+				output += Util.AppendSpaces(servers[i][0], 60) + servers[i][1] + ' Users (Internal ID: ' + servers[i][2] + ')\n';
+			}
+			
+			return output + '```';
 		} else {
 			return DBot.CommandError('Unknown subcommand', 'count', args, 2);
 		}
@@ -107,6 +135,8 @@ let Actions = {
 				
 				msg.reply('I totally remember **' + data[0].COUNT + '** channels!');
 			});
+		} else if (args[1] == 'list') {
+			return 'Use `channels` command';
 		} else {
 			return DBot.CommandError('Unknown subcommand', 'count', args, 2);
 		}
