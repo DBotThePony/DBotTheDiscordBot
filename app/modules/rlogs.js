@@ -145,8 +145,8 @@ DBot.RegisterCommand({
 			for (let row of data) {
 				let date = moment.unix(row.STAMP);
 				let status = row.TYPE;
-				let name = utf8.decode(row.MEMBERNAME);
-				let rname = utf8.decode(row.ROLENAME);
+				let name = row.MEMBERNAME;
+				let rname = row.ROLENAME;
 				
 				output += Util.AppendSpaces(name, 20) + Util.AppendSpaces(rname, 10) + Util.AppendSpaces(status && 'A' || 'D', 5) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
 			}
