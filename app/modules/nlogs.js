@@ -84,7 +84,7 @@ DBot.RegisterCommand({
 			for (let row of data) {
 				let date = moment.unix(row.LASTUSE);
 				let total = row.TIME;
-				let name = utf8.decode(row.NAME);
+				let name = row.NAME;
 				
 				output += Util.AppendSpaces(name, 20) + Util.AppendSpaces(hDuration(Math.floor(total) * 1000), 40) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.LASTUSE) * 1000) + ' ago)', 30) + '\n';
 			}
