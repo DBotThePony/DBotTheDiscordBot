@@ -2,6 +2,7 @@
 hook.Add('OnHumanMessage', 'Statistics', function(msg) {
 	let extra = msg.channel.guild != undefined && msg.channel.type != 'dm';
 	let Words = msg.content.split(/( |\n)+/gi);
+	let rWords = [];
 	let length = msg.content.length;
 	
 	var Images;
@@ -12,10 +13,15 @@ hook.Add('OnHumanMessage', 'Statistics', function(msg) {
 		Images = 0;
 	}
 	
+	for (let i in Words) {
+		if (Words[i].length < 60)
+			rWords.push(Words[i]);
+	}
+	
 	if (extra) {
-		Postgres.query('SELECT stats_hit(' + sql.Concat(msg.author.id, msg.channel.id, msg.channel.guild.id) + ', ' + length + ', ' + sql.Array(Words) + ', ' + Images + ')', function() {});
+		Postgres.query('SELECT stats_hit(' + sql.Concat(msg.author.id, msg.channel.id, msg.channel.guild.id) + ', ' + length + ', ' + sql.Array(rWords) + ', ' + Images + ')', function() {});
 	} else {
-		Postgres.query('SELECT stats_hit(' + Util.escape(msg.author.id) + ', ' + length + ', ' + sql.Array(Words) + ', ' + Images + ')', function() {});
+		Postgres.query('SELECT stats_hit(' + Util.escape(msg.author.id) + ', ' + length + ', ' + sql.Array(rWords) + ', ' + Images + ')', function() {});
 	}
 });
 
