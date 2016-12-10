@@ -35,6 +35,40 @@ setInterval(function() {
 		}
 	}
 	
+	for (let user of DBot.GetUsers()) {
+		try {
+			let name = user.username;
+			let uid = DBot.GetUserIDSoft(user);
+			if (!uid)
+				continue;
+			
+			user.oldUName = user.oldUName;
+			
+			if (user.oldUName != name) {
+				
+				for (let server of DBot.GetUserServers(user)) {
+					let member = server.member(user);
+					let notifications = cvars.Server(server).getVar('notifications').getBool();
+					let name_notify = cvars.Server(server).getVar('name_notify').getBool();
+					
+					if (notifications && name_notify) {
+						let channel = DBot.GetNotificationChannel(server);
+						
+						if (channel) {
+							channel.sendMessage('```\nUser @' + member.oldUName + ' (@' + member.user.username + ') has changes his username to @' + name + '\n```');
+						}
+					}
+				}
+				
+				finalQuery += 'UPDATE user_names SET "USERNAME" = ' + Util.escape(name) + ' WHERE "ID" = ' + uid + ';';
+			}
+			
+			user.oldUName = name;
+		} catch(err) {
+			console.error(err);
+		}
+	}
+	
 	finalQuery += 'SELECT update_nicknames_stats(' + Math.floor(CurTime()) + ');COMMIT;';
 	
 	Postgres.query(finalQuery, function(err) {
@@ -48,15 +82,34 @@ setInterval(function() {
 hook.Add('MemberInitialized', 'MemberNameLogs', function(member) {
 	let name = Util.escape(member.nickname || member.user.username);
 	member.oldNickname = member.nickname || member.user.username;
-	MySQL.query('INSERT INTO member_names VALUES (' + Util.escape(member.uid) + ', ' + name + ') ON CONFLICT ("ID") DO UPDATE SET "NAME" = ' + name);
+	MySQL.query('INSERT INTO member_names VALUES (' + Util.escape(member.uid) + ', ' + name + ') ON CONFLICT ("ID") DO UPDATE SET "NAME" = ' + name, function(err) {
+		if (!err)
+			return;
+		
+		console.error('Failed to save nickname for user ' + id + ' (' + user.username + ')!');
+		console.error(err);
+	});
+});
+
+hook.Add('UserInitialized', 'MemberNameLogs', function(user, id) {
+	let name = Util.escape(user.username);
+	user.oldUName = user.username;
+	
+	MySQL.query('INSERT INTO user_names ("ID", "USERNAME") VALUES (' + id + ', ' + name + ') ON CONFLICT ("ID") DO UPDATE SET "USERNAME" = ' + name, function(err) {
+		if (!err)
+			return;
+		
+		console.error('Failed to save username for user ' + id + ' (' + user.username + ')!');
+		console.error(err);
+	});
 });
 
 DBot.RegisterCommand({
 	name: 'namelog',
-	alias: ['usernamelog', 'usernames', 'unames', 'unameslog'],
+	alias: ['membernamelog', 'membernames', 'mnames', 'menamemeslog', 'namelogs'],
 	
 	help_args: '<user>',
-	desc: 'Lists all known nicks used by specified user',
+	desc: 'Lists all known nicks (**server nicknames**) used by specified user',
 	allowUserArgument: true,
 	argNeeded: true,
 	
@@ -80,6 +133,48 @@ DBot.RegisterCommand({
 			}
 			
 			let output = '```\n' + Util.AppendSpaces('Nickname', 20) + Util.AppendSpaces('Total time in use', 40) + Util.AppendSpaces('Last use', 30) + '\n';
+			
+			for (let row of data) {
+				let date = moment.unix(row.LASTUSE);
+				let total = row.TIME;
+				let name = row.NAME;
+				
+				output += Util.AppendSpaces(name, 20) + Util.AppendSpaces(hDuration(Math.floor(total) * 1000), 40) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.LASTUSE) * 1000) + ' ago)', 30) + '\n';
+			}
+			
+			output += '\nLast use and Total time updates about every 20 seconds\n```';
+			
+			msg.reply(output);
+		});
+	}
+});
+
+DBot.RegisterCommand({
+	name: 'unamelog',
+	alias: ['usernamelog', 'usernames', 'unames', 'unameslog', 'unamelogs'],
+	
+	help_args: '<user>',
+	desc: 'Lists all known usernames (**discord usernames**) used by specified user',
+	allowUserArgument: true,
+	argNeeded: true,
+	
+	func: function(args, cmd, msg) {
+		if (typeof args[0] != 'object')
+			return 'Must be an user ;n;';
+		
+		MySQL.query('SELECT "NAME", "LASTUSE", "TIME" FROM uname_logs WHERE "USER" = ' + sql.User(args[0]) + ' ORDER BY "LASTUSE" DESC', function(err, data) {
+			if (err) {
+				msg.reply('WTF');
+				console.error(err);
+				return;
+			}
+			
+			if (!data || !data[0]) {
+				msg.reply('No data was returned');
+				return;
+			}
+			
+			let output = '```\n' + Util.AppendSpaces('Username', 20) + Util.AppendSpaces('Total time in use', 40) + Util.AppendSpaces('Last use', 30) + '\n';
 			
 			for (let row of data) {
 				let date = moment.unix(row.LASTUSE);

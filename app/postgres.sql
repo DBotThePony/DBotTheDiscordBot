@@ -155,6 +155,14 @@ CREATE TABLE IF NOT EXISTS name_logs (
 	PRIMARY KEY ("MEMBER", "NAME")
 );
 
+CREATE TABLE IF NOT EXISTS uname_logs (
+	"USER" INTEGER NOT NULL,
+	"NAME" VARCHAR(255) NOT NULL,
+	"LASTUSE" INTEGER NOT NULL,
+	"TIME" double precision NOT NULL,
+	PRIMARY KEY ("USER", "NAME")
+);
+
 CREATE TABLE IF NOT EXISTS roles_id (
 	"ID" SERIAL PRIMARY KEY,
 	"SERVER" INTEGER NOT NULL,
@@ -825,6 +833,10 @@ DECLARE my_row RECORD;
 BEGIN
 	FOR my_row IN (SELECT * FROM member_names) LOOP
 		EXECUTE format('INSERT INTO name_logs ("MEMBER", "NAME", "LASTUSE", "TIME") VALUES (%L, %L, %L, 10) ON CONFLICT ("MEMBER", "NAME") DO UPDATE SET "LASTUSE" = %L, "TIME" = name_logs."TIME" + 10;', my_row."ID", my_row."NAME", cTime, cTime);
+	END LOOP;
+	
+	FOR my_row IN (SELECT * FROM user_names) LOOP
+		EXECUTE format('INSERT INTO uname_logs ("USER", "NAME", "LASTUSE", "TIME") VALUES (%L, %L, %L, 10) ON CONFLICT ("USER", "NAME") DO UPDATE SET "LASTUSE" = %L, "TIME" = uname_logs."TIME" + 10;', my_row."ID", my_row."USERNAME", cTime, cTime);
 	END LOOP;
 END; $$ LANGUAGE plpgsql;
 

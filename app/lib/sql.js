@@ -185,6 +185,39 @@ DBot.GetServerID = function(obj) {
 	return DBot.ServersIDs[id];
 }
 
+DBot.GetUserIDSoft = function(obj) {
+	var id = obj.id;
+	
+	if (!DBot.UsersIDs[id]) {
+		DBot.DefineUser(obj);
+		return false;
+	}
+	
+	return DBot.UsersIDs[id];
+}
+
+DBot.GetChannelIDSoft = function(obj) {
+	var id = obj.id;
+	
+	if (!DBot.ChannelIDs[id]) {
+		DBot.DefineChannel(obj);
+		return false;
+	}
+	
+	return DBot.ChannelIDs[id];
+}
+
+DBot.GetServerIDSoft = function(obj) {
+	var id = obj.id;
+	
+	if (!DBot.ServersIDs[id]) {
+		DBot.DefineServer(obj);
+		return false;
+	}
+	
+	return DBot.ServersIDs[id];
+}
+
 DBot.UserIsInitialized = function(obj) {
 	return DBot.UsersIDs[obj.id] != undefined;
 }
@@ -257,16 +290,6 @@ DBot.DefineUser = function(user) {
 		hook.Run('ClientInitialized', user, data[0].ID);
 	});
 }
-
-hook.Add('UserInitialized', 'MySQL.Saves', function(user, id) {
-	MySQL.query('INSERT INTO user_names ("ID", "USERNAME") VALUES (' + id + ', ' + Util.escape(user.username) + ') ON CONFLICT ("ID") DO UPDATE SET "USERNAME" = ' + Util.escape(user.username), function(err) {
-		if (!err)
-			return;
-		
-		console.error('Failed to save username for user ' + id + ' (' + user.username + ')!');
-		console.error(err);
-	});
-});
 
 DBot.DefineChannel = function(channel) {
 	let id = channel.id;
