@@ -7,6 +7,10 @@ const font = 'Hack-Regular';
 const size = 48;
 const cowsay = require('cowsay');
 
+hook.Add('PrecacheFonts', 'CowSay', function() {
+	IMagick.PrecacheFont(font);
+});
+
 Util.mkdir(DBot.WebRoot + '/cowsay', function() {
 	Util.mkdir(DBot.WebRoot + '/cowsay/temp');
 });

@@ -53,6 +53,10 @@ const bg = 'rgb(241,233,203)';
 const red = 'rgb(163,87,74)';
 const blu = 'rgb(85,124,131)';
 
+hook.Add('PrecacheFonts', 'KillIcon', function() {
+	IMagick.PrecacheFont(Font);
+});
+
 let generateFunc = function(col1, col2) {
 	return function(args, cmd, msg) {
 		if (!args[0])
@@ -99,13 +103,13 @@ let generateFunc = function(col1, col2) {
 				let width = Number(data[0].WIDTH);
 				let iheight = Number(data[0].HEIGHT);
 				let height = 70;
-				let calcWidthFirst = (username.length + 1) * FontSize * FontSpacing;
+				let calcWidthFirst = IMagick.GetTextSize(username, Font, FontSize)[0];
 				let calcWidthLast = 0;
 				
 				if (username2)
-					calcWidthLast = (username2.length + 1) * FontSize * FontSpacing + 50;
+					calcWidthLast = IMagick.GetTextSize(username2, Font, FontSize)[0] + 25;
 				
-				let totalWidth = calcWidthFirst + width + calcWidthLast - 30;
+				let totalWidth = calcWidthFirst + width + calcWidthLast + 30;
 				
 				let magikArgs = [
 					'-size', totalWidth + 'x' + height,
@@ -117,12 +121,12 @@ let generateFunc = function(col1, col2) {
 				];
 				
 				if (username2) {
-					magikArgs.push('-draw', Util.MonospaceText(40, 50, username, FontSize, FontSpacing));
+					magikArgs.push('-draw', 'text 40,50 ' + Util.escape(username));
 					magikArgs.push('-draw', 'image over ' + (calcWidthFirst - 10 + width / 2) + ',' + (height / 2 - iheight / 2) + ' 0,0 "./resource/killicons/' + data[0].FILENAME + '"');
-					magikArgs.push('-fill', col2, '-draw', Util.MonospaceText(35 + calcWidthFirst + width, 50, username2, FontSize, FontSpacing));
+					magikArgs.push('-fill', col2, '-draw', 'text ' + (35 + calcWidthFirst + width) + ',50 ' + Util.escape(username2));
 				} else {
 					magikArgs.push('-draw', 'image over 40,' + (height / 2 - iheight / 2) + ' 0,0 "./resource/killicons/' + data[0].FILENAME + '"');
-					magikArgs.push('-draw', Util.MonospaceText(60 + width, 50, username, FontSize, FontSpacing));
+					magikArgs.push('-draw', 'text ' + (60 + width) +',50 ' + Util.escape(username));
 				}
 				
 				magikArgs.push(fpath);
