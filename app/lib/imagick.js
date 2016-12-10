@@ -125,7 +125,12 @@ let loadingStage3 = function() {
 			
 			if (data && data[0]) {
 				for (let row of data) {
-					IMagick.PrecacheFontsData[font][row.CHAR.trim().replace('\\\\', '\\')] = Number(row.WIDTH);
+					let trim = row.CHAR.trim();
+					
+					if (trim == '')
+						trim = ' ';
+					
+					IMagick.PrecacheFontsData[font][trim.replace('\\\\', '\\')] = Number(row.WIDTH);
 				}
 				
 				Postgres.query('SELECT * FROM font_height WHERE "ID" = ' + IMagick.FontIDs[font], function(_, data) {
@@ -403,6 +408,7 @@ IMagick.DrawText = function(data, callback) {
 					magikLines.push(lineArg);
 					let line = splitLines[lineNum];
 					let charHeight = IMagick.GetFontHeight(font, rFontSize);
+					let previousLength = 0;
 					
 					for (let charNum in line) {
 						let red = Math.cos(lineNum / charHeight * 3 - charNum / line.length * 2) * 127 + 128;
@@ -417,19 +423,17 @@ IMagick.DrawText = function(data, callback) {
 							chr = '\\\\';
 						}
 						
-						if (chr == 'W') {
-							console.log(charWidth);
-						}
-						
 						if (gravity == 'center' || gravity == 'south' || gravity == 'north') {
 							lineArg.push(
 								'text ' + Math.floor((charNum - line.length / 2) * charWidth) + ',0 ' + '"' + chr + '"'
 							);
 						} else {
 							lineArg.push(
-								'text ' + Math.floor(charNum * charWidth) + ',0 ' + '"' + chr + '"'
+								'text ' + Math.floor(previousLength + charWidth) + ',0 ' + '"' + chr + '"'
 							);
 						}
+						
+						previousLength += charWidth;
 					}
 				}
 				
