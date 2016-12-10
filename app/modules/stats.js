@@ -112,10 +112,10 @@ DBot.RegisterCommand({
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1'+ ';';
 			
 			// Generic Server Stats
-			MySQLM.query(q, function(err, data) {
+			MySQL.query(q, function(err, data) {
 				
 				// Server Stats by user
-				MySQLM.query(qU, function(err, uData) {
+				MySQL.query(qU, function(err, uData) {
 					msg.channel.stopTyping();
 					
 					try {
@@ -203,7 +203,7 @@ DBot.RegisterCommand({
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1'+ ';';
 			
 			// Server Stats by user
-			MySQLM.query(qU, function(err, uData) {
+			MySQL.query(qU, function(err, uData) {
 				msg.channel.stopTyping();
 				
 				try {
@@ -288,8 +288,8 @@ DBot.RegisterCommand({
 			SELECT SUM("COUNT") as "cnt" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1' +  ';';
 			
-			MySQLM.query(q, function(err, data) {
-				MySQLM.query(qU, function(err, uData) {
+			MySQL.query(q, function(err, data) {
+				MySQL.query(qU, function(err, uData) {
 					msg.channel.stopTyping();
 					
 					try {
@@ -371,7 +371,7 @@ DBot.RegisterCommand({
 			SELECT SUM("COUNT") as "cnt" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1' +  ';';
 			
-			MySQLM.qeury(q, function(err, uData) {
+			MySQL.qeury(q, function(err, uData) {
 				msg.channel.stopTyping();
 				
 				try {
@@ -478,10 +478,10 @@ DBot.RegisterCommand({
 			';
 			
 			// Global stats
-			MySQLM.query(mQueryG, function(err, data) {
+			MySQL.query(mQueryG, function(err, data) {
 			
 			// Global stats for user
-			MySQLM.query(mQuery, function(err, uData, orig) {
+			MySQL.query(mQuery, function(err, uData, orig) {
 				msg.channel.stopTyping();
 				
 				try {
@@ -562,7 +562,7 @@ DBot.RegisterCommand({
 			';
 			
 			// Global stats for user
-			MySQLM.query(mQuery, function(err, uData) {
+			MySQL.query(mQuery, function(err, uData) {
 				msg.channel.stopTyping();
 				
 				try {
