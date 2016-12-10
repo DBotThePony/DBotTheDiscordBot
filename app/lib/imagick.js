@@ -60,6 +60,36 @@ IMagick.GetTextSize = function(text, font, size) {
 	return [Math.floor(width), Math.floor(height)];
 }
 
+IMagick.GetCharSize = function(Char, font, size) {
+	size = size || 12;
+	
+	if (!font)
+		throw new Error('You must specify a font');
+	
+	if (!IMagick.PrecacheFonts.includes(font))
+		throw new Error('Font must be precached: ' + font);
+	
+	let mult = size / 14;
+	let width = (IMagick.PrecacheFontsData[font][Char] || IMagick.PrecacheFontsData[font]['W']) * mult;
+	let height = IMagick.PrecacheFontsDataHeight[font] * mult;
+	
+	return [Math.floor(width), Math.floor(height)];
+}
+
+IMagick.GetFontHeight = function(font, size) {
+	size = size || 12;
+	
+	if (!font)
+		throw new Error('You must specify a font');
+	
+	if (!IMagick.PrecacheFonts.includes(font))
+		throw new Error('Font must be precached: ' + font);
+	
+	let height = IMagick.PrecacheFontsDataHeight[font] * (size / 14);
+	
+	return Math.floor(height);
+}
+
 IMagick.PrecacheFont = function(font) {
 	if (!FontsInit)
 		throw new Error('Call that function in a PrecacheFonts hook!');
@@ -281,7 +311,8 @@ IMagick.DrawText = function(data, callback) {
 	let text = data.text || '';
 	let rFontSize = data.size || 48;
 	let font = data.font || 'Hack-Regular';
-	let gravity = data.gravity || 'NorthWest';
+	let gravity = (data.gravity || 'NorthWest').toLowerCase();
+	let lolcat = data.lolcat;
 	
 	if (!IMagick.PrecacheFonts.includes(font))
 		throw new Error('Font must be precached: ' + font);
@@ -295,7 +326,7 @@ IMagick.DrawText = function(data, callback) {
 			max = splitLines[i].length;
 	}
 	
-	let sha = DBot.HashString(text + '-FONTSIZE:' + rFontSize + '-FONT:' + font);
+	let sha = DBot.HashString(text + '-FONTSIZE:' + rFontSize + '-FONT:' + font + '-LOLCAT:' + (lolcat && '1' || '0'));
 	let fpath = DBot.WebRoot + '/textdraw/' + sha + '.png';
 	let fpathU = DBot.URLRoot + '/textdraw/' + sha + '.png';
 	
@@ -307,40 +338,137 @@ IMagick.DrawText = function(data, callback) {
 			let calcHeight = calcData[1];
 			let calcWidth = calcData[0] + 20;
 			
-			let magikArgs = [
-				'-size', calcWidth + 'x' + calcHeight,
-				'canvas:none',
-				'-pointsize', rFontSize,
-				'-font', font,
-				'-gravity', gravity,
-				'-fill', 'black',
-			];
-			
-			let buildDraw = '';
-			
-			magikArgs.push('-draw');
-			
-			for (let i in splitLines) {
-				let line = splitLines[i];
+			if (!lolcat) {
+				let magikArgs = [
+					'-size', calcWidth + 'x' + calcHeight,
+					'canvas:none',
+					'-pointsize', rFontSize,
+					'-font', font,
+					'-gravity', gravity,
+					'-fill', 'black',
+				];
 				
-				buildDraw += ' text 0,' + (i * rFontSize * 1.5) + ' "' + line.replace(/"/g, '\\"').replace(/\\/g, "\\\\") + '"';
-			}
-			
-			magikArgs.push(buildDraw);
-			
-			magikArgs.push(fpath);
-			
-			let magik = spawn('convert', magikArgs);
-			
-			Util.Redirect(magik);
-			
-			magik.on('close', function(code) {
-				if (code == 0) {
-					callback(null, fpath, fpathU);
-				} else {
-					callback(code);
+				let buildDraw = '';
+				
+				magikArgs.push('-draw');
+				
+				for (let i in splitLines) {
+					let line = splitLines[i];
+					
+					buildDraw += ' text 0,' + (i * rFontSize * 1.5) + ' "' + line.replace(/"/g, '\\"').replace(/\\/g, "\\\\") + '"';
 				}
-			});
+				
+				magikArgs.push(buildDraw);
+				
+				magikArgs.push(fpath);
+				
+				let magik = spawn('convert', magikArgs);
+				
+				Util.Redirect(magik);
+				
+				magik.on('close', function(code) {
+					if (code == 0) {
+						callback(null, fpath, fpathU);
+					} else {
+						callback(code);
+					}
+				});
+			} else {
+				let magikArgs = [
+					'-size', calcWidth + 'x' + IMagick.GetFontHeight(font, rFontSize),
+					'canvas:none',
+					'-pointsize', rFontSize,
+					'-font', font,
+					'-gravity', gravity,
+				];
+				
+				let magikLines = [];
+				
+				for (let lineNum in splitLines) {
+					let lineArg = [];
+					magikLines.push(lineArg);
+					let line = splitLines[lineNum];
+					let charHeight = IMagick.GetFontHeight(font, rFontSize);
+					
+					for (let charNum in line) {
+						let red = Math.cos(lineNum / charHeight * 3 - charNum / line.length * 2) * 127 + 128;
+						let green = Math.sin(charNum / line.length - lineNum / charHeight * 5) * 127 + 128;
+						let blue = Math.sin(lineNum / charHeight * 2 - charNum / line.length * 3) * 127 + 128;
+						
+						lineArg.push('-fill', 'rgb(' + Math.floor(red) + ',' + Math.floor(green) + ',' + Math.floor(blue) + ')', '-draw')
+						let charWidth = IMagick.GetCharSize(line[charNum], font, rFontSize)[0];
+						
+						if (gravity == 'center' || gravity == 'south' || gravity == 'north') {
+							lineArg.push(
+								'text ' + Math.floor((charNum - line.length / 2) * charWidth) + ',0 ' + '"' + line[charNum].replace('\\', '\\\\') + '"'
+							);
+						} else {
+							lineArg.push(
+								'text ' + Math.floor(charNum * charWidth) + ',0 ' + '"' + line[charNum].replace('\\', '\\\\') + '"'
+							);
+						}
+					}
+				}
+				
+				let linesLeft = magikLines.length;
+				let BREAK = false;
+				
+				var continueFunc = function() {
+					let outputArgs = [];
+					
+					for (let line in magikLines) {
+						outputArgs.push(DBot.WebRoot + '/textdraw/' + sha + '_tmp_' + line + '.png');
+					}
+					
+					outputArgs.push('-append', fpath);
+					
+					let magik = spawn('convert', outputArgs);
+					
+					Util.Redirect(magik);
+					
+					magik.on('close', function(code) {
+						for (let line in magikLines) {
+							fs.unlink(DBot.WebRoot + '/textdraw/' + sha + '_tmp_' + line + '.png', function(err) {
+								// If no file were created, don't crash app
+							});
+						}
+						
+						if (code == 0) {
+							callback(null, fpath, fpathU);
+						} else {
+							callback(code);
+						}
+					});
+				}
+				
+				for (let line in magikLines) {
+					let newArgs = Util.AppendArrays(Util.CopyArray(magikArgs), magikLines[line]);
+					
+					newArgs.push(DBot.WebRoot + '/textdraw/' + sha + '_tmp_' + line + '.png');
+					let magik = spawn('convert', newArgs);
+					
+					Util.Redirect(magik);
+					
+					magik.on('close', function(code) {
+						if (BREAK) {
+							return;
+						}
+						
+						if (code == 0) {
+							linesLeft--;
+							
+							if (linesLeft == 0) {
+								continueFunc();
+							}
+						} else {
+							console.log(newArgs);
+							callback(code);
+							BREAK = true;
+							return;
+						}
+					});
+				}
+			}
 		}
 	});
 }
