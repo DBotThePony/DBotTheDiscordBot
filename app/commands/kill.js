@@ -111,6 +111,9 @@ let generateFunc = function(col1, col2) {
 				
 				let totalWidth = calcWidthFirst + width + calcWidthLast + 30;
 				
+				if (!username)
+					totalWidth += 40;
+				
 				let magikArgs = [
 					'-size', totalWidth + 'x' + height,
 					'canvas:' + bg,
@@ -125,7 +128,6 @@ let generateFunc = function(col1, col2) {
 					magikArgs.push('-draw', 'image over ' + (calcWidthFirst - 10 + width / 2) + ',' + (height / 2 - iheight / 2) + ' 0,0 "./resource/killicons/' + data[0].FILENAME + '"');
 					magikArgs.push('-fill', col2, '-draw', 'text ' + (35 + calcWidthFirst + width) + ',50 ' + Util.escape(username2));
 				} else {
-					totalWidth += 30;
 					magikArgs.push('-draw', 'image over 40,' + (height / 2 - iheight / 2) + ' 0,0 "./resource/killicons/' + data[0].FILENAME + '"');
 					magikArgs.push('-draw', 'text ' + (60 + width) +',50 ' + Util.escape(username));
 				}
