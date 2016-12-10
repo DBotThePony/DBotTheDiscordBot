@@ -235,10 +235,29 @@ let Actions = {
 		}
 	},
 	
-	
 }
 
-let help = ``;
+let help = `Sum commands are:
+roles
+roles list
+roles total
+roles users
+roles server total
+servers
+servers top
+servers total
+channels
+channels total
+users
+users unqiue
+users total
+users members total
+users online
+users online explicit
+users offline
+users away
+users dnd
+`;
 
 module.exports = {
 	name: 'count',
