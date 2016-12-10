@@ -1,9 +1,9 @@
 
-var fix = function(str) {
+let fix = function(str) {
 	return str.replace(/@everyone/gi, '@pne').replace(/@here/gi, '@pne').replace(/@[^ ]+/gi, '@pne');
 }
 
-module.exports = {
+DBot.RegisterCommandPipe({
 	name: 'reverse',
 	alias: ['r'],
 	
@@ -14,7 +14,7 @@ module.exports = {
 	desc: 'Reverces a string',
 	
 	func: function(args, cmd, msg) {
-		var out = '';
+		let out = '';
 		
 		for (i = cmd.length - 1; i >= 0; i--) {
 			out += cmd[i];
@@ -22,9 +22,9 @@ module.exports = {
 		
 		return fix(out);
 	},
-}
+});
 
-DBot.RegisterCommand({
+DBot.RegisterCommandPipe({
 	name: 'sreverse',
 	alias: ['sr'],
 	
@@ -35,7 +35,7 @@ DBot.RegisterCommand({
 	desc: 'Reverces all phrases in command',
 	
 	func: function(args, cmd, msg) {
-		var out = '';
+		let out = '';
 		
 		args.forEach(function(item) {
 			for (i = item.length - 1; i >= 0; i--) {
