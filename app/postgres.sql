@@ -835,22 +835,23 @@ RETURNS void AS $$
 BEGIN
 	UPDATE lastonline SET "LASTONLINE" = cTime FROM user_status, last_seen WHERE user_status."ID" = lastonline."ID" AND user_status."STATUS" != 'offline' AND last_seen."ID" = lastonline."ID" AND last_seen."TIME" > cTime - 120;
 	
-	UPDATE uptime SET "TOTAL_ONLINE" = "TOTAL_ONLINE" + 5 FROM user_status, last_seen WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" != 'offline' AND last_seen."ID" = lastonline."ID" AND last_seen."TIME" > cTime - 120;
-	UPDATE uptime SET "ONLINE" = "ONLINE" + 5 FROM user_status, last_seen WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'online' AND last_seen."ID" = lastonline."ID" AND last_seen."TIME" > cTime - 120;
-	UPDATE uptime SET "AWAY" = "AWAY" + 5 FROM user_status, last_seen WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'idle' AND last_seen."ID" = lastonline."ID" AND last_seen."TIME" > cTime - 120;
-	UPDATE uptime SET "DNT" = "DNT" + 5 FROM user_status, last_seen WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'dnd' AND last_seen."ID" = lastonline."ID" AND last_seen."TIME" > cTime - 120;
-	UPDATE uptime SET "TOTAL_OFFLINE" = "TOTAL_OFFLINE" + 5 FROM user_status, last_seen WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'offline' AND last_seen."ID" = lastonline."ID" AND last_seen."TIME" > cTime - 120;
+	UPDATE uptime SET "TOTAL_ONLINE" = "TOTAL_ONLINE" + 5 FROM user_status, last_seen WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" != 'offline' AND last_seen."ID" = uptime."ID" AND last_seen."TIME" > cTime - 120;
+	UPDATE uptime SET "ONLINE" = "ONLINE" + 5 FROM user_status, last_seen WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'online' AND last_seen."ID" = uptime."ID" AND last_seen."TIME" > cTime - 120;
+	UPDATE uptime SET "AWAY" = "AWAY" + 5 FROM user_status, last_seen WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'idle' AND last_seen."ID" = uptime."ID" AND last_seen."TIME" > cTime - 120;
+	UPDATE uptime SET "DNT" = "DNT" + 5 FROM user_status, last_seen WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'dnd' AND last_seen."ID" = uptime."ID" AND last_seen."TIME" > cTime - 120;
+	UPDATE uptime SET "TOTAL_OFFLINE" = "TOTAL_OFFLINE" + 5 FROM user_status, last_seen WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'offline' AND last_seen."ID" = uptime."ID" AND last_seen."TIME" > cTime - 120;
 END; $$ LANGUAGE plpgsql;
 
 CREATE FUNCTION update_nicknames_stats(cTime INTEGER)
 RETURNS void AS $$
 DECLARE my_row RECORD;
+DECLARE my_time INTEGER;
 BEGIN
-	FOR my_row IN (SELECT * FROM member_names) LOOP
+	FOR my_row IN (SELECT member_names.* FROM member_names, last_seen, member_id WHERE member_names."ID" = member_id."ID" AND member_id."USER" = last_seen."ID" AND last_seen."TIME" > cTime - 120) LOOP
 		EXECUTE format('INSERT INTO name_logs ("MEMBER", "NAME", "LASTUSE", "TIME") VALUES (%L, %L, %L, 10) ON CONFLICT ("MEMBER", "NAME") DO UPDATE SET "LASTUSE" = %L, "TIME" = name_logs."TIME" + 10;', my_row."ID", my_row."NAME", cTime, cTime);
 	END LOOP;
 	
-	FOR my_row IN (SELECT * FROM user_names) LOOP
+	FOR my_row IN (SELECT user_names.* FROM user_names, last_seen WHERE user_names."ID" = last_seen."ID" AND last_seen."TIME" > cTime - 120) LOOP
 		EXECUTE format('INSERT INTO uname_logs ("USER", "NAME", "LASTUSE", "TIME") VALUES (%L, %L, %L, 10) ON CONFLICT ("USER", "NAME") DO UPDATE SET "LASTUSE" = %L, "TIME" = uname_logs."TIME" + 10;', my_row."ID", my_row."USERNAME", cTime, cTime);
 	END LOOP;
 END; $$ LANGUAGE plpgsql;
@@ -956,8 +957,10 @@ END; $$ LANGUAGE plpgsql;
 
 CREATE FUNCTION restore_member_id(memberid INTEGER)
 RETURNS INTEGER AS $$
+DECLARE to_return INTEGER;
 BEGIN
-	RETURN (SELECT "member_id"."USER" FROM "member_id" WHERE "member_id"."ID" = memberid);
+	SELECT "member_id"."USER" INTO to_return FROM "member_id" WHERE "member_id"."ID" = memberid;
+	RETURN to_return;
 END $$ LANGUAGE plpgsql;
 
 CREATE FUNCTION restore_member(memberid INTEGER)
