@@ -304,6 +304,9 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 	let PIPE_HIT = false;
 	
 	msg.promiseReply = function(str) {
+		if (this.wasDeleted)
+			return {then: function() {}, catch: function() {}};
+		
 		let promise = this.oldReply(str);
 		let self = this;
 		
@@ -315,6 +318,9 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 	}
 	
 	msg.reply = function(str) {
+		if (this.wasDeleted)
+			return;
+		
 		if (PIPE_HIT) {
 			let promise = this.oldReply(str);
 			let self = this;
@@ -409,6 +415,8 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 }
 
 hook.Add('OnMessageDeleted', 'Handler', function(msg) {
+	msg.wasDeleted = true;
+	
 	if (!msg.replies)
 		return;
 	
