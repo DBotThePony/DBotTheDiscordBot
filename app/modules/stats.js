@@ -1037,3 +1037,64 @@ DBot.RegisterCommand({
 		}
 	},
 });
+
+let serversQuery = `
+SELECT
+	server_id."UID" AS "UID",
+	server_names."NAME" AS "NAME",
+	stats__chars_server."COUNT" AS "TOTAL_CHARS",
+	stats__phrases_server."COUNT" AS "TOTAL_PHRASES",
+	SUM(stats__command_server."COUNT") AS "TOTAL_COMMANDS"
+FROM
+	server_names,
+	server_id,
+	stats__chars_server,
+	stats__phrases_server,
+	stats__command_server
+WHERE
+	server_id."ID" = server_names."ID" AND
+	stats__chars_server."UID" = server_id."ID" AND
+	stats__phrases_server."UID" = server_id."ID" AND
+	stats__command_server."UID" = server_id."ID"
+GROUP BY
+	server_id."UID",
+	server_id."ID",
+	server_names."ID",
+	server_names."NAME",
+	stats__chars_server."UID",
+	stats__phrases_server."UID",
+	stats__command_server."UID",
+	"TOTAL_CHARS",
+	"TOTAL_PHRASES"
+ORDER BY "TOTAL_PHRASES" DESC
+LIMIT 10
+`;
+
+DBot.RegisterCommand({
+	name: 'servers',
+	
+	help_args: '',
+	desc: 'Displays most spampost servers',
+	delay: 10,
+	
+	func: function(args, cmd, msg) {
+		msg.channel.startTyping();
+		
+		Postgres.query(serversQuery, function(err, data) {
+			msg.channel.stopTyping();
+			
+			if (err) {
+				msg.reply('<internal pony error>');
+				return;
+			}
+			
+			let output = '```\n' + Util.AppendSpaces('Server name', 60) + Util.AppendSpaces('Total phrases', 15) + Util.AppendSpaces('Chars printed', 15) + Util.AppendSpaces('Total commands executed', 10) + '\n';
+			
+			for (let row of data) {
+				output += Util.AppendSpaces('<' + row.UID.trim() + '> ' + row.NAME, 60) + Util.AppendSpaces(numeral(row.TOTAL_PHRASES).format('0,0'), 15) + Util.AppendSpaces(numeral(row.TOTAL_CHARS).format('0,0'), 15) + Util.AppendSpaces(numeral(row.TOTAL_COMMANDS).format('0,0'), 10) + '\n'
+			}
+			
+			msg.reply(output + '```');
+		});
+	}
+});
