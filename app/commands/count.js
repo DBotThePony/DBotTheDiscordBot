@@ -89,7 +89,7 @@ let Actions = {
 			
 			for (let server of DBot.bot.guilds.array()) {
 				let users = server.members.array().length;
-				servers.push(['<' + server.id + '> ' + server.name, users, DBot.GetServerID(server)]);
+				servers.push(['<' + server.id + '> ' + server.name, users, DBot.GetServerID(server), server.large]);
 			}
 			
 			servers.sort(function(a, b) {
@@ -108,7 +108,7 @@ let Actions = {
 				if (!servers[i])
 					break;
 				
-				output += Util.AppendSpaces(servers[i][0], 60) + servers[i][1] + ' Users (Internal ID: ' + servers[i][2] + ')\n';
+				output += Util.AppendSpaces(servers[i][0], 60) + (!servers[i][3] && servers[i][1] || '~' + servers[i][1]) + ' Users (Internal ID: ' + servers[i][2] + ')\n';
 			}
 			
 			return output + '```';

@@ -59,7 +59,7 @@ module.exports = {
 			} else {
 				var stream = fs.createWriteStream(DBot.WebRoot + '/users/' + sha + '.html');
 				
-				stream.write("<!DOCTYPE HTML><html><head><title>Users Report</title><link href='/bot/users.css' type='text/css' rel='stylesheet' /></head><body><span id='totalusers'>Total users: " + users.length + "</span><table><tr id='top'><td>AVATAR</td><td>USERNAME</td><td>USER ID</td><td>TEXT TO MENTION USER</td><td>ROLES AND PERMISSIONS</td></tr>");
+				stream.write("<!DOCTYPE HTML><html><head><title>Users Report</title><link href='/bot/users.css' type='text/css' rel='stylesheet' /></head><body><span id='totalusers'>Total users: " + (!msg.channel.guild.large && users.length || '~' + users.length) + "</span><table><tr id='top'><td>AVATAR</td><td>USERNAME</td><td>USER ID</td><td>TEXT TO MENTION USER</td><td>ROLES AND PERMISSIONS</td></tr>");
 				
 				for (var i in users) {
 					var member = users[i];
