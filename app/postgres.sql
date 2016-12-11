@@ -660,6 +660,7 @@ CREATE TABLE IF NOT EXISTS roles_changes_perms (
 
 CREATE TABLE IF NOT EXISTS roles_changes_color (
 	"ID" SERIAL PRIMARY KEY,
+	"ROLEID" INTEGER,
 	"OLD" rgb_color NOT NULL,
 	"NEW" rgb_color NOT NULL,
 	"STAMP" INTEGER NOT NULL
@@ -667,6 +668,7 @@ CREATE TABLE IF NOT EXISTS roles_changes_color (
 
 CREATE TABLE IF NOT EXISTS roles_changes_position (
 	"ID" SERIAL PRIMARY KEY,
+	"ROLEID" INTEGER,
 	"OLD" SMALLINT NOT NULL,
 	"NEW" SMALLINT NOT NULL,
 	"STAMP" INTEGER NOT NULL
@@ -674,6 +676,7 @@ CREATE TABLE IF NOT EXISTS roles_changes_position (
 
 CREATE TABLE IF NOT EXISTS roles_changes_hoist (
 	"ID" SERIAL PRIMARY KEY,
+	"ROLEID" INTEGER,
 	"OLD" BOOLEAN NOT NULL,
 	"NEW" BOOLEAN NOT NULL,
 	"STAMP" INTEGER NOT NULL
@@ -681,6 +684,7 @@ CREATE TABLE IF NOT EXISTS roles_changes_hoist (
 
 CREATE TABLE IF NOT EXISTS roles_changes_mention (
 	"ID" SERIAL PRIMARY KEY,
+	"ROLEID" INTEGER,
 	"OLD" BOOLEAN NOT NULL,
 	"NEW" BOOLEAN NOT NULL,
 	"STAMP" INTEGER NOT NULL
@@ -693,19 +697,19 @@ BEGIN
 	curr_time := floor(extract(epoch from now()));
 	
 	IF (OLD."COLOR_R" != NEW."COLOR_R") THEN
-		INSERT INTO roles_changes_color VALUES (NEW."ID", OLD."COLOR_R", NEW."COLOR_R", curr_time);
+		INSERT INTO roles_changes_color ("ROLEID", "OLD", "NEW", "STAMP") VALUES (NEW."ID", OLD."COLOR_R", NEW."COLOR_R", curr_time);
 	END IF;
 	
 	IF (OLD."POSITION" != NEW."POSITION") THEN
-		INSERT INTO roles_changes_position VALUES (NEW."ID", OLD."POSITION", NEW."POSITION", curr_time);
+		INSERT INTO roles_changes_position ("ROLEID", "OLD", "NEW", "STAMP") VALUES (NEW."ID", OLD."POSITION", NEW."POSITION", curr_time);
 	END IF;
 	
 	IF (OLD."HOIST" != NEW."HOIST") THEN
-		INSERT INTO roles_changes_hoist VALUES (NEW."ID", OLD."HOIST", NEW."HOIST", curr_time);
+		INSERT INTO roles_changes_hoist ("ROLEID", "OLD", "NEW", "STAMP") VALUES (NEW."ID", OLD."HOIST", NEW."HOIST", curr_time);
 	END IF;
 	
 	IF (OLD."MENTION" != NEW."MENTION") THEN
-		INSERT INTO roles_changes_mention VALUES (NEW."ID", OLD."MENTION", NEW."MENTION", curr_time);
+		INSERT INTO roles_changes_mention ("ROLEID", "OLD", "NEW", "STAMP") VALUES (NEW."ID", OLD."MENTION", NEW."MENTION", curr_time);
 	END IF;
 	
 	RETURN NEW;
