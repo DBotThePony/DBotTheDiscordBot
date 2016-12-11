@@ -47,15 +47,15 @@ DBot.RegisterCommand({
 				let date = moment.unix(row.STAMP);
 				
 				output += '\nComplain ID: ' + row.ID;
-				output += '\nUser: ' + row.USERNAME + ' <@' + row.USERID + '>';
+				output += '\nUser: ' + row.USERNAME + ' <@' + row.USERID.trim() + '>';
 				output += '\nDate: ' + date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + humanizeDuration(Math.floor((CurTime() * 1000 - row.STAMP * 1000) / 1000) * 1000) + ' ago)';
 				
 				if (row.SERVERNAME) {
-					output += '\nServer: ' + row.SERVERNAME + ' <' + row.SERVERID + '>';
+					output += '\nServer: ' + row.SERVERNAME + ' <' + row.SERVERID.trim() + '>';
 				}
 				
 				if (row.CHANNELNAME) {
-					output += '\nChannel: ' + row.CHANNELNAME + ' <#' + row.CHANNELID + '>';
+					output += '\nChannel: ' + row.CHANNELNAME + ' <#' + row.CHANNELID.trim() + '>';
 				}
 				
 				output += '\nMessage: \n\t' + utf8.decode(row.CONTENT).replace(/\n/gi, '\n\t') + '\n\n';
