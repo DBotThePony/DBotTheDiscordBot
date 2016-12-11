@@ -5,6 +5,9 @@ hook.Add('OnHumanMessage', 'Lenny', function(msg) {
 	if (DBot.IsAskingMe(msg))
 		return;
 	
+	if (hook.Run('CanReply', msg) === false)
+		return;
+	
 	if (!DBot.IsPM(msg)) {
 		var mute = cvars.Channel(msg.channel).getVar('mute');
 		
