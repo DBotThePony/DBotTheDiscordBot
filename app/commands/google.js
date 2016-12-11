@@ -22,6 +22,13 @@ DBot.CreateTagsSpace('google', [
 	'pron',
 	'shit',
 	'anal',
+	'hentai',
+	'ecchi',
+	'echi',
+	'scum',
+	'r34',
+	'rule34',
+	'pornhub',
 ]);
 
 module.exports = {
