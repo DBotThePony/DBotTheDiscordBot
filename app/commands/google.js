@@ -8,7 +8,7 @@ fs.stat(DBot.WebRoot + '/google', function(err, stat) {
 		fs.mkdirSync(DBot.WebRoot + '/google');
 });
 
-var Search = 'https://www.googleapis.com/customsearch/v1?key=AIzaSyAhhmtK4vvqV4ryhhbPeJAJAjlRmzNP-2g&cx=011142896060985630711:sibr51l3m7a&q=';
+var Search = 'https://www.googleapis.com/customsearch/v1?key=AIzaSyAhhmtK4vvqV4ryhhbPeJAJAjlRmzNP-2g&cx=011142896060985630711:sibr51l3m7a&safe=medium&q=';
 
 DBot.CreateTagsSpace('google', [
 	'fuck',
