@@ -3,8 +3,8 @@ const child_process = require('child_process');
 const spawn = child_process.spawn;
 const fs = require('fs');
 
-var font = 'Hack-Regular';
-var size = 48;
+const font = 'Hack-Regular';
+const size = 48;
 
 hook.Add('PrecacheFonts', 'DrawCommand', function() {
 	IMagick.PrecacheFont(font);

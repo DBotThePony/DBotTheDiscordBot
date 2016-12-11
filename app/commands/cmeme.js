@@ -2,8 +2,12 @@
 const child_process = require('child_process');
 const spawn = child_process.spawn;
 const URL = require('url');
-var unirest = require('unirest');
-var fs = DBot.fs;
+const unirest = require('unirest');
+const fs = DBot.fs;
+
+hook.Add('PrecacheFonts', 'CMeme', function() {
+	IMagick.PrecacheFont('Impact');
+});
 
 fs.stat(DBot.WebRoot + '/cmeme', function(err, stat) {
 	if (!stat)
@@ -167,44 +171,37 @@ module.exports = {
 							height = Math.floor(height);
 							width = Math.floor(width);
 							
-							args.push('-gravity');
-							args.push('South');
-							args.push('-font');
-							args.push('Impact');
-							args.push('-fill');
-							args.push('white');
-							args.push('-stroke');
-							args.push('black');
-							args.push('-strokewidth');
-							args.push('2');
-							args.push('-weight');
-							args.push('500');
+							args.push('-gravity', 'South', '-font', 'Impact', '-fill', 'white', '-stroke', 'black', '-strokewidth', '2', '-weight', '500', '-pointsize');
 							
-							args.push('-pointsize');
+							let fSize = IMagick.GetTextSize(topText, 'Impact', 1);
 							
-							var calc = Math.floor(Math.sqrt(((width - 20) / topText.length) * 40));
+							let calc = (width - 40) / fSize[0];
 							
-							if (calc > 170) {
-								calc = 170;
+							if (calc > height / 4) {
+								calc = Math.floor(height / 4);
 							} else if (calc < 18) {
 								calc = 18;
 							}
 							
+							let tSize = IMagick.GetFontHeight('Impact', calc);
+							
 							args.push(String(calc));
 							
-							args.push('-draw');
-							args.push('text 0,' + (height - calc * 1.3) + ' "' + topText + '"');
+							args.push('-draw', 'text 0,' + (height - calc * 1.3) + ' "' + topText + '"');
 							
 							if (bottomText) {
 								args.push('-pointsize');
 								
-								var calc = Math.floor(Math.sqrt(((width - 20) / bottomText.length) * 40));
+								let fSize = IMagick.GetTextSize(bottomText, 'Impact', 1);
+								let calc = (width - 40) / fSize[0];
 								
-								if (calc > 170) {
-									calc = 170;
+								if (calc > height / 4) {
+									calc = Math.floor(height / 4);
 								} else if (calc < 18) {
 									calc = 18;
 								}
+								
+								let tSize = IMagick.GetFontHeight('Impact', calc);
 								
 								args.push(String(calc));
 								
