@@ -142,6 +142,113 @@ hook.Add('ChannelInitialized', 'ChannelBans', function(obj) {
 
 hook.Add('MemberInitialized', 'MemberCommandBans', function(obj) {
 	DBot.MemberCBans(obj);
+	
+	obj.channelBans = obj.channelBans || [];
+	
+	Postgres.query('SELECT * FROM command_banned_cmember WHERE "UID" = ' + obj.uid, function(err, data) {
+		for (let row of data) {
+			obj.channelBans.push(Number(row.CHANNEL));
+		}
+	});
+	
+	Postgres.query('SELECT * FROM command_banned_member WHERE "UID" = ' + obj.uid, function(err, data) {
+		if (data && data[0]) {
+			obj.totalMute = true;
+		}
+	});
+	
+	obj.unMuteBot = function() {
+		this.totalMute = false;
+		
+		Postgres.query('DELETE FROM command_banned_member WHERE "UID" = ' + this.uid);
+	}
+	
+	obj.muteBot = function() {
+		if (this.totalMute)
+			return false;
+		
+		this.totalMute = true;
+		
+		Postgres.query('INSERT INTO command_banned_member VALUES (' + this.uid + ')');
+		return true;
+	}
+	
+	obj.checkBotMute = function(channel) {
+		if (this.totalMute)
+			return true;
+		
+		if (this.channelBans.includes(DBot.GetChannelID(channel)))
+			return true;
+		
+		return false;
+	}
+	
+	obj.unMuteChannel = function(channel) {
+		let uid = DBot.GetChannelID(channel);
+		let hit = false;
+		
+		for (let i in this.channelBans) {
+			if (this.channelBans[i] == uid) {
+				this.channelBans = this.channelBans.splice(i, 1);
+				hit = true;
+				break;
+			}
+		}
+		
+		if (!hit)
+			return false;
+		
+		Postgres.query('DELETE FROM command_banned_cmember WHERE "UID" = ' + this.uid + ' AND "CHANNEL" = ' + DBot.GetChannelID(channel));
+		
+		return true;
+	}
+	
+	obj.muteChannel = function(channel) {
+		let uid = DBot.GetChannelID(channel);
+		
+		if (this.channelBans.includes(uid))
+			return false;
+		
+		Postgres.query('INSERT INTO command_banned_cmember VALUES (' + this.uid + ', ' + uid + ')');
+		this.channelBans.push(uid);
+		
+		return true;
+	}
+});
+
+let disallow = [
+	'mute', 'unmute', 'cmute', 'cunmute'
+];
+
+hook.Add('CanExecuteValidCommand', 'MemberCommandBans', function(user, command, msg) {
+	if (DBot.IsPM(msg))
+		return;
+	
+	if (disallow.includes(command))
+		return;
+	
+	let member = msg.member;
+	let cid = DBot.GetChannelID(msg.channel);
+	
+	if (member.totalMute)
+		return false;
+	
+	if (member.channelBans.includes(cid))
+		return false;
+});
+
+hook.Add('CanReply', 'MemberCommandBans', function(msg) {
+	if (DBot.IsPM(msg))
+		return;
+	
+	let member = msg.member;
+	let cid = DBot.GetChannelID(msg.channel);
+	
+	if (member.totalMute)
+		return false;
+	
+	if (member.channelBans.includes(cid))
+		return false;
 });
 
 hook.Add('ClientLeftServer', 'MemberCommandBans', function(obj) {

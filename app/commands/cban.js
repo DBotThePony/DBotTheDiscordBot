@@ -233,3 +233,151 @@ DBot.RegisterCommand({
 		}
 	},
 });
+
+DBot.RegisterCommand({
+	name: 'mute',
+	alias: ['commandmute', 'mutecommands'],
+	
+	help_args: '<member>',
+	desc: 'Disallow usage of ANY commands of specified user on **current server**',
+	allowUserArgument: true,
+	
+	func: function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'Onoh! This is PM channel! ;n;';
+		
+		if (!msg.member.hasPermission('MANAGE_CHANNELS') && msg.author.id != DBot.DBot)
+			if (msg.member.checkBotMute(msg.channel))
+				return;
+			else
+				return 'Onoh! You must have at least `MANAGE_CHANNELS` permission to command me to do that :s';
+		
+		if (typeof args[0] != 'object')
+			return DBot.CommandError('Must be an @User', 'mute', args, 1);
+		
+		if (args[0].id == DBot.bot.user.id)
+			return DBot.CommandError('wat', 'mute', args, 1);
+		
+		let getUser = msg.channel.guild.member(args[0]);
+		
+		if (!getUser)
+			return DBot.CommandError('Must be an @User', 'mute', args, 1);
+		
+		if (getUser.totalMute)
+			return DBot.CommandError('<@' + getUser.user.id + '> is already muted. Loal 6.9', 'mute', args, 1);
+		
+		getUser.muteBot();
+		
+		return '<@' + getUser.user.id + '> successfully muted';
+	},
+});
+
+DBot.RegisterCommand({
+	name: 'cmute',
+	alias: ['commandmutechannel', 'mutecommandschannel', 'channelmutecommands', 'channelcommandmute'],
+	
+	help_args: '<member>',
+	desc: 'Disallow usage of ANY commands of specified user in **current channel**',
+	allowUserArgument: true,
+	
+	func: function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'Onoh! This is PM channel! ;n;';
+		
+		if (!msg.member.hasPermission('MANAGE_CHANNELS') && msg.author.id != DBot.DBot)
+			if (msg.member.checkBotMute(msg.channel))
+				return;
+			else
+				return 'Onoh! You must have at least `MANAGE_CHANNELS` permission to command me to do that :s';
+		
+		if (typeof args[0] != 'object')
+			return DBot.CommandError('Must be an @User', 'cmute', args, 1);
+		
+		if (args[0].id == DBot.bot.user.id)
+			return DBot.CommandError('wat', 'mute', args, 1);
+		
+		let getUser = msg.channel.guild.member(args[0]);
+		
+		if (!getUser)
+			return DBot.CommandError('Must be an @User', 'cmute', args, 1);
+		
+		if (getUser.muteChannel(msg.channel))
+			return '<@' + getUser.user.id + '> successfully muted in <#' + msg.channel.id + '>';
+		else
+			return DBot.CommandError('<@' + getUser.user.id + '> is already muted from <#' + msg.channel.id + '>. Loal 6.9', 'cmute', args, 1);
+	},
+});
+
+DBot.RegisterCommand({
+	name: 'unmute',
+	alias: ['commandunmute', 'unmutecommands'],
+	
+	help_args: '<member>',
+	desc: 'Unmute user, so he can use commands again',
+	allowUserArgument: true,
+	
+	func: function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'Onoh! This is PM channel! ;n;';
+		
+		if (!msg.member.hasPermission('MANAGE_CHANNELS') && msg.author.id != DBot.DBot)
+			if (msg.member.checkBotMute(msg.channel))
+				return;
+			else
+				return 'Onoh! You must have at least `MANAGE_CHANNELS` permission to command me to do that :s';
+		
+		if (typeof args[0] != 'object')
+			return DBot.CommandError('Must be an @User', 'unmute', args, 1);
+		
+		if (args[0].id == DBot.bot.user.id)
+			return DBot.CommandError('wat', 'mute', args, 1);
+		
+		let getUser = msg.channel.guild.member(args[0]);
+		
+		if (!getUser)
+			return DBot.CommandError('Must be an @User', 'unmute', args, 1);
+		
+		if (!getUser.totalMute)
+			return DBot.CommandError('<@' + getUser.user.id + '> is already not muted. Loal 6.9', 'unmute', args, 1);
+		
+		getUser.unMuteBot();
+		
+		return '<@' + getUser.user.id + '> successfully unmuted';
+	},
+});
+
+DBot.RegisterCommand({
+	name: 'cunmute',
+	alias: ['commandunmutechannel', 'unmutecommandschannel', 'channelunmutecommands', 'channelcommandunmute'],
+	
+	help_args: '<member>',
+	desc: 'Allow usage of commands of specified user in **current channel** if he was before muted by **channel**',
+	allowUserArgument: true,
+	
+	func: function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'Onoh! This is PM channel! ;n;';
+		
+		if (!msg.member.hasPermission('MANAGE_CHANNELS') && msg.author.id != DBot.DBot)
+			if (msg.member.checkBotMute(msg.channel))
+				return;
+			else
+				return 'Onoh! You must have at least `MANAGE_CHANNELS` permission to command me to do that :s';
+		
+		if (typeof args[0] != 'object')
+			return DBot.CommandError('Must be an @User', 'cumute', args, 1);
+		
+		if (args[0].id == DBot.bot.user.id)
+			return DBot.CommandError('wat', 'mute', args, 1);
+		
+		let getUser = msg.channel.guild.member(args[0]);
+		
+		if (!getUser)
+			return DBot.CommandError('Must be an @User', 'cumute', args, 1);
+		
+		if (getUser.unMuteChannel(msg.channel))
+			return '<@' + getUser.user.id + '> successfully unmuted from <#' + msg.channel.id + '>';
+		else
+			return DBot.CommandError('<@' + getUser.user.id + '> is already not muted from <#' + msg.channel.id + '>. Loal 6.9', 'cumute', args, 1);
+	},
+});

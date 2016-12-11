@@ -542,6 +542,7 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 			prefix = cPrefix;
 		else
 			prefix = sPrefix;
+		
 	}
 	
 	if (rawmessage.substr(0, prefix.length) == prefix) {
@@ -598,7 +599,14 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		return;
 	}
 	
-	if (ServerBans && ServerBans.isBanned(command)) {
+	let cCommand = DBot.Commands[command];
+	
+	let can2 = hook.Run('CanExecuteValidCommand', msg.author, cCommand.id, msg);
+	
+	if (can2 === false)
+		return false;
+	
+	if (ServerBans && ServerBans.isBanned(cCommand.id)) {
 		if (test)
 			return false;
 		
@@ -606,7 +614,7 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		return;
 	}
 	
-	if (ChannelBans && ChannelBans.isBanned(command)) {
+	if (ChannelBans && ChannelBans.isBanned(cCommand.id)) {
 		if (test)
 			return false;
 		
@@ -614,48 +622,20 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		return;
 	}
 	
-	if (MemberBans && MemberBans.isBanned(command)) {
+	if (ServerBans && ServerBans.isBanned(cCommand.name)) {
 		if (test)
 			return false;
 		
-		msg.reply('Command is banned from Y.O.U');
+		msg.reply('Command is banned on entrie server ;w;');
 		return;
 	}
 	
-	let cCommand = DBot.Commands[command];
-	
-	if (cCommand.id != command && cCommand.name != command) {
-		if (ServerBans && ServerBans.isBanned(cCommand.id)) {
-			if (test)
-				return false;
-			
-			msg.reply('Command is banned on entrie server ;w;');
-			return;
-		}
+	if (ChannelBans && ChannelBans.isBanned(cCommand.name)) {
+		if (test)
+			return false;
 		
-		if (ChannelBans && ChannelBans.isBanned(cCommand.id)) {
-			if (test)
-				return false;
-			
-			msg.reply('Command is banned on this channel ;w;');
-			return;
-		}
-		
-		if (ServerBans && ServerBans.isBanned(cCommand.name)) {
-			if (test)
-				return false;
-			
-			msg.reply('Command is banned on entrie server ;w;');
-			return;
-		}
-		
-		if (ChannelBans && ChannelBans.isBanned(cCommand.name)) {
-			if (test)
-				return false;
-			
-			msg.reply('Command is banned on this channel ;w;');
-			return;
-		}
+		msg.reply('Command is banned on this channel ;w;');
+		return;
 	}
 	
 	if (test)
