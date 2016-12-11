@@ -114,3 +114,19 @@ sql.Concat = function() {
 	
 	return output;
 }
+
+sql.UConcat = function() {
+	let output = '';
+	let first = true;
+	
+	for (let obj of arguments) {
+		if (first) {
+			first = false;
+			output += obj;
+		} else {
+			output += ',' + obj;
+		}
+	}
+	
+	return output;
+}

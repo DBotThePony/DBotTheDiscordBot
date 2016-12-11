@@ -234,6 +234,12 @@ Util.HaveValue = function(arr, val) {
 }
 
 Util.escape = function(str) {
+	if (typeof str == 'boolean')
+		return str && "'true'" || "'false'";
+	
+	if (typeof str == 'number')
+		return "'" + str + "'";
+	
 	let strObj = str.toString()
 	.replace(/'/gi, '\'\'')
 	.replace(/\\/gi, '\\\\')
@@ -298,3 +304,16 @@ Util.MonospaceText = function(x, y, text, size, spaceMult) {
 	return reply;
 }
 
+Util.parseHexColor = function(hex) {
+	let toParse = hex;
+	
+	if (hex.substr(0, 1) == '#') {
+		toParse = hex.substr(1);
+	}
+	
+	let red = parseInt(toParse.substr(0, 2), 16);
+	let green = parseInt(toParse.substr(2, 2), 16);
+	let blue = parseInt(toParse.substr(5, 2), 16);
+	
+	return [red, green, blue];
+}

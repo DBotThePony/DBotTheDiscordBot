@@ -371,7 +371,6 @@ hook.Add('ChannelInitialized', 'MySQL.Saves', function(channel, id) {
 });
 
 let updateRole = function(role) {
-	MySQL.query('INSERT INTO roles_names VALUES (' + Util.escape(role.uid) + ', ' + Util.escape(role.name) + ') ON CONFLICT ("ROLEID") DO UPDATE SET "NAME" = ' + Util.escape(role.name));
 	let perms = role.serialize();
 	let arr = [];
 	
@@ -382,7 +381,14 @@ let updateRole = function(role) {
 	
 	let arr2 = sql.Array(arr) + '::discord_permission[]';
 	
-	MySQL.query('INSERT INTO roles_perms VALUES (' + role.uid + ', ' + arr2 + ') ON CONFLICT ("ID") DO UPDATE SET "PERMS" = ' + arr2 + ';');
+	let col = Util.parseHexColor(role.hexColor);
+	let colStr = '(' + col[0] + ',' + col[1] + ',' + col[2] + ')';
+	
+	let finalQuery = 'INSERT INTO roles_names VALUES (' + Util.escape(role.uid) + ', ' + Util.escape(role.name) + ') ON CONFLICT ("ROLEID") DO UPDATE SET "NAME" = ' + Util.escape(role.name) + ';';
+	finalQuery += 'INSERT INTO roles_perms VALUES (' + role.uid + ', ' + arr2 + ') ON CONFLICT ("ID") DO UPDATE SET "PERMS" = ' + arr2 + ';';
+	finalQuery += 'INSERT INTO roles_options VALUES (' + sql.UConcat(Util.escape(role.uid), colStr, Util.escape(role.hoist), Util.escape(role.position), Util.escape(role.mentionable)) + ') ON CONFLICT ("ID") DO UPDATE SET "COLOR_R" = ' + colStr + ', "HOIST" = ' + Util.escape(role.hoist) + ', "POSITION" = ' + Util.escape(role.position) + ', "MENTION" = ' + Util.escape(role.mentionable) + ';';
+	
+	Postgres.query(finalQuery)
 }
 
 DBot.DefineRole = function(role) {
@@ -397,7 +403,6 @@ DBot.DefineRole = function(role) {
 	});
 }
 
-hook.Add('RoleCreated', 'MySQL.Handlers', DBot.DefineRole);
 hook.Add('RoleChanged', 'MySQL.Handlers', function(oldRole, newRole) {
 	newRole.uid = newRole.uid || oldRole.uid;
 	

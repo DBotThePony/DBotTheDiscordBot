@@ -169,25 +169,6 @@ CREATE TABLE IF NOT EXISTS uname_logs (
 	PRIMARY KEY ("USER", "NAME")
 );
 
-CREATE TABLE IF NOT EXISTS roles_id (
-	"ID" SERIAL PRIMARY KEY,
-	"SERVER" INTEGER NOT NULL,
-	"UID" char(64) NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS roles_perms (
-	"ID" INTEGER PRIMARY KEY,
-	"PERMS" discord_permission[]
-);
-
-CREATE TABLE IF NOT EXISTS roles_options (
-	"ID" INTEGER PRIMARY KEY,
-	"COLOR_R" rgb_color,
-	"HOIST" BOOLEAN,
-	"POSITION" SMALLINT,
-	"MENTION" BOOLEAN
-);
-
 CREATE TABLE IF NOT EXISTS server_id (
 	"ID" SERIAL PRIMARY KEY,
 	"UID" char(64) NOT NULL
@@ -602,14 +583,6 @@ CREATE TABLE IF NOT EXISTS member_roles (
 	PRIMARY KEY ("MEMBER", "ROLE")
 );
 
-CREATE TABLE IF NOT EXISTS roles_log (
-	"ID" SERIAL PRIMARY KEY,
-	"MEMBER" INTEGER NOT NULL,
-	"ROLE" INTEGER NOT NULL,
-	"TYPE" BOOLEAN NOT NULL,
-	"STAMP" INTEGER NOT NULL
-);
-
 CREATE TABLE IF NOT EXISTS member_names (
 	"ID" INTEGER PRIMARY KEY,
 	"NAME" VARCHAR(64) NOT NULL
@@ -647,6 +620,152 @@ CREATE TRIGGER member_name_log
 CREATE TRIGGER member_name_log2
 	AFTER INSERT ON member_names FOR EACH ROW 
 	EXECUTE PROCEDURE member_name_trigger2();
+	
+-- Roles
+
+CREATE TABLE IF NOT EXISTS roles_log (
+	"ID" SERIAL PRIMARY KEY,
+	"MEMBER" INTEGER NOT NULL,
+	"ROLE" INTEGER NOT NULL,
+	"TYPE" BOOLEAN NOT NULL,
+	"STAMP" INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS roles_id (
+	"ID" SERIAL PRIMARY KEY,
+	"SERVER" INTEGER NOT NULL,
+	"UID" char(64) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS roles_perms (
+	"ID" INTEGER PRIMARY KEY,
+	"PERMS" discord_permission[]
+);
+
+CREATE TABLE IF NOT EXISTS roles_options (
+	"ID" INTEGER PRIMARY KEY,
+	"COLOR_R" rgb_color NOT NULL,
+	"HOIST" BOOLEAN NOT NULL,
+	"POSITION" SMALLINT NOT NULL,
+	"MENTION" BOOLEAN NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS roles_changes_perms (
+	"ID" SERIAL PRIMARY KEY,
+	"ROLEID" INTEGER NOT NULL,
+	"PERM" discord_permission NOT NULL,
+	"TYPE" BOOLEAN NOT NULL,
+	"STAMP" INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS roles_changes_color (
+	"ID" SERIAL PRIMARY KEY,
+	"OLD" rgb_color NOT NULL,
+	"NEW" rgb_color NOT NULL,
+	"STAMP" INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS roles_changes_position (
+	"ID" SERIAL PRIMARY KEY,
+	"OLD" SMALLINT NOT NULL,
+	"NEW" SMALLINT NOT NULL,
+	"STAMP" INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS roles_changes_hoist (
+	"ID" SERIAL PRIMARY KEY,
+	"OLD" BOOLEAN NOT NULL,
+	"NEW" BOOLEAN NOT NULL,
+	"STAMP" INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS roles_changes_mention (
+	"ID" SERIAL PRIMARY KEY,
+	"OLD" BOOLEAN NOT NULL,
+	"NEW" BOOLEAN NOT NULL,
+	"STAMP" INTEGER NOT NULL
+);
+
+CREATE OR REPLACE FUNCTION roles_logger_trigger()
+RETURNS TRIGGER AS $$
+DECLARE curr_time INTEGER;
+BEGIN
+	curr_time := floor(extract(epoch from now()));
+	
+	IF (OLD."COLOR_R" != NEW."COLOR_R") THEN
+		INSERT INTO roles_changes_color VALUES (NEW."ID", OLD."COLOR_R", NEW."COLOR_R", curr_time);
+	END IF;
+	
+	IF (OLD."POSITION" != NEW."POSITION") THEN
+		INSERT INTO roles_changes_position VALUES (NEW."ID", OLD."POSITION", NEW."POSITION", curr_time);
+	END IF;
+	
+	IF (OLD."HOIST" != NEW."HOIST") THEN
+		INSERT INTO roles_changes_hoist VALUES (NEW."ID", OLD."HOIST", NEW."HOIST", curr_time);
+	END IF;
+	
+	IF (OLD."MENTION" != NEW."MENTION") THEN
+		INSERT INTO roles_changes_mention VALUES (NEW."ID", OLD."MENTION", NEW."MENTION", curr_time);
+	END IF;
+	
+	RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION roles_logger_trigger2()
+RETURNS TRIGGER AS $$
+DECLARE curr_time INTEGER;
+DECLARE hit BOOLEAN;
+DECLARE perm discord_permission;
+DECLARE perm2 discord_permission;
+BEGIN
+	curr_time := floor(extract(epoch from now()));
+	hit := false;
+	
+	FOREACH perm IN ARRAY OLD."PERMS" LOOP
+		hit := false;
+		
+		FOREACH perm2 IN ARRAY NEW."PERMS" LOOP
+			IF (perm = perm2) THEN
+				hit := true;
+				EXIT;
+			END IF;
+		END LOOP;
+		
+		IF (NOT hit) THEN
+			INSERT INTO roles_changes_perms ("ROLEID", "PERM", "TYPE", "STAMP") VALUES (NEW."ID", perm, false, curr_time);
+		END IF;
+	END LOOP;
+	
+	FOREACH perm IN ARRAY NEW."PERMS" LOOP
+		hit := false;
+		
+		FOREACH perm2 IN ARRAY OLD."PERMS" LOOP
+			IF (perm = perm2) THEN
+				hit := true;
+				EXIT;
+			END IF;
+		END LOOP;
+		
+		IF (NOT hit) THEN
+			INSERT INTO roles_changes_perms ("ROLEID", "PERM", "TYPE", "STAMP") VALUES (NEW."ID", perm, true, curr_time);
+		END IF;
+	END LOOP;
+	
+	RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS roles_logging ON roles_options;
+
+CREATE TRIGGER roles_logging
+	AFTER UPDATE ON roles_options FOR EACH ROW 
+	EXECUTE PROCEDURE roles_logger_trigger();
+
+DROP TRIGGER IF EXISTS roles_logging ON roles_perms;
+
+CREATE TRIGGER roles_logging
+	AFTER UPDATE ON roles_perms FOR EACH ROW 
+	EXECUTE PROCEDURE roles_logger_trigger2();
+
 
 CREATE TABLE IF NOT EXISTS killicons (
 	"ID" SERIAL PRIMARY KEY,
