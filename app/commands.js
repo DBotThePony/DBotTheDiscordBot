@@ -357,6 +357,6 @@ DBot.RegisterCommand({
 	desc: 'Displays invite link',
 	
 	func: function(args, cmd, msg) {
-		return 'Link https://discordapp.com/api/oauth2/authorize?client_id=' + DBot.bot.user.id + '&scope=bot&permissions=0\nPlease don\'t invite bot to heavy servers, bot runs on home desktop PC with limited resources and internet\nDon\'t spam heavy commands (pleeease!)\nYou can join DBot\'s Discord Server https://discord.gg/HG9eS79';
+		return 'Link https://discordapp.com/api/oauth2/authorize?client_id=' + DBot.bot.user.id + '&scope=bot&permissions=0\nPlease don\'t invite bot to heavy (>600 users) servers, bot runs on home desktop PC with limited resources and internet\nDon\'t spam heavy commands (pleeease!)\nYou can join DBot\'s Discord Server https://discord.gg/HG9eS79';
 	},
 });
