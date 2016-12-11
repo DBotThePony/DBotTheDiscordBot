@@ -152,14 +152,6 @@ CREATE TABLE IF NOT EXISTS meme_cache (
 	"NAME" VARCHAR(128) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS name_logs (
-	"MEMBER" INTEGER NOT NULL,
-	"NAME" VARCHAR(255) NOT NULL,
-	"LASTUSE" INTEGER NOT NULL,
-	"TIME" double precision NOT NULL,
-	PRIMARY KEY ("MEMBER", "NAME")
-);
-
 CREATE TABLE IF NOT EXISTS uname_logs (
 	"USER" INTEGER NOT NULL,
 	"NAME" VARCHAR(255) NOT NULL,
@@ -614,6 +606,39 @@ CREATE TABLE IF NOT EXISTS member_names (
 	"NAME" VARCHAR(64) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS name_logs (
+	"MEMBER" INTEGER NOT NULL,
+	"NAME" VARCHAR(255) NOT NULL,
+	"LASTUSE" INTEGER NOT NULL,
+	"TIME" double precision NOT NULL,
+	PRIMARY KEY ("MEMBER", "NAME")
+);
+
+CREATE OR REPLACE FUNCTION member_name_trigger()
+RETURNS TRIGGER as $$
+BEGIN
+	INSERT INTO name_logs VALUES(NEW."ID", NEW."NAME", floor(extract(epoch from now())), 0) ON CONFLICT DO NOTHING;
+	RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION member_name_trigger2()
+RETURNS TRIGGER as $$
+BEGIN
+	INSERT INTO name_logs VALUES(NEW."ID", NEW."NAME", floor(extract(epoch from now())), 0) ON CONFLICT DO NOTHING;
+	RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS member_name_log ON member_names;
+DROP TRIGGER IF EXISTS member_name_log2 ON member_names;
+
+CREATE TRIGGER member_name_log
+	AFTER UPDATE ON member_names FOR EACH ROW 
+	EXECUTE PROCEDURE member_name_trigger();
+
+CREATE TRIGGER member_name_log2
+	AFTER INSERT ON member_names FOR EACH ROW 
+	EXECUTE PROCEDURE member_name_trigger2();
+
 CREATE TABLE IF NOT EXISTS killicons (
 	"ID" SERIAL PRIMARY KEY,
 	"NAME" VARCHAR(64) NOT NULL,
@@ -623,35 +648,13 @@ CREATE TABLE IF NOT EXISTS killicons (
 	"HEIGHT" INTEGER NOT NULL
 );
 
-DROP FUNCTION IF EXISTS get_role_id_combined(fUID VARCHAR(64), fSERVER2 VARCHAR(64));
-DROP FUNCTION IF EXISTS get_role_id(fUID VARCHAR(64), fSERVER INTEGER);
-DROP FUNCTION IF EXISTS get_channel_id(fUID VARCHAR(64), sID INTEGER);
-DROP FUNCTION IF EXISTS get_server_id(sID VARCHAR(64));
-DROP FUNCTION IF EXISTS get_user_id(sID VARCHAR(64));
-DROP FUNCTION IF EXISTS get_member_id(userid VARCHAR(64), server VARCHAR(64));
-DROP FUNCTION IF EXISTS restore_member_id(memberid INTEGER);
-DROP FUNCTION IF EXISTS tags_tables(fName VARCHAR(64));
-DROP FUNCTION IF EXISTS restore_member(memberid INTEGER);
-DROP FUNCTION IF EXISTS user_status_heartbeat(cTime INTEGER);
-DROP FUNCTION IF EXISTS update_nicknames_stats(cTime INTEGER);
-DROP FUNCTION IF EXISTS stats_hit(user_id_raw VARCHAR(64), message_length INTEGER, words VARCHAR(64)[], images_seneded INTEGER);
-DROP FUNCTION IF EXISTS stats_hit(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), message_length INTEGER, words VARCHAR(64)[], images_seneded INTEGER);
-DROP FUNCTION IF EXISTS stats_edit(user_id_raw VARCHAR(64));
-DROP FUNCTION IF EXISTS stats_edit(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64));
-DROP FUNCTION IF EXISTS stats_delete(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), message_length INTEGER);
-DROP FUNCTION IF EXISTS stats_delete(user_id_raw VARCHAR(64), message_length INTEGER);
-DROP FUNCTION IF EXISTS stats_command(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), command VARCHAR(64));
-DROP FUNCTION IF EXISTS stats_command(user_id_raw VARCHAR(64), command VARCHAR(64));
-DROP FUNCTION IF EXISTS get_font_id(fName VARCHAR(64));
-DROP FUNCTION IF EXISTS uptdate_last_seen(user_ids INTEGER[], cTime INTEGER);
-
-CREATE FUNCTION uptdate_last_seen(user_ids INTEGER[], cTime INTEGER)
+CREATE OR REPLACE FUNCTION uptdate_last_seen(user_ids INTEGER[], cTime INTEGER)
 RETURNS void AS $$
 BEGIN
 	UPDATE last_seen SET "TIME" = cTime WHERE "ID" = ANY(user_ids);
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION tags_tables(fName VARCHAR(64))
+CREATE OR REPLACE FUNCTION tags_tables(fName VARCHAR(64))
 RETURNS void AS $$
 BEGIN
 	EXECUTE format('CREATE TABLE IF NOT EXISTS %I (
@@ -682,7 +685,7 @@ BEGIN
 	);', CONCAT('tags__', fName, '_channel'));
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION stats_hit(user_id_raw VARCHAR(64), message_length INTEGER, words VARCHAR(64)[], images_seneded INTEGER)
+CREATE OR REPLACE FUNCTION stats_hit(user_id_raw VARCHAR(64), message_length INTEGER, words VARCHAR(64)[], images_seneded INTEGER)
 RETURNS void AS $$
 DECLARE user_id INTEGER;
 DECLARE word VARCHAR(64);
@@ -701,7 +704,7 @@ BEGIN
 	END IF;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION stats_edit(user_id_raw VARCHAR(64))
+CREATE OR REPLACE FUNCTION stats_edit(user_id_raw VARCHAR(64))
 RETURNS void AS $$
 DECLARE user_id INTEGER;
 BEGIN
@@ -710,7 +713,7 @@ BEGIN
 	INSERT INTO stats__phrases_client_e ("UID", "COUNT") VALUES (user_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_client_e."COUNT" + 1;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION stats_edit(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64))
+CREATE OR REPLACE FUNCTION stats_edit(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64))
 RETURNS void AS $$
 DECLARE user_id INTEGER;
 DECLARE server_id INTEGER;
@@ -727,7 +730,7 @@ BEGIN
 	INSERT INTO stats__uphrases_server_e ("UID", "USERVER", "COUNT") VALUES (user_id, server_id, 1) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uphrases_server_e."COUNT" + 1;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION stats_hit(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), message_length INTEGER, words VARCHAR(64)[], images_seneded INTEGER)
+CREATE OR REPLACE FUNCTION stats_hit(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), message_length INTEGER, words VARCHAR(64)[], images_seneded INTEGER)
 RETURNS void AS $$
 DECLARE user_id INTEGER;
 DECLARE server_id INTEGER;
@@ -770,7 +773,7 @@ BEGIN
 	END IF;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION stats_delete(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), message_length INTEGER)
+CREATE OR REPLACE FUNCTION stats_delete(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), message_length INTEGER)
 RETURNS void AS $$
 DECLARE user_id INTEGER;
 DECLARE server_id INTEGER;
@@ -794,7 +797,7 @@ BEGIN
 	INSERT INTO stats__uchars_server_d ("UID", "USERVER", "COUNT") VALUES (user_id, server_id, message_length) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uchars_server_d."COUNT" + message_length;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION stats_command(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), command VARCHAR(64))
+CREATE OR REPLACE FUNCTION stats_command(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), command VARCHAR(64))
 RETURNS void AS $$
 DECLARE user_id INTEGER;
 DECLARE server_id INTEGER;
@@ -813,7 +816,7 @@ BEGIN
 	INSERT INTO stats__command_userver ("UID", "USERVER", "COMMAND", "COUNT") VALUES (user_id, server_id, command, 1) ON CONFLICT ("UID", "COMMAND", "USERVER") DO UPDATE SET "COUNT" = stats__command_userver."COUNT" + 1;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION stats_command(user_id_raw VARCHAR(64), command VARCHAR(64))
+CREATE OR REPLACE FUNCTION stats_command(user_id_raw VARCHAR(64), command VARCHAR(64))
 RETURNS void AS $$
 DECLARE user_id INTEGER;
 BEGIN
@@ -822,7 +825,7 @@ BEGIN
 	INSERT INTO stats__command_client ("UID", "COMMAND", "COUNT") VALUES (user_id, command, 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = stats__command_client."COUNT" + 1;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION stats_delete(user_id_raw VARCHAR(64), message_length INTEGER)
+CREATE OR REPLACE FUNCTION stats_delete(user_id_raw VARCHAR(64), message_length INTEGER)
 RETURNS void AS $$
 DECLARE user_id INTEGER;
 BEGIN
@@ -832,7 +835,7 @@ BEGIN
 	INSERT INTO stats__chars_client_d ("UID", "COUNT") VALUES (user_id, message_length) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_client_d."COUNT" + message_length;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION user_status_heartbeat(cTime INTEGER)
+CREATE OR REPLACE FUNCTION user_status_heartbeat(cTime INTEGER)
 RETURNS void AS $$
 BEGIN
 	UPDATE lastonline SET "LASTONLINE" = cTime FROM user_status, last_seen WHERE user_status."ID" = lastonline."ID" AND user_status."STATUS" != 'offline' AND last_seen."ID" = lastonline."ID" AND last_seen."TIME" > cTime - 120;
@@ -844,21 +847,44 @@ BEGIN
 	UPDATE uptime SET "TOTAL_OFFLINE" = "TOTAL_OFFLINE" + 5 FROM user_status, last_seen WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'offline' AND last_seen."ID" = uptime."ID" AND last_seen."TIME" > cTime - 120;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION update_nicknames_stats(cTime INTEGER)
+CREATE OR REPLACE FUNCTION update_nicknames_stats(cTime INTEGER)
 RETURNS void AS $$
 DECLARE my_row RECORD;
 DECLARE my_time INTEGER;
 BEGIN
-	FOR my_row IN (SELECT member_names.* FROM member_names, last_seen, member_id WHERE member_names."ID" = member_id."ID" AND member_id."USER" = last_seen."ID" AND last_seen."TIME" > cTime - 120) LOOP
-		EXECUTE format('INSERT INTO name_logs ("MEMBER", "NAME", "LASTUSE", "TIME") VALUES (%L, %L, %L, 10) ON CONFLICT ("MEMBER", "NAME") DO UPDATE SET "LASTUSE" = %L, "TIME" = name_logs."TIME" + 10;', my_row."ID", my_row."NAME", cTime, cTime);
-	END LOOP;
+	UPDATE
+		name_logs
+	SET
+		"LASTUSE" = cTime,
+		"TIME" = name_logs."TIME" + 10
+	FROM
+		member_names,
+		last_seen,
+		member_id
+	WHERE
+		member_names."ID" = member_id."ID" AND
+		member_id."USER" = last_seen."ID" AND
+		last_seen."TIME" > cTime - 120 AND
+		name_logs."MEMBER" = member_id."ID" AND
+		name_logs."NAME" = member_names."NAME";
 	
-	FOR my_row IN (SELECT user_names.* FROM user_names, last_seen WHERE user_names."ID" = last_seen."ID" AND last_seen."TIME" > cTime - 120) LOOP
-		EXECUTE format('INSERT INTO uname_logs ("USER", "NAME", "LASTUSE", "TIME") VALUES (%L, %L, %L, 10) ON CONFLICT ("USER", "NAME") DO UPDATE SET "LASTUSE" = %L, "TIME" = uname_logs."TIME" + 10;', my_row."ID", my_row."USERNAME", cTime, cTime);
-	END LOOP;
+	UPDATE
+		uname_logs
+	SET
+		"LASTUSE" = cTime,
+		"TIME" = uname_logs."TIME" + 10
+	FROM
+		user_names,
+		last_seen
+	WHERE
+		user_names."ID" = last_seen."ID" AND
+		last_seen."TIME" > cTime - 120 AND
+		uname_logs."USER" = user_names."ID" AND
+		uname_logs."NAME" = user_names."USERNAME";
+		
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION get_role_id_combined(fUID VARCHAR(64), fSERVER2 VARCHAR(64))
+CREATE OR REPLACE FUNCTION get_role_id_combined(fUID VARCHAR(64), fSERVER2 VARCHAR(64))
 RETURNS INTEGER AS $$
 DECLARE last_id INTEGER;
 DECLARE fSERVER INTEGER;
@@ -874,7 +900,7 @@ BEGIN
 	RETURN last_id;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION get_role_id(fUID VARCHAR(64), fSERVER INTEGER)
+CREATE OR REPLACE FUNCTION get_role_id(fUID VARCHAR(64), fSERVER INTEGER)
 RETURNS INTEGER AS $$
 DECLARE last_id INTEGER;
 BEGIN
@@ -887,7 +913,7 @@ BEGIN
 	RETURN last_id;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION get_font_id(fName VARCHAR(64))
+CREATE OR REPLACE FUNCTION get_font_id(fName VARCHAR(64))
 RETURNS INTEGER AS $$
 DECLARE last_id INTEGER;
 BEGIN
@@ -900,7 +926,7 @@ BEGIN
 	RETURN last_id;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION get_channel_id(fUID VARCHAR(64), sID INTEGER)
+CREATE OR REPLACE FUNCTION get_channel_id(fUID VARCHAR(64), sID INTEGER)
 RETURNS INTEGER AS $$
 DECLARE last_id INTEGER;
 BEGIN
@@ -913,7 +939,7 @@ BEGIN
 	RETURN last_id;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION get_server_id(sID VARCHAR(64))
+CREATE OR REPLACE FUNCTION get_server_id(sID VARCHAR(64))
 RETURNS INTEGER AS $$
 DECLARE last_id INTEGER;
 BEGIN
@@ -926,7 +952,7 @@ BEGIN
 	RETURN last_id;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION get_user_id(sID VARCHAR(64))
+CREATE OR REPLACE FUNCTION get_user_id(sID VARCHAR(64))
 RETURNS INTEGER AS $$
 DECLARE last_id INTEGER;
 BEGIN
@@ -939,7 +965,7 @@ BEGIN
 	RETURN last_id;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION get_member_id(userid VARCHAR(64), server VARCHAR(64))
+CREATE OR REPLACE FUNCTION get_member_id(userid VARCHAR(64), server VARCHAR(64))
 RETURNS INTEGER AS $$
 DECLARE last_id INTEGER;
 DECLARE usr_internal_id INTEGER;
@@ -957,7 +983,7 @@ BEGIN
 	RETURN last_id;
 END; $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION restore_member_id(memberid INTEGER)
+CREATE OR REPLACE FUNCTION restore_member_id(memberid INTEGER)
 RETURNS INTEGER AS $$
 DECLARE to_return INTEGER;
 BEGIN
@@ -965,7 +991,7 @@ BEGIN
 	RETURN to_return;
 END $$ LANGUAGE plpgsql;
 
-CREATE FUNCTION restore_member(memberid INTEGER)
+CREATE OR REPLACE FUNCTION restore_member(memberid INTEGER)
 RETURNS VARCHAR(64) as $$
 DECLARE iuid INTEGER;
 BEGIN
@@ -973,4 +999,3 @@ BEGIN
 	
 	RETURN (SELECT "user_id"."UID" FROM "user_id" WHERE "user_id"."ID" = iuid);
 END; $$ LANGUAGE plpgsql;
-
