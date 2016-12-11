@@ -130,8 +130,14 @@ hook.Add('ChannelCreated', 'MySQL.Handlers', function(channel) {
 	DBot.DefineChannel(channel);
 });
 
-hook.Add('ValidClientJoinsServer', 'MySQL.Handlers', function(user) {
+hook.Add('ValidClientJoinsServer', 'MySQL.Handlers', function(user, server, member) {
 	DBot.DefineUser(user);
+	DBot.DefineMember(member);
+});
+
+hook.Add('ValidClientAvaliable', 'MySQL.Handlers', function(user, server, member) {
+	DBot.DefineUser(user);
+	DBot.DefineMember(member);
 });
 
 var ChannelDeleted = function(channel) {

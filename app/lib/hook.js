@@ -52,7 +52,7 @@ var botHooks = [
 	['guildEmojiDelete', 'EmojiDeleted'],
 	['guildEmojiUpdate', 'EmojiUpdated'],
 	['guildMemberAdd', 'ClientJoinsServer'],
-	['guildMemberAvailable', 'ClientJoinedServer'],
+	['guildMemberAvailable', 'ClientAvaliable'],
 	['guildMemberUpdate', 'MemberChanges'],
 	['guildMemberRemove', 'ClientLeftServer'],
 	['guildUnavailable', 'ServerWentsDown'],
@@ -90,16 +90,16 @@ hook.Add('ClientJoinsServer', 'Default', function(client) {
 	}
 });
 
-hook.Add('ClientJoinedServer', 'Default', function(client) {
+hook.Add('ClientAvaliable', 'Default', function(client) {
 	if (client.user.id == DBot.client.id)
 		return;
 	
-	hook.Run('ValidClientJoinedServer', client.user, client.guild, client);
+	hook.Run('ValidClientAvaliable', client.user, client.guild, client);
 	
 	if (client.user.bot) {
-		hook.Run('BotJoinedServer', client.user, client.guild, client);
+		hook.Run('BotAvaliable', client.user, client.guild, client);
 	} else {
-		hook.Run('HumanJoinedServer', client.user, client.guild, client);
+		hook.Run('HumanAvaliable', client.user, client.guild, client);
 	}
 });
 
