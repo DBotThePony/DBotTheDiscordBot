@@ -1,4 +1,6 @@
 
+const fs = DBot.fs;
+
 module.exports = {
 	name: 'nfs',
 	alias: ['needforsleep'],
