@@ -25,7 +25,7 @@ let createFunc = function(font, size, gravity, lolcat) {
 			font: font,
 			size: size,
 			lolcat: lolcat,
-			gravity: 'Center',
+			gravity: gravity,
 		}, function(err, fpath, fpathU) {
 			if (err) {
 				msg.reply('<internal pony error>');
@@ -46,7 +46,7 @@ module.exports = {
 	desc: 'Draws a text as image. Uses Hack font.',
 	argNeeded: true,
 	
-	func: createFunc(font, size, 'Center'),
+	func: createFunc(font, size, 'North'),
 }
 
 DBot.RegisterPipe(module.exports);
@@ -70,7 +70,7 @@ DBot.RegisterCommandPipe({
 	desc: 'Draws a text as image. Uses Hack font. Also applies lolcat-like behaviour',
 	argNeeded: true,
 	
-	func: createFunc(font, size, 'Center', true),
+	func: createFunc(font, size, 'North', true),
 });
 
 DBot.RegisterCommandPipe({
@@ -92,7 +92,7 @@ DBot.RegisterCommandPipe({
 	desc: 'Draws a text as image. Uses COMIC SAAAAAAAAAAAAAAAAANS #$@&&@*&#!',
 	argNeeded: true,
 	
-	func: createFunc('Comic-Sans-MS', size, 'Center'),
+	func: createFunc('Comic-Sans-MS', size, 'North'),
 });
 
 DBot.RegisterCommandPipe({
@@ -114,7 +114,7 @@ DBot.RegisterCommandPipe({
 	desc: 'Draws a text as image. Uses Hack font. Also applies lolcat-like behaviour',
 	argNeeded: true,
 	
-	func: createFunc('Comic-Sans-MS', size, 'Center', true),
+	func: createFunc('Comic-Sans-MS', size, 'North', true),
 });
 
 DBot.RegisterCommandPipe({
