@@ -271,16 +271,19 @@ hook.Add('UsersInitialized', 'UserTags', function() {
 		}
 		
 		for (var space in DBot.tags) {
-			let q = 'SELECT last_seen."ID", TAG FROM tags__' + space + '_client, last_seen WHERE last_seen."TIME" > floor(extract(epoch from now())) - 120 AND UID = last_seen."ID"';
+			let q = 'SELECT "uid", "tag" FROM tags__' + space + '_client, last_seen WHERE last_seen."TIME" > floor(extract(epoch from now())) - 120 AND UID = last_seen."ID"';
 			
 			Postgre.query(q, function(err, data) {
 				if (err) throw err;
 				
 				for (let row of data) {
-					cache.client[space][row.ID] = cache.client[space][row.ID] || new TagBase(mapping[row.ID], space, 'client', DBot.GetUserID, true, true);
+					if (!DBot.GetUser(row.uid))
+						continue;
 					
-					cache.client[space][row.ID].ready = false;
-					cache.client[space][row.ID].banTag(row.tag);
+					cache.client[space][row.uid] = cache.client[space][row.uid] || new TagBase(DBot.GetUser(row.uid), space, 'client', DBot.GetUserID, true, true);
+					
+					cache.client[space][row.uid].ready = false;
+					cache.client[space][row.uid].banTag(row.tag);
 				}
 				
 				for (let sp in cache.client[space]) {

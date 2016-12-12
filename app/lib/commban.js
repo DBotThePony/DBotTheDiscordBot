@@ -79,13 +79,16 @@ class CommandBanClass {
 		return this.bans;
 	}
 	
-	constructor(obj, realm, IDFunc) {
+	constructor(obj, realm, IDFunc, noFetch) {
 		this.bans = [];
 		this.obj = obj;
 		this.realm = realm;
 		this.ready = false;
 		this.uid = IDFunc(obj);
 		var Me = this;
+		
+		if (noFetch)
+			return;
 		
 		MySQL.query('SELECT "COMMAND" FROM command_bans_' + this.realm + ' WHERE "UID" = ' + this.uid, function(err, data) {
 			for (var i in data) {
@@ -115,13 +118,11 @@ DBot.ChannelCBans = function(channel) {
 }
 
 DBot.MemberCBans = function(member) {
-	cache.member[member.id] = cache.member[member.id] || {};
+	if (cache.member[member.uid])
+		return cache.member[member.uid];
 	
-	if (cache.member[member.id][member.guild.id])
-		return cache.member[member.id][member.guild.id];
-	
-	cache.member[member.id][member.guild.id] = new CommandBanClass(member, 'member', DBot.GetMemberID);
-	return cache.member[member.id][member.guild.id];
+	cache.member[member.uid] = new CommandBanClass(member, 'member', DBot.GetMemberID);
+	return cache.member[member.uid];
 }
 
 hook.Add('PreDeleteChannel', 'ChannelBans', function(obj) {
@@ -140,23 +141,11 @@ hook.Add('ChannelInitialized', 'ChannelBans', function(obj) {
 	DBot.ChannelCBans(obj);
 });
 
-hook.Add('MemberInitialized', 'MemberCommandBans', function(obj) {
-	DBot.MemberCBans(obj);
-	
+let init = false;
+let initCount = 3;
+
+let addMethods = function(obj) {
 	obj.channelBans = obj.channelBans || [];
-	
-	
-	Postgres.query('SELECT * FROM command_banned_cmember WHERE "UID" = ' + obj.uid, function(err, data) {
-		for (let row of data) {
-			obj.channelBans.push(Number(row.CHANNEL));
-		}
-	});
-	
-	Postgres.query('SELECT * FROM command_banned_member WHERE "UID" = ' + obj.uid, function(err, data) {
-		if (data && data[0]) {
-			obj.totalMute = true;
-		}
-	});
 	
 	obj.unMuteBot = function() {
 		this.totalMute = false;
@@ -215,6 +204,73 @@ hook.Add('MemberInitialized', 'MemberCommandBans', function(obj) {
 		
 		return true;
 	}
+	
+	return obj;
+}
+
+hook.Add('MemberInitialized', 'MemberCommandBans', function(obj) {
+	addMethods(obj);
+	
+	if (!init)
+		return;
+	
+	DBot.MemberCBans(obj);
+	
+	Postgres.query('SELECT * FROM command_banned_cmember WHERE "UID" = ' + obj.uid, function(err, data) {
+		for (let row of data) {
+			obj.channelBans.push(Number(row.CHANNEL));
+		}
+	});
+	
+	Postgres.query('SELECT * FROM command_banned_member WHERE "UID" = ' + obj.uid, function(err, data) {
+		if (data && data[0]) {
+			obj.totalMute = true;
+		}
+	});
+});
+
+hook.Add('MembersInitialized', 'MemberCommandBans', function() {
+	Postgres.query('SELECT "UID", "CHANNEL" FROM command_banned_cmember, last_seen WHERE last_seen."TIME" > floor(extract(epoch from now())) - 120 AND "UID" = last_seen."ID"', function(err, data) {
+		if (err) throw err;
+		
+		for (let row of data) {
+			DBot.GetMember(row.UID).channelBans.push(Number(row.CHANNEL));
+		}
+		
+		initCount--;
+		init = initCount == 0;
+	});
+	
+	Postgres.query('SELECT "UID" FROM command_banned_member, last_seen WHERE last_seen."TIME" > floor(extract(epoch from now())) - 120 AND "UID" = last_seen."ID"', function(err, data) {
+		if (err) throw err;
+		
+		for (let row of data) {
+			DBot.GetMember(row.UID).totalMute = true;
+		}
+		
+		initCount--;
+		init = initCount == 0;
+	});
+	
+	Postgres.query('SELECT "UID", "COMMAND" FROM command_bans_member, last_seen WHERE last_seen."TIME" > floor(extract(epoch from now())) - 120 AND "UID" = last_seen."ID"', function(err, data) {
+		if (err) throw err;
+		
+		for (let row of data) {
+			if (!DBot.GetMember(row.UID))
+				continue;
+			
+			cache.member[row.UID] = cache.member[row.UID] || new CommandBanClass(DBot.GetMember(row.UID), 'member', DBot.GetMemberID, true);
+			cache.member[row.UID].ready = false;
+			cache.member[row.UID].ban(row.COMMAND);
+		}
+		
+		for (let i in cache.member) {
+			cache.member[i].ready = true;
+		}
+		
+		initCount--;
+		init = initCount == 0;
+	});
 });
 
 let disallow = [

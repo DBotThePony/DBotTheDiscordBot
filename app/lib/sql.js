@@ -432,6 +432,11 @@ hook.Add('RoleChanged', 'MySQL.Handlers', function(oldRole, newRole) {
 });
 
 let memberCache = [];
+let MembersTable = {};
+
+DBot.GetMember = function(ID) {
+	return MembersTable[ID] || null;
+}
 
 DBot.DefineMember = function(member) {
 	if (member.uid)
@@ -455,6 +460,8 @@ DBot.DefineMember = function(member) {
 				break;
 			}
 		}
+		
+		MembersTable[member.uid] = member;
 		
 		if (!hit)
 			memberCache.push(member);
@@ -636,6 +643,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 					}
 					
 					member.uid = id;
+					MembersTable[member.uid] = member;
 					hook.Run('MemberInitialized', member, member.uid);
 					
 					let hit = false;
