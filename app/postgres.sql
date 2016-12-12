@@ -1084,6 +1084,132 @@ BEGIN
 	RETURN last_id;
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION get_servers_id(sID CHAR(64)[])
+RETURNS TABLE ("ID" INTEGER, "UID" VARCHAR(64)) AS $$
+DECLARE missing_tab VARCHAR(64)[];
+BEGIN
+	missing_tab := ARRAY(SELECT (
+		WITH missing AS (
+			SELECT
+				UNNEST(sID) AS "MISSING"
+		)
+		
+		SELECT
+			missing."MISSING"
+		FROM
+			missing
+		WHERE NOT EXISTS (
+			SELECT
+				missing."MISSING"
+			FROM
+				server_id
+			WHERE
+				missing."MISSING" = server_id."UID"
+		) AND missing."MISSING" IS NOT NULL
+	));
+	
+	if (missing_tab[1] IS NOT NULL) THEN
+		INSERT INTO "server_id" ("UID") SELECT UNNEST(missing_tab);
+	END IF;
+	
+	RETURN QUERY SELECT server_id."ID", TRIM(server_id."UID")::VARCHAR(64) FROM server_id WHERE server_id."UID" = ANY (sID);
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_users_id(sID CHAR(64)[])
+RETURNS TABLE ("ID" INTEGER, "UID" VARCHAR(64)) AS $$
+DECLARE missing_tab VARCHAR(64)[];
+BEGIN
+	missing_tab := ARRAY(SELECT (
+		WITH missing AS (
+			SELECT
+				UNNEST(sID) AS "MISSING"
+		)
+		
+		SELECT
+			missing."MISSING"
+		FROM
+			missing
+		WHERE NOT EXISTS (
+			SELECT
+				missing."MISSING"
+			FROM
+				user_id
+			WHERE
+				missing."MISSING" = user_id."UID"
+		) AND missing."MISSING" IS NOT NULL
+	));
+	
+	if (missing_tab[1] IS NOT NULL) THEN
+		INSERT INTO "user_id" ("UID") SELECT UNNEST(missing_tab);
+	END IF;
+	
+	RETURN QUERY SELECT user_id."ID", TRIM(user_id."UID")::VARCHAR(64) FROM user_id WHERE user_id."UID" = ANY (sID);
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_channels_id(sID CHAR(64)[], sID2 INTEGER[])
+RETURNS TABLE ("ID" INTEGER, "UID" VARCHAR(64)) AS $$
+BEGIN
+	WITH missing_tab AS (
+		WITH missing AS (
+			SELECT
+				UNNEST(sID) AS "MISSING_CHANNEL",
+				UNNEST(sID2) AS "MISSING_SERVER"
+		)
+		
+		SELECT
+			missing."MISSING_CHANNEL",
+			missing."MISSING_SERVER"
+		FROM
+			missing
+		WHERE NOT EXISTS (
+			SELECT
+				missing."MISSING_CHANNEL",
+				missing."MISSING_SERVER"
+			FROM
+				channel_id
+			WHERE
+				missing."MISSING_CHANNEL" = channel_id."UID" AND
+				missing."MISSING_SERVER" = channel_id."SID"
+		) AND missing."MISSING_CHANNEL" IS NOT NULL
+	)
+	
+	INSERT INTO "channel_id" ("UID", "SID") SELECT * FROM missing_tab WHERE missing_tab."MISSING_CHANNEL" IS NOT NULL;
+	
+	RETURN QUERY SELECT channel_id."ID", TRIM(channel_id."UID")::VARCHAR(64) FROM channel_id WHERE channel_id."UID" = ANY (sID);
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_members_id(sID INTEGER[], sID2 INTEGER[])
+RETURNS TABLE ("ID" INTEGER, "USER" INTEGER, "SERVER" INTEGER) AS $$
+BEGIN
+	WITH missing_tab AS (
+		WITH missing AS (
+			SELECT
+				UNNEST(sID) AS "MISSING_USER",
+				UNNEST(sID2) AS "MISSING_SERVER"
+		)
+		
+		SELECT
+			missing."MISSING_USER",
+			missing."MISSING_SERVER"
+		FROM
+			missing
+		WHERE NOT EXISTS (
+			SELECT
+				missing."MISSING_USER",
+				missing."MISSING_SERVER"
+			FROM
+				member_id
+			WHERE
+				missing."MISSING_USER" = member_id."USER" AND
+				missing."MISSING_SERVER" = member_id."SERVER"
+		) AND missing."MISSING_USER" IS NOT NULL
+	)
+	
+	INSERT INTO "member_id" ("USER", "SERVER") SELECT * FROM missing_tab WHERE missing_tab."MISSING_USER" IS NOT NULL AND missing_tab."MISSING_SERVER" IS NOT NULL;
+	
+	RETURN QUERY SELECT member_id."ID", member_id."USER", member_id."SERVER" FROM member_id WHERE member_id."USER" = ANY (sID) AND member_id."SERVER" = ANY (sID2);
+END; $$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION get_user_id(sID VARCHAR(64))
 RETURNS INTEGER AS $$
 DECLARE last_id INTEGER;
