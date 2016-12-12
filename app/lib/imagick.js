@@ -505,3 +505,37 @@ IMagick.DrawText = function(data, callback) {
 	});
 }
 
+IMagick.GetInfo = function(path, callback) {
+	let magik = spawn('identify', [fPath]);
+	
+	let output = '';
+	let outputErr = '';
+	
+	magik.stderr.on('data', function(data) {
+		outputErr += data.toString();
+	});
+	
+	magik.stdout.on('data', function(data) {
+		output += data.toString();
+	});
+	
+	magik.on('close', function(code) {
+		if (code == 0 && output != '') {
+			let parse = output.split(' ');
+			
+			let fileName = parse[0];
+			let fileType = parse[1];
+			let fileSizes = parse[2];
+			
+			let fileSizesS = fileSizes.split('x');
+			let width = Number(fileSizesS[0]);
+			let height = Number(fileSizesS[1]);
+			let aspectRatio = height / width;
+			let aspectRatio2 = width / height;
+			
+			callback(null, fileType, width, height, aspectRatio, aspectRatio2);
+		} else {
+			callback(outputErr, null, null, null, null, null);
+		}
+	});
+}
