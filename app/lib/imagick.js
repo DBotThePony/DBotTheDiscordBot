@@ -45,7 +45,7 @@ IMagick.GetTextSize = function(text, font, size) {
 	
 	text.replace(CharsExp2, function(matched, p1) {
 		if (p1 == '\n') {
-			height += IMagick.PrecacheFontsDataHeight[font] * 1.25 * mult;
+			height += IMagick.PrecacheFontsDataHeight[font] * 1.5 * mult;
 			cLine++;
 			widths[cLine] = 0;
 			return '';
