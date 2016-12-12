@@ -112,7 +112,7 @@ DBot.RegisterCommand({
 			SELECT "COUNT" as "cnt" FROM stats__uimages_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
-			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1'+ ';\
+			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1;\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_server_d WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID +  ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_server_e WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID +  ';\
 			';
@@ -209,7 +209,7 @@ DBot.RegisterCommand({
 			SELECT "COUNT" as "cnt" FROM stats__uimages_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
-			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1'+ ';\
+			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1;\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_server_d WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID +  ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_server_e WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID +  ';\
 			';
