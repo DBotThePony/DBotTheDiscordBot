@@ -9,7 +9,7 @@ var NOTIFY = {};
 
 hook.Add('BotOnline', 'Timers', function() {
 	INIT = true;
-	MySQL.query('SELECT ID, STAMP FROM timers_ids WHERE NOTIFY = false', function(err, data) {
+	MySQL.query('SELECT "ID", "STAMP" FROM timers_ids WHERE "NOTIFY" = false', function(err, data) {
 		for (var i in data) {
 			NOTIFY[data[i].ID] = data[i].STAMP;
 		}
