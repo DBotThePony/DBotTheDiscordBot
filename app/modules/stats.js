@@ -670,7 +670,7 @@ DBot.RegisterCommand({
 		msg.channel.startTyping();
 		
 		var ID = DBot.GetServerID(msg.channel.guild);
-		var query = 'SELECT user_id."UID" as "USERID", user_id."ID" as "ID", user_names."USERNAME" as "USERNAME", stats__uphrases_server."COUNT" as "COUNT" FROM user_id, user_names, stats__uphrases_server WHERE stats__uphrases_server."UID" = user_id."ID" AND user_names."ID" = user_id."ID" AND stats__uphrases_server."USERVER" = ' + ID + ' ORDER BY "COUNT" DESC LIMIT 10';
+		var query = 'SELECT user_id."UID" as "USERID", user_id."ID" as "ID", member_names."NAME" as "USERNAME", stats__uphrases_server."COUNT" as "COUNT" FROM user_id, member_names, stats__uphrases_server WHERE stats__uphrases_server."UID" = user_id."ID" AND member_names."ID" = user_id."ID" AND stats__uphrases_server."USERVER" = ' + ID + ' ORDER BY "COUNT" DESC LIMIT 10';
 		
 		Postgres.query(query, function(err, data) {
 			try {
@@ -742,7 +742,7 @@ DBot.RegisterCommand({
 			return 'Oh! This is PM x3';
 		
 		var ID = DBot.GetChannelID(msg.channel);
-		var query = 'SELECT user_id."UID" as "USERID", user_id."ID" as "ID", user_names."USERNAME" as "USERNAME", stats__uphrases_channel."COUNT" as "COUNT" FROM user_id, user_names, stats__uphrases_channel WHERE stats__uphrases_channel."UID" = user_id."ID" AND user_names."ID" = user_id."ID" AND stats__uphrases_channel."CHANNEL" = ' + ID + ' ORDER BY "COUNT" DESC LIMIT 10';
+		var query = 'SELECT user_id."UID" as "USERID", user_id."ID" as "ID", member_names."NAME" as "USERNAME", stats__uphrases_channel."COUNT" as "COUNT" FROM user_id, member_names, stats__uphrases_channel WHERE stats__uphrases_channel."UID" = user_id."ID" AND member_names."ID" = user_id."ID" AND stats__uphrases_channel."CHANNEL" = ' + ID + ' ORDER BY "COUNT" DESC LIMIT 10';
 		
 		msg.channel.startTyping();
 		
