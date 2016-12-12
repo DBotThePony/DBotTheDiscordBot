@@ -2,8 +2,8 @@
 const child_process = require('child_process');
 const spawn = child_process.spawn;
 const URL = require('url');
-var unirest = require('unirest');
-var fs = DBot.fs;
+const unirest = require('unirest');
+const fs = DBot.fs;
 
 fs.stat(DBot.WebRoot + '/magik', function(err, stat) {
 	if (!stat)

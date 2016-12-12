@@ -1,13 +1,19 @@
 
 const child_process = require('child_process');
 const spawn = child_process.spawn;
-var unirest = require('unirest');
-var fs = require('fs');
+const unirest = require('unirest');
+const fs = require('fs');
+const URL = require('url');
 
-fs.stat(DBot.WebRoot + '/triggered', function(err, stat) {
-	if (!stat)
-		fs.mkdir(DBot.WebRoot + '/triggered');
-});
+Util.mkdir(DBot.WebRoot + '/triggered');
+
+const allowed = [
+	'jpeg',
+	'jpg',
+	'png',
+	'tif',
+	'bmp',
+];
 
 module.exports = {
 	name: 'triggered',
@@ -19,82 +25,63 @@ module.exports = {
 	desc: '<TRIGGERED>',
 	
 	func: function(args, cmd, msg) {
-		var user = args[0];
+		let url = args[0];
 		
-		if (!user)
-			return 'Nu user argument ;w;';
-		
-		if (typeof(user) != 'object')
-			return 'Invalid user argument. Please Use @User';
-		
-		var url = user.avatarURL;
+		if (typeof url == 'object') {
+			url = args[0].avatarURL;
+			
+			if (!url)
+				return DBot.CommandError('User have no avatar? ;n;', 'triggered', args, 1);
+		}
 		
 		if (!url)
-			return 'User have no avatar ;w;';
+			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered', args, 1);
 		
-		var hash = DBot.HashString(url);
+		let uObj = URL.parse(url);
+		let path = uObj.pathname;
+		let split = path.split('.');
+		let ext = split[split.length - 1].toLowerCase();
 		
-		var fpath = DBot.WebRoot + '/triggered/' + hash + '.png';
-		var fpath_t = DBot.WebRoot + '/triggered/' + hash + '_tmp.jpg';
-		var fpath_t2 = DBot.WebRoot + '/triggered/' + hash + '_tmp.png';
-		var upath = DBot.URLRoot + '/triggered/' + hash + '.png';
+		if (!DBot.HaveValue(allowed, ext))
+			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered', args, 1);
+		
+		let sha = DBot.HashString(url);
+		
+		let fpath;
+		let fpathProcessed = DBot.WebRoot + '/triggered/' + sha + '.png';
+		let fpathU = DBot.URLRoot + '/triggered/' + sha + '.png';
 		
 		msg.channel.startTyping();
 		
-		fs.stat(fpath, function(err, stat) {
-			if (stat) {
-				msg.channel.stopTyping();
-				msg.reply(upath);
-			} else {
-				unirest.get(url)
-				.encoding(null)
-				.end(function(result) {
-					var body = result.raw_body;
+		let ContinueFunc = function() {
+			fs.stat(fpathProcessed, function(err, stat) {
+				if (stat) {
+					msg.channel.stopTyping();
+					msg.reply(fpathU);
+				} else {
+					let magik = spawn('convert', ['(', fpath, '-resize', '512', ')', './resource/files/triggered.jpg', '-append', fpathProcessed]);
 					
-					if (!body) {
+					Util.Redirect(magik);
+					
+					magik.on('close', function(code) {
 						msg.channel.stopTyping();
-						return;
-					}
-					
-					fs.writeFile(fpath_t, body, {flag: 'w'}, function(err) {
-						if (err) {
-							msg.channel.stopTyping();
-							return;
+						
+						if (code == 0) {
+							msg.reply(fpathU);
+						} else {
+							msg.reply('I am cracked up ;w;');
 						}
-						
-						var magik = spawn('convert', [fpath_t, '-resize', '256', fpath_t2]);
-						
-						magik.stderr.on('data', function(data) {
-							console.error(data.toString());
-						});
-						
-						magik.on('close', function(code) {
-							if (code == 0) {
-								var magik = spawn('convert', [fpath_t2, './resource/files/triggered.jpg', '-append', fpath]);
-								
-								magik.stderr.on('data', function(data) {
-									console.error(data.toString());
-								});
-								
-								magik.on('close', function(code) {
-									if (code == 0) {
-										msg.reply(upath);
-										fs.unlink(fpath_t, function() {});
-										fs.unlink(fpath_t2, function() {});
-									} else {
-										msg.reply('I am cracked up ;w;');
-									}
-									
-									msg.channel.stopTyping();
-								});
-							} else {
-								msg.channel.stopTyping();
-								msg.reply('I am cracked up ;w;');
-							}
-						});
 					});
-				});
-			}
+				}
+			});
+		}
+		
+		DBot.LoadImageURL(url, function(newPath) {
+			fpath = newPath;
+			ContinueFunc();
+		}, function(result) {
+			msg.channel.stopTyping();
+			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
 		});
 	},
 }
