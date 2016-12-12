@@ -595,7 +595,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			let updateInit = false;
 			
 			updateLastSeenFunc(function() {
-				hook.Run('UsersInitalized');
+				hook.Run('UsersInitialized');
 				updateInit = true;
 				
 				if (memberInit)

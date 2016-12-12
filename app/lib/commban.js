@@ -145,6 +145,7 @@ hook.Add('MemberInitialized', 'MemberCommandBans', function(obj) {
 	
 	obj.channelBans = obj.channelBans || [];
 	
+	
 	Postgres.query('SELECT * FROM command_banned_cmember WHERE "UID" = ' + obj.uid, function(err, data) {
 		for (let row of data) {
 			obj.channelBans.push(Number(row.CHANNEL));
