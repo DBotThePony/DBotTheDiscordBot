@@ -698,7 +698,7 @@ DBot.RegisterCommand({
 						}
 					} else {
 						for (var i in data) {
-							output += (Number(i) + 1) + '    ' + utf8.decode(data[i].USERNAME) + ' --- ' + numeral(data[i].COUNT).format('0,0') + ' phrases (' + numeral(words[data[i].ID]).format('0,0') + ' total words said; ' + numeral(uwords[data[i].ID]).format('0,0') + ' unique words)\n';
+							output += (Number(i) + 1) + '    ' + data[i].USERNAME + ' --- ' + numeral(data[i].COUNT).format('0,0') + ' phrases (' + numeral(words[data[i].ID]).format('0,0') + ' total words said; ' + numeral(uwords[data[i].ID]).format('0,0') + ' unique words)\n';
 						}
 					}
 					
@@ -767,7 +767,7 @@ DBot.RegisterCommand({
 						}
 					} else {
 						for (var i in data) {
-							output += (Number(i) + 1) + '    ' + utf8.decode(data[i].USERNAME) + ' --- ' + numeral(data[i].COUNT).format('0,0') + ' phrases (' + numeral(words[data[i].ID]).format('0,0') + ' total words said; ' + numeral(uwords[data[i].ID]).format('0,0') + ' unique words)\n';
+							output += (Number(i) + 1) + '    ' + data[i].USERNAME + ' --- ' + numeral(data[i].COUNT).format('0,0') + ' phrases (' + numeral(words[data[i].ID]).format('0,0') + ' total words said; ' + numeral(uwords[data[i].ID]).format('0,0') + ' unique words)\n';
 						}
 					}
 					
