@@ -93,6 +93,7 @@ ORDER BY
 let fullDesc = `
 Sub commands are:
 users
+user @user
 permissions
 hoist
 position
@@ -108,6 +109,7 @@ DBot.RegisterCommand({
 	help_args: '',
 	desc: 'Lists some of role changes',
 	desc_full: fullDesc,
+	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
 		if (DBot.IsPM(msg))
@@ -167,6 +169,69 @@ DBot.RegisterCommand({
 					let rname = row.ROLENAME;
 					
 					output += Util.AppendSpaces(name, 20) + Util.AppendSpaces(rname, 10) + Util.AppendSpaces(status && 'A' || 'D', 5) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
+				}
+				
+				output += '\n```';
+				
+				msg.reply(output);
+			});
+		} else if (mode == 'user') {
+			if (typeof args[1] != 'object')
+				return DBot.CommandError('Must be user', 'rolelog', args, 2);
+			
+			let getUser = msg.channel.guild.member(args[1]);
+			
+			if (!getUser)
+				return DBot.CommandError('Must be member of this server', 'rolelog', args, 2);
+			
+			let funckingQuery = 'SELECT\
+				roles_log."ID" AS "ENTRY",\
+				roles_log."ROLE",\
+				roles_log."TYPE",\
+				roles_log."STAMP",\
+				roles_names."NAME" AS "ROLENAME"\
+			FROM\
+				roles_log,\
+				roles_names,\
+				member_id,\
+				server_id,\
+				member_names\
+			WHERE\
+				member_id."ID" = ' + getUser.uid + ' AND\
+				server_id."ID" = ' + msg.channel.guild.uid + ' AND\
+				roles_log."MEMBER" = member_id."ID" AND\
+				member_id."SERVER" = server_id."ID" AND\
+				roles_names."ROLEID" = roles_log."ROLE" AND\
+				member_names."ID" = member_id."ID"\
+			GROUP BY\
+				"ENTRY",\
+				roles_names."NAME",\
+				member_names."NAME"\
+			ORDER BY\
+				"ENTRY" DESC\
+			LIMIT 10';
+			
+			MySQL.query(funckingQuery, function(err, data) {
+				if (err) {
+					msg.reply('WTF');
+					console.error(err);
+					return;
+				}
+				
+				if (!data || !data[0]) {
+					msg.reply('No data is returned in query');
+					return;
+				}
+				
+				let output = '```\n' + Util.AppendSpaces('Role', 10) + Util.AppendSpaces('Type', 5) + Util.AppendSpaces('Time', 30) + '\n';
+				
+				for (let row of data) {
+					let date = moment.unix(row.STAMP);
+					let status = row.TYPE;
+					let name = row.MEMBERNAME;
+					let rname = row.ROLENAME;
+					
+					output += Util.AppendSpaces(rname, 10) + Util.AppendSpaces(status && 'A' || 'D', 5) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
 				}
 				
 				output += '\n```';
