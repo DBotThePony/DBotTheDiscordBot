@@ -16,9 +16,18 @@ module.exports = {
 		let find = args[0].toLowerCase();
 		
 		for (let rl of msg.channel.guild.roles.array()) {
-			if (rl.name.toLowerCase().match(find)) {
+			if (rl.name.toLowerCase() == find) {
 				role = rl;
 				break;
+			}
+		}
+		
+		if (!role) {
+			for (let rl of msg.channel.guild.roles.array()) {
+				if (rl.name.toLowerCase().match(find)) {
+					role = rl;
+					break;
+				}
 			}
 		}
 		
@@ -150,9 +159,18 @@ DBot.RegisterCommand({
 		let find = args[0].toLowerCase();
 		
 		for (let rl of msg.channel.guild.roles.array()) {
-			if (rl.name.toLowerCase().match(find)) {
+			if (rl.name.toLowerCase() == find) {
 				role = rl;
 				break;
+			}
+		}
+		
+		if (!role) {
+			for (let rl of msg.channel.guild.roles.array()) {
+				if (rl.name.toLowerCase().match(find)) {
+					role = rl;
+					break;
+				}
 			}
 		}
 		
@@ -212,9 +230,18 @@ DBot.RegisterCommand({
 		let find = args[0].toLowerCase();
 		
 		for (let rl of msg.channel.guild.roles.array()) {
-			if (rl.name.toLowerCase().match(find)) {
+			if (rl.name.toLowerCase() == find) {
 				role = rl;
 				break;
+			}
+		}
+		
+		if (!role) {
+			for (let rl of msg.channel.guild.roles.array()) {
+				if (rl.name.toLowerCase().match(find)) {
+					role = rl;
+					break;
+				}
 			}
 		}
 		
