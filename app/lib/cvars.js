@@ -85,7 +85,7 @@ class ConVar {
 			if (!data || !data[0]) {
 				MySQL.query('INSERT INTO cvar_' + me.realm + ' ("ID", "CVAR", "VALUE") VALUES (' + me.id + ', ' + Util.escape(me.name) + ', ' + Util.escape(utf8.encode(me.defValue)) + ')');
 			} else {
-				me.value = utf8.decode(data[0].VALUE);
+				me.value = data[0].VALUE;
 			}
 		});
 	}
