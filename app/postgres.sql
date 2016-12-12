@@ -1086,9 +1086,8 @@ END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION get_servers_id(sID CHAR(64)[])
 RETURNS TABLE ("ID" INTEGER, "UID" VARCHAR(64)) AS $$
-DECLARE missing_tab VARCHAR(64)[];
 BEGIN
-	missing_tab := ARRAY(SELECT (
+	WITH missing_tab AS (
 		WITH missing AS (
 			SELECT
 				UNNEST(sID) AS "MISSING"
@@ -1105,21 +1104,18 @@ BEGIN
 				server_id
 			WHERE
 				missing."MISSING" = server_id."UID"
-		) AND missing."MISSING" IS NOT NULL
-	));
+		)
+	)
 	
-	if (missing_tab[1] IS NOT NULL) THEN
-		INSERT INTO "server_id" ("UID") SELECT UNNEST(missing_tab);
-	END IF;
+	INSERT INTO "server_id" ("UID") SELECT * FROM missing_tab WHERE missing_tab."MISSING" IS NOT NULL;
 	
 	RETURN QUERY SELECT server_id."ID", TRIM(server_id."UID")::VARCHAR(64) FROM server_id WHERE server_id."UID" = ANY (sID);
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION get_users_id(sID CHAR(64)[])
 RETURNS TABLE ("ID" INTEGER, "UID" VARCHAR(64)) AS $$
-DECLARE missing_tab VARCHAR(64)[];
 BEGIN
-	missing_tab := ARRAY(SELECT (
+	WITH missing_tab AS (
 		WITH missing AS (
 			SELECT
 				UNNEST(sID) AS "MISSING"
@@ -1136,12 +1132,10 @@ BEGIN
 				user_id
 			WHERE
 				missing."MISSING" = user_id."UID"
-		) AND missing."MISSING" IS NOT NULL
-	));
+		)
+	)
 	
-	if (missing_tab[1] IS NOT NULL) THEN
-		INSERT INTO "user_id" ("UID") SELECT UNNEST(missing_tab);
-	END IF;
+	INSERT INTO "user_id" ("UID") SELECT * FROM missing_tab WHERE missing_tab."MISSING" IS NOT NULL;
 	
 	RETURN QUERY SELECT user_id."ID", TRIM(user_id."UID")::VARCHAR(64) FROM user_id WHERE user_id."UID" = ANY (sID);
 END; $$ LANGUAGE plpgsql;
@@ -1170,7 +1164,7 @@ BEGIN
 			WHERE
 				missing."MISSING_CHANNEL" = channel_id."UID" AND
 				missing."MISSING_SERVER" = channel_id."SID"
-		) AND missing."MISSING_CHANNEL" IS NOT NULL
+		)
 	)
 	
 	INSERT INTO "channel_id" ("UID", "SID") SELECT * FROM missing_tab WHERE missing_tab."MISSING_CHANNEL" IS NOT NULL;
@@ -1202,7 +1196,7 @@ BEGIN
 			WHERE
 				missing."MISSING_USER" = member_id."USER" AND
 				missing."MISSING_SERVER" = member_id."SERVER"
-		) AND missing."MISSING_USER" IS NOT NULL
+		)
 	)
 	
 	INSERT INTO "member_id" ("USER", "SERVER") SELECT * FROM missing_tab WHERE missing_tab."MISSING_USER" IS NOT NULL AND missing_tab."MISSING_SERVER" IS NOT NULL;
