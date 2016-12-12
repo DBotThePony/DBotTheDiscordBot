@@ -21,7 +21,7 @@ module.exports = {
 	argNeeded: true,
 	allowUserArgument: true,
 	
-	help_args: '<user>',
+	help_args: '<url or user>',
 	desc: '<TRIGGERED>',
 	
 	func: function(args, cmd, msg) {
@@ -92,7 +92,7 @@ DBot.RegisterCommand({
 	argNeeded: true,
 	allowUserArgument: true,
 	
-	help_args: '<user>',
+	help_args: '<url or user>',
 	desc: '<TRIGGERED> variation 2',
 	
 	func: function(args, cmd, msg) {
@@ -163,7 +163,7 @@ DBot.RegisterCommand({
 	argNeeded: true,
 	allowUserArgument: true,
 	
-	help_args: '<user>',
+	help_args: '<url or user>',
 	desc: '<TRIGGERED> variation 3',
 	
 	func: function(args, cmd, msg) {
