@@ -229,6 +229,18 @@ DBot.GetUserServers = function(user) {
 	return servers;
 }
 
+DBot.GetMembers = function() {
+	let members = [];
+	
+	for (let server of DBot.bot.guilds.array()) {
+		for (let member of server.members.array()) {
+			members.push(member);
+		}
+	}
+	
+	return members;
+}
+
 DBot.RefreshData = function() {
 	hook.Run('Refresh');
 }

@@ -33,7 +33,18 @@ pgConnection.oldQuery = pgConnection.query;
 pgConnection.query = function(query, callback) {
 	let oldStack = new Error().stack;
 	
+	let finished = false;
+	
+	setTimeout(function() {
+		if (finished)
+			return;
+		
+		// console.error('SLOW QUERY: ' + query);
+	}, 6000);
+	
 	pgConnection.oldQuery(query, function(err, data) {
+		finished = true;
+		
 		if (err) {
 			if (!callback) {
 				let newErr = new Error(err.message + '\n' + query);
@@ -327,14 +338,14 @@ DBot.DefineUser = function(user) {
 	});
 }
 
-let updateLastSeenFunc = function() {
+let updateLastSeenFunc = function(callback) {
 	let build = [];
 	
 	for (let uid in DBot.UsersIDs_R) {
 		build.push(uid);
 	}
 	
-	Postgre.query('SELECT uptdate_last_seen(' + sql.Array(build) + '::INTEGER[], ' + Math.floor(CurTime()) + ')');
+	Postgre.query('SELECT uptdate_last_seen(' + sql.Array(build) + '::INTEGER[], ' + Math.floor(CurTime()) + ')', callback);
 }
 
 setInterval(updateLastSeenFunc, 60000);
@@ -580,7 +591,16 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				hook.Run('ClientInitialized', user, id);
 			}
 			
-			updateLastSeenFunc();
+			let memberInit = false;
+			let updateInit = false;
+			
+			updateLastSeenFunc(function() {
+				hook.Run('UsersInitalized');
+				updateInit = true;
+				
+				if (memberInit)
+					hook.Run('MembersInitialized');
+			});
 			
 			let members1 = [];
 			let members2 = [];
@@ -632,6 +652,11 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 					if (!hit)
 						memberCache.push(member);
 				}
+				
+				memberInit = true;
+				
+				if (updateInit)
+					hook.Run('MembersInitialized');
 			});
 		});
 	});
