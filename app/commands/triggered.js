@@ -229,6 +229,7 @@ DBot.RegisterCommand({
 							'-draw', 'image over 0,512 0,0 "./resource/files/triggered.jpg"',
 						')',
 						
+						'-layers', 'Optimize',
 						'-set', 'delay', '2',
 						fpathProcessed
 					]);
