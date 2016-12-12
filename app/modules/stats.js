@@ -690,19 +690,24 @@ DBot.RegisterCommand({
 				
 				var continueFunc = function() {
 					msg.channel.stopTyping();
-					var output = '\nRank. Username. Total Phrases Said.\n';
+					
+					let output;
 					
 					if (args[0]) {
+						output = '\nRank. Username. Total Phrases Said.\n';
+					
 						for (var i in data) {
 							output += (Number(i) + 1) + '    <@' + data[i].USERID + '> --- ' + numeral(data[i].COUNT).format('0,0') + ' phrases (' + numeral(words[data[i].ID]).format('0,0') + ' total words said; ' + numeral(uwords[data[i].ID]).format('0,0') + ' unique words)\n';
 						}
 					} else {
+						output = '\nRank. Username. Total Phrases Said.\n```';
+						
 						for (var i in data) {
-							output += (Number(i) + 1) + '    ' + data[i].USERNAME + ' --- ' + numeral(data[i].COUNT).format('0,0') + ' phrases (' + numeral(words[data[i].ID]).format('0,0') + ' total words said; ' + numeral(uwords[data[i].ID]).format('0,0') + ' unique words)\n';
+							output += (Number(i) + 1) + '    ' + Util.AppendSpaces(data[i].USERNAME, 20) + ' --- ' + Util.AppendSpaces(numeral(data[i].COUNT).format('0,0'), 10) + ' phrases (' + numeral(words[data[i].ID]).format('0,0') + ' total words said; ' + numeral(uwords[data[i].ID]).format('0,0') + ' unique words)\n';
 						}
 					}
 					
-					msg.reply(output);
+					msg.reply(output + '```');
 				}
 				
 				for (let row of data) {
@@ -759,19 +764,23 @@ DBot.RegisterCommand({
 				
 				var continueFunc = function() {
 					msg.channel.stopTyping();
-					var output = '\nRank. Username. Total Phrases Said.\n';
+					let output;
 					
 					if (args[0]) {
+						output = '\nRank. Username. Total Phrases Said.\n';
+						
 						for (var i in data) {
 							output += (Number(i) + 1) + '    <@' + data[i].USERID + '> --- ' + numeral(data[i].COUNT).format('0,0') + ' phrases (' + numeral(words[data[i].ID]).format('0,0') + ' total words said; ' + numeral(uwords[data[i].ID]).format('0,0') + ' unique words)\n';
 						}
 					} else {
+						output = '\nRank. Username. Total Phrases Said.\n```';
+						
 						for (var i in data) {
-							output += (Number(i) + 1) + '    ' + data[i].USERNAME + ' --- ' + numeral(data[i].COUNT).format('0,0') + ' phrases (' + numeral(words[data[i].ID]).format('0,0') + ' total words said; ' + numeral(uwords[data[i].ID]).format('0,0') + ' unique words)\n';
+							output += (Number(i) + 1) + '    ' + Util.AppendSpaces(data[i].USERNAME, 20) + ' --- ' + Util.AppendSpaces(numeral(data[i].COUNT).format('0,0'), 10) + ' phrases (' + numeral(words[data[i].ID]).format('0,0') + ' total words said; ' + numeral(uwords[data[i].ID]).format('0,0') + ' unique words)\n';
 						}
 					}
 					
-					msg.reply(output);
+					msg.reply(output + '```');
 				}
 				
 				for (let row of data) {
