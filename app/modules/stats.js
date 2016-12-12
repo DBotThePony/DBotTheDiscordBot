@@ -100,7 +100,7 @@ DBot.RegisterCommand({
 			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__words_server WHERE "UID" = ' + ID + ';\
 			SELECT "COUNT" as "cnt" FROM stats__images_server WHERE "UID" = ' + ID + ';\
 			SELECT "COUNT" as "cnt" FROM stats__phrases_server WHERE "UID" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__command_server WHERE "UID" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__command_server WHERE "UID" = ' + ID + ';\
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_server WHERE "UID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1;\
 			SELECT "COUNT" as "cnt" FROM stats__phrases_server_d WHERE "UID" = ' + ID + ';\
 			SELECT "COUNT" as "cnt" FROM stats__phrases_server_e WHERE "UID" = ' + ID + ';\
@@ -111,7 +111,7 @@ DBot.RegisterCommand({
 			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__uwords_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT "COUNT" as "cnt" FROM stats__uimages_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1'+ ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_server_d WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID +  ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_server_e WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID +  ';\
@@ -125,15 +125,12 @@ DBot.RegisterCommand({
 					msg.channel.stopTyping();
 					
 					try {
-						for (let i = 0; i <= 6; i++) {
+						for (let i = 0; i <= 8; i++) {
 							uData[i] = uData[i] || [];
 							data[i] = data[i] || [];
 							uData[i][0] = uData[i][0] || {};
 							data[i][0] = data[i][0] || {};
 						}
-						
-						data = data || {};
-						uData = uData || {};
 						
 						let TotalChars = data[0].cnt || 0;
 						let TotalWordsSaid = data[1].cnt || 0;
@@ -211,7 +208,7 @@ DBot.RegisterCommand({
 			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__uwords_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT "COUNT" as "cnt" FROM stats__uimages_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1'+ ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_server_d WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID +  ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_server_e WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID +  ';\
@@ -222,12 +219,10 @@ DBot.RegisterCommand({
 				msg.channel.stopTyping();
 				
 				try {
-					for (let i = 0; i <= 6; i++) {
+					for (let i = 0; i <= 8; i++) {
 						uData[i] = uData[i] || [];
 						uData[i][0] = uData[i][0] || {};
 					}
-					
-					uData = uData || {};
 					
 					let TotalChars_USER = uData[0].cnt || 0;
 					let TotalWordsSaid_USER = uData[1].cnt || 0;
@@ -295,7 +290,7 @@ DBot.RegisterCommand({
 			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__words_channel WHERE "UID" = ' + ID +  ';\
 			SELECT "COUNT" as "cnt" FROM stats__images_channel WHERE "UID" = ' + ID +  ';\
 			SELECT "COUNT" as "cnt" FROM stats__phrases_channel WHERE "UID" = ' + ID +  ';\
-			SELECT "COUNT" as "cnt" FROM stats__command_channel WHERE "UID" = ' + ID +  ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__command_channel WHERE "UID" = ' + ID +  ';\
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_channel WHERE "UID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1' +  ';\
 			SELECT "COUNT" as "cnt" FROM stats__phrases_channel_d WHERE "UID" = ' + ID + ';\
 			SELECT "COUNT" as "cnt" FROM stats__phrases_channel_e WHERE "UID" = ' + ID + ';\
@@ -307,7 +302,7 @@ DBot.RegisterCommand({
 			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__uwords_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT "COUNT" as "cnt" FROM stats__uimages_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
-			SELECT "COUNT" as "cnt" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1' +  ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_channel_d WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_channel_e WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
@@ -318,15 +313,12 @@ DBot.RegisterCommand({
 					msg.channel.stopTyping();
 					
 					try {
-						for (let i = 0; i <= 6; i++) {
+						for (let i = 0; i <= 8; i++) {
 							uData[i] = uData[i] || [];
 							data[i] = data[i] || [];
 							uData[i][0] = uData[i][0] || {};
 							data[i][0] = data[i][0] || {};
 						}
-						
-						data = data || {};
-						uData = uData || {};
 						
 						let TotalChars = data[0].cnt || 0;
 						let TotalWordsSaid = data[1].cnt || 0;
@@ -401,7 +393,7 @@ DBot.RegisterCommand({
 			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__uwords_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT "COUNT" as "cnt" FROM stats__uimages_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
-			SELECT "COUNT" as "cnt" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1' +  ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_channel_d WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_channel_e WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
@@ -411,12 +403,10 @@ DBot.RegisterCommand({
 				msg.channel.stopTyping();
 				
 				try {
-					for (let i = 0; i <= 6; i++) {
+					for (let i = 0; i <= 8; i++) {
 						uData[i] = uData[i] || [];
 						uData[i][0] = uData[i][0] || {};
 					}
-					
-					uData = uData || {};
 					
 					let TotalChars_USER = uData[0].cnt || 0;
 					let TotalWordsSaid_USER = uData[1].cnt || 0;
@@ -504,7 +494,7 @@ DBot.RegisterCommand({
 			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__words_client WHERE "UID" = ' + ID + ';\
 			SELECT "COUNT" as "cnt" FROM stats__images_client WHERE "UID" = ' + ID + ';\
 			SELECT "COUNT" as "cnt" FROM stats__phrases_client WHERE "UID" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__command_client WHERE "UID" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__command_client WHERE "UID" = ' + ID + ';\
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_client  WHERE "UID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1;\
 			SELECT "COUNT" as "cnt" FROM stats__phrases_client_d WHERE "UID" = ' + ID + ';\
 			SELECT "COUNT" as "cnt" FROM stats__phrases_client_e WHERE "UID" = ' + ID + ';\
@@ -530,15 +520,15 @@ DBot.RegisterCommand({
 				msg.channel.stopTyping();
 				
 				try {
-					for (let i = 0; i <= 6; i++) {
+					data = data || {};
+					uData = uData || {};
+					
+					for (let i = 0; i <= 8; i++) {
 						uData[i] = uData[i] || [];
 						data[i] = data[i] || [];
 						uData[i][0] = uData[i][0] || {};
 						data[i][0] = data[i][0] || {};
 					}
-					
-					data = data || {};
-					uData = uData || {};
 					
 					let TotalChars = data[0].cnt || 0;
 					let TotalWordsSaid = data[1].cnt || 0;
@@ -610,7 +600,7 @@ DBot.RegisterCommand({
 			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__words_client WHERE "UID" = ' + ID + ';\
 			SELECT "COUNT" as "cnt" FROM stats__images_client WHERE "UID" = ' + ID + ';\
 			SELECT "COUNT" as "cnt" FROM stats__phrases_client WHERE "UID" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__command_client WHERE "UID" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__command_client WHERE "UID" = ' + ID + ';\
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_client  WHERE "UID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1;\
 			SELECT "COUNT" as "cnt" FROM stats__phrases_client_d WHERE "UID" = ' + ID + ';\
 			SELECT "COUNT" as "cnt" FROM stats__phrases_client_e WHERE "UID" = ' + ID + ';\
@@ -621,7 +611,7 @@ DBot.RegisterCommand({
 				msg.channel.stopTyping();
 				
 				try {
-					for (let i = 0; i <= 6; i++) {
+					for (let i = 0; i <= 8; i++) {
 						uData[i] = uData[i] || [];
 						uData[i][0] = uData[i][0] || {};
 					}
