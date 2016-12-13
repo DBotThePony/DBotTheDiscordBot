@@ -668,42 +668,42 @@ DBot.RegisterCommand({
 	name: 'top10',
 	alias: ['top', 'top20'],
 	
-	help_args: '[@mention]',
-	desc: 'Displays TOP10 of talkable persons on this server\nTo get associated user-ID table, type as argument "1"\n**W.A.R.N.I.N.G**: Associated table can trigger **mention spam**!',
-	delay: 10,
+	help_args: '[page]',
+	desc: 'Displays TOP10 of talkable persons on this server',
+	delay: 5,
 	
 	func: function(args, cmd, msg) {
 		if (DBot.IsPM(msg))
 			return 'Oh! This is PM x3';
 		
+		let page = Util.ToNumber(args[0]) || 1;
+		
+		let offset = (page - 1) * 20;
+		
 		msg.channel.startTyping();
 		
-		var ID = DBot.GetServerID(msg.channel.guild);
-		var query = 'SELECT user_id."UID" as "USERID", user_id."ID" as "ID", member_names."NAME" as "USERNAME", stats__uphrases_server."COUNT" as "COUNT" FROM user_id, member_names, stats__uphrases_server WHERE stats__uphrases_server."UID" = user_id."ID" AND member_names."ID" = user_id."ID" AND stats__uphrases_server."USERVER" = ' + ID + ' ORDER BY "COUNT" DESC LIMIT 20';
+		let ID = DBot.GetServerID(msg.channel.guild);
+		let query = 'SELECT user_id."UID" as "USERID", user_id."ID" as "ID", member_names."NAME" as "USERNAME", stats__uphrases_server."COUNT" as "COUNT" FROM user_id, member_names, stats__uphrases_server WHERE stats__uphrases_server."UID" = user_id."ID" AND member_names."ID" = user_id."ID" AND stats__uphrases_server."USERVER" = ' + ID + ' ORDER BY "COUNT" DESC OFFSET ' + offset + ' LIMIT 20';
 		
 		Postgres.query(query, function(err, data) {
 			try {
-				var total = 0;
-				var words = {};
-				var uwords = {};
+				if (!data[0]) {
+					msg.channel.stopTyping();
+					msg.reply('No data was returned in query');
+					return;
+				}
 				
-				var continueFunc = function() {
+				let total = 0;
+				let words = {};
+				let uwords = {};
+				
+				let continueFunc = function() {
 					msg.channel.stopTyping();
 					
-					let output;
+					let output = '\nRank. Username. Total Phrases Said.\n```';
 					
-					if (args[0]) {
-						output = '\nRank. Username. Total Phrases Said.\n';
-					
-						for (var i in data) {
-							output +=Util.AppendSpaces (Number(i) + 1, 4) + '<@' + data[i].USERID + '> --- ' + numeral(data[i].COUNT).format('0,0') + ' phrases (' + numeral(words[data[i].ID]).format('0,0') + ' total words said; ' + numeral(uwords[data[i].ID]).format('0,0') + ' unique words)\n';
-						}
-					} else {
-						output = '\nRank. Username. Total Phrases Said.\n```';
-						
-						for (var i in data) {
-							output += Util.AppendSpaces(Number(i) + 1, 4) + Util.AppendSpaces(data[i].USERNAME, 20) + ' --- ' + Util.AppendSpaces(numeral(data[i].COUNT).format('0,0') + ' phrases', 15) + ' (' + numeral(words[data[i].ID]).format('0,0') + ' total words said; ' + numeral(uwords[data[i].ID]).format('0,0') + ' unique words)\n';
-						}
+					for (let i in data) {
+						output += Util.AppendSpaces(Number(i) + 1 + (page - 1) * 20, 4) + Util.AppendSpaces(data[i].USERNAME, 20) + ' --- ' + Util.AppendSpaces(numeral(data[i].COUNT).format('0,0') + ' phrases', 15) + ' (' + numeral(words[data[i].ID]).format('0,0') + ' total words said; ' + numeral(uwords[data[i].ID]).format('0,0') + ' unique words)\n';
 					}
 					
 					msg.reply(output + '```');
@@ -743,41 +743,42 @@ DBot.RegisterCommand({
 	name: 'ctop10',
 	alias: ['ctop', 'ctop20'],
 	
-	help_args: '[@mention]',
-	desc: 'Displays TOP10 of talkable persons on this channel\nTo get associated user-ID table, type as argument "1"\n**W.A.R.N.I.N.G**: Associated table can trigger **mention spam**!',
-	delay: 10,
+	help_args: '[page]',
+	desc: 'Displays TOP10 of talkable persons on this channel',
+	delay: 5,
 	
 	func: function(args, cmd, msg) {
 		if (DBot.IsPM(msg))
 			return 'Oh! This is PM x3';
 		
-		var ID = DBot.GetChannelID(msg.channel);
-		var query = 'SELECT user_id."UID" as "USERID", user_id."ID" as "ID", member_names."NAME" as "USERNAME", stats__uphrases_channel."COUNT" as "COUNT" FROM user_id, member_names, stats__uphrases_channel WHERE stats__uphrases_channel."UID" = user_id."ID" AND member_names."ID" = user_id."ID" AND stats__uphrases_channel."CHANNEL" = ' + ID + ' ORDER BY "COUNT" DESC LIMIT 20';
+		let page = Util.ToNumber(args[0]) || 1;
+		
+		let offset = (page - 1) * 20;
+		
+		let ID = DBot.GetChannelID(msg.channel);
+		
+		let query = 'SELECT user_id."UID" as "USERID", user_id."ID" as "ID", member_names."NAME" as "USERNAME", stats__uphrases_channel."COUNT" as "COUNT" FROM user_id, member_names, stats__uphrases_channel WHERE stats__uphrases_channel."UID" = user_id."ID" AND member_names."ID" = user_id."ID" AND stats__uphrases_channel."CHANNEL" = ' + ID + ' ORDER BY "COUNT" DESC  OFFSET ' + offset + ' LIMIT 20';
 		
 		msg.channel.startTyping();
 		
 		Postgres.query(query, function(err, data) {
 			try {
-				var total = 0;
-				var words = {};
-				var uwords = {};
-				
-				var continueFunc = function() {
+				if (!data[0]) {
 					msg.channel.stopTyping();
-					let output;
+					msg.reply('No data was returned in query');
+					return;
+				}
+				
+				let total = 0;
+				let words = {};
+				let uwords = {};
+				
+				let continueFunc = function() {
+					msg.channel.stopTyping();
+					let output = '\nRank. Username. Total Phrases Said.\n```';
 					
-					if (args[0]) {
-						output = '\nRank. Username. Total Phrases Said.\n';
-						
-						for (var i in data) {
-							output += Util.AppendSpaces(Number(i) + 1, 5) + '<@' + data[i].USERID + '> --- ' + numeral(data[i].COUNT).format('0,0') + ' phrases (' + numeral(words[data[i].ID]).format('0,0') + ' total words said; ' + numeral(uwords[data[i].ID]).format('0,0') + ' unique words)\n';
-						}
-					} else {
-						output = '\nRank. Username. Total Phrases Said.\n```';
-						
-						for (var i in data) {
-							output += Util.AppendSpaces(Number(i) + 1, 5) + Util.AppendSpaces(data[i].USERNAME, 20) + ' --- ' + Util.AppendSpaces(numeral(data[i].COUNT).format('0,0') + ' phrases', 15) + ' (' + numeral(words[data[i].ID]).format('0,0') + ' total words said; ' + numeral(uwords[data[i].ID]).format('0,0') + ' unique words)\n';
-						}
+					for (let i in data) {
+						output += Util.AppendSpaces(Number(i) + 1 + (page - 1) * 20, 5) + Util.AppendSpaces(data[i].USERNAME, 20) + ' --- ' + Util.AppendSpaces(numeral(data[i].COUNT).format('0,0') + ' phrases', 15) + ' (' + numeral(words[data[i].ID]).format('0,0') + ' total words said; ' + numeral(uwords[data[i].ID]).format('0,0') + ' unique words)\n';
 					}
 					
 					msg.reply(output + '```');
