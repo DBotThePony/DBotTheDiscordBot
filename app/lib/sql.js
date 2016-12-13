@@ -524,15 +524,24 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 	let servers2 = bot.guilds;
 	
 	for (let server of servers) {
+		if (!server.id)
+			continue; // DiscordSocketTheBugFiner
+		
 		build.push(server.id);
 		
 		for (let member of server.members.array()) {
 			// members.push(member);
+			if (!member.user.id)
+				continue; // DiscordSocketTheBugFiner
+			
 			users1[member.user.id] = member.user;
 		}
 	}
 	
 	for (let i in users1) {
+		if (!users1[i].id)
+			continue; // DiscordSocketTheBugFiner
+		
 		users.push(users1[i].id);
 		LoadingUser[users1[i].id] = true;
 	}
