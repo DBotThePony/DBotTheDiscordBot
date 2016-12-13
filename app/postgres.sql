@@ -404,6 +404,37 @@ CREATE TABLE IF NOT EXISTS stats__uphrases_server (
 	PRIMARY KEY ("UID", "USERVER")
 );
 
+-- NUMBER is 1000 multipler
+CREATE TABLE IF NOT EXISTS stats__phrases_server_get (
+	"ENTRY" SERIAL PRIMARY KEY,
+	"MEMBER" INTEGER NOT NULL,
+	"NUMBER" INTEGER NOT NULL
+);
+
+CREATE OR REPLACE FUNCTION stats_trigger_get()
+RETURNS TRIGGER as $$
+DECLARE curr INTEGER;
+BEGIN
+	SELECT stats__phrases_server."COUNT" INTO curr FROM stats__phrases_server WHERE stats__phrases_server."UID" = NEW."USERVER";
+	
+	IF (curr % 1000 = 0 AND curr > 0) THEN
+		INSERT INTO stats__phrases_server_get ("MEMBER", "NUMER") VALUES (get_member_id_soft(NEW."UID", NEW."USERVER"), floor(curr / 1000));
+	END IF;
+	
+	RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS get_log ON stats__uphrases_server;
+DROP TRIGGER IF EXISTS get_log_insert ON stats__uphrases_server;
+
+CREATE TRIGGER get_log
+	AFTER UPDATE ON stats__uphrases_server FOR EACH ROW 
+	EXECUTE PROCEDURE stats_trigger_get();
+
+CREATE TRIGGER get_log_insert
+	AFTER INSERT ON stats__uphrases_server FOR EACH ROW 
+	EXECUTE PROCEDURE stats_trigger_get();
+
 CREATE TABLE IF NOT EXISTS stats__uphrases_server_d (
 	"UID" INTEGER NOT NULL,
 	"USERVER" INTEGER NOT NULL,
@@ -1298,6 +1329,19 @@ BEGIN
 	usr_internal_id := get_user_id(userid);
 	ser_internal_id := get_server_id(server);
 	
+	SELECT "member_id"."ID" INTO last_id FROM "member_id" WHERE "member_id"."USER" = usr_internal_id AND "member_id"."SERVER" = ser_internal_id;
+	
+	IF (last_id IS NULL) THEN
+		INSERT INTO "member_id" ("USER", "SERVER") VALUES (usr_internal_id, ser_internal_id) RETURNING "ID" INTO last_id;
+	END IF;
+	
+	RETURN last_id;
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_member_id_soft(usr_internal_id INTEGER, ser_internal_id INTEGER)
+RETURNS INTEGER AS $$
+DECLARE last_id INTEGER;
+BEGIN
 	SELECT "member_id"."ID" INTO last_id FROM "member_id" WHERE "member_id"."USER" = usr_internal_id AND "member_id"."SERVER" = ser_internal_id;
 	
 	IF (last_id IS NULL) THEN
