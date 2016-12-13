@@ -286,6 +286,9 @@ hook.Add('CheckValidMessage', 'MySQL.Checker', function(msg) {
 		} else if (!DBot.ChannelIsInitialized(msg.channel)) {
 			DBot.DefineChannel(msg.channel);
 			return true;
+		} else if (!msg.member) { // wtf
+			msg.channel.guild.fetchMembers();
+			return true;
 		} else if (!msg.member.uid) {
 			DBot.DefineMember(msg.member);
 			return true;
