@@ -46,6 +46,12 @@ BEGIN
 END
 $$;
 
+CREATE OR REPLACE FUNCTION currtime()
+RETURNS INTEGER AS $$
+BEGIN
+	return floor(extract(epoch from now()));
+END; $$ LANGUAGE plpgsql;
+
 CREATE TABLE IF NOT EXISTS font_ids (
 	"ID" SERIAL PRIMARY KEY,
 	"FONT" VARCHAR(256) NOT NULL
@@ -405,10 +411,11 @@ CREATE TABLE IF NOT EXISTS stats__uphrases_server (
 );
 
 -- NUMBER is 1000 multipler
-CREATE TABLE IF NOT EXISTS stats__phrases_server_get (
+CREATE TABLE IF NOT EXISTS stats__server_get (
 	"ENTRY" SERIAL PRIMARY KEY,
 	"MEMBER" INTEGER NOT NULL,
-	"NUMBER" INTEGER NOT NULL
+	"NUMBER" INTEGER NOT NULL,
+	"STAMP" INTEGER NOT NULL DEFAULT currtime()
 );
 
 CREATE OR REPLACE FUNCTION stats_trigger_get()
@@ -418,7 +425,7 @@ BEGIN
 	SELECT stats__phrases_server."COUNT" INTO curr FROM stats__phrases_server WHERE stats__phrases_server."UID" = NEW."USERVER";
 	
 	IF (curr % 1000 = 0 AND curr > 0) THEN
-		INSERT INTO stats__phrases_server_get ("MEMBER", "NUMBER") VALUES (get_member_id_soft(NEW."UID", NEW."USERVER"), floor(curr / 1000));
+		INSERT INTO stats__server_get ("MEMBER", "NUMBER") VALUES (get_member_id_soft(NEW."UID", NEW."USERVER"), floor(curr / 1000));
 	END IF;
 	
 	RETURN NEW;
@@ -816,12 +823,6 @@ BEGIN
 			tags_defbans."SPACE"
 	ON CONFLICT DO NOTHING;
 			
-END; $$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION currtime()
-RETURNS INTEGER AS $$
-BEGIN
-	return floor(extract(epoch from now()));
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION roles_logger_trigger()

@@ -1,4 +1,8 @@
 
+const numeral = require('numeral');
+const moment = require('moment');
+const hDuration = require('humanize-duration');
+
 hook.Add('OnHumanMessage', 'Statistics', function(msg) {
 	let extra = msg.channel.guild != undefined && msg.channel.type != 'dm';
 	let Words = msg.content.split(/( |\n)+/gi);
@@ -71,8 +75,6 @@ hook.Add('CommandExecuted', 'Statistics', function(commandID, user, args, cmd, m
 		Postgres.query('SELECT stats_command(' + Util.escape(msg.author.id) + ', ' + Util.escape(commandID) + ');');
 	}
 });
-
-var numeral = require('numeral');
 
 DBot.RegisterCommand({
 	name: 'sstats',
@@ -1097,6 +1099,117 @@ DBot.RegisterCommand({
 			
 			for (let row of data) {
 				output += Util.AppendSpaces('<' + row.UID.trim() + '> ' + row.NAME, 60) + Util.AppendSpaces(numeral(row.TOTAL_PHRASES).format('0,0'), 15) + Util.AppendSpaces(numeral(row.TOTAL_CHARS).format('0,0'), 15) + Util.AppendSpaces(numeral(row.TOTAL_COMMANDS).format('0,0'), 10) + '\n'
+			}
+			
+			msg.reply(output + '```');
+		});
+	}
+});
+
+DBot.RegisterCommand({
+	name: 'gets',
+	
+	help_args: '',
+	desc: 'Users who GET a round message',
+	delay: 10,
+	
+	func: function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'Onoh! It is PM! ;n;';
+		
+		msg.channel.startTyping();
+		
+		let fuckingQuery = `
+		SELECT
+			member_names."NAME" AS "NAME",
+			stats__server_get."NUMBER" AS "NUMBER",
+			stats__server_get."STAMP" AS "STAMP"
+		FROM
+			member_names,
+			member_id,
+			stats__server_get
+		WHERE
+			member_names."ID" = stats__server_get."MEMBER" AND
+			member_id."ID" = stats__server_get."MEMBER" AND
+			member_id."SERVER" = ${msg.channel.guild.uid}
+		ORDER BY
+			stats__server_get."ENTRY" DESC
+		LIMIT 10
+		`;
+		
+		Postgres.query(fuckingQuery, function(err, data) {
+			msg.channel.stopTyping();
+			
+			if (err) {
+				msg.reply('What the fuck');
+				return;
+			}
+			
+			if (!data || !data[0]) {
+				msg.reply('No gets ;n;');
+				return;
+			}
+			
+			let output = '```' + Util.AppendSpaces('Username', 30) + Util.AppendSpaces('Get', 10) + Util.AppendSpaces('Date', 10) + '\n';
+			
+			for (let row of data) {
+				output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * 1000).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ')', 10) + '\n'
+			}
+			
+			msg.reply(output + '```');
+		});
+	}
+});
+
+DBot.RegisterCommand({
+	name: 'gets5',
+	
+	help_args: '',
+	desc: 'Users who GET a round message (5k)',
+	delay: 10,
+	
+	func: function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'Onoh! It is PM! ;n;';
+		
+		msg.channel.startTyping();
+		
+		let fuckingQuery = `
+		SELECT
+			member_names."NAME" AS "NAME",
+			stats__server_get."NUMBER" AS "NUMBER",
+			stats__server_get."STAMP" AS "STAMP"
+		FROM
+			member_names,
+			member_id,
+			stats__server_get
+		WHERE
+			stats__server_get."NUMBER" % 5 = 0 AND
+			member_names."ID" = stats__server_get."MEMBER" AND
+			member_id."ID" = stats__server_get."MEMBER" AND
+			member_id."SERVER" = ${msg.channel.guild.uid}
+		ORDER BY
+			stats__server_get."ENTRY" DESC
+		LIMIT 10
+		`;
+		
+		Postgres.query(fuckingQuery, function(err, data) {
+			msg.channel.stopTyping();
+			
+			if (err) {
+				msg.reply('What the fuck');
+				return;
+			}
+			
+			if (!data || !data[0]) {
+				msg.reply('No gets ;n;');
+				return;
+			}
+			
+			let output = '```' + Util.AppendSpaces('Username', 30) + Util.AppendSpaces('Get', 10) + Util.AppendSpaces('Date', 10) + '\n';
+			
+			for (let row of data) {
+				output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * 5000).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ')', 10) + '\n'
 			}
 			
 			msg.reply(output + '```');
