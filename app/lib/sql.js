@@ -509,7 +509,12 @@ hook.Add('ServerInitialized', 'MySQL.Saves', function(server, id) {
 
 DBot.DefineServer = DBot.DefineGuild;
 
+let LoadingLevel = 0;
+
 hook.Add('BotOnline', 'RegisterIDs', function(bot) {
+	if (LoadingLevel > 0)
+		return;
+	
 	let build = [];
 	let users = [];
 	let users1 = {};
@@ -532,8 +537,12 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 		LoadingUser[users1[i].id] = true;
 	}
 	
+	LoadingLevel = 5;
+	
 	Postgre.query('SELECT get_servers_id(' + sql.Array(build) + '::CHAR(64)[]);', function(err, data) {
 		if (err) throw err;
+		
+		LoadingLevel--;
 		let channels1 = [];
 		let channels2 = [];
 		let channel_map = [];
@@ -566,6 +575,8 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				throw err;
 			}
 			
+			LoadingLevel--;
+			
 			for (let row of data) {
 				let exp = row.get_channels_id.split(',');
 				let id = Number(exp[0].substr(1));
@@ -582,6 +593,8 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 		
 		Postgre.query('SELECT get_users_id(' + sql.Array(users) + '::CHAR(64)[]);', function(err, data) {
 			if (err) throw err;
+			
+			LoadingLevel--;
 			
 			let ctime = Math.floor(CurTime());
 			
@@ -606,6 +619,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			let updateInit = false;
 			
 			updateLastSeenFunc(function() {
+				LoadingLevel--;
 				hook.Run('UsersInitialized');
 				updateInit = true;
 				
@@ -633,6 +647,8 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 					console.log(q);
 					throw err;
 				}
+				
+				LoadingLevel--;
 				
 				for (let row of data) {
 					let exp = row.get_members_id.split(',');
