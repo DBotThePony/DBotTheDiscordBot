@@ -678,6 +678,9 @@ DBot.RegisterCommand({
 		
 		let page = Util.ToNumber(args[0]) || 1;
 		
+		if (page <= 0)
+			return DBot.CommandError('what', 'top10', args, 1);
+		
 		let offset = (page - 1) * 20;
 		
 		msg.channel.startTyping();
@@ -752,6 +755,9 @@ DBot.RegisterCommand({
 			return 'Oh! This is PM x3';
 		
 		let page = Util.ToNumber(args[0]) || 1;
+		
+		if (page <= 0)
+			return DBot.CommandError('what', 'top10', args, 1);
 		
 		let offset = (page - 1) * 20;
 		
