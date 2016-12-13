@@ -11,7 +11,7 @@ let Actions = {
 				total += server.roles.array().length;
 			}
 			
-			return 'Total roles on this server: ' + msg.channel.guild.roles.array().length + '\nTotal roles on all server: ' + total;
+			return 'Total roles on this server: **' + msg.channel.guild.roles.array().length + '**\nTotal roles on all server: **' + total + '**';
 		} else {
 			if (args[1] == 'list') {
 				let names = [];
@@ -153,7 +153,7 @@ let Actions = {
 			return 'Serving **' + num + '** members. To get unique amount of members, type `count users unique`';
 		} else {
 			if (args[1] == 'unique') {
-				return 'Serving ' + DBot.GetUsers().length + ' unique members!';
+				return 'Serving **' + DBot.GetUsers().length + '** unique members!';
 			} else if (args[1] == 'all' || args[1] == 'total') {
 				Postgres.query('SELECT COUNT(*) AS "COUNT" FROM user_id', function(err, data) {
 					if (err) {
