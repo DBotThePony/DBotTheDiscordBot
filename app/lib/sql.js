@@ -572,6 +572,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				let uid = exp[1].substr(0, exp[1].length - 1);
 				
 				let channel = channel_map[uid];
+				channel.uid = id;
 				DBot.ChannelIDs[uid] = id;
 				DBot.ChannelIDs_R[id] = channel;
 				

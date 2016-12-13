@@ -401,8 +401,8 @@ BEGIN
 	RETURN NEW;
 END; $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS get_log_images ON stats__uimages_channel;
-DROP TRIGGER IF EXISTS get_log_insert_images ON stats__uimages_channel;
+DROP TRIGGER IF EXISTS get_log ON stats__uimages_channel;
+DROP TRIGGER IF EXISTS get_log_insert ON stats__uimages_channel;
 
 CREATE TRIGGER get_log
 	AFTER UPDATE ON stats__uimages_channel FOR EACH ROW 
