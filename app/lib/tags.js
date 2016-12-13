@@ -19,30 +19,9 @@ DBot.CreateTagsSpace = function(space, defBans) {
 	DBot.tagCache.server[space] = {};
 	DBot.tagCache.client[space] = {};
 	DBot.tagCache.channel[space] = {};
+	let b = sql.Array(defBans);
 	
-	MySQL.query('SELECT tags_tables(\'' + space + '\')');
-	
-	finalInitQuery += '\
-		WITH valid_clients AS(\
-			SELECT\
-				last_seen."ID"\
-			FROM\
-				last_seen\
-			WHERE\
-				last_seen."TIME" > floor(extract(epoch from now())) - 120\
-		)\
-		\
-		INSERT INTO\
-			tags__' + space + '_client\
-			("uid", "tag")\
-			SELECT\
-				valid_clients."ID",\
-				UNNEST(' + sql.Array(defBans) + '::VARCHAR(64)[]) AS "TAG"\
-			FROM\
-				valid_clients\
-			WHERE NOT EXISTS\
-				(SELECT 1 AS "RESULT" FROM tags__' + space + '_client_init, valid_clients WHERE valid_clients."ID" = tags__' + space + '_client_init."uid" GROUP BY "RESULT");\
-	';
+	Postgre.query('INSERT INTO tags_defbans VALUES (' + Util.escape(space) + ', ' + b + ') ON CONFLICT ("SPACE") DO UPDATE SET "TAG" = ' + b);
 }
 
 class TagBase {
@@ -50,14 +29,20 @@ class TagBase {
 		if (!this.ready)
 			return;
 		
-		MySQL.query('INSERT INTO tags__' + this.space + '_' + this.realm + ' (UID, TAG) VALUES (' + Util.escape(this.uid) + ', ' + Util.escape(tag) + ')');
+		this.update();
+	}
+	
+	update() {
+		let b = sql.Array(this.bans);
+		
+		Postgre.query('UPDATE tags_list SET "TAG" = ' + b + ' WHERE "SPACE" = ' + Util.escape(this.space) + ' AND "REALM" = ' + Util.escape(this.realm) + ' AND "UID" = ' + this.uid);
 	}
 	
 	onUnBanned(tag) {
 		if (!this.ready)
 			return;
 		
-		MySQL.query('DELETE FROM tags__' + this.space + '_' + this.realm + ' WHERE UID = ' + Util.escape(this.uid) + ' AND TAG = ' + Util.escape(tag) + '');
+		this.update();
 	}
 	
 	addTag(tag) {
@@ -110,16 +95,15 @@ class TagBase {
 	}
 	
 	reset() {
-		var Me = this;
+		this.ready = false;
+		this.bans = [];
 		
-		MySQL.query('DELETE FROM tags__' + this.space + '_' + this.realm + ' WHERE UID = ' + Util.escape(this.uid), function(err, data) {
-			Me.bans = [];
-			var bans = Me.defBans;
-			
-			for (var i in bans) {
-				Me.banTag(bans[i]);
-			}
-		});
+		for (let b of this.defBans) {
+			this.banTag(b);
+		}
+		
+		this.ready = true;
+		this.update();
 	}
 	
 	simulateSelect(data) {
@@ -146,35 +130,41 @@ class TagBase {
 		if (noSelect)
 			return;
 		
-		let Me = this;
+		let self = this;
 		
 		if (!noInitChecks) {
-			let query = 'SELECT UID FROM tags__' + this.space + '_' + this.realm + '_init WHERE UID = ' + Util.escape(this.uid);
+			let query = 'SELECT "UID" FROM tags_init WHERE "UID" = \'' + this.uid + '\' AND "REALM" = \'' + this.realm + '\' AND "SPACE" = \'' + this.space + '\'';
+			
 			MySQL.query(query, function(err, data) {
 				if (!data[0]) {
-					Me.ready = true;
-					var bans = Me.defBans;
-					
-					for (var i in bans) {
-						Me.banTag(bans[i]);
+					for (let b of self.defBans) {
+						self.banTag(b);
 					}
 					
-					hook.Run('TagsInitialized', Me.realm, obj, Me.space, Me);
-					MySQL.query('INSERT INTO tags__' + Me.space + '_' + Me.realm + '_init (UID) VALUES (' + Util.escape(Me.uid) + ')');
+					self.ready = true;
+					self.update();
+					
+					hook.Run('TagsInitialized', self.realm, obj, self.space, self);
+					MySQL.query('INSERT INTO tags_init VALUES (\'' + self.uid + '\', \'' + self.realm + '\', \'' + self.space + '\')');
 				} else {
-					MySQL.query('SELECT TAG FROM tags__' + Me.space + '_' + Me.realm + ' WHERE UID = ' + Util.escape(Me.uid), function(err, data) {
-						for (var i in data) {
-							Me.banTag(data[i].TAG);
+					MySQL.query('SELECT UNNEST("TAG") AS "TAG" FROM tags_list WHERE "UID" = \'' + self.uid + '\' AND "REALM" = \'' + self.realm + '\' AND "SPACE" = \'' + self.space + '\'', function(err, data) {
+						for (let row of data) {
+							self.banTag(row.TAG);
 						}
 						
-						Me.ready = true;
-						hook.Run('TagsInitialized', Me.realm, obj, Me.space, Me);
+						self.ready = true;
+						hook.Run('TagsInitialized', self.realm, obj, self.space, self);
 					});
 				}
 			});
 		} else {
-			MySQL.query('SELECT TAG FROM tags__' + Me.space + '_' + Me.realm + ' WHERE UID = ' + Util.escape(Me.uid), function(err, data) {
-				Me.simulateSelect(data);
+			MySQL.query('SELECT UNNEST("TAG") AS "TAG" FROM tags_list WHERE "UID" = \'' + self.uid + '\' AND "REALM" = \'' + self.realm + '\' AND "SPACE" = \'' + self.space + '\'', function(err, data) {
+				for (let row of data) {
+					self.banTag(row.TAG);
+				}
+				
+				self.ready = true;
+				hook.Run('TagsInitialized', self.realm, obj, self.space, self);
 			});
 		}
 	}
@@ -259,7 +249,7 @@ hook.Add('UserInitialized', 'UserTags', function(obj) {
 });
 
 hook.Add('UsersInitialized', 'UserTags', function() {
-	Postgre.query(finalInitQuery, function(err, data) {
+	Postgre.query('SELECT init_tags();', function(err, data) {
 		if (err) throw err;
 		
 		init = true;
@@ -270,27 +260,31 @@ hook.Add('UsersInitialized', 'UserTags', function() {
 			mapping[user.uid] = user;
 		}
 		
-		for (var space in DBot.tags) {
-			let q = 'SELECT "uid", "tag" FROM tags__' + space + '_client, last_seen WHERE last_seen."TIME" > floor(extract(epoch from now())) - 120 AND UID = last_seen."ID"';
+		let q = 'SELECT "UID", "SPACE", UNNEST("TAG") AS "TAG" FROM tags_list, last_seen WHERE last_seen."TIME" > currtime() - 120 AND last_seen."ID" = tags_list."UID"';
+		
+		Postgre.query(q, function(err, data) {
+			if (err) throw err;
 			
-			Postgre.query(q, function(err, data) {
-				if (err) throw err;
+			let spaces = {};
+			
+			for (let row of data) {
+				if (!DBot.GetUser(row.UID))
+					continue; // wtf
 				
-				for (let row of data) {
-					if (!DBot.GetUser(row.uid))
-						continue;
-					
-					cache.client[space][row.uid] = cache.client[space][row.uid] || new TagBase(DBot.GetUser(row.uid), space, 'client', DBot.GetUserID, true, true);
-					
-					cache.client[space][row.uid].ready = false;
-					cache.client[space][row.uid].banTag(row.tag);
-				}
+				cache.client[row.SPACE][row.UID] = cache.client[row.SPACE][row.UID] || new TagBase(DBot.GetUser(row.UID), row.SPACE, 'client', DBot.GetUserID, true, true);
 				
-				for (let sp in cache.client[space]) {
-					cache.client[space][sp].ready = true;
+				cache.client[row.SPACE][row.UID].ready = false;
+				cache.client[row.SPACE][row.UID].banTag(row.TAG);
+				
+				spaces[row.SPACE] = true;
+			}
+			
+			for (let s in spaces) {
+				for (let sp in cache.client[s]) {
+					cache.client[s][sp].ready = true;
 				}
-			});
-		}
+			}
+		});
 	});
 });
 

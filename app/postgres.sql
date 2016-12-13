@@ -9,6 +9,10 @@ BEGIN
 		CREATE TYPE rgb_color AS (red SMALLINT, green SMALLINT, blue SMALLINT);
 	END IF;
 	
+	IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'discord_realm') THEN
+		CREATE TYPE discord_realm AS ENUM ('client', 'channel', 'server');
+	END IF;
+	
 	IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'discord_permission') THEN
 		CREATE TYPE discord_permission AS ENUM (
 			'CREATE_INSTANT_INVITE',
@@ -695,6 +699,100 @@ CREATE TABLE IF NOT EXISTS roles_changes_mention (
 	"STAMP" INTEGER NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS tags_list (
+	"UID" INTEGER NOT NULL,
+	"REALM" discord_realm NOT NULL,
+	"SPACE" VARCHAR(64) NOT NULL,
+	"TAG" VARCHAR(128)[] NOT NULL,
+	PRIMARY KEY ("UID", "REALM", "SPACE")
+);
+
+CREATE TABLE IF NOT EXISTS tags_defbans (
+	"SPACE" VARCHAR(64) NOT NULL,
+	"TAG" VARCHAR(128)[] NOT NULL,
+	PRIMARY KEY ("SPACE")
+);
+
+CREATE TABLE IF NOT EXISTS tags_init (
+	"UID" INTEGER NOT NULL,
+	"REALM" discord_realm NOT NULL,
+	"SPACE" VARCHAR(64) NOT NULL,
+	PRIMARY KEY ("UID", "SPACE", "REALM")
+);
+
+CREATE OR REPLACE FUNCTION init_tags()
+RETURNS void AS $$
+BEGIN
+	WITH valid AS (
+		SELECT
+			last_seen."ID"
+		FROM
+			last_seen
+		WHERE
+			last_seen."TIME" > currtime() - 120
+	)
+	
+	INSERT INTO
+		tags_list
+		SELECT
+			valid."ID",
+			'client' AS "REALM",
+			tags_defbans."SPACE",
+			tags_defbans."TAG"
+		FROM
+			valid,
+			tags_defbans
+		WHERE NOT EXISTS (
+			SELECT
+				1 AS "RESULT"
+			FROM
+				tags_init
+			WHERE
+				valid."ID" = tags_init."UID" AND
+				tags_init."REALM" = 'client' AND
+				tags_init."SPACE" = tags_defbans."SPACE"
+		);
+	
+	WITH valid AS (
+		SELECT
+			last_seen."ID"
+		FROM
+			last_seen
+		WHERE
+			last_seen."TIME" > currtime() - 120
+	)
+	
+	INSERT INTO
+		tags_init
+		SELECT
+			valid."ID",
+			'client' AS "REALM",
+			tags_defbans."SPACE"
+		FROM
+			valid,
+			tags_defbans
+		WHERE NOT EXISTS (
+			SELECT
+				1 AS "RESULT"
+			FROM
+				tags_init
+			WHERE
+				valid."ID" = tags_init."UID" AND
+				tags_init."REALM" = 'client' AND
+				tags_init."SPACE" = tags_defbans."SPACE"
+		) GROUP BY
+			valid."ID",
+			tags_defbans."SPACE"
+	ON CONFLICT DO NOTHING;
+			
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION currtime()
+RETURNS INTEGER AS $$
+BEGIN
+	return floor(extract(epoch from now()));
+END; $$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION roles_logger_trigger()
 RETURNS TRIGGER AS $$
 DECLARE curr_time INTEGER;
@@ -795,30 +893,33 @@ CREATE OR REPLACE FUNCTION tags_tables(fName VARCHAR(64))
 RETURNS void AS $$
 BEGIN
 	EXECUTE format('CREATE TABLE IF NOT EXISTS %I (
-		UID INTEGER NOT NULL
+		"UID" INTEGER NOT NULL PRIMARY KEY
 	);', CONCAT('tags__', fName, '_client_init'));
 	
 	EXECUTE format('CREATE TABLE IF NOT EXISTS %I (
-		UID INTEGER NOT NULL,
-		TAG VARCHAR(64) NOT NULL
+		"UID" INTEGER NOT NULL,
+		"TAG" VARCHAR(64) NOT NULL,
+		PRIMARY KEY ("UID", "TAG")
 	);', CONCAT('tags__', fName, '_client'));
 	
 	EXECUTE format('CREATE TABLE IF NOT EXISTS %I (
-		UID INTEGER NOT NULL
+		"UID" INTEGER NOT NULL PRIMARY KEY
 	);', CONCAT('tags__', fName, '_server_init'));
 	
 	EXECUTE format('CREATE TABLE IF NOT EXISTS %I (
-		UID INTEGER NOT NULL,
-		TAG VARCHAR(64) NOT NULL
+		"UID" INTEGER NOT NULL,
+		"TAG" VARCHAR(64) NOT NULL,
+		PRIMARY KEY ("UID", "TAG")
 	);', CONCAT('tags__', fName, '_server'));
 	
 	EXECUTE format('CREATE TABLE IF NOT EXISTS %I (
-		UID INTEGER NOT NULL
+		"UID" INTEGER NOT NULL PRIMARY KEY
 	);', CONCAT('tags__', fName, '_channel_init'));
 	
 	EXECUTE format('CREATE TABLE IF NOT EXISTS %I (
-		UID INTEGER NOT NULL,
-		TAG VARCHAR(64) NOT NULL
+		"UID" INTEGER NOT NULL,
+		"TAG" VARCHAR(64) NOT NULL,
+		PRIMARY KEY ("UID", "TAG")
 	);', CONCAT('tags__', fName, '_channel'));
 END; $$ LANGUAGE plpgsql;
 
