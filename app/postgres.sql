@@ -375,6 +375,44 @@ CREATE TABLE IF NOT EXISTS stats__uimages_channel (
 	PRIMARY KEY ("UID", "CHANNEL")
 );
 
+-- NUMBER is 1000 multipler
+CREATE TABLE IF NOT EXISTS stats__channel_get_image (
+	"ENTRY" SERIAL PRIMARY KEY,
+	"MEMBER" INTEGER NOT NULL,
+	"CHANNEL" INTEGER NOT NULL,
+	"NUMBER" INTEGER NOT NULL,
+	"STAMP" INTEGER NOT NULL DEFAULT currtime()
+);
+
+CREATE OR REPLACE FUNCTION stats_trigger_get_channel_image()
+RETURNS TRIGGER as $$
+DECLARE curr INTEGER;
+BEGIN
+	SELECT stats__images_channel."COUNT" INTO curr FROM stats__images_channel WHERE stats__images_channel."UID" = NEW."CHANNEL";
+	
+	IF (curr % 100 = 0 AND curr > 0) THEN
+		INSERT INTO
+			stats__channel_get_image
+			("MEMBER", "CHANNEL", "NUMBER")
+		VALUES
+			(get_member_id_soft(NEW."UID", get_server_from_channel(NEW."CHANNEL")), NEW."CHANNEL", floor(curr / 100));
+	END IF;
+	
+	RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS get_log_images ON stats__uimages_channel;
+DROP TRIGGER IF EXISTS get_log_insert_images ON stats__uimages_channel;
+
+CREATE TRIGGER get_log
+	AFTER UPDATE ON stats__uimages_channel FOR EACH ROW 
+	EXECUTE PROCEDURE stats_trigger_get_channel_image();
+
+CREATE TRIGGER get_log_insert
+	AFTER INSERT ON stats__uimages_channel FOR EACH ROW 
+	EXECUTE PROCEDURE stats_trigger_get_channel_image();
+
+
 CREATE TABLE IF NOT EXISTS stats__uimages_server (
 	"UID" INTEGER NOT NULL,
 	"USERVER" INTEGER NOT NULL,
@@ -382,12 +420,83 @@ CREATE TABLE IF NOT EXISTS stats__uimages_server (
 	PRIMARY KEY ("UID", "USERVER")
 );
 
+-- NUMBER is 1000 multipler
+CREATE TABLE IF NOT EXISTS stats__server_get_image (
+	"ENTRY" SERIAL PRIMARY KEY,
+	"MEMBER" INTEGER NOT NULL,
+	"NUMBER" INTEGER NOT NULL,
+	"STAMP" INTEGER NOT NULL DEFAULT currtime()
+);
+
+CREATE OR REPLACE FUNCTION stats_trigger_get_image()
+RETURNS TRIGGER as $$
+DECLARE curr INTEGER;
+BEGIN
+	SELECT stats__images_server."COUNT" INTO curr FROM stats__images_server WHERE stats__images_server."UID" = NEW."USERVER";
+	
+	IF (curr % 100 = 0 AND curr > 0) THEN
+		INSERT INTO stats__server_get_image ("MEMBER", "NUMBER") VALUES (get_member_id_soft(NEW."UID", NEW."USERVER"), floor(curr / 100));
+	END IF;
+	
+	RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS get_log ON stats__uimages_server;
+DROP TRIGGER IF EXISTS get_log_insert ON stats__uimages_server;
+
+CREATE TRIGGER get_log
+	AFTER UPDATE ON stats__uimages_server FOR EACH ROW 
+	EXECUTE PROCEDURE stats_trigger_get_image();
+
+CREATE TRIGGER get_log_insert
+	AFTER INSERT ON stats__uimages_server FOR EACH ROW 
+	EXECUTE PROCEDURE stats_trigger_get_image();
+
+
 CREATE TABLE IF NOT EXISTS stats__uphrases_channel (
 	"UID" INTEGER NOT NULL,
 	"CHANNEL" INTEGER NOT NULL,
 	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "CHANNEL")
 );
+
+-- NUMBER is 1000 multipler
+CREATE TABLE IF NOT EXISTS stats__channel_get (
+	"ENTRY" SERIAL PRIMARY KEY,
+	"MEMBER" INTEGER NOT NULL,
+	"CHANNEL" INTEGER NOT NULL,
+	"NUMBER" INTEGER NOT NULL,
+	"STAMP" INTEGER NOT NULL DEFAULT currtime()
+);
+
+CREATE OR REPLACE FUNCTION stats_trigger_get_channel()
+RETURNS TRIGGER as $$
+DECLARE curr INTEGER;
+BEGIN
+	SELECT stats__phrases_channel."COUNT" INTO curr FROM stats__phrases_channel WHERE stats__phrases_channel."UID" = NEW."CHANNEL";
+	
+	IF (curr % 1000 = 0 AND curr > 0) THEN
+		INSERT INTO
+			stats__channel_get
+			("MEMBER", "CHANNEL", "NUMBER")
+		VALUES
+			(get_member_id_soft(NEW."UID", get_server_from_channel(NEW."CHANNEL")), NEW."CHANNEL", floor(curr / 1000));
+	END IF;
+	
+	RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS get_log ON stats__uphrases_channel;
+DROP TRIGGER IF EXISTS get_log_insert ON stats__uphrases_channel;
+
+CREATE TRIGGER get_log
+	AFTER UPDATE ON stats__uphrases_channel FOR EACH ROW 
+	EXECUTE PROCEDURE stats_trigger_get_channel();
+
+CREATE TRIGGER get_log_insert
+	AFTER INSERT ON stats__uphrases_channel FOR EACH ROW 
+	EXECUTE PROCEDURE stats_trigger_get_channel();
+
 
 CREATE TABLE IF NOT EXISTS stats__uphrases_channel_d (
 	"UID" INTEGER NOT NULL,
@@ -1172,6 +1281,14 @@ BEGIN
 		INSERT INTO "channel_id" ("UID", "SID") VALUES (fUID, sID) RETURNING "ID" INTO last_id;
 	END IF;
 	
+	RETURN last_id;
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_server_from_channel(sID INTEGER)
+RETURNS INTEGER AS $$
+DECLARE last_id INTEGER;
+BEGIN
+	SELECT "channel_id"."SID" INTO last_id FROM "channel_id" WHERE "channel_id"."ID" = sID;
 	RETURN last_id;
 END; $$ LANGUAGE plpgsql;
 
