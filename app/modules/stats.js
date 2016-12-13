@@ -103,26 +103,26 @@ DBot.RegisterCommand({
 			let channels = Channels.length;
 			let users = Users.length;
 			
-			let q = 'SELECT "COUNT" as "cnt" FROM stats__chars_server WHERE "UID" = ' + ID + ';\
+			let q = 'SELECT SUM("COUNT") as "cnt" FROM stats__chars_server WHERE "UID" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__words_server WHERE "UID" = ' + ID + ';\
 			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__words_server WHERE "UID" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__images_server WHERE "UID" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__phrases_server WHERE "UID" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__images_server WHERE "UID" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_server WHERE "UID" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__command_server WHERE "UID" = ' + ID + ';\
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_server WHERE "UID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1;\
-			SELECT "COUNT" as "cnt" FROM stats__phrases_server_d WHERE "UID" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__phrases_server_e WHERE "UID" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_server_d WHERE "UID" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_server_e WHERE "UID" = ' + ID + ';\
 			';
 			
-			let qU = 'SELECT "COUNT" as "cnt" FROM stats__uchars_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
+			let qU = 'SELECT SUM("COUNT") as "cnt" FROM stats__uchars_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__uwords_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__uwords_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__uimages_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__uphrases_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__uimages_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__uphrases_server_d WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID +  ';\
-			SELECT "COUNT" as "cnt" FROM stats__uphrases_server_e WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID +  ';\
 			SELECT stats_get_rank(' + UID + ', ' + ID + ') AS "RANK";\
+			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_server_d WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID +  ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_server_e WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID +  ';\
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1;\
 			';
 			
@@ -160,9 +160,9 @@ DBot.RegisterCommand({
 						let TotalPhrasesSaid_USER = uData[4].cnt || 0;
 						let TotalCommandsExecuted_USER = uData[5].cnt || 0;
 						
-						let TotalPhrasesDeleted_USER = uData[6].cnt || 0;
-						let TotalPhrasesEdited_USER = uData[7].cnt || 0;
-						let RANK = uData[8].RANK || 0;
+						let TotalPhrasesDeleted_USER = uData[7].cnt || 0;
+						let TotalPhrasesEdited_USER = uData[8].cnt || 0;
+						let RANK = uData[6].RANK || 0;
 						let MostUsedCommand_USER = uData[9].COMMAND || '<unknown>';
 						let MostUsedCommand_count_USER = uData[9].summ || 0;
 						
@@ -214,15 +214,15 @@ DBot.RegisterCommand({
 		} else {
 			let UID = DBot.GetUserID(msg.author);
 			
-			let qU = 'SELECT "COUNT" as "cnt" FROM stats__uchars_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
+			let qU = 'SELECT SUM("COUNT") as "cnt" FROM stats__uchars_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__uwords_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__uwords_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__uimages_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__uphrases_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__uimages_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__uphrases_server_d WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID +  ';\
-			SELECT "COUNT" as "cnt" FROM stats__uphrases_server_e WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID +  ';\
 			SELECT stats_get_rank(' + UID + ', ' + ID + ') AS "RANK";\
+			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_server_d WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID +  ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_server_e WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID +  ';\
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1;\
 			';
 			
@@ -243,9 +243,9 @@ DBot.RegisterCommand({
 					let TotalPhrasesSaid_USER = uData[4].cnt || 0;
 					let TotalCommandsExecuted_USER = uData[5].cnt || 0;
 					
-					let TotalPhrasesDeleted_USER = uData[6].cnt || 0;
-					let TotalPhrasesEdited_USER = uData[7].cnt || 0;
-					let RANK = uData[8].RANK || 0;
+					let TotalPhrasesDeleted_USER = uData[7].cnt || 0;
+					let TotalPhrasesEdited_USER = uData[8].cnt || 0;
+					let RANK = uData[6].RANK || 0;
 					let MostUsedCommand_USER = uData[9].COMMAND || '<unknown>';
 					let MostUsedCommand_count_USER = uData[9].summ || 0;
 					
@@ -299,27 +299,27 @@ DBot.RegisterCommand({
 			let UID = DBot.GetUserID(msg.author);
 			
 			// Generic Server Stats
-			let q = 'SELECT "COUNT" as "cnt" FROM stats__chars_channel WHERE "UID" = ' + ID +  ';\
+			let q = 'SELECT SUM("COUNT") as "cnt" FROM stats__chars_channel WHERE "UID" = ' + ID +  ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__words_channel WHERE "UID" = ' + ID +  ';\
 			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__words_channel WHERE "UID" = ' + ID +  ';\
-			SELECT "COUNT" as "cnt" FROM stats__images_channel WHERE "UID" = ' + ID +  ';\
-			SELECT "COUNT" as "cnt" FROM stats__phrases_channel WHERE "UID" = ' + ID +  ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__images_channel WHERE "UID" = ' + ID +  ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_channel WHERE "UID" = ' + ID +  ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__command_channel WHERE "UID" = ' + ID +  ';\
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_channel WHERE "UID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1' +  ';\
-			SELECT "COUNT" as "cnt" FROM stats__phrases_channel_d WHERE "UID" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__phrases_channel_e WHERE "UID" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_channel_d WHERE "UID" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_channel_e WHERE "UID" = ' + ID + ';\
 			';
 			
 			// Channel Stats by user
-			let qU = 'SELECT "COUNT" as "cnt" FROM stats__uchars_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
+			let qU = 'SELECT SUM("COUNT") as "cnt" FROM stats__uchars_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__uwords_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__uwords_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
-			SELECT "COUNT" as "cnt" FROM stats__uimages_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
-			SELECT "COUNT" as "cnt" FROM stats__uphrases_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__uimages_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
-			SELECT "COUNT" as "cnt" FROM stats__uphrases_channel_d WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
-			SELECT "COUNT" as "cnt" FROM stats__uphrases_channel_e WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT stats_get_rank_channel(' + UID + ', ' + ID + ') AS "RANK";\
+			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_channel_d WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_channel_e WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1' +  ';\
 			';
 			
@@ -354,9 +354,9 @@ DBot.RegisterCommand({
 						let TotalPhrasesSaid_USER = uData[4].cnt || 0;
 						let TotalCommandsExecuted_USER = uData[5].cnt || 0;
 						
-						let TotalPhrasesDeleted_USER = uData[6].cnt || 0;
-						let TotalPhrasesEdited_USER = uData[7].cnt || 0;
-						let RANK = uData[8].RANK || 0;
+						let TotalPhrasesDeleted_USER = uData[7].cnt || 0;
+						let TotalPhrasesEdited_USER = uData[8].cnt || 0;
+						let RANK = uData[6].RANK || 0;
 						let MostUsedCommand_USER = uData[9].COMMAND || '<unknown>';
 						let MostUsedCommand_count_USER = uData[9].summ || 0;
 						
@@ -408,12 +408,12 @@ DBot.RegisterCommand({
 			let q = 'SELECT SUM("COUNT") as "cnt" FROM stats__uchars_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__uwords_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__uwords_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
-			SELECT "COUNT" as "cnt" FROM stats__uimages_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
-			SELECT "COUNT" as "cnt" FROM stats__uphrases_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__uimages_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_channel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
-			SELECT "COUNT" as "cnt" FROM stats__uphrases_channel_d WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
-			SELECT "COUNT" as "cnt" FROM stats__uphrases_channel_e WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT stats_get_rank_channel(' + UID + ', ' + ID + ') AS "RANK";\
+			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_channel_d WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_channel_e WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1' +  ';\
 			';
 			
@@ -433,9 +433,9 @@ DBot.RegisterCommand({
 					let TotalPhrasesSaid_USER = uData[4].cnt || 0;
 					let TotalCommandsExecuted_USER = uData[5].cnt || 0;
 					
-					let TotalPhrasesDeleted_USER = uData[6].cnt || 0;
-					let TotalPhrasesEdited_USER = uData[7].cnt || 0;
-					let RANK = uData[8].RANK || 0;
+					let TotalPhrasesDeleted_USER = uData[7].cnt || 0;
+					let TotalPhrasesEdited_USER = uData[8].cnt || 0;
+					let RANK = uData[6].RANK || 0;
 					let MostUsedCommand_USER = uData[9].COMMAND || '<unknown>';
 					let MostUsedCommand_count_USER = uData[9].summ || 0;
 					
@@ -509,15 +509,15 @@ DBot.RegisterCommand({
 			}
 			
 			let mQuery = '\
-			SELECT "COUNT" as "cnt" FROM stats__chars_client WHERE "UID" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__chars_client WHERE "UID" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__words_client WHERE "UID" = ' + ID + ';\
 			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__words_client WHERE "UID" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__images_client WHERE "UID" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__phrases_client WHERE "UID" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__images_client WHERE "UID" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_client WHERE "UID" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__command_client WHERE "UID" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__phrases_client_d WHERE "UID" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__phrases_client_e WHERE "UID" = ' + ID + ';\
 			SELECT stats_get_rank(' + ID + ') AS "RANK";\
+			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_client_d WHERE "UID" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_client_e WHERE "UID" = ' + ID + ';\
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_client  WHERE "UID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1;\
 			';
 			
@@ -570,9 +570,9 @@ DBot.RegisterCommand({
 					let TotalPhrasesSaid_USER = uData[4].cnt || 0;
 					let TotalCommandsExecuted_USER = uData[5].cnt || 0;
 					
-					let TotalPhrasesDeleted_USER = uData[6].cnt || 0;
-					let TotalPhrasesEdited_USER = uData[7].cnt || 0;
-					let RANK = uData[8].RANK || 0;
+					let TotalPhrasesDeleted_USER = uData[7].cnt || 0;
+					let TotalPhrasesEdited_USER = uData[8].cnt || 0;
+					let RANK = uData[6].RANK || 0;
 					let MostUsedCommand_USER = uData[9].COMMAND || '<unknown>';
 					let MostUsedCommand_count_USER = uData[9].summ || 0;
 					
@@ -618,15 +618,15 @@ DBot.RegisterCommand({
 		} else {
 			let ID = DBot.GetUserID(args[0]);
 			
-			let mQuery = 'SELECT "COUNT" as "cnt" FROM stats__chars_client WHERE "UID" = ' + ID + ';\
+			let mQuery = 'SELECT SUM("COUNT") as "cnt" FROM stats__chars_client WHERE "UID" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__words_client WHERE "UID" = ' + ID + ';\
 			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__words_client WHERE "UID" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__images_client WHERE "UID" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__phrases_client WHERE "UID" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__images_client WHERE "UID" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_client WHERE "UID" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__command_client WHERE "UID" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__phrases_client_d WHERE "UID" = ' + ID + ';\
-			SELECT "COUNT" as "cnt" FROM stats__phrases_client_e WHERE "UID" = ' + ID + ';\
 			SELECT stats_get_rank(' + ID + ') AS "RANK";\
+			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_client_d WHERE "UID" = ' + ID + ';\
+			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_client_e WHERE "UID" = ' + ID + ';\
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_client  WHERE "UID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1;\
 			';
 			
@@ -647,9 +647,9 @@ DBot.RegisterCommand({
 					let TotalPhrasesSaid_USER = uData[4].cnt || 0;
 					let TotalCommandsExecuted_USER = uData[5].cnt || 0;
 					
-					let TotalPhrasesDeleted_USER = uData[6].cnt || 0;
-					let TotalPhrasesEdited_USER = uData[7].cnt || 0;
-					let RANK = uData[8].RANK || 0;
+					let TotalPhrasesDeleted_USER = uData[7].cnt || 0;
+					let TotalPhrasesEdited_USER = uData[8].cnt || 0;
+					let RANK = uData[6].RANK || 0;
 					let MostUsedCommand_USER = uData[9].COMMAND || '<unknown>';
 					let MostUsedCommand_count_USER = uData[9].summ || 0;
 					
