@@ -147,12 +147,12 @@ module.exports = {
 			return 'Invalid board! 6.9';
 		
 		var ServerTags;
-		var ClientTags = DBot.UserTags(msg.author, 'derpibooru');
+		var ClientTags = DBot.UserTags(msg.author, '4chan');
 		var ChannelTags;
 		
 		if (!DBot.IsPM(msg)) {
-			ChannelTags = DBot.ChannelTags(msg.channel, 'derpibooru');
-			ServerTags = DBot.ServerTags(msg.channel.guild, 'derpibooru');
+			ChannelTags = DBot.ChannelTags(msg.channel, '4chan');
+			ServerTags = DBot.ServerTags(msg.channel.guild, '4chan');
 		}
 		
 		if (!(msg.channel.name || 'private').match('nsfw') && (ClientTags.isBanned(board) || ServerTags && ServerTags.isBanned(board) || ChannelTags && ChannelTags.isBanned(board)))
