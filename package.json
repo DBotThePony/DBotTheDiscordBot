@@ -19,6 +19,7 @@
 		"figlet": "latest",
 		"unirest": "latest",
 		"humanize-duration": "latest",
+		"xml2js": "latest",
 		"pg": "latest"
 	}
 }
