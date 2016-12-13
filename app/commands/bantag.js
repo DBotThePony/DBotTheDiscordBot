@@ -235,11 +235,11 @@ DBot.RegisterCommand({
 				return 'What you are trying to do with this in PM? x3';
 			
 			if (realm == 'client') {
-				return 'Banned tags from you in ' + space + ': ```' + DBot.UserTags(msg.author, space).bans.join(', ');
+				return 'Banned tags from you in ' + space + ': ```' + DBot.UserTags(msg.author, space).bans.join(', ') + '```';
 			} else if (realm == 'channel') {
-				return 'Banned tags from this channel in ' + space + ': ' + DBot.ChannelTags(msg.channel, space).bans.join(', ');
+				return 'Banned tags from this channel in ' + space + ': ```' + DBot.ChannelTags(msg.channel, space).bans.join(', ') + '```';
 			} else if (realm == 'server') {
-				return 'Banned tags from this server in ' + space + ': ' + DBot.ServerTags(msg.channel.guild, space).bans.join(', ');
+				return 'Banned tags from this server in ' + space + ': ```' + DBot.ServerTags(msg.channel.guild, space).bans.join(', ') + '```';
 			}
 		} else {
 			let space = args[1];
@@ -252,7 +252,7 @@ DBot.RegisterCommand({
 			if (!DBot.tags[space])
 				return DBot.CommandError('Invalid space. Valid are: ' + DBot.ValidTagSpaces(), 'listtag', args, 1);
 			
-			return 'Banned tags from you in ' + space + ': ```' + DBot.UserTags(msg.author, space).bans.join(', ');
+			return 'Banned tags from you in ' + space + ': ```' + DBot.UserTags(msg.author, space).bans.join(', ') + '```';
 		}
 	}
 });
