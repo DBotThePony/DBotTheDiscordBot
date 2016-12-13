@@ -2,15 +2,12 @@
 const child_process = require('child_process');
 const spawn = child_process.spawn;
 const URL = require('url');
-var unirest = require('unirest');
-var fs = DBot.fs;
+const unirest = require('unirest');
+const fs = DBot.fs;
 
-fs.stat(DBot.WebRoot + '/reflect', function(err, stat) {
-	if (!stat)
-		fs.mkdirSync(DBot.WebRoot + '/reflect');
-});
+Util.mkdir(DBot.WebRoot + '/reflect');
 
-var allowed = [
+const allowed = [
 	'jpeg',
 	'jpg',
 	'png',
@@ -20,7 +17,7 @@ var allowed = [
 
 let fn = function(name, toUse) {
 	return function(args, cmd, msg) {
-		var url = args[0];
+		let url = args[0];
 		
 		if (typeof(url) == 'object') {
 			url = url.avatarURL;
@@ -34,37 +31,31 @@ let fn = function(name, toUse) {
 			url = DBot.LastURLImageInChannel(msg.channel);
 			
 			if (!url) {
-				return 'Invalid url maybe? ;w;' + Util.HighlightHelp([name], 2, args);
+				return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 			}
 		}
 		
-		var hash = DBot.HashString(url);
-		var uObj = URL.parse(url);
-		var path = uObj.pathname;
-		var split = path.split('.');
-		var ext = split[split.length - 1].toLowerCase();
+		let hash = DBot.HashString(url);
+		let uObj = URL.parse(url);
+		let path = uObj.pathname;
+		let split = path.split('.');
+		let ext = split[split.length - 1].toLowerCase();
 		
 		if (!DBot.HaveValue(allowed, ext))
-			return 'Invalid url maybe? ;w;' + Util.HighlightHelp([name], 2, args);
+			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 		
-		var fPath = DBot.WebRoot + '/reflect/' + hash + '.' + ext;
-		var fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_' + toUse + '.' + ext;
-		var fPathProcessedURL = DBot.URLRoot + '/reflect/' + hash + '_' + toUse + '.' + ext;
+		let fPath = DBot.WebRoot + '/reflect/' + hash + '.' + ext;
+		let fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_' + toUse + '.' + ext;
+		let fPathProcessedURL = DBot.URLRoot + '/reflect/' + hash + '_' + toUse + '.' + ext;
 		
-		var ContinueFunc = function() {
+		let ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
 				if (stat && stat.isFile()) {
 					msg.reply(fPathProcessedURL);
 				} else {
-					var magik = spawn('bash', ['./resource/scripts/reflect', fPath]);
+					let magik = spawn('bash', ['./resource/scripts/reflect', fPath]);
 					
-					magik.stderr.on('data', function(data) {
-						console.error(data.toString());
-					});
-					
-					magik.stdout.on('data', function(data) {
-						console.log(data.toString());
-					});
+					Util.Redirect(magik);
 					
 					magik.on('close', function(code) {
 						if (code == 0) {
@@ -90,7 +81,7 @@ let fn = function(name, toUse) {
 				unirest.get(url)
 				.encoding(null)
 				.end(function(result) {
-					var body = result.raw_body;
+					let body = result.raw_body;
 					
 					if (!body)
 						return;
@@ -144,7 +135,7 @@ DBot.RegisterCommand({
 
 let fn2 = function(name, toUse, dir) {
 	return function(args, cmd, msg) {
-		var url = args[0];
+		let url = args[0];
 		
 		if (typeof(url) == 'object') {
 			url = url.avatarURL;
@@ -158,40 +149,34 @@ let fn2 = function(name, toUse, dir) {
 			url = DBot.LastURLImageInChannel(msg.channel);
 			
 			if (!url) {
-				return 'Invalid url maybe? ;w;' + Util.HighlightHelp([name], 2, args);
+				return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 			}
 		}
 		
-		var hash = DBot.HashString(url);
-		var uObj = URL.parse(url);
-		var path = uObj.pathname;
-		var split = path.split('.');
-		var ext = split[split.length - 1].toLowerCase();
+		let hash = DBot.HashString(url);
+		let uObj = URL.parse(url);
+		let path = uObj.pathname;
+		let split = path.split('.');
+		let ext = split[split.length - 1].toLowerCase();
 		
 		if (!DBot.HaveValue(allowed, ext))
-			return 'Invalid url maybe? ;w;' + Util.HighlightHelp([name], 2, args);
+			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 		
-		var fPath;
-		var fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_' + toUse + '.png';
-		var fPathProcessedURL = DBot.URLRoot + '/reflect/' + hash + '_' + toUse + '.png';
+		let fPath;
+		let fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_' + toUse + '.png';
+		let fPathProcessedURL = DBot.URLRoot + '/reflect/' + hash + '_' + toUse + '.png';
 		
 		msg.channel.startTyping();
 		
-		var ContinueFunc = function() {
+		let ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);
 				} else {
-					var magik = spawn('bash', ['./resource/scripts/mirrorize', '-r', dir, fPath, fPathProcessed]);
+					let magik = spawn('bash', ['./resource/scripts/mirrorize', '-r', dir, fPath, fPathProcessed]);
 					
-					magik.stderr.on('data', function(data) {
-						console.error(data.toString());
-					});
-					
-					magik.stdout.on('data', function(data) {
-						console.log(data.toString());
-					});
+					Util.Redirect(magik);
 					
 					magik.on('close', function(code) {
 						if (code == 0) {
@@ -240,7 +225,7 @@ DBot.RegisterCommand({
 
 let fn3 = function(name) {
 	return function(args, cmd, msg) {
-		var url = args[0];
+		let url = args[0];
 		
 		if (typeof(url) == 'object') {
 			url = url.avatarURL;
@@ -254,40 +239,34 @@ let fn3 = function(name) {
 			url = DBot.LastURLImageInChannel(msg.channel);
 			
 			if (!url) {
-				return 'Invalid url maybe? ;w;' + Util.HighlightHelp([name], 2, args);
+				return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 			}
 		}
 		
-		var hash = DBot.HashString(url);
-		var uObj = URL.parse(url);
-		var path = uObj.pathname;
-		var split = path.split('.');
-		var ext = split[split.length - 1].toLowerCase();
+		let hash = DBot.HashString(url);
+		let uObj = URL.parse(url);
+		let path = uObj.pathname;
+		let split = path.split('.');
+		let ext = split[split.length - 1].toLowerCase();
 		
 		if (!DBot.HaveValue(allowed, ext))
-			return 'Invalid url maybe? ;w;' + Util.HighlightHelp([name], 2, args);
+			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 		
-		var fPath;
-		var fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_' + name + '.png';
-		var fPathProcessedURL = DBot.URLRoot + '/reflect/' + hash + '_' + name + '.png';
+		let fPath;
+		let fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_' + name + '.png';
+		let fPathProcessedURL = DBot.URLRoot + '/reflect/' + hash + '_' + name + '.png';
 		
 		msg.channel.startTyping();
 		
-		var ContinueFunc = function() {
+		let ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);
 				} else {
-					var magik = spawn('convert', [fPath, '-' + name, fPathProcessed]);
+					let magik = spawn('convert', [fPath, '-' + name, fPathProcessed]);
 					
-					magik.stderr.on('data', function(data) {
-						console.error(data.toString());
-					});
-					
-					magik.stdout.on('data', function(data) {
-						console.log(data.toString());
-					});
+					Util.Redirect(magik);
 					
 					magik.on('close', function(code) {
 						if (code == 0) {
