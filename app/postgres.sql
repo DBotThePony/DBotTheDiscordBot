@@ -889,40 +889,6 @@ BEGIN
 	UPDATE last_seen SET "TIME" = cTime WHERE "ID" = ANY(user_ids);
 END; $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION tags_tables(fName VARCHAR(64))
-RETURNS void AS $$
-BEGIN
-	EXECUTE format('CREATE TABLE IF NOT EXISTS %I (
-		"UID" INTEGER NOT NULL PRIMARY KEY
-	);', CONCAT('tags__', fName, '_client_init'));
-	
-	EXECUTE format('CREATE TABLE IF NOT EXISTS %I (
-		"UID" INTEGER NOT NULL,
-		"TAG" VARCHAR(64) NOT NULL,
-		PRIMARY KEY ("UID", "TAG")
-	);', CONCAT('tags__', fName, '_client'));
-	
-	EXECUTE format('CREATE TABLE IF NOT EXISTS %I (
-		"UID" INTEGER NOT NULL PRIMARY KEY
-	);', CONCAT('tags__', fName, '_server_init'));
-	
-	EXECUTE format('CREATE TABLE IF NOT EXISTS %I (
-		"UID" INTEGER NOT NULL,
-		"TAG" VARCHAR(64) NOT NULL,
-		PRIMARY KEY ("UID", "TAG")
-	);', CONCAT('tags__', fName, '_server'));
-	
-	EXECUTE format('CREATE TABLE IF NOT EXISTS %I (
-		"UID" INTEGER NOT NULL PRIMARY KEY
-	);', CONCAT('tags__', fName, '_channel_init'));
-	
-	EXECUTE format('CREATE TABLE IF NOT EXISTS %I (
-		"UID" INTEGER NOT NULL,
-		"TAG" VARCHAR(64) NOT NULL,
-		PRIMARY KEY ("UID", "TAG")
-	);', CONCAT('tags__', fName, '_channel'));
-END; $$ LANGUAGE plpgsql;
-
 CREATE OR REPLACE FUNCTION stats_hit(user_id_raw VARCHAR(64), message_length INTEGER, words VARCHAR(64)[], images_seneded INTEGER)
 RETURNS void AS $$
 DECLARE user_id INTEGER;
