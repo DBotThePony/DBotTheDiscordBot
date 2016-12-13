@@ -133,9 +133,12 @@ class TagBase {
 		let self = this;
 		
 		if (!noInitChecks) {
-			let query = 'SELECT "UID" FROM tags_init WHERE "UID" = \'' + this.uid + '\' AND "REALM" = \'' + this.realm + '\' AND "SPACE" = \'' + this.space + '\'';
+			let query = 'INSERT INTO tags_list VALUES (\'' + this.uid + '\', \'' + this.realm + '\', \'' + this.space + '\', ARRAY []::VARCHAR(128)[]) ON CONFLICT DO NOTHING; SELECT "UID" FROM tags_init WHERE "UID" = \'' + this.uid + '\' AND "REALM" = \'' + this.realm + '\' AND "SPACE" = \'' + this.space + '\'';
 			
 			MySQL.query(query, function(err, data) {
+				if (err)
+					throw err;
+				
 				if (!data[0]) {
 					for (let b of self.defBans) {
 						self.banTag(b);
@@ -148,6 +151,9 @@ class TagBase {
 					MySQL.query('INSERT INTO tags_init VALUES (\'' + self.uid + '\', \'' + self.realm + '\', \'' + self.space + '\')');
 				} else {
 					MySQL.query('SELECT UNNEST("TAG") AS "TAG" FROM tags_list WHERE "UID" = \'' + self.uid + '\' AND "REALM" = \'' + self.realm + '\' AND "SPACE" = \'' + self.space + '\'', function(err, data) {
+						if (err)
+							throw err;
+						
 						for (let row of data) {
 							self.banTag(row.TAG);
 						}
@@ -159,6 +165,9 @@ class TagBase {
 			});
 		} else {
 			MySQL.query('SELECT UNNEST("TAG") AS "TAG" FROM tags_list WHERE "UID" = \'' + self.uid + '\' AND "REALM" = \'' + self.realm + '\' AND "SPACE" = \'' + self.space + '\'', function(err, data) {
+				if (err)
+					throw err;
+				
 				for (let row of data) {
 					self.banTag(row.TAG);
 				}
