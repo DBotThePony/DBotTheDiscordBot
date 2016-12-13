@@ -418,7 +418,7 @@ BEGIN
 	SELECT stats__phrases_server."COUNT" INTO curr FROM stats__phrases_server WHERE stats__phrases_server."UID" = NEW."USERVER";
 	
 	IF (curr % 1000 = 0 AND curr > 0) THEN
-		INSERT INTO stats__phrases_server_get ("MEMBER", "NUMER") VALUES (get_member_id_soft(NEW."UID", NEW."USERVER"), floor(curr / 1000));
+		INSERT INTO stats__phrases_server_get ("MEMBER", "NUMBER") VALUES (get_member_id_soft(NEW."UID", NEW."USERVER"), floor(curr / 1000));
 	END IF;
 	
 	RETURN NEW;
