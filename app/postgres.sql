@@ -1490,3 +1490,59 @@ BEGIN
 	
 	RETURN (SELECT "user_id"."UID" FROM "user_id" WHERE "user_id"."ID" = iuid);
 END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION stats_get_rank(userid INTEGER)
+RETURNS INTEGER as $$
+DECLARE urank INTEGER;
+DECLARE psaid INTEGER;
+BEGIN
+	SELECT "COUNT" INTO psaid FROM stats__phrases_client WHERE "UID" = userid;
+	
+	SELECT
+		COUNT(*) INTO urank
+	FROM
+		stats__phrases_client
+	WHERE
+		stats__phrases_client."COUNT" > psaid;
+	
+	urank = urank + 1;
+	RETURN urank;
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION stats_get_rank(userid INTEGER, serverid INTEGER)
+RETURNS INTEGER as $$
+DECLARE urank INTEGER;
+DECLARE psaid INTEGER;
+BEGIN
+	SELECT "COUNT" INTO psaid FROM stats__uphrases_server WHERE "UID" = userid AND "USERVER" = serverid;
+	
+	SELECT
+		COUNT(*) INTO urank
+	FROM
+		stats__uphrases_server
+	WHERE
+		stats__uphrases_server."COUNT" > psaid AND
+		"USERVER" = serverid;
+	
+	urank = urank + 1;
+	RETURN urank;
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION stats_get_rank_channel(userid INTEGER, channel INTEGER)
+RETURNS INTEGER as $$
+DECLARE urank INTEGER;
+DECLARE psaid INTEGER;
+BEGIN
+	SELECT "COUNT" INTO psaid FROM stats__uphrases_channel WHERE "UID" = userid AND "CHANNEL" = channel;
+	
+	SELECT
+		COUNT(*) INTO urank
+	FROM
+		stats__uphrases_channel
+	WHERE
+		stats__uphrases_channel."COUNT" > psaid AND
+		"CHANNEL" = channel;
+	
+	urank = urank + 1;
+	RETURN urank;
+END; $$ LANGUAGE plpgsql;

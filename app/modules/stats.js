@@ -123,6 +123,7 @@ DBot.RegisterCommand({
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1;\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_server_d WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID +  ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_server_e WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID +  ';\
+			SELECT stats_get_rank(' + UID + ', ' + ID + ') AS "RANK";\
 			';
 			
 			// Generic Server Stats
@@ -163,6 +164,7 @@ DBot.RegisterCommand({
 						let MostUsedCommand_count_USER = uData[6].summ || 0;
 						let TotalPhrasesDeleted_USER = uData[7].cnt || 0;
 						let TotalPhrasesEdited_USER = uData[8].cnt || 0;
+						let RANK = uData[9].RANK || 0;
 						
 						let output = '\n```';
 						
@@ -191,6 +193,7 @@ DBot.RegisterCommand({
 						
 						output += '------ Your stats on this server\n';
 						
+						output += 'Rank:                                     ' + numeral(RANK).format('0,0') + '\n';
 						output += 'Total chars printed:                      ' + numeral(TotalChars_USER).format('0,0') + '\n';
 						output += 'Total words said:                         ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
 						output += 'Total unique words said:                  ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
@@ -220,6 +223,7 @@ DBot.RegisterCommand({
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1;\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_server_d WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID +  ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_server_e WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID +  ';\
+			SELECT stats_get_rank(' + UID + ', ' + ID + ') AS "RANK";\
 			';
 			
 			// Server Stats by user
@@ -227,7 +231,7 @@ DBot.RegisterCommand({
 				msg.channel.stopTyping();
 				
 				try {
-					for (let i = 0; i <= 8; i++) {
+					for (let i = 0; i <= 9; i++) {
 						uData[i] = uData[i] || [];
 						uData[i][0] = uData[i][0] || {};
 					}
@@ -243,11 +247,13 @@ DBot.RegisterCommand({
 					let MostUsedCommand_count_USER = uData[6].summ || 0;
 					let TotalPhrasesDeleted_USER = uData[7].cnt || 0;
 					let TotalPhrasesEdited_USER = uData[8].cnt || 0;
+					let RANK = uData[9].RANK || 0;
 					
 					let output = '\n```';
 					
 					output += '------ @' + args[0].username + ' stats on this server\n';
 					
+					output += 'Rank:                                         ' + numeral(RANK).format('0,0') + '\n';
 					output += 'Total chars printed:                          ' + numeral(TotalChars_USER).format('0,0') + '\n';
 					output += 'Total words said:                             ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
 					output += 'Total unique words said:                      ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
@@ -314,6 +320,7 @@ DBot.RegisterCommand({
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1' +  ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_channel_d WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_channel_e WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
+			SELECT stats_get_rank_channel(' + UID + ', ' + ID + ') AS "RANK";\
 			';
 			
 			Postgres.query(q, function(err, data) {
@@ -321,7 +328,7 @@ DBot.RegisterCommand({
 					msg.channel.stopTyping();
 					
 					try {
-						for (let i = 0; i <= 8; i++) {
+						for (let i = 0; i <= 9; i++) {
 							uData[i] = uData[i] || [];
 							data[i] = data[i] || [];
 							uData[i][0] = uData[i][0] || {};
@@ -351,6 +358,7 @@ DBot.RegisterCommand({
 						let MostUsedCommand_count_USER = uData[6].summ || 0;
 						let TotalPhrasesDeleted_USER = uData[7].cnt || 0;
 						let TotalPhrasesEdited_USER = uData[8].cnt || 0;
+						let RANK = uData[9].RANK || 0;
 						
 						let output = '\n```';
 						
@@ -373,6 +381,7 @@ DBot.RegisterCommand({
 						
 						output += '------ Your stats on this channel\n';
 						
+						output += 'Rank:                                    ' + numeral(RANK).format('0,0') + '\n';
 						output += 'Total chars printed:                     ' + numeral(TotalChars_USER).format('0,0') + '\n';
 						output += 'Total words said:                        ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
 						output += 'Total unique words said:                 ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
@@ -405,13 +414,14 @@ DBot.RegisterCommand({
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1' +  ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_channel_d WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
 			SELECT "COUNT" as "cnt" FROM stats__uphrases_channel_e WHERE "UID" = ' + UID + ' AND "CHANNEL" = ' + ID +  ';\
+			SELECT stats_get_rank_channel(' + UID + ', ' + ID + ') AS "RANK";\
 			';
 			
 			Postgres.qeury(q, function(err, uData) {
 				msg.channel.stopTyping();
 				
 				try {
-					for (let i = 0; i <= 8; i++) {
+					for (let i = 0; i <= 9; i++) {
 						uData[i] = uData[i] || [];
 						uData[i][0] = uData[i][0] || {};
 					}
@@ -427,11 +437,13 @@ DBot.RegisterCommand({
 					let MostUsedCommand_count_USER = uData[6].summ || 0;
 					let TotalPhrasesDeleted_USER = uData[7].cnt || 0;
 					let TotalPhrasesEdited_USER = uData[8].cnt || 0;
+					let RANK = uData[9].RANK || 0;
 					
 					let output = '\n```';
 					
 					output += '------ @' + args[0].username + ' stats on this channel\n';
 					
+					output += 'Rank:                                       ' + numeral(RANK).format('0,0') + '\n';
 					output += 'Total chars printed:                        ' + numeral(TotalChars_USER).format('0,0') + '\n';
 					output += 'Total words said:                           ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
 					output += 'Total unique words said:                    ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
@@ -506,6 +518,7 @@ DBot.RegisterCommand({
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_client  WHERE "UID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1;\
 			SELECT "COUNT" as "cnt" FROM stats__phrases_client_d WHERE "UID" = ' + ID + ';\
 			SELECT "COUNT" as "cnt" FROM stats__phrases_client_e WHERE "UID" = ' + ID + ';\
+			SELECT stats_get_rank(' + ID + ') AS "RANK";\
 			';
 			
 			let mQueryG = '\
@@ -531,7 +544,7 @@ DBot.RegisterCommand({
 					data = data || {};
 					uData = uData || {};
 					
-					for (let i = 0; i <= 8; i++) {
+					for (let i = 0; i <= 9; i++) {
 						uData[i] = uData[i] || [];
 						data[i] = data[i] || [];
 						uData[i][0] = uData[i][0] || {};
@@ -561,6 +574,7 @@ DBot.RegisterCommand({
 					let MostUsedCommand_count_USER = uData[6].summ || 0;
 					let TotalPhrasesDeleted_USER = uData[7].cnt || 0;
 					let TotalPhrasesEdited_USER = uData[8].cnt || 0;
+					let RANK = uData[9].RANK || 0;
 					
 					let output = '\n```';
 					
@@ -581,6 +595,7 @@ DBot.RegisterCommand({
 					
 					output += '------ Your global stats\n';
 					
+					output += 'Global rank:                             ' + numeral(RANK).format('0,0') + '\n';
 					output += 'Total chars printed:                     ' + numeral(TotalChars_USER).format('0,0') + '\n';
 					output += 'Total words said:                        ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
 					output += 'Total unique words said:                 ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
@@ -612,6 +627,7 @@ DBot.RegisterCommand({
 			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_client  WHERE "UID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1;\
 			SELECT "COUNT" as "cnt" FROM stats__phrases_client_d WHERE "UID" = ' + ID + ';\
 			SELECT "COUNT" as "cnt" FROM stats__phrases_client_e WHERE "UID" = ' + ID + ';\
+			SELECT stats_get_rank(' + ID + ') AS "RANK";\
 			';
 			
 			// Global stats for user
@@ -619,7 +635,7 @@ DBot.RegisterCommand({
 				msg.channel.stopTyping();
 				
 				try {
-					for (let i = 0; i <= 8; i++) {
+					for (let i = 0; i <= 9; i++) {
 						uData[i] = uData[i] || [];
 						uData[i][0] = uData[i][0] || {};
 					}
@@ -635,11 +651,13 @@ DBot.RegisterCommand({
 					let MostUsedCommand_count_USER = uData[6].summ || 0;
 					let TotalPhrasesDeleted_USER = uData[7].cnt || 0;
 					let TotalPhrasesEdited_USER = uData[8].cnt || 0;
+					let RANK = uData[9].RANK || 0;
 					
 					let output = '\n```';
 					
 					output += '------ @' + args[0].username + ' global stats\n';
 					
+					output += 'Global rank:                            ' + numeral(RANK).format('0,0') + '\n';
 					output += 'Total chars printed:                    ' + numeral(TotalChars_USER).format('0,0') + '\n';
 					output += 'Total words said:                       ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
 					output += 'Total unique words said:                ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
