@@ -129,7 +129,7 @@ Util.StringRepeat = function(str, times) {
 }
 
 Util.AppendSpaces = function(str, target) {
-	return str + Util.StringRepeat(' ', target - str.length);
+	return str.toString() + Util.StringRepeat(' ', target - str.toString().length);
 }
 
 Util.AppendArrays = function(Dest, Source) {
