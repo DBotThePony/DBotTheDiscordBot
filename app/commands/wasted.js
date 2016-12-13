@@ -148,7 +148,7 @@ module.exports = {
 								'-weight', '300'
 							);
 							
-							magikArgs.push('-pointsize', String(Math.floor(signHeight * .8)), '-draw', 'text 0,' + (Math.floor(height / 2 - signHeight * .45)) + ' "WASTED"');
+							magikArgs.push('-pointsize', String(Math.floor(signHeight * .8)), '-draw', 'text 0,' + (Math.floor(height / 2 - signHeight * .45)) + ' "wasted"');
 							
 							magikArgs.push(fPathProcessed);
 							
