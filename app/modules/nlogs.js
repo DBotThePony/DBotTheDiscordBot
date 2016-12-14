@@ -156,8 +156,8 @@ DBot.RegisterCommand({
 					name_logs_list,
 					member_id
 				WHERE
-					name_logs_list."MEMBER" = member_id."ID" AND
-					member_id."SERVER" = ${msg.channel.guild.uid}
+					member_id."SERVER" = ${msg.channel.guild.uid} AND
+					name_logs_list."MEMBER" = member_id."ID"
 				ORDER BY name_logs_list."STAMP" DESC
 				LIMIT 10`;
 			
