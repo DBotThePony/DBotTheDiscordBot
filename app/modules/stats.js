@@ -680,22 +680,15 @@ DBot.RegisterCommand({
 	},
 });
 
-DBot.RegisterCommand({
-	name: 'top10',
-	alias: ['top', 'top20'],
-	
-	help_args: '[page]',
-	desc: 'Displays TOP10 of talkable persons on this server',
-	delay: 5,
-	
-	func: function(args, cmd, msg) {
+let top10fn = function(name, order) {
+	return function(args, cmd, msg) {
 		if (DBot.IsPM(msg))
 			return 'Oh! This is PM x3';
 		
 		let page = Util.ToNumber(args[0]) || 1;
 		
 		if (page <= 0)
-			return DBot.CommandError('what', 'top10', args, 1);
+			return DBot.CommandError('what', name, args, 1);
 		
 		let offset = (page - 1) * 20;
 		
@@ -730,7 +723,7 @@ DBot.RegisterCommand({
 				user_id."ID",
 				member_names."NAME",
 				stats__uphrases_server."COUNT"
-			ORDER BY "COUNT" DESC
+			ORDER BY "${order}" DESC
 			OFFSET ${offset} LIMIT 20`;
 		
 		Postgres.query(query, function(err, data) {
@@ -771,18 +764,44 @@ DBot.RegisterCommand({
 				msg.reply('<internal pony error>');
 			}
 		});
-	},
+	}
+}
+
+DBot.RegisterCommand({
+	name: 'top10',
+	alias: ['top', 'top20'],
+	
+	help_args: '[page]',
+	desc: 'Displays TOP10 of talkable persons on this server',
+	delay: 5,
+	
+	func: top10fn('top10', 'COUNT'),
 });
 
 DBot.RegisterCommand({
-	name: 'ctop10',
-	alias: ['ctop', 'ctop20'],
+	name: 'wtop10',
+	alias: ['wtop', 'wtop20'],
 	
 	help_args: '[page]',
-	desc: 'Displays TOP10 of talkable persons on this channel',
+	desc: 'Displays TOP10 of talkable persons on this server\nUses "Total Words said" as ranking',
 	delay: 5,
 	
-	func: function(args, cmd, msg) {
+	func: top10fn('wtop10', 'TOTAL_WORDS'),
+});
+
+DBot.RegisterCommand({
+	name: 'utop10',
+	alias: ['utop', 'utop20'],
+	
+	help_args: '[page]',
+	desc: 'Displays TOP10 of talkable persons on this server\nUses "Total Unique Words said" as ranking',
+	delay: 5,
+	
+	func: top10fn('utop10', 'TOTAL_UNIQUE_WORDS'),
+});
+
+let ctop10fn = function(name, order) {
+	return function(args, cmd, msg) {
 		if (DBot.IsPM(msg))
 			return 'Oh! This is PM x3';
 		
@@ -867,7 +886,40 @@ DBot.RegisterCommand({
 				msg.reply('<internal pony error>');
 			}
 		});
-	},
+	};
+}
+
+DBot.RegisterCommand({
+	name: 'ctop10',
+	alias: ['ctop', 'ctop20'],
+	
+	help_args: '[page]',
+	desc: 'Displays TOP10 of talkable persons on this channel',
+	delay: 5,
+	
+	func: ctop10fn('ctop10', 'COUNT'),
+});
+
+DBot.RegisterCommand({
+	name: 'wctop10',
+	alias: ['wctop', 'wctop20', 'cwtop', 'cwtop20'],
+	
+	help_args: '[page]',
+	desc: 'Displays TOP10 of talkable persons on this channel\nUses "Total words said" as ranking',
+	delay: 5,
+	
+	func: ctop10fn('wctop10', 'TOTAL_WORDS'),
+});
+
+DBot.RegisterCommand({
+	name: 'uctop10',
+	alias: ['uctop', 'uctop20', 'cutop', 'cutop20'],
+	
+	help_args: '[page]',
+	desc: 'Displays TOP10 of talkable persons on this channel\nUses "Total unique words said" as ranking',
+	delay: 5,
+	
+	func: ctop10fn('uctop10', 'TOTAL_UNIQUE_WORDS'),
 });
 
 var SPACES = function(len) {
