@@ -427,6 +427,9 @@ DBot.DefineRole = function(role) {
 }
 
 hook.Add('RoleChanged', 'MySQL.Handlers', function(oldRole, newRole) {
+	if (!oldRole.guild.uid)
+		return;
+	
 	newRole.uid = newRole.uid || oldRole.uid;
 	
 	if (!newRole.uid) {
