@@ -4,6 +4,9 @@ cvars.ServerVar('notify_join', 'Hello, %user%! Welcome to %server%! You are %num
 cvars.ServerVar('notify_left', '%user% left us alone ;n;', [], 'Leave message');
 
 hook.Add('HumanJoinsServer', 'Notifications', function(user, server, member) {
+	if (!DBot.ServerIsInitialized(server))
+		return;
+	
 	if (!cvars.Server(server).getVar('notifications').getBool())
 		return;
 	
@@ -22,6 +25,9 @@ hook.Add('HumanJoinsServer', 'Notifications', function(user, server, member) {
 });
 
 hook.Add('HumanLeftServer', 'Notifications', function(user, server, member) {
+	if (!DBot.ServerIsInitialized(server))
+		return;
+	
 	if (!cvars.Server(server).getVar('notifications').getBool())
 		return;
 	
