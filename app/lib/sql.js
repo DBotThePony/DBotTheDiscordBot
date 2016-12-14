@@ -381,6 +381,9 @@ DBot.DefineChannel = function(channel) {
 }
 
 hook.Add('ChannelInitialized', 'MySQL.Saves', function(channel, id) {
+	if (!channel.name)
+		return;
+	
 	MySQL.query('INSERT INTO channel_names ("ID", "NAME") VALUES (' + id + ', ' + Util.escape(channel.name) + ') ON CONFLICT ("ID") DO UPDATE SET "NAME" = ' + Util.escape(channel.name), function(err) {
 		if (!err)
 			return;
@@ -498,6 +501,9 @@ DBot.DefineGuild = function(guild) {
 }
 
 hook.Add('ServerInitialized', 'MySQL.Saves', function(server, id) {
+	if (!server.name)
+		return;
+	
 	MySQL.query('INSERT INTO server_names ("ID", "NAME") VALUES (' + id + ', ' + Util.escape(server.name) + ') ON CONFLICT ("ID") DO UPDATE SET "NAME" = ' + Util.escape(server.name), function(err) {
 		if (!err)
 			return;
