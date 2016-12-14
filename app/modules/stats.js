@@ -704,7 +704,26 @@ DBot.RegisterCommand({
 		msg.channel.startTyping();
 		
 		let ID = DBot.GetServerID(msg.channel.guild);
-		let query = 'SELECT user_id."UID" as "USERID", user_id."ID" as "ID", member_names."NAME" as "USERNAME", stats__uphrases_server."COUNT" as "COUNT" FROM user_id, member_names, stats__uphrases_server WHERE stats__uphrases_server."UID" = user_id."ID" AND member_names."ID" = user_id."ID" AND stats__uphrases_server."USERVER" = ' + ID + ' ORDER BY "COUNT" DESC OFFSET ' + offset + ' LIMIT 20';
+		
+		let query = `
+			SELECT
+				user_id."UID" as "USERID",
+				user_id."ID" as "ID",
+				member_names."NAME" as "USERNAME",
+				stats__uphrases_server."COUNT" as "COUNT"
+			FROM
+				user_id,
+				member_id,
+				member_names,
+				stats__uphrases_server
+			WHERE
+				stats__uphrases_server."USERVER" = ${ID} AND
+				member_id."SERVER" = stats__uphrases_server."USERVER" AND
+				member_id."USER" = user_id."ID" AND
+				stats__uphrases_server."UID" = user_id."ID" AND
+				member_names."ID" = member_id."ID"
+			ORDER BY "COUNT" DESC
+			OFFSET ${offset} LIMIT 20`;
 		
 		Postgres.query(query, function(err, data) {
 			try {
@@ -781,7 +800,27 @@ DBot.RegisterCommand({
 		
 		let ID = DBot.GetChannelID(msg.channel);
 		
-		let query = 'SELECT user_id."UID" as "USERID", user_id."ID" as "ID", member_names."NAME" as "USERNAME", stats__uphrases_channel."COUNT" as "COUNT" FROM user_id, member_names, stats__uphrases_channel WHERE stats__uphrases_channel."UID" = user_id."ID" AND member_names."ID" = user_id."ID" AND stats__uphrases_channel."CHANNEL" = ' + ID + ' ORDER BY "COUNT" DESC  OFFSET ' + offset + ' LIMIT 20';
+		let query = `
+			SELECT
+				user_id."UID" as "USERID",
+				user_id."ID" as "ID",
+				member_names."NAME" as "USERNAME",
+				stats__uphrases_channel."COUNT" as "COUNT"
+			FROM
+				user_id,
+				member_id,
+				member_names,
+				channel_id,
+				stats__uphrases_channel
+			WHERE
+				stats__uphrases_channel."CHANNEL" = ${ID} AND
+				channel_id."ID" =${ID} AND
+				member_id."SERVER" = channel_id."SID" AND
+				member_id."USER" = user_id."ID" AND
+				stats__uphrases_channel."UID" = user_id."ID" AND
+				member_names."ID" = member_id."ID"
+			ORDER BY "COUNT" DESC
+			OFFSET ${offset} LIMIT 20`;
 		
 		msg.channel.startTyping();
 		
