@@ -202,28 +202,28 @@ DBot.RegisterCommand({
 					msg.reply(fpathU);
 				} else {
 					let magik = spawn('convert', [
-						'canvas:none',
+						'canvas:white',
 						'-size', '512x680!',
 						'-resize', '512x680!',
 						'-draw', 'image over -60,-60 640,640 "' + fpath + '"',
 						'-draw', 'image over 0,512 0,0 "./resource/files/triggered.jpg"',
 						
 						'(',
-							'canvas:none',
+							'canvas:white',
 							'-size', '512x680!',
 							'-draw', 'image over -45,-50 640,640 "' + fpath + '"',
 							'-draw', 'image over 0,512 0,0 "./resource/files/triggered.jpg"',
 						')',
 						
 						'(',
-							'canvas:none',
+							'canvas:white',
 							'-size', '512x680!',
 							'-draw', 'image over -50,-45 640,640 "' + fpath + '"',
 							'-draw', 'image over 0,512 0,0 "./resource/files/triggered.jpg"',
 						')',
 						
 						'(',
-							'canvas:none',
+							'canvas:white',
 							'-size', '512x680!',
 							'-draw', 'image over -45,-65 640,640 "' + fpath + '"',
 							'-draw', 'image over 0,512 0,0 "./resource/files/triggered.jpg"',
