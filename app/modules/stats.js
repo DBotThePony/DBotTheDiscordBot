@@ -680,8 +680,6 @@ DBot.RegisterCommand({
 	},
 });
 
-var utf8 = require('utf8');
-
 DBot.RegisterCommand({
 	name: 'top10',
 	alias: ['top', 'top20'],
@@ -710,22 +708,39 @@ DBot.RegisterCommand({
 				user_id."UID" as "USERID",
 				user_id."ID" as "ID",
 				member_names."NAME" as "USERNAME",
-				stats__uphrases_server."COUNT" as "COUNT"
+				stats__uphrases_server."COUNT" as "COUNT",
+				SUM(stats__uwords_server."COUNT") AS "TOTAL_WORDS",
+				COUNT(DISTINCT stats__uwords_server."WORD") AS "TOTAL_UNIQUE_WORDS"
 			FROM
 				user_id,
 				member_id,
 				member_names,
-				stats__uphrases_server
+				stats__uphrases_server,
+				stats__uwords_server
 			WHERE
 				stats__uphrases_server."USERVER" = ${ID} AND
+				stats__uwords_server."USERVER" = ${ID} AND
 				member_id."SERVER" = stats__uphrases_server."USERVER" AND
 				member_id."USER" = user_id."ID" AND
 				stats__uphrases_server."UID" = user_id."ID" AND
+				stats__uwords_server."UID" = user_id."ID" AND
 				member_names."ID" = member_id."ID"
+			GROUP BY
+				user_id."UID",
+				user_id."ID",
+				member_names."NAME",
+				stats__uphrases_server."COUNT"
 			ORDER BY "COUNT" DESC
 			OFFSET ${offset} LIMIT 20`;
 		
 		Postgres.query(query, function(err, data) {
+			if (err) {
+				console.error(err);
+				msg.reply('<internal pony error>');
+				msg.channel.stopTyping();
+				return;
+			}
+			
 			try {
 				if (!data[0]) {
 					msg.channel.stopTyping();
@@ -733,43 +748,23 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				let total = 0;
-				let words = {};
-				let uwords = {};
+				msg.channel.stopTyping();
 				
-				let continueFunc = function() {
-					msg.channel.stopTyping();
-					
-					let output = '\nRank. Username. Total Phrases Said.\n```';
-					
-					for (let i in data) {
-						output += Util.AppendSpaces(Number(i) + 1 + (page - 1) * 20, 4) + Util.AppendSpaces(data[i].USERNAME, 20) + ' --- ' + Util.AppendSpaces(numeral(data[i].COUNT).format('0,0') + ' phrases', 15) + ' (' + numeral(words[data[i].ID]).format('0,0') + ' total words said; ' + numeral(uwords[data[i].ID]).format('0,0') + ' unique words)\n';
-					}
-					
-					msg.reply(output + '```');
-				}
+				let output = '\nRank. Username. Total Phrases Said.\n```';
 				
+				let i = 0;
 				for (let row of data) {
-					total++;
+					output += Util.AppendSpaces(Number(i) + 1 + (page - 1) * 20, 4)
+						+ Util.AppendSpaces(row.USERNAME, 20) + ' --- '
+						+ Util.AppendSpaces(numeral(row.COUNT).format('0,0')
+						+ ' phrases', 15) + ' (' + numeral(row.TOTAL_WORDS).format('0,0')
+						+ ' total words said; ' + numeral(row.TOTAL_UNIQUE_WORDS).format('0,0')
+						+ ' unique words)\n';
 					
-					Postgres.query('SELECT SUM(stats__uwords_server."COUNT") as "RESULT" FROM stats__uwords_server WHERE stats__uwords_server."UID" = ' + row.ID + ' AND stats__uwords_server."USERVER" = ' + ID, function(err, newData) {
-						Postgres.query('SELECT COUNT(DISTINCT stats__uwords_server."WORD") as "RESULT" FROM stats__uwords_server WHERE stats__uwords_server."UID" = ' + row.ID + ' AND stats__uwords_server."USERVER" = ' + ID, function(err, newData2) {
-							total--;
-							words[row.ID] = newData[0].RESULT || 'WTF';
-							uwords[row.ID] = newData2[0].RESULT;
-							
-							if (total == 0) {
-								try {
-									continueFunc();
-								} catch(err) {
-									msg.channel.stopTyping();
-									console.error(err);
-									msg.reply('<internal pony error>');
-								}
-							}
-						});
-					});
+					i++;
 				}
+				
+				msg.reply(output + '```');
 			} catch(err) {
 				msg.channel.stopTyping();
 				console.error(err);
@@ -805,26 +800,43 @@ DBot.RegisterCommand({
 				user_id."UID" as "USERID",
 				user_id."ID" as "ID",
 				member_names."NAME" as "USERNAME",
-				stats__uphrases_channel."COUNT" as "COUNT"
+				stats__uphrases_channel."COUNT" as "COUNT",
+				SUM(stats__uwords_channel."COUNT") AS "TOTAL_WORDS",
+				COUNT(DISTINCT stats__uwords_channel."WORD") AS "TOTAL_UNIQUE_WORDS"
 			FROM
 				user_id,
 				member_id,
 				member_names,
 				channel_id,
-				stats__uphrases_channel
+				stats__uphrases_channel,
+				stats__uwords_channel
 			WHERE
 				stats__uphrases_channel."CHANNEL" = ${ID} AND
-				channel_id."ID" =${ID} AND
+				stats__uwords_channel."CHANNEL" = ${ID} AND
+				channel_id."ID" = ${ID} AND
 				member_id."SERVER" = channel_id."SID" AND
 				member_id."USER" = user_id."ID" AND
 				stats__uphrases_channel."UID" = user_id."ID" AND
+				stats__uwords_channel."UID" = user_id."ID" AND
 				member_names."ID" = member_id."ID"
+			GROUP BY
+				user_id."UID",
+				user_id."ID",
+				member_names."NAME",
+				stats__uphrases_channel."COUNT"
 			ORDER BY "COUNT" DESC
 			OFFSET ${offset} LIMIT 20`;
 		
 		msg.channel.startTyping();
 		
 		Postgres.query(query, function(err, data) {
+			if (err) {
+				console.error(err);
+				msg.reply('<internal pony error>');
+				msg.channel.stopTyping();
+				return;
+			}
+			
 			try {
 				if (!data[0]) {
 					msg.channel.stopTyping();
@@ -832,56 +844,23 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				let total = 0;
-				let words = {};
-				let uwords = {};
+				msg.channel.stopTyping();
 				
-				let continueFunc = function() {
-					msg.channel.stopTyping();
-					let output = '\nRank. Username. Total Phrases Said.\n```';
-					
-					for (let i in data) {
-						output += Util.AppendSpaces(Number(i) + 1 + (page - 1) * 20, 5) + Util.AppendSpaces(data[i].USERNAME, 20) + ' --- ' + Util.AppendSpaces(numeral(data[i].COUNT).format('0,0') + ' phrases', 15) + ' (' + numeral(words[data[i].ID]).format('0,0') + ' total words said; ' + numeral(uwords[data[i].ID]).format('0,0') + ' unique words)\n';
-					}
-					
-					msg.reply(output + '```');
-				}
+				let output = '\nRank. Username. Total Phrases Said.\n```';
 				
+				let i = 0;
 				for (let row of data) {
-					total++;
+					output += Util.AppendSpaces(Number(i) + 1 + (page - 1) * 20, 4)
+						+ Util.AppendSpaces(row.USERNAME, 20) + ' --- '
+						+ Util.AppendSpaces(numeral(row.COUNT).format('0,0')
+						+ ' phrases', 15) + ' (' + numeral(row.TOTAL_WORDS).format('0,0')
+						+ ' total words said; ' + numeral(row.TOTAL_UNIQUE_WORDS).format('0,0')
+						+ ' unique words)\n';
 					
-					Postgres.query('SELECT SUM(stats__uwords_channel."COUNT") as "RESULT" FROM stats__uwords_channel WHERE stats__uwords_channel."UID" = ' + row.ID + ' AND stats__uwords_channel."CHANNEL" = ' + ID, function(err2, newData) {
-						Postgres.query('SELECT COUNT(DISTINCT stats__uwords_channel."WORD") as "RESULT" FROM stats__uwords_channel WHERE stats__uwords_channel."UID" = ' + row.ID + ' AND stats__uwords_channel."CHANNEL" = ' + ID, function(err1, newData2) {
-							total--;
-							
-							if (err1) {
-								console.error(err1);
-							}
-							
-							if (err2) {
-								console.error(err2);
-							}
-							
-							try {
-								words[row.ID] = newData && newData[0].RESULT || 'WTF';
-								uwords[row.ID] = newData2 && newData2[0].RESULT;
-							} catch(err) {
-								msg.channel.stopTyping();
-								console.error(err);
-							}
-							
-							if (total == 0) {
-								try {
-									continueFunc();
-								} catch(err) {
-									msg.channel.stopTyping();
-									console.error(err);
-									msg.reply('<internal pony error>');
-								}
-							}
-						});
-					});
+					i++;
 				}
+				
+				msg.reply(output + '```');
 			} catch(err) {
 				msg.channel.stopTyping();
 				console.error(err);
