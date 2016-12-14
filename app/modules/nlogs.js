@@ -6,7 +6,7 @@ const hDuration = require('humanize-duration');
 cvars.ServerVar('name_notify', '0', [FCVAR_BOOLONLY], 'Enable nickname changes notifications');
 
 setInterval(function() {
-	let finalQuery = 'BEGIN;';
+	let finalQuery = '';
 	
 	for (let member of DBot.GetMembers()) {
 		try {
@@ -69,7 +69,7 @@ setInterval(function() {
 		}
 	}
 	
-	finalQuery += 'SELECT update_nicknames_stats(' + Math.floor(CurTime()) + ');COMMIT;';
+	finalQuery += 'SELECT update_nicknames_stats(' + Math.floor(CurTime()) + ');';
 	
 	Postgres.query(finalQuery, function(err) {
 		if (err) {
