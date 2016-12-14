@@ -648,6 +648,10 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			
 			for (let server of servers) {
 				for (let member of server.members.array()) {
+					if (!member.user.uid || !member.guild.uid) {
+						continue; // WHAT THE FUCK
+					}
+					
 					members1.push(member.user.uid);
 					members2.push(member.guild.uid);
 					

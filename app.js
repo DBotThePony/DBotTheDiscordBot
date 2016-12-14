@@ -133,7 +133,7 @@ bot.on('ready', function() {
 	setTimeout(function() {
 		console.log('Initializing stuff');
 		hook.Run('BotOnline', DBot.bot);
-	}, 2000); // Wait before all loads
+	}, 4000); // Wait before all loads
 });
 
 setInterval(loginFunc, 10000);
