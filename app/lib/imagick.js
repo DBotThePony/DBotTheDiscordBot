@@ -45,7 +45,7 @@ IMagick.GetTextSize = function(text, font, size) {
 	
 	text.replace(CharsExp2, function(matched, p1) {
 		if (p1 == '\n') {
-			height += IMagick.PrecacheFontsDataHeight[font] * 1.5 * mult;
+			height += IMagick.PrecacheFontsDataHeight[font] * mult;
 			cLine++;
 			widths[cLine] = 0;
 			return '';
@@ -371,10 +371,12 @@ IMagick.DrawText = function(data, callback) {
 				
 				magikArgs.push('-draw');
 				
+				let height = IMagick.GetFontHeight(font, rFontSize);
+				
 				for (let i in splitLines) {
 					let line = splitLines[i];
 					
-					buildDraw += ' text 0,' + (i * rFontSize * 1.5) + ' "' + line.replace(/"/g, '\\"').replace(/\\/g, "\\\\") + '"';
+					buildDraw += ' text 0,' + (i * height) + ' "' + line.replace(/"/g, '\\"').replace(/\\/g, "\\\\") + '"';
 				}
 				
 				magikArgs.push(buildDraw);
