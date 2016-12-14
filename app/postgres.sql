@@ -757,10 +757,23 @@ CREATE TABLE IF NOT EXISTS name_logs (
 	PRIMARY KEY ("MEMBER", "NAME")
 );
 
+CREATE TABLE IF NOT EXISTS name_logs_list (
+	"ID" SERIAL PRIMARY KEY,
+	"MEMBER" INTEGER NOT NULL,
+	"OLD" VARCHAR(255) NOT NULL,
+	"NEW" VARCHAR(255) NOT NULL,
+	"STAMP" INTEGER NOT NULL DEFAULT currtime()
+);
+
 CREATE OR REPLACE FUNCTION member_name_trigger()
 RETURNS TRIGGER as $$
 BEGIN
 	INSERT INTO name_logs VALUES(NEW."ID", NEW."NAME", floor(extract(epoch from now())), 0) ON CONFLICT DO NOTHING;
+	
+	IF (OLD."NAME" != NEW."NAME") THEN
+		INSERT INTO name_logs_list ("MEMBER", "OLD", "NEW") VALUES (NEW."ID", OLD."NAME", NEW."NAME");
+	END IF;
+	
 	RETURN NEW;
 END; $$ LANGUAGE plpgsql;
 
@@ -768,6 +781,7 @@ CREATE OR REPLACE FUNCTION member_name_trigger2()
 RETURNS TRIGGER as $$
 BEGIN
 	INSERT INTO name_logs VALUES(NEW."ID", NEW."NAME", floor(extract(epoch from now())), 0) ON CONFLICT DO NOTHING;
+	INSERT INTO name_logs_list ("MEMBER", "OLD", "NEW") VALUES (NEW."ID", NEW."NAME", NEW."NAME");
 	RETURN NEW;
 END; $$ LANGUAGE plpgsql;
 
