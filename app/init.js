@@ -1,4 +1,6 @@
 
+sprintf = require("sprintf-js").sprintf;
+
 DBot = {};
 DBot.fs = require('fs');
 DBot.WebRoot = 'D:/www/derpco/bot';

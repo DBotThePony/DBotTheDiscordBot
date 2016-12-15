@@ -1414,3 +1414,84 @@ DBot.RegisterCommand({
 	
 	func: getsfn('gets', 5),
 });
+
+let word_global_sql = `
+SELECT
+	stats__words_client."WORD",
+	SUM(stats__words_client."COUNT") AS "SUM"
+FROM
+	stats__words_client
+WHERE
+	TRIM(stats__words_client."WORD") != ''
+GROUP BY
+	stats__words_client."WORD"
+ORDER BY
+	"SUM" DESC
+LIMIT 20
+`;
+
+let word_sql = `
+SELECT
+	stats__words_client."WORD",
+	SUM(stats__words_client."COUNT") AS "SUM"
+FROM
+	stats__words_client
+WHERE
+	stats__words_client."UID" = %i AND
+	TRIM(stats__words_client."WORD") != ''
+GROUP BY
+	stats__words_client."WORD"
+ORDER BY
+	"SUM" DESC
+LIMIT 20
+`;
+
+DBot.RegisterCommand({
+	name: 'wstats',
+	alias: ['wordstats'],
+	
+	help_args: '',
+	desc: 'Word global statistics',
+	delay: 5,
+	
+	func: function(args, cmd, msg) {
+		let id = msg.author.uid;
+		
+		msg.channel.startTyping();
+		
+		Postgres.query(word_global_sql, function(err1, gdata) {
+			Postgres.query(sprintf(word_sql, id), function(err2, udata) {
+				msg.channel.stopTyping();
+				
+				if (err1) {
+					msg.reply('<internal pony error>');
+					console.error(err1);
+					return;
+				}
+				
+				if (err2) {
+					msg.reply('<internal pony error>');
+					console.error(err2);
+					return;
+				}
+				
+				let output = Util.AppendSpaces('Word', 40) + Util.AppendSpaces('Count', 20) + '\n```\n';
+				
+				output += '----- Global\n'
+				
+				for (let row of gdata) {
+					output += Util.AppendSpaces(row.WORD, 40) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 20) + '\n';
+				}
+				
+				output += '----- Your\n'
+				
+				for (let row of udata) {
+					output += Util.AppendSpaces(row.WORD, 40) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 20) + '\n';
+				}
+				
+				msg.reply(output + '\n```');
+			});
+		});
+	},
+});
+
