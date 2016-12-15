@@ -1746,8 +1746,11 @@ FROM
 	user_id,
 	user_names,
 	member_id,
-	member_names
+	member_names,
+	last_seen
 WHERE
+	last_seen."TIME" > currtime() - 120 AND
+	user_id."ID" = last_seen."ID" AND
 	user_id."UID" != '%s' AND
 	member_id."SERVER" = %i AND
 	member_id."USER" = user_id."ID" AND
@@ -1767,8 +1770,8 @@ DBot.RegisterCommand({
 	name: 'nevertalked',
 	alias: ['nevertalk', 'newbies', 'newbie', 'voicelesses', 'speechlesses', 'silents'],
 	
-	help_args: '',
-	desc: 'Lists all users that don\'t talk',
+	help_args: '[prune]',
+	desc: 'Lists all users that don\'t talk\nIf first argument is "prune", it will kick **all** users',
 	delay: 5,
 	
 	func: function(args, cmd, msg) {
@@ -1777,90 +1780,174 @@ DBot.RegisterCommand({
 		
 		msg.channel.startTyping();
 		
-		Postgres.query(sprintf(never_talk_sql, DBot.bot.user.id, msg.channel.guild.uid, msg.channel.guild.uid), function(err, data) {
-			msg.channel.stopTyping();
+		if (args[0] != 'prune') {
+			Postgres.query(sprintf(never_talk_sql, DBot.bot.user.id, msg.channel.guild.uid, msg.channel.guild.uid), function(err, data) {
+				msg.channel.stopTyping();
+				
+				if (err) {
+					msg.reply('<internal pony error>');
+					console.error(err);
+					return;
+				}
+				
+				let sha = DBot.HashString(CurTime() + '_' + msg.channel.guild.uid);
+				let stream = fs.createWriteStream(DBot.WebRoot + '/ntstats/' + sha + '.txt');
+				
+				stream.write('Table of users\n');
+				
+				for (let row of data) {
+					stream.write('\t <@' + row.USERID + '> ' + Util.AppendSpaces(row.MEMBERNAME, 60) + '(' + row.USERNAME + ')\n');
+				}
+				
+				stream.write('\n\nArray of users\n\t');
+				
+				let i = 0;
+				
+				for (let row of data) {
+					i++;
+					stream.write('<@' + row.USERID + '> ');
+					
+					if (i >= 40) {
+						i = 0;
+						stream.write('\n\t');
+					}
+				}
+				
+				stream.write('\n\nArray of users (single line)\n');
+				
+				for (let row of data) {
+					stream.write('<@' + row.USERID + '> ');
+				}
+				
+				stream.write('\n\nArray of names\n\t');
+				
+				i = 0;
+				
+				for (let row of data) {
+					stream.write(row.MEMBERNAME + ' ');
+					
+					if (i >= 40) {
+						i = 0;
+						stream.write('\n\t');
+					}
+				}
+				
+				stream.write('\n\nArray of names (single line)\n');
+				
+				for (let row of data) {
+					stream.write(row.MEMBERNAME + ' ');
+				}
+				
+				
+				stream.write('\n\nArrays, but with forward @\n\t');
+				stream.write('\n\nArray of names\n\t');
+				
+				i = 0;
+				
+				for (let row of data) {
+					stream.write('@' + row.MEMBERNAME + ' ');
+					
+					if (i >= 40) {
+						i = 0;
+						stream.write('\n\t');
+					}
+				}
+				
+				stream.write('\n\nArray of names (single line)\n');
+				
+				for (let row of data) {
+					stream.write('@' + row.MEMBERNAME + ' ');
+				}
+				
+				stream.end();
+				
+				stream.on('finish', function() {
+					msg.reply(DBot.URLRoot + '/ntstats/' + sha + '.txt')
+				});
+			});
+		} else {
+			let me = msg.channel.guild.member(DBot.bot.user);
 			
-			if (err) {
+			if (!me) {
 				msg.reply('<internal pony error>');
 				console.error(err);
 				return;
 			}
 			
-			let sha = DBot.HashString(CurTime() + '_' + msg.channel.guild.uid);
-			let stream = fs.createWriteStream(DBot.WebRoot + '/ntstats/' + sha + '.txt');
+			if (!msg.member.hasPermission('KICK_MEMBERS'))
+				return 'You must have `KICK_MEMBERS` permission ;n;';
 			
-			stream.write('Table of users\n');
+			if (!me.hasPermission('KICK_MEMBERS'))
+				return 'I must have `KICK_MEMBERS` permission ;n;';
 			
-			for (let row of data) {
-				stream.write('\t <@' + row.USERID + '> ' + Util.AppendSpaces(row.MEMBERNAME, 60) + '(' + row.USERNAME + ')\n');
-			}
-			
-			stream.write('\n\nArray of users\n\t');
-			
-			let i = 0;
-			
-			for (let row of data) {
-				i++;
-				stream.write('<@' + row.USERID + '> ');
+			Postgres.query(sprintf(never_talk_sql, DBot.bot.user.id, msg.channel.guild.uid, msg.channel.guild.uid), function(err, data) {
+				msg.channel.stopTyping();
 				
-				if (i >= 40) {
-					i = 0;
-					stream.write('\n\t');
+				if (err) {
+					msg.reply('<internal pony error>');
+					console.error(err);
+					return;
 				}
-			}
-			
-			stream.write('\n\nArray of users (single line)\n');
-			
-			for (let row of data) {
-				stream.write('<@' + row.USERID + '> ');
-			}
-			
-			stream.write('\n\nArray of names\n\t');
-			
-			i = 0;
-			
-			for (let row of data) {
-				stream.write(row.MEMBERNAME + ' ');
 				
-				if (i >= 40) {
-					i = 0;
-					stream.write('\n\t');
+				if (!data[0]) {
+					msg.reply('No users to kick');
+					return;
 				}
-			}
-			
-			stream.write('\n\nArray of names (single line)\n');
-			
-			for (let row of data) {
-				stream.write(row.MEMBERNAME + ' ');
-			}
-			
-			
-			stream.write('\n\nArrays, but with forward @\n\t');
-			stream.write('\n\nArray of names\n\t');
-			
-			i = 0;
-			
-			for (let row of data) {
-				stream.write('@' + row.MEMBERNAME + ' ');
 				
-				if (i >= 40) {
-					i = 0;
-					stream.write('\n\t');
+				let found = [];
+				let server = msg.channel.guild;
+				
+				for (let row of data) {
+					let member = server.member(row.USERID);
+					
+					if (member && member.kickable)
+						found.push(member);
 				}
-			}
-			
-			stream.write('\n\nArray of names (single line)\n');
-			
-			for (let row of data) {
-				stream.write('@' + row.MEMBERNAME + ' ');
-			}
-			
-			stream.end();
-			
-			stream.on('finish', function() {
-				msg.reply(DBot.URLRoot + '/ntstats/' + sha + '.txt')
+				
+				if (!found[0]) {
+					msg.reply('No users to kick');
+					return;
+				}
+				
+				let conf = new DBot.Confirm(msg.author, msg.channel);
+				
+				conf.setTitle('Server members prune');
+				conf.setDesc('Kick **' + found.length + '** not talking members');
+				
+				conf.confirm(function() {
+					msg.channel.startTyping();
+					msg.reply('Kicking **' + found.length + '** members ;n; Bye ;n;');
+					
+					let total = found.length;
+					
+					for (let member of found) {
+						member.kick()
+						.then(function() {
+							total--;
+							
+							if (total == 0) {
+								msg.channel.stopTyping();
+								msg.reply('All members are kicked now ;n;');
+							}
+						})
+						.catch(function() {
+							total--;
+							
+							if (total == 0) {
+								msg.channel.stopTyping();
+								msg.reply('All members are kicked now ;n;');
+							}
+						});
+					}
+				});
+				
+				conf.decline(function() {
+					msg.reply('Aborting');
+				});
+				
+				conf.echo();
 			});
-		});
+		}
 	},
 });
 
