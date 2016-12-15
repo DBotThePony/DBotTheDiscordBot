@@ -90,9 +90,9 @@ module.exports = {
 			msg.channel.stopTyping();
 			var output = '\n';
 			
-			output += 'Player SteamID(32): "' + SteamID + '"\n';
-			output += 'Player SteamID3: "' + SteamID3 + '"\n';
-			output += 'Player SteamID64: "' + SteamID64 + '"\n';
+			output += 'Player SteamID(32): `' + SteamID + '`\n';
+			output += 'Player SteamID3: `' + SteamID3 + '`\n';
+			output += 'Player SteamID64: `' + SteamID64 + '`\n';
 			output += 'Player Profile URL: https://steamcommunity.com/id/' + CustomProfileURL + '\n';
 			
 			msg.reply(output);
