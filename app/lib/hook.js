@@ -34,7 +34,7 @@ hook.Call = function(event, A, B, C, D, E, F, G) {
 		var func = hook.Table[event][k];
 		var reply = func(A, B, C, D, E, F, G);
 		
-		if (reply != undefined)
+		if (reply !== undefined)
 			return reply;
 	}
 }

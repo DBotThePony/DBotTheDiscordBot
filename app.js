@@ -38,6 +38,9 @@ bot.on('message', msg => {
 		if (hook.Run('CheckValidMessage', msg) === true)
 			return;
 		
+		if (hook.Run('PreOnValidMessage', msg) === true)
+			return;
+		
 		hook.Run('OnValidMessage', msg);
 		
 		if (!msg.author.bot) {
