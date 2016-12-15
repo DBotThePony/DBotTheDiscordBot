@@ -4,6 +4,9 @@ const moment = require('moment');
 const hDuration = require('humanize-duration');
 
 hook.Add('OnValidMessage', 'Statistics', function(msg) {
+	if (msg.author.id == '210879254378840074')
+		return; // Loal
+	
 	let extra = msg.channel.guild != undefined && msg.channel.type != 'dm';
 	let Words = msg.content.split(/( |\n)+/gi);
 	let rWords = [];
