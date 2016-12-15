@@ -229,7 +229,7 @@ DBot.RegisterCommand({
 				return DBot.CommandError('what', 'off', args, i + 1);
 			
 			if (member.offs.includes(msg.channel.uid))
-				return DBot.CommandError('User is already turned off! (' + (member.nickname || member.user.username) + ')' + , 'off', args, i + 1);
+				return DBot.CommandError('User is already turned off! (' + (member.nickname || member.user.username) + ')', 'off', args, i + 1);
 			
 			found.push(member);
 		}
@@ -296,7 +296,7 @@ DBot.RegisterCommand({
 				return DBot.CommandError('what', 'off', args, i + 1);
 			
 			if (!member.offs.includes(msg.channel.uid))
-				return DBot.CommandError('User is already not off! (' + (member.nickname || member.user.username) + ')' + , 'off', args, i + 1);
+				return DBot.CommandError('User is already not off! (' + (member.nickname || member.user.username) + ')', 'off', args, i + 1);
 			
 			found.push(member);
 		}
