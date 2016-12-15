@@ -1446,28 +1446,126 @@ ORDER BY
 LIMIT 20
 `;
 
+let word_server_sql = `
+SELECT
+	stats__words_server."WORD",
+	SUM(stats__words_server."COUNT") AS "SUM"
+FROM
+	stats__words_server
+WHERE
+	stats__words_server."USERVER" = %i AND
+	TRIM(stats__words_server."WORD") != ''
+GROUP BY
+	stats__words_server."WORD"
+ORDER BY
+	"SUM" DESC
+LIMIT 20
+`;
+
+let word_server_sql_user = `
+SELECT
+	stats__uwords_server."WORD",
+	SUM(stats__uwords_server."COUNT") AS "SUM"
+FROM
+	stats__uwords_server
+WHERE
+	stats__uwords_server."USERVER" = %i AND
+	stats__uwords_server."UID" = %i AND
+	TRIM(stats__uwords_server."WORD") != ''
+GROUP BY
+	stats__uwords_server."WORD"
+ORDER BY
+	"SUM" DESC
+LIMIT 20
+`;
+
+let word_channel_sql = `
+SELECT
+	stats__words_channel."WORD",
+	SUM(stats__words_channel."COUNT") AS "SUM"
+FROM
+	stats__words_channel
+WHERE
+	stats__words_channel."CHANNEL" = %i AND
+	TRIM(stats__words_channel."WORD") != ''
+GROUP BY
+	stats__words_channel."WORD"
+ORDER BY
+	"SUM" DESC
+LIMIT 20
+`;
+
+let word_channel_sql_user = `
+SELECT
+	stats__uwords_channel."WORD",
+	SUM(stats__uwords_channel."COUNT") AS "SUM"
+FROM
+	stats__uwords_channel
+WHERE
+	stats__uwords_channel."CHANNEL" = %i AND
+	stats__uwords_channel."UID" = %i AND
+	TRIM(stats__uwords_channel."WORD") != ''
+GROUP BY
+	stats__uwords_channel."WORD"
+ORDER BY
+	"SUM" DESC
+LIMIT 20
+`;
+
 DBot.RegisterCommand({
-	name: 'wstats',
-	alias: ['wordstats'],
+	name: 'wsstats',
+	alias: ['wordsstats', 'wordserverstats', 'serverwordstats', 'swstats'],
 	
-	help_args: '',
-	desc: 'Word global statistics',
+	help_args: '[user]',
+	desc: 'Word server statistics',
 	delay: 5,
+	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'pm ;n;';
+		
 		let id = msg.author.uid;
 		
 		msg.channel.startTyping();
 		
-		Postgres.query(word_global_sql, function(err1, gdata) {
-			Postgres.query(sprintf(word_sql, id), function(err2, udata) {
+		if (typeof args[0] != 'object') {
+			Postgres.query(sprintf(word_server_sql, msg.channel.guild.uid), function(err1, gdata) {
+				Postgres.query(sprintf(word_server_sql_user, msg.channel.guild.uid, msg.author.uid), function(err2, udata) {
+					msg.channel.stopTyping();
+					
+					if (err1) {
+						msg.reply('<internal pony error>');
+						console.error(err1);
+						return;
+					}
+					
+					if (err2) {
+						msg.reply('<internal pony error>');
+						console.error(err2);
+						return;
+					}
+					
+					let output = Util.AppendSpaces('Word', 25) + Util.AppendSpaces('Count', 6) + '\n```\n';
+					
+					output += '----- Server\n'
+					
+					for (let row of gdata) {
+						output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
+					}
+					
+					output += '----- Your\n'
+					
+					for (let row of udata) {
+						output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
+					}
+					
+					msg.reply(output + '\n```');
+				});
+			});
+		} else {
+			Postgres.query(sprintf(word_server_sql_user, msg.channel.guild.uid, args[0].uid), function(err2, udata) {
 				msg.channel.stopTyping();
-				
-				if (err1) {
-					msg.reply('<internal pony error>');
-					console.error(err1);
-					return;
-				}
 				
 				if (err2) {
 					msg.reply('<internal pony error>');
@@ -1477,13 +1575,7 @@ DBot.RegisterCommand({
 				
 				let output = Util.AppendSpaces('Word', 25) + Util.AppendSpaces('Count', 6) + '\n```\n';
 				
-				output += '----- Global\n'
-				
-				for (let row of gdata) {
-					output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
-				}
-				
-				output += '----- Your\n'
+				output += '----- His\n'
 				
 				for (let row of udata) {
 					output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
@@ -1491,7 +1583,154 @@ DBot.RegisterCommand({
 				
 				msg.reply(output + '\n```');
 			});
-		});
+		}
+	},
+});
+
+DBot.RegisterCommand({
+	name: 'wcstats',
+	alias: ['wordcstats', 'wordchannelstats', 'channelwordstats', 'cwstats'],
+	
+	help_args: '[user]',
+	desc: 'Word channel statistics',
+	delay: 5,
+	allowUserArgument: true,
+	
+	func: function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'pm ;n;';
+		
+		let id = msg.author.uid;
+		
+		msg.channel.startTyping();
+		
+		if (typeof args[0] != 'object') {
+			Postgres.query(sprintf(word_channel_sql, msg.channel.uid), function(err1, gdata) {
+				Postgres.query(sprintf(word_channel_sql_user, msg.channel.uid, msg.author.uid), function(err2, udata) {
+					msg.channel.stopTyping();
+					
+					if (err1) {
+						msg.reply('<internal pony error>');
+						console.error(err1);
+						return;
+					}
+					
+					if (err2) {
+						msg.reply('<internal pony error>');
+						console.error(err2);
+						return;
+					}
+					
+					let output = Util.AppendSpaces('Word', 25) + Util.AppendSpaces('Count', 6) + '\n```\n';
+					
+					output += '----- Channel\n'
+					
+					for (let row of gdata) {
+						output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
+					}
+					
+					output += '----- Your\n'
+					
+					for (let row of udata) {
+						output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
+					}
+					
+					msg.reply(output + '\n```');
+				});
+			});
+		} else {
+			Postgres.query(sprintf(word_channel_sql_user, msg.channel.uid, args[0].uid), function(err2, udata) {
+				msg.channel.stopTyping();
+				
+				if (err2) {
+					msg.reply('<internal pony error>');
+					console.error(err2);
+					return;
+				}
+				
+				let output = Util.AppendSpaces('Word', 25) + Util.AppendSpaces('Count', 6) + '\n```\n';
+				
+				output += '----- His\n'
+				
+				for (let row of udata) {
+					output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
+				}
+				
+				msg.reply(output + '\n```');
+			});
+		}
+	},
+});
+
+DBot.RegisterCommand({
+	name: 'wstats',
+	alias: ['wordstats'],
+	
+	help_args: '[user]',
+	desc: 'Word global statistics',
+	delay: 5,
+	allowUserArgument: true,
+	
+	func: function(args, cmd, msg) {
+		let id = msg.author.uid;
+		
+		msg.channel.startTyping();
+		
+		if (typeof args[0] != 'object') {
+			Postgres.query(word_global_sql, function(err1, gdata) {
+				Postgres.query(sprintf(word_sql, id), function(err2, udata) {
+					msg.channel.stopTyping();
+					
+					if (err1) {
+						msg.reply('<internal pony error>');
+						console.error(err1);
+						return;
+					}
+					
+					if (err2) {
+						msg.reply('<internal pony error>');
+						console.error(err2);
+						return;
+					}
+					
+					let output = Util.AppendSpaces('Word', 25) + Util.AppendSpaces('Count', 6) + '\n```\n';
+					
+					output += '----- Global\n'
+					
+					for (let row of gdata) {
+						output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
+					}
+					
+					output += '----- Your\n'
+					
+					for (let row of udata) {
+						output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
+					}
+					
+					msg.reply(output + '\n```');
+				});
+			});
+		} else {
+			Postgres.query(sprintf(word_sql, id), function(err2, udata) {
+				msg.channel.stopTyping();
+				
+				if (err2) {
+					msg.reply('<internal pony error>');
+					console.error(err2);
+					return;
+				}
+				
+				let output = Util.AppendSpaces('Word', 25) + Util.AppendSpaces('Count', 6) + '\n```\n';
+				
+				output += '----- His\n'
+				
+				for (let row of udata) {
+					output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
+				}
+				
+				msg.reply(output + '\n```');
+			});
+		}
 	},
 });
 
