@@ -10,6 +10,9 @@ setInterval(function() {
 	
 	for (let member of DBot.GetMembers()) {
 		try {
+			if (!member.guild.uid)
+				continue;
+			
 			let name = member.nickname || member.user.username;
 			
 			member.oldNickname = member.oldNickname || name;
