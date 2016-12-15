@@ -62,7 +62,7 @@ module.exports = {
 		output += 'Role ID:                       ' + role.id + '\n';
 		output += 'Is mentionable:                ' + role.mentionable + '\n';
 		output += 'Is hoist:                      ' + role.hoist + '\n';
-		output += 'Role color:                    ' + role.color + '\n';
+		output += 'Role color:                    ' + Util.parseHexColor(role.hexColor).join(', ') + '\n';
 		
 		if (perms) {
 			output += 'Role permissions:              ' + perms.join(', ') + '\n';
