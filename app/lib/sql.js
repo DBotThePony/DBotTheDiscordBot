@@ -335,6 +335,7 @@ DBot.DefineUser = function(user) {
 		DBot.UsersIDs[id] = data[0].ID;
 		DBot.UsersIDs_R[data[0].ID] = user;
 		LoadingUser[id] = undefined;
+		user.uid = data[0].ID;
 		hook.Run('UserInitialized', user, data[0].ID);
 		hook.Run('ClientInitialized', user, data[0].ID);
 		Postgre.query('INSERT INTO last_seen VALUES (' + data[0].ID + ', ' + Math.floor(CurTime()) + ') ON CONFLICT ("ID") DO UPDATE SET "TIME" = ' + Math.floor(CurTime()));
@@ -377,6 +378,7 @@ DBot.DefineChannel = function(channel) {
 		DBot.ChannelIDs[id] = data[0].ID;
 		DBot.ChannelIDs_R[data[0].ID] = channel;
 		hook.Run('ChannelInitialized', channel, data[0].ID);
+		channel.uid = data[0].ID;
 	});
 }
 
@@ -490,6 +492,7 @@ DBot.DefineGuild = function(guild) {
 		if (err) throw err;
 		DBot.ServersIDs[id] = data[0].ID;
 		DBot.ServersIDs_R[data[0].ID] = guild;
+		guild.uid = data[0].ID;
 		
 		hook.Run('GuildInitialized', guild, data[0].ID);
 		hook.Run('ServerInitialized', guild, data[0].ID);
