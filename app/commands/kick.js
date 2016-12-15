@@ -273,7 +273,7 @@ DBot.RegisterCommand({
 			return 'I must have `MANAGE_MESSAGES` permission ;n;';
 		
 		if (typeof args[0] != 'object')
-			return DBot.CommandError('You need to specify at least one user', 'off', args, 1);
+			return DBot.CommandError('You need to specify at least one user', 'deoff', args, 1);
 		
 		let found = [];
 		let server = msg.channel.guild;
@@ -283,20 +283,20 @@ DBot.RegisterCommand({
 			i = Number(i);
 			
 			if (typeof arg != 'object')
-				return DBot.CommandError('Invalid user ;n;', 'off', args, i + 1);
+				return DBot.CommandError('Invalid user ;n;', 'deoff', args, i + 1);
 			
 			let member = server.member(arg);
 			
 			if (!member)
-				return DBot.CommandError('Invalid user ;n;', 'off', args, i + 1);
+				return DBot.CommandError('Invalid user ;n;', 'deoff', args, i + 1);
 			
 			member.offs = member.offs || [];
 			
 			if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot)
-				return DBot.CommandError('what', 'off', args, i + 1);
+				return DBot.CommandError('what', 'deoff', args, i + 1);
 			
 			if (!member.offs.includes(msg.channel.uid))
-				return DBot.CommandError('User is already not off! (' + (member.nickname || member.user.username) + ')', 'off', args, i + 1);
+				return DBot.CommandError('User is already not off! (' + (member.nickname || member.user.username) + ')', 'deoff', args, i + 1);
 			
 			found.push(member);
 		}
@@ -343,9 +343,10 @@ hook.Add('PreOnValidMessage', 'ModerationCommands', function(msg) {
 		
 		let identify = DBot.IdentifyCommand(msg);
 		
-		if ((identify == 'off' || identify == 'on') && msg.member.hasPermission('MANAGE_MESSAGES'))
+		if ((identify == 'off' || identify == 'deoff') && msg.member.hasPermission('MANAGE_MESSAGES'))
 			return;
 		
+		msg.author.sendMessage('You are muted in this channel by moderator');
 		msg.delete();
 		return true;
 	}

@@ -537,7 +537,7 @@ DBot.IdentifyCommand = function(msg) {
 		splitted = recreate;
 	}
 	
-	let rawCommand = splitted[shift];
+	let rawCommand = splitted[1];
 	
 	if (!rawCommand)
 		return false;
