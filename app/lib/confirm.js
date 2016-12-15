@@ -31,7 +31,7 @@ class Confirm {
 			if (!data)
 				return;
 			
-			ME.channel.sendFile(data, 'yn.jpg').then(function(msg) {
+			ME.channel.sendFile(data, 'skynet_terminator_3.jpg').then(function(msg) {
 				ME.confMessage2 = msg;
 				if (ME.shouldClear)
 					msg.delete(0);

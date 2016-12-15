@@ -17,7 +17,7 @@ module.exports = {
 			if (msg.wasDeleted)
 				return;
 			
-			msg.channel.sendFile(data, 'yn.jpg').then(function(msg2) {
+			msg.channel.sendFile(data, 'nfs.jpg').then(function(msg2) {
 				if (msg.wasDeleted)
 					msg2.delete(0);
 				else {
