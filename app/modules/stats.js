@@ -1475,18 +1475,18 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				let output = Util.AppendSpaces('Word', 40) + Util.AppendSpaces('Count', 20) + '\n```\n';
+				let output = Util.AppendSpaces('Word', 25) + Util.AppendSpaces('Count', 6) + '\n```\n';
 				
 				output += '----- Global\n'
 				
 				for (let row of gdata) {
-					output += Util.AppendSpaces(row.WORD, 40) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 20) + '\n';
+					output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
 				}
 				
 				output += '----- Your\n'
 				
 				for (let row of udata) {
-					output += Util.AppendSpaces(row.WORD, 40) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 20) + '\n';
+					output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
 				}
 				
 				msg.reply(output + '\n```');
