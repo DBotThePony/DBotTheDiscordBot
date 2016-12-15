@@ -502,6 +502,62 @@ DBot.IsAskingMe_Command = function(msg) {
 	return false;
 }
 
+DBot.IdentifyCommand = function(msg) {
+	let rawmessage = msg.content;
+	let isPrivate = DBot.IsPM(msg);
+	
+	if (rawmessage == '') {
+		return false;
+	}
+	
+	let splitted = DBot.TrimArray(rawmessage.split(' '));
+	
+	let prefix = '}';
+	
+	if (!isPrivate) {
+		let sPrefix = cvars.Server(msg.channel.guild).getVar('prefix').getString();
+		let cPrefix = cvars.Channel(msg.channel).getVar('prefix').getString();
+		
+		if (cPrefix != '')
+			prefix = cPrefix;
+		else
+			prefix = sPrefix;
+	}
+	
+	if (rawmessage.substr(0, prefix.length) == prefix) {
+		let recreate = [];
+		recreate.push(prefix);
+		
+		splitted[0] = splitted[0].substr(prefix.length);
+		
+		for (let i in splitted) {
+			recreate.push(splitted[i]);
+		}
+		
+		splitted = recreate;
+	}
+	
+	let rawCommand = splitted[shift];
+	
+	if (!rawCommand)
+		return false;
+	
+	let command = rawCommand.toLowerCase();
+	
+	/*
+		splitted[shift - 1] = Our ID
+		splitted[shift] = Command
+		splitted[...] = arguments
+	*/
+	
+	if (!DBot.Commands[command]) {
+		return false;
+	}
+	
+	let cCommand = DBot.Commands[command];
+	return cCommand.id;
+}
+
 DBot.HandleMessage = function(msg, isPrivate, test) {
 	let shift = 1;
 	

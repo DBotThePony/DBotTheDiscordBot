@@ -341,6 +341,11 @@ hook.Add('PreOnValidMessage', 'ModerationCommands', function(msg) {
 		if (!me.hasPermission('MANAGE_MESSAGES'))
 			return;
 		
+		let identify = DBot.IdentifyCommand(msg);
+		
+		if ((identify == 'off' || identify == 'on') && msg.member.hasPermission('MANAGE_MESSAGES'))
+			return;
+		
 		msg.delete();
 		return true;
 	}
