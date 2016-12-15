@@ -3,7 +3,7 @@ const numeral = require('numeral');
 const moment = require('moment');
 const hDuration = require('humanize-duration');
 
-hook.Add('OnHumanMessage', 'Statistics', function(msg) {
+hook.Add('OnValidMessage', 'Statistics', function(msg) {
 	let extra = msg.channel.guild != undefined && msg.channel.type != 'dm';
 	let Words = msg.content.split(/( |\n)+/gi);
 	let rWords = [];
@@ -212,7 +212,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			let UID = DBot.GetUserID(msg.author);
+			let UID = DBot.GetUserID(args[0]);
 			
 			let qU = 'SELECT SUM("COUNT") as "cnt" FROM stats__uchars_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__uwords_server WHERE "UID" = ' + UID + ' AND "USERVER" = ' + ID + ';\
@@ -1731,6 +1731,133 @@ DBot.RegisterCommand({
 				msg.reply(output + '\n```');
 			});
 		}
+	},
+});
+
+let never_talk_sql = `
+SELECT
+	TRIM(user_id."UID") AS "USERID",
+	user_names."USERNAME" AS "USERNAME",
+	member_names."NAME" AS "MEMBERNAME"
+FROM
+	user_id,
+	user_names,
+	member_id,
+	member_names
+WHERE
+	user_id."UID" != '%s' AND
+	member_id."SERVER" = %i AND
+	member_id."USER" = user_id."ID" AND
+	member_names."ID" = member_id."ID" AND
+	user_names."ID" = user_id."ID" AND
+    member_id."USER" NOT IN (
+    	SELECT stats__uphrases_server."UID" FROM stats__uphrases_server WHERE stats__uphrases_server."USERVER" = %i
+    )
+GROUP BY
+	"USERID", "USERNAME", "MEMBERNAME"
+`;
+
+Util.mkdir(DBot.WebRoot + '/ntstats');
+const fs = require('fs');
+
+DBot.RegisterCommand({
+	name: 'nevertalked',
+	alias: ['nevertalk', 'newbies', 'newbie', 'voicelesses', 'speechlesses', 'silents'],
+	
+	help_args: '',
+	desc: 'Lists all users that don\'t talk',
+	delay: 5,
+	
+	func: function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'pm ;n;';
+		
+		msg.channel.startTyping();
+		
+		Postgres.query(sprintf(never_talk_sql, DBot.bot.user.id, msg.channel.guild.uid, msg.channel.guild.uid), function(err, data) {
+			msg.channel.stopTyping();
+			
+			if (err) {
+				msg.reply('<internal pony error>');
+				console.error(err);
+				return;
+			}
+			
+			let sha = DBot.HashString(CurTime() + '_' + msg.channel.guild.uid);
+			let stream = fs.createWriteStream(DBot.WebRoot + '/ntstats/' + sha + '.txt');
+			
+			stream.write('Table of users\n');
+			
+			for (let row of data) {
+				stream.write('\t <@' + row.USERID + '> ' + Util.AppendSpaces(row.MEMBERNAME, 60) + '(' + row.USERNAME + ')\n');
+			}
+			
+			stream.write('\n\nArray of users\n\t');
+			
+			let i = 0;
+			
+			for (let row of data) {
+				i++;
+				stream.write('<@' + row.USERID + '> ');
+				
+				if (i >= 40) {
+					i = 0;
+					stream.write('\n\t');
+				}
+			}
+			
+			stream.write('\n\nArray of users (single line)\n');
+			
+			for (let row of data) {
+				stream.write('<@' + row.USERID + '> ');
+			}
+			
+			stream.write('\n\nArray of names\n\t');
+			
+			i = 0;
+			
+			for (let row of data) {
+				stream.write(row.MEMBERNAME + ' ');
+				
+				if (i >= 40) {
+					i = 0;
+					stream.write('\n\t');
+				}
+			}
+			
+			stream.write('\n\nArray of names (single line)\n');
+			
+			for (let row of data) {
+				stream.write(row.MEMBERNAME + ' ');
+			}
+			
+			
+			stream.write('\n\nArrays, but with forward @\n\t');
+			stream.write('\n\nArray of names\n\t');
+			
+			i = 0;
+			
+			for (let row of data) {
+				stream.write('@' + row.MEMBERNAME + ' ');
+				
+				if (i >= 40) {
+					i = 0;
+					stream.write('\n\t');
+				}
+			}
+			
+			stream.write('\n\nArray of names (single line)\n');
+			
+			for (let row of data) {
+				stream.write('@' + row.MEMBERNAME + ' ');
+			}
+			
+			stream.end();
+			
+			stream.on('finish', function() {
+				msg.reply(DBot.URLRoot + '/ntstats/' + sha + '.txt')
+			});
+		});
 	},
 });
 
