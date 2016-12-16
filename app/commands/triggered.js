@@ -54,7 +54,7 @@ module.exports = {
 					msg.channel.stopTyping();
 					msg.reply(fpathU);
 				} else {
-					let magik = spawn('convert', ['(', fpath, '-resize', '512', ')', './resource/files/triggered.jpg', '-append', fpathProcessed]);
+					let magik = spawn('magick', ['convert', '(', fpath, '-resize', '512', ')', './resource/files/triggered.jpg', '-append', fpathProcessed]);
 					
 					Util.Redirect(magik);
 					
@@ -120,7 +120,7 @@ DBot.RegisterCommand({
 					msg.channel.stopTyping();
 					msg.reply(fpathU);
 				} else {
-					let magik = spawn('convert', ['(', fpath, '-resize', '512', '-motion-blur', '0x15', ')', './resource/files/triggered.jpg', '-append', fpathProcessed]);
+					let magik = spawn('magick', ['convert', '(', fpath, '-resize', '512', '-motion-blur', '0x15', ')', './resource/files/triggered.jpg', '-append', fpathProcessed]);
 					
 					Util.Redirect(magik);
 					
@@ -190,31 +190,31 @@ DBot.RegisterCommand({
 						'canvas:white',
 						'-size', '512x680!',
 						'-resize', '512x680!',
-						'-draw', 'image over -60,-60 640,640 "' + fpath + '"',
-						'-draw', 'image over 0,512 0,0 "./resource/files/triggered.jpg"',
+						'-draw', 'image srcover -60,-60 640,640 "' + fpath + '"',
+						'-draw', 'image srcover 0,512 0,0 "./resource/files/triggered.jpg"',
 						
 						'(',
 							'canvas:white',
 							'-size', '512x680!',
-							'-draw', 'image over -45,-50 640,640 "' + fpath + '"',
-							'-draw', 'image over 0,512 0,0 "./resource/files/triggered.jpg"',
+							'-draw', 'image srcover -45,-50 640,640 "' + fpath + '"',
+							'-draw', 'image srcover 0,512 0,0 "./resource/files/triggered.jpg"',
+							
 						')',
 						
 						'(',
 							'canvas:white',
 							'-size', '512x680!',
-							'-draw', 'image over -50,-45 640,640 "' + fpath + '"',
-							'-draw', 'image over 0,512 0,0 "./resource/files/triggered.jpg"',
+							'-draw', 'image srcover -50,-45 640,640 "' + fpath + '"',
+							'-draw', 'image srcover 0,512 0,0 "./resource/files/triggered.jpg"',
 						')',
 						
 						'(',
 							'canvas:white',
 							'-size', '512x680!',
-							'-draw', 'image over -45,-65 640,640 "' + fpath + '"',
-							'-draw', 'image over 0,512 0,0 "./resource/files/triggered.jpg"',
+							'-draw', 'image srcover -45,-65 640,640 "' + fpath + '"',
+							'-draw', 'image srcover 0,512 0,0 "./resource/files/triggered.jpg"',
 						')',
 						
-						'-layers', 'Optimize',
 						'-set', 'delay', '2',
 						fpathProcessed
 					]);

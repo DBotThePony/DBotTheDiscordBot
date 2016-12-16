@@ -1,4 +1,5 @@
 
+process.env['PATH'] = './bin;' + process.env['PATH'];
 var stamp = (new Date()).getTime();
 
 const Discord = require('discord.js');

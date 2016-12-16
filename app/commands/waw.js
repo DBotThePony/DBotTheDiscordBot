@@ -88,7 +88,7 @@ module.exports = {
 					
 					for (let comb of combinations) {
 						magikArgs.push(
-							'(',
+							'-page', '+0+0', '(',
 								fpath,
 								'-resize', '256x256>',
 								'-colorize',
@@ -175,7 +175,7 @@ DBot.RegisterCommand({
 					
 					for (let amp = 0; amp < 20; amp += 5) {
 						magikArgs.push(
-							'(',
+							'-page', '+0+0', '(',
 								fpath,
 								'-resize', '256x256>',
 								'-wave', '-' + amp + 'x15',
@@ -197,6 +197,7 @@ DBot.RegisterCommand({
 						'-delay', '4',
 						'-set', 'delay', '4',
 						'-loop', '0',
+						'-alpha', 'off',
 						fpathProcessed
 					);
 					
