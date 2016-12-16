@@ -138,36 +138,49 @@ DBot.LastURLImageInChannel = function(channel) {
 	return URLMessagesImages[cid];
 }
 
+const imageExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd)(\?|\/)?/;
+const urlMatch = new RegExp('https?://([^ "\n]*)', 'g');
+const urlMatchStrong = new RegExp('^https?://([^ "\n]*)$');
+
+DBot.CheckURLImage = function(m) {
+	let get = m.match(urlMatchStrong);
+
+	if (!get)
+		return false;
+	
+	let get2 = m.match(imageExt);
+	
+	if (get2)
+		return true;
+	else
+		return false;
+}
+
 hook.Add('OnMessage', 'LastURLInChannel', function(msg) {
-	var cid = msg.channel.id;
+	let cid = msg.channel.id;
 	
 	if (msg.attachments) {
-		var arr = msg.attachments.array();
+		let arr = msg.attachments.array();
 		
-		for (var k in arr) {
-			if (arr[k].url) {
+		for (let k in arr) {
+			if (arr[k].url && arr[k].url.match(imageExt)) {
 				URLMessages[cid] = arr[k].url;
 				URLMessagesImages[cid] = arr[k].url;
 			}
 		}
 	}
 	
-	var Message = msg.content;
+	let Message = msg.content;
 	
-	var get = Message.match(new RegExp('https?://([^ "\n]*)', 'g'));
+	let get = Message.match(urlMatch);
 	
 	if (!get)
 		return;
 	
-	for (var i in get) {
-		var url = get[i];
+	for (let i in get) {
+		let url = get[i];
 		
-		var uObj = URL.parse(url);
-		var path = uObj.pathname;
-		var split = path.split('.');
-		var ext = split[split.length - 1];
-		
-		if (DBot.HaveValue(allowed, ext)) {
+		if (url.match(imageExt)) {
 			URLMessagesImages[cid] = url;
 		}
 		
