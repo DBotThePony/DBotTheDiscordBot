@@ -303,18 +303,16 @@ fs.stat(DBot.WebRoot + '/img_cache', function(err, stat) {
 const unirest = require('unirest');
 const URL = require('url');
 
+const imageExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd)(\?|\/)?/;
 const expr = new RegExp('^https?://' + DBot.URLRootBare + '/(.*)');
 const cover = new RegExp('\\.\\./', 'gi');
 
 DBot.LoadImageURL = function(url, callback, callbackError) {
 	let hash = DBot.HashString(url);
-	let uObj = URL.parse(url);
-	let path = uObj.pathname;
-	let split = path.split('.');
-	let ext = split[split.length - 1];
+	let matchExt = url.match(imageExt);
 	let match = url.match(expr);
 
-	let fPath = DBot.WebRoot + '/img_cache/' + hash + '.' + ext;
+	let fPath = DBot.WebRoot + '/img_cache/' + hash + '.' + matchExt[1];
 	
 	if (match && !url.match(cover)) {
 		fPath = DBot.WebRoot + '/' + match[1];

@@ -53,12 +53,7 @@ module.exports = {
 		}
 		
 		let hash = DBot.HashString(url);
-		let uObj = URL.parse(url);
-		let path = uObj.pathname;
-		let split = path.split('.');
-		let ext = split[split.length - 1].toLowerCase();
-		
-		if (!DBot.HaveValue(allowed, ext))
+		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['magik'], 2, args);
 		
 		let comb1 = DBot.RandomArray(combinations);

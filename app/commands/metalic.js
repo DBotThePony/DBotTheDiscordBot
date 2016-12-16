@@ -42,12 +42,7 @@ module.exports = {
 		}
 		
 		var sha = DBot.HashString(url);
-		var uObj = URL.parse(url);
-		var path = uObj.pathname;
-		var split = path.split('.');
-		var ext = split[split.length - 1].toLowerCase();
-		
-		if (!DBot.HaveValue(allowed, ext))
+		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['metalic'], 2, args);
 		
 		var fInput;
@@ -118,12 +113,7 @@ DBot.RegisterCommand({
 		}
 		
 		var sha = DBot.HashString(url);
-		var uObj = URL.parse(url);
-		var path = uObj.pathname;
-		var split = path.split('.');
-		var ext = split[split.length - 1].toLowerCase();
-		
-		if (!DBot.HaveValue(allowed, ext))
+		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['metalic'], 2, args);
 		
 		var fInput;

@@ -36,12 +36,7 @@ let fn = function(name, toUse) {
 		}
 		
 		let hash = DBot.HashString(url);
-		let uObj = URL.parse(url);
-		let path = uObj.pathname;
-		let split = path.split('.');
-		let ext = split[split.length - 1].toLowerCase();
-		
-		if (!DBot.HaveValue(allowed, ext))
+		if (!DBot.CheckURLImage(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 		
 		let fPath = DBot.WebRoot + '/reflect/' + hash + '.' + ext;
@@ -244,12 +239,7 @@ let fn3 = function(name) {
 		}
 		
 		let hash = DBot.HashString(url);
-		let uObj = URL.parse(url);
-		let path = uObj.pathname;
-		let split = path.split('.');
-		let ext = split[split.length - 1].toLowerCase();
-		
-		if (!DBot.HaveValue(allowed, ext))
+		if (!DBot.CheckURLImage(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 		
 		let fPath;

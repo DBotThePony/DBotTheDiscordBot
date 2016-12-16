@@ -37,12 +37,7 @@ module.exports = {
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered', args, 1);
 		
-		let uObj = URL.parse(url);
-		let path = uObj.pathname;
-		let split = path.split('.');
-		let ext = split[split.length - 1].toLowerCase();
-		
-		if (!DBot.HaveValue(allowed, ext))
+		if (!DBot.CheckURLImage(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered', args, 1);
 		
 		let sha = DBot.HashString(url);
@@ -108,12 +103,7 @@ DBot.RegisterCommand({
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered2', args, 1);
 		
-		let uObj = URL.parse(url);
-		let path = uObj.pathname;
-		let split = path.split('.');
-		let ext = split[split.length - 1].toLowerCase();
-		
-		if (!DBot.HaveValue(allowed, ext))
+		if (!DBot.CheckURLImage(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered2', args, 1);
 		
 		let sha = DBot.HashString(url);
@@ -179,12 +169,7 @@ DBot.RegisterCommand({
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered2', args, 1);
 		
-		let uObj = URL.parse(url);
-		let path = uObj.pathname;
-		let split = path.split('.');
-		let ext = split[split.length - 1].toLowerCase();
-		
-		if (!DBot.HaveValue(allowed, ext))
+		if (!DBot.CheckURLImage(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered2', args, 1);
 		
 		let sha = DBot.HashString(url);

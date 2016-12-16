@@ -47,12 +47,7 @@ module.exports = {
 		}
 		
 		var hash = DBot.HashString(url);
-		var uObj = URL.parse(url);
-		var path = uObj.pathname;
-		var split = path.split('.');
-		var ext = split[split.length - 1].toLowerCase();
-		
-		if (!DBot.HaveValue(allowed, ext))
+		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['polarblur'], 2, args);
 		
 		var fPath;
