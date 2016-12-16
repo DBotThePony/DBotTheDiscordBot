@@ -48,6 +48,7 @@ module.exports = {
 				return DBot.CommandError('User have no avatar? ;n;', 'waw', args, 1);
 		}
 		
+		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
 		
@@ -151,6 +152,7 @@ DBot.RegisterCommand({
 				return DBot.CommandError('User have no avatar? ;n;', 'waw', args, 1);
 		}
 		
+		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
 		

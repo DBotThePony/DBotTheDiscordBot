@@ -34,6 +34,7 @@ module.exports = {
 				return DBot.CommandError('User have no avatar? ;n;', 'triggered', args, 1);
 		}
 		
+		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered', args, 1);
 		
@@ -100,6 +101,7 @@ DBot.RegisterCommand({
 				return DBot.CommandError('User have no avatar? ;n;', 'triggered2', args, 1);
 		}
 		
+		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered2', args, 1);
 		
@@ -166,6 +168,7 @@ DBot.RegisterCommand({
 				return DBot.CommandError('User have no avatar? ;n;', 'triggered2', args, 1);
 		}
 		
+		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered2', args, 1);
 		
