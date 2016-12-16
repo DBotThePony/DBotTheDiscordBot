@@ -45,16 +45,16 @@ IMagick.GetTextSize = function(text, font, size) {
 	
 	text.replace(CharsExp2, function(matched, p1) {
 		if (p1 == '\n') {
-			height += IMagick.PrecacheFontsDataHeight[font] * mult;
+			height += IMagick.PrecacheFontsDataHeight[font] * mult * .85;
 			cLine++;
 			widths[cLine] = 0;
 			return '';
 		}
 		
 		if (IMagick.PrecacheFontsData[font][p1]) {
-			widths[cLine] += IMagick.PrecacheFontsData[font][p1] * mult;
+			widths[cLine] += IMagick.PrecacheFontsData[font][p1] * mult * .95;
 		} else {
-			widths[cLine] += IMagick.PrecacheFontsData[font]['W'] * mult;
+			widths[cLine] += IMagick.PrecacheFontsData[font]['W'] * mult * .95;
 		}
 		
 		return '';
@@ -80,8 +80,8 @@ IMagick.GetCharSize = function(Char, font, size) {
 		throw new Error('Font must be precached: ' + font);
 	
 	let mult = size / 14;
-	let width = (IMagick.PrecacheFontsData[font][Char] || IMagick.PrecacheFontsData[font]['W']) * mult;
-	let height = IMagick.PrecacheFontsDataHeight[font] * mult;
+	let width = (IMagick.PrecacheFontsData[font][Char] || IMagick.PrecacheFontsData[font]['W']) * mult * .95;
+	let height = IMagick.PrecacheFontsDataHeight[font] * mult * .9;
 	
 	return [Math.floor(width), Math.floor(height)];
 }
