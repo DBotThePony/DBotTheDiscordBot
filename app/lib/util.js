@@ -317,3 +317,27 @@ Util.parseHexColor = function(hex) {
 	
 	return [red, green, blue];
 }
+
+Util.WrapText = function(text, limit) {
+	limit = limit || 120;
+	let explode = text.split(/( |\n)+/gi);
+	let lines = [];
+	let cline = 0;
+	let curr = 0;
+	
+	for (let word of explode) {
+		curr += word.length + 1;
+		
+		if (lines[cline])
+			lines[cline] += ' ' + word;
+		else
+			lines[cline] = word;
+		
+		if (curr >= limit) {
+			cline++;
+			curr = 0;
+		}
+	}
+	
+	return lines.join('\n');
+}
