@@ -44,7 +44,7 @@ module.exports = {
 					var magik = spawn('convert', [
 						fPath,
 						'-resize', '512x512',
-						'-recolor', '.3 .1 .3 .3 .1 .3 .3 .1 .3',
+						'-color-matrix', '.3 .1 .3 .3 .1 .3 .3 .1 .3',
 						fPathProcessedTmp
 					]);
 					

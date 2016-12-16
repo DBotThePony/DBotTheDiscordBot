@@ -39,9 +39,10 @@ let fn = function(name, toUse) {
 		if (!DBot.CheckURLImage(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 		
-		let fPath = DBot.WebRoot + '/reflect/' + hash + '.' + DBot.ExtraxtExt(url);
-		let fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_' + toUse + '.' + DBot.ExtraxtExt(url);
-		let fPathProcessedURL = DBot.URLRoot + '/reflect/' + hash + '_' + toUse + '.' + DBot.ExtraxtExt(url);
+		let ext = DBot.ExtraxtExt(url);
+		let fPath = DBot.WebRoot + '/reflect/' + hash + '.' + ext;
+		let fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_' + toUse + '.' + ext;
+		let fPathProcessedURL = DBot.URLRoot + '/reflect/' + hash + '_' + toUse + '.' + ext;
 		
 		let ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {

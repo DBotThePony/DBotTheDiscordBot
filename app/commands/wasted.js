@@ -125,7 +125,7 @@ module.exports = {
 								magikArgs.push(width);
 							}
 							
-							magikArgs.push('-recolor', '.3 .1 .3 .3 .1 .3 .3 .1 .3', '-fill', 'rgba(0,0,0,0.5)');
+							magikArgs.push('-color-matrix', '.3 .1 .3 .3 .1 .3 .3 .1 .3', '-fill', 'rgba(0,0,0,0.5)');
 							
 							let signHeight = height * .2;
 							
@@ -294,7 +294,7 @@ DBot.RegisterCommand({
 								magikArgs.push(width);
 							}
 							
-							magikArgs.push('-recolor', '.3 .1 .3 .3 .1 .3 .3 .1 .3', '-fill', 'rgba(0,0,0,0.05)');
+							magikArgs.push('-color-matrix', '.3 .1 .3 .3 .1 .3 .3 .1 .3', '-fill', 'rgba(0,0,0,0.05)');
 							
 							let signHeight = height / 5;
 							let internsShadowCount = Math.floor(signHeight / 4);
