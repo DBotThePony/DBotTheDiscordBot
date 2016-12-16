@@ -2,15 +2,12 @@
 const child_process = require('child_process');
 const spawn = child_process.spawn;
 const URL = require('url');
-var unirest = require('unirest');
-var fs = DBot.fs;
+const unirest = require('unirest');
+const fs = DBot.fs;
 
-fs.stat(DBot.WebRoot + '/wasted', function(err, stat) {
-	if (!stat)
-		fs.mkdir(DBot.WebRoot + '/wasted');
-});
+Util.mkdir(DBot.WebRoot + '/wasted');
 
-var allowed = [
+const allowed = [
 	'jpeg',
 	'jpg',
 	'png',
@@ -26,7 +23,7 @@ module.exports = {
 	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
-		var url = args[0];
+		let url = args[0];
 		
 		if (typeof(url) == 'object') {
 			url = url.avatarURL;
@@ -44,27 +41,27 @@ module.exports = {
 			}
 		}
 		
-		var hash = DBot.HashString(url);
+		let hash = DBot.HashString(url);
 		
 		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['wasted'], 2, args);
 		
-		var fPath;
+		let fPath;
 		
-		var fPathProcessed = DBot.WebRoot + '/wasted/' + hash + '.png';
-		var fPathProcessedURL = DBot.URLRoot + '/wasted/' + hash + '.png';
+		let fPathProcessed = DBot.WebRoot + '/wasted/' + hash + '.png';
+		let fPathProcessedURL = DBot.URLRoot + '/wasted/' + hash + '.png';
 		
 		msg.channel.startTyping();
 		
-		var ContinueFunc = function() {
+		let ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);
 				} else {
-					var magik = spawn('identify', [fPath]);
+					let magik = spawn('identify', [fPath]);
 					
-					var output = '';
+					let output = '';
 					
 					magik.stderr.on('data', function(data) {
 						console.error(data.toString());
@@ -76,18 +73,18 @@ module.exports = {
 					
 					magik.on('close', function(code) {
 						if (code == 0 && output != '') {
-							var parse = output.split(' ');
-							var fileName = parse[0];
-							var fileType = parse[1];
-							var fileSizes = parse[2];
+							let parse = output.split(' ');
+							let fileName = parse[0];
+							let fileType = parse[1];
+							let fileSizes = parse[2];
 							
-							var fileSizesS = fileSizes.split('x');
-							var width = Number(fileSizesS[0]);
-							var height = Number(fileSizesS[1]);
-							var aspectRatio = height / width;
-							var aspectRatio2 = width / height;
+							let fileSizesS = fileSizes.split('x');
+							let width = Number(fileSizesS[0]);
+							let height = Number(fileSizesS[1]);
+							let aspectRatio = height / width;
+							let aspectRatio2 = width / height;
 							
-							var magikArgs = [fPath];
+							let magikArgs = [fPath];
 							
 							if (width < 512) {
 								magikArgs.push('-resize');
@@ -130,7 +127,7 @@ module.exports = {
 							
 							magikArgs.push('-recolor', '.3 .1 .3 .3 .1 .3 .3 .1 .3', '-fill', 'rgba(0,0,0,0.5)');
 							
-							var signHeight = height * .2;
+							let signHeight = height * .2;
 							
 							magikArgs.push('-draw', 'rectangle 0, ' + (height / 2 - signHeight / 2) + ', ' + width + ', ' + (height / 2 + signHeight / 2));
 							
@@ -147,7 +144,7 @@ module.exports = {
 							
 							magikArgs.push(fPathProcessed);
 							
-							var magik = spawn('convert', magikArgs);
+							let magik = spawn('convert', magikArgs);
 							
 							magik.stderr.on('data', function(data) {
 								console.error(data.toString());
@@ -195,7 +192,7 @@ DBot.RegisterCommand({
 	delay: 5,
 	
 	func: function(args, cmd, msg) {
-		var url = args[0];
+		let url = args[0];
 		
 		if (typeof(url) == 'object') {
 			url = url.avatarURL;
@@ -213,27 +210,27 @@ DBot.RegisterCommand({
 			}
 		}
 		
-		var hash = DBot.HashString(url);
+		let hash = DBot.HashString(url);
 		
 		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['dead'], 2, args);
 		
-		var fPath;
+		let fPath;
 		
-		var fPathProcessed = DBot.WebRoot + '/wasted/' + hash + '_s.png';
-		var fPathProcessedURL = DBot.URLRoot + '/wasted/' + hash + '_s.png';
+		let fPathProcessed = DBot.WebRoot + '/wasted/' + hash + '_s.png';
+		let fPathProcessedURL = DBot.URLRoot + '/wasted/' + hash + '_s.png';
 		
 		msg.channel.startTyping();
 		
-		var ContinueFunc = function() {
+		let ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);
 				} else {
-					var magik = spawn('identify', [fPath]);
+					let magik = spawn('identify', [fPath]);
 					
-					var output = '';
+					let output = '';
 					
 					magik.stderr.on('data', function(data) {
 						console.error(data.toString());
@@ -245,18 +242,18 @@ DBot.RegisterCommand({
 					
 					magik.on('close', function(code) {
 						if (code == 0 && output != '') {
-							var parse = output.split(' ');
-							var fileName = parse[0];
-							var fileType = parse[1];
-							var fileSizes = parse[2];
+							let parse = output.split(' ');
+							let fileName = parse[0];
+							let fileType = parse[1];
+							let fileSizes = parse[2];
 							
-							var fileSizesS = fileSizes.split('x');
-							var width = Number(fileSizesS[0]);
-							var height = Number(fileSizesS[1]);
-							var aspectRatio = height / width;
-							var aspectRatio2 = width / height;
+							let fileSizesS = fileSizes.split('x');
+							let width = Number(fileSizesS[0]);
+							let height = Number(fileSizesS[1]);
+							let aspectRatio = height / width;
+							let aspectRatio2 = width / height;
 							
-							var magikArgs = [fPath];
+							let magikArgs = [fPath];
 							
 							if (width < 512) {
 								magikArgs.push('-resize');
@@ -299,10 +296,10 @@ DBot.RegisterCommand({
 							
 							magikArgs.push('-recolor', '.3 .1 .3 .3 .1 .3 .3 .1 .3', '-fill', 'rgba(0,0,0,0.05)');
 							
-							var signHeight = height / 5;
-							var internsShadowCount = Math.floor(signHeight / 4);
+							let signHeight = height / 5;
+							let internsShadowCount = Math.floor(signHeight / 4);
 							
-							for (var i = internsShadowCount; i >= 0; i--) {
+							for (let i = internsShadowCount; i >= 0; i--) {
 								magikArgs.push('-draw', 'rectangle 0, ' + (height / 2 - signHeight / 2 - i) + ', ' + width + ', ' + (height / 2 + signHeight / 2 + i));
 							}
 							
@@ -317,7 +314,7 @@ DBot.RegisterCommand({
 							
 							magikArgs.push(fPathProcessed);
 							
-							var magik = spawn('convert', magikArgs);
+							let magik = spawn('convert', magikArgs);
 							
 							magik.stderr.on('data', function(data) {
 								console.error(data.toString());

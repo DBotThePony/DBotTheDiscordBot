@@ -5,15 +5,15 @@ if (true)
 const child_process = require('child_process');
 const spawn = child_process.spawn;
 const URL = require('url');
-var unirest = require('unirest');
-var fs = DBot.fs;
+let unirest = require('unirest');
+let fs = DBot.fs;
 
 fs.stat(DBot.WebRoot + '/dice', function(err, stat) {
 	if (!stat)
 		fs.mkdirSync(DBot.WebRoot + '/dice');
 });
 
-var allowed = [
+let allowed = [
 	'jpeg',
 	'jpg',
 	'png',
@@ -30,7 +30,7 @@ module.exports = {
 	delay: 5,
 	
 	func: function(args, cmd, msg) {
-		var url = args[0];
+		let url = args[0];
 		
 		if (typeof(url) == 'object')
 			url = url.avatarURL;
@@ -43,17 +43,17 @@ module.exports = {
 			}
 		}
 		
-		var hash = DBot.HashString(url);
+		let hash = DBot.HashString(url);
 		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;';
 		
-		var fPath;
+		let fPath;
 		
-		var fPathProcessed = DBot.WebRoot + '/dice/' + hash + '.png';
-		var fPathProcessedURL = DBot.URLRoot + '/dice/' + hash + '.png';
+		let fPathProcessed = DBot.WebRoot + '/dice/' + hash + '.png';
+		let fPathProcessedURL = DBot.URLRoot + '/dice/' + hash + '.png';
 		
-		var msgNew;
-		var iShouldDelete = false;
+		let msgNew;
+		let iShouldDelete = false;
 		
 		msg.oldReply(DBot.GenerateWaitMessage()).then(function(i) {
 			msgNew = i;
@@ -62,7 +62,7 @@ module.exports = {
 				msgNew.delete(0);
 		});
 		
-		var ContinueFunc = function() {
+		let ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
 				if (stat && stat.isFile()) {
 					iShouldDelete = true;
@@ -71,7 +71,7 @@ module.exports = {
 					
 					msg.reply(fPathProcessedURL);
 				} else {
-					var magik = spawn('bash', ['./resource/scripts/dice', '-p', '1', '-s', '32', fPath, fPathProcessed]);
+					let magik = spawn('bash', ['./resource/scripts/dice', '-p', '1', '-s', '32', fPath, fPathProcessed]);
 					
 					magik.stderr.on('data', function(data) {
 						console.error(data.toString());

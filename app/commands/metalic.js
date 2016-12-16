@@ -6,7 +6,7 @@ const fs = require('fs');
 
 Util.mkdir(DBot.WebRoot + '/im_composite');
 
-var allowed = [
+const allowed = [
 	'jpeg',
 	'jpg',
 	'png',
@@ -23,7 +23,7 @@ module.exports = {
 	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
-		var url = args[0];
+		let url = args[0];
 		
 		if (typeof(url) == 'object') {
 			url = url.avatarURL;
@@ -41,24 +41,24 @@ module.exports = {
 			}
 		}
 		
-		var sha = DBot.HashString(url);
+		let sha = DBot.HashString(url);
 		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['metalic'], 2, args);
 		
-		var fInput;
+		let fInput;
 		
-		var fpath = DBot.WebRoot + '/im_composite/' + sha + '.png';
-		var fpathURL = DBot.URLRoot + '/im_composite/' + sha + '.png';
+		let fpath = DBot.WebRoot + '/im_composite/' + sha + '.png';
+		let fpathURL = DBot.URLRoot + '/im_composite/' + sha + '.png';
 		
 		msg.channel.startTyping();
 		
-		var ContinueFunc = function() {
+		let ContinueFunc = function() {
 			fs.stat(fpath, function(err, stat) {
 				if (stat) {
 					msg.channel.stopTyping();
 					msg.reply(fpathURL);
 				} else {
-					var magik = spawn('composite', ['(', '(', fInput, '-resize', '667x667>', ')', '-resize', '667x667<', ')', './resource/files/metal.png', '-compose', 'bumpmap', '-gravity', 'center', fpath]);
+					let magik = spawn('composite', ['(', '(', fInput, '-resize', '667x667>', ')', '-resize', '667x667<', ')', './resource/files/metal.png', '-compose', 'bumpmap', '-gravity', 'center', fpath]);
 					
 					Util.Redirect(magik);
 					
@@ -94,7 +94,7 @@ DBot.RegisterCommand({
 	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
-		var url = args[0];
+		let url = args[0];
 		
 		if (typeof(url) == 'object') {
 			url = url.avatarURL;
@@ -112,24 +112,24 @@ DBot.RegisterCommand({
 			}
 		}
 		
-		var sha = DBot.HashString(url);
+		let sha = DBot.HashString(url);
 		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['metalic'], 2, args);
 		
-		var fInput;
+		let fInput;
 		
-		var fpath = DBot.WebRoot + '/im_composite/' + sha + '_c.png';
-		var fpathURL = DBot.URLRoot + '/im_composite/' + sha + '_c.png';
+		let fpath = DBot.WebRoot + '/im_composite/' + sha + '_c.png';
+		let fpathURL = DBot.URLRoot + '/im_composite/' + sha + '_c.png';
 		
 		msg.channel.startTyping();
 		
-		var ContinueFunc = function() {
+		let ContinueFunc = function() {
 			fs.stat(fpath, function(err, stat) {
 				if (stat) {
 					msg.channel.stopTyping();
 					msg.reply(fpathURL);
 				} else {
-					var magik = spawn('composite', ['(', '(', fInput, '-resize', '667x667>', ')', '-resize', '667x667<', ')', './resource/files/metal.png', '-compose', 'color-burn', '-gravity', 'center', fpath]);
+					let magik = spawn('composite', ['(', '(', fInput, '-resize', '667x667>', ')', '-resize', '667x667<', ')', './resource/files/metal.png', '-compose', 'color-burn', '-gravity', 'center', fpath]);
 					
 					Util.Redirect(magik);
 					

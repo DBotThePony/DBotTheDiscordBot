@@ -2,27 +2,18 @@
 const child_process = require('child_process');
 const spawn = child_process.spawn;
 const URL = require('url');
-var unirest = require('unirest');
-var fs = DBot.fs;
+const unirest = require('unirest');
+const fs = DBot.fs;
 
-var stat = fs.statSync(DBot.WebRoot + '/jpeg');
+Util.mkdir(DBot.WebRoot + '/jpeg', function() {
+	Util.mkdir(DBot.WebRoot + '/jpeg/dlcache');
+	
+	for (i = 1; i <= 10; i++) {
+		Util.mkdir(DBot.WebRoot + '/jpeg/' + i);
+	}
+});
 
-if (!stat.isDirectory())
-	fs.mkdirSync(DBot.WebRoot + '/jpeg');
-
-for (i = 1; i <= 10; i++) {
-	fs.stat(DBot.WebRoot + '/jpeg/' + i, function(err, stat) {
-		if (!stat.isDirectory())
-			fs.mkdir(DBot.WebRoot + '/jpeg/' + i);
-	});
-}
-
-var stat = fs.statSync(DBot.WebRoot + '/jpeg/dlcache');
-
-if (!stat.isDirectory())
-	fs.mkdirSync(DBot.WebRoot + '/jpeg/dlcache');
-
-var allowed = [
+const allowed = [
 	'jpeg',
 	'jpg',
 	'png',
@@ -38,8 +29,8 @@ module.exports = {
 	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
-		var url = args[0];
-		var quality = args[1] || '3';
+		let url = args[0];
+		let quality = args[1] || '3';
 		
 		if (quality > 10)
 			quality = 10;
@@ -58,17 +49,17 @@ module.exports = {
 			}
 		}
 		
-		var hash = DBot.HashString(url);
+		let hash = DBot.HashString(url);
 		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['jpeg'], 2, args);
 		
 		
-		var fPath;
-		var fPathProcessed = DBot.WebRoot + '/jpeg/' + quality + '/' + hash + '.jpg';
-		var fPathProcessedURL = DBot.URLRoot + '/jpeg/' + quality + '/' + hash + '.jpg';
+		let fPath;
+		let fPathProcessed = DBot.WebRoot + '/jpeg/' + quality + '/' + hash + '.jpg';
+		let fPathProcessedURL = DBot.URLRoot + '/jpeg/' + quality + '/' + hash + '.jpg';
 		
-		var msgNew;
-		var iShouldDelete = false;
+		let msgNew;
+		let iShouldDelete = false;
 		
 		msg.oldReply(DBot.GenerateWaitMessage()).then(function(i) {
 			msgNew = i;
@@ -77,12 +68,12 @@ module.exports = {
 				msgNew.delete(0);
 		});
 		
-		var ContinueFunc = function() {
+		let ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
 				if (stat && stat.isFile()) {
 					msg.reply(fPathProcessedURL);
 				} else {
-					var magik = spawn('convert', [fPath, '-quality', quality.toString(), fPathProcessed]);
+					let magik = spawn('convert', [fPath, '-quality', quality.toString(), fPathProcessed]);
 					
 					magik.stderr.on('data', function(data) {
 						console.error(data.toString());

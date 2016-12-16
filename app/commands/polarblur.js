@@ -2,15 +2,12 @@
 const child_process = require('child_process');
 const spawn = child_process.spawn;
 const URL = require('url');
-var unirest = require('unirest');
-var fs = DBot.fs;
+const unirest = require('unirest');
+const fs = DBot.fs;
 
-fs.stat(DBot.WebRoot + '/polarblur', function(err, stat) {
-	if (!stat)
-		fs.mkdirSync(DBot.WebRoot + '/polarblur');
-});
+Util.mkdir(DBot.WebRoot + '/polarblur');
 
-var allowed = [
+const allowed = [
 	'jpeg',
 	'jpg',
 	'png',
@@ -28,7 +25,7 @@ module.exports = {
 	delay: 3,
 	
 	func: function(args, cmd, msg) {
-		var url = args[0];
+		let url = args[0];
 		
 		if (typeof(url) == 'object') {
 			url = url.avatarURL;
@@ -46,24 +43,24 @@ module.exports = {
 			}
 		}
 		
-		var hash = DBot.HashString(url);
+		let hash = DBot.HashString(url);
 		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['polarblur'], 2, args);
 		
-		var fPath;
+		let fPath;
 		
-		var fPathProcessed = DBot.WebRoot + '/polarblur/' + hash + '.png';
-		var fPathProcessedURL = DBot.URLRoot + '/polarblur/' + hash + '.png';
+		let fPathProcessed = DBot.WebRoot + '/polarblur/' + hash + '.png';
+		let fPathProcessedURL = DBot.URLRoot + '/polarblur/' + hash + '.png';
 		
 		msg.channel.startTyping();
 		
-		var ContinueFunc = function() {
+		let ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);
 				} else {
-					var magik = spawn('bash', ['./resource/scripts/polarblur', '-r', '30', '-a', '0', fPath, fPathProcessed]);
+					let magik = spawn('bash', ['./resource/scripts/polarblur', '-r', '30', '-a', '0', fPath, fPathProcessed]);
 					
 					magik.stderr.on('data', function(data) {
 						console.error(data.toString());

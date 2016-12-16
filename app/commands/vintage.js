@@ -2,25 +2,14 @@
 const child_process = require('child_process');
 const spawn = child_process.spawn;
 const URL = require('url');
-var unirest = require('unirest');
-var fs = DBot.fs;
+let unirest = require('unirest');
+let fs = DBot.fs;
 
-fs.stat(DBot.WebRoot + '/vintage', function(err, stat) {
-	if (!stat)
-		fs.mkdirSync(DBot.WebRoot + '/vintage');
-});
+Util.mkdir(DBot.WebRoot + '/vintage');
+Util.mkdir(DBot.WebRoot + '/vintage2');
+Util.mkdir(DBot.WebRoot + '/vintage3');
 
-fs.stat(DBot.WebRoot + '/vintage2', function(err, stat) {
-	if (!stat)
-		fs.mkdirSync(DBot.WebRoot + '/vintage2');
-});
-
-fs.stat(DBot.WebRoot + '/vintage3', function(err, stat) {
-	if (!stat)
-		fs.mkdirSync(DBot.WebRoot + '/vintage3');
-});
-
-var allowed = [
+let allowed = [
 	'jpeg',
 	'jpg',
 	'png',
@@ -38,7 +27,7 @@ module.exports = {
 	delay: 3,
 	
 	func: function(args, cmd, msg) {
-		var url = args[0];
+		let url = args[0];
 		
 		if (typeof(url) == 'object') {
 			url = url.avatarURL;
@@ -56,19 +45,19 @@ module.exports = {
 			}
 		}
 		
-		var hash = DBot.HashString(url);
+		let hash = DBot.HashString(url);
 		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['vintage'], 2, args);
 		
-		var fPath;
+		let fPath;
 		
-		var fPathProcessed = DBot.WebRoot + '/vintage/' + hash + '.png';
-		var fPathProcessedURL = DBot.URLRoot + '/vintage/' + hash + '.png';
+		let fPathProcessed = DBot.WebRoot + '/vintage/' + hash + '.png';
+		let fPathProcessedURL = DBot.URLRoot + '/vintage/' + hash + '.png';
 		
 		msg.channel.startTyping();
 		
-		var msgNew;
-		var iShouldDelete = false;
+		let msgNew;
+		let iShouldDelete = false;
 		
 		msg.oldReply(DBot.GenerateWaitMessage()).then(function(i) {
 			msgNew = i;
@@ -77,7 +66,7 @@ module.exports = {
 				msgNew.delete(0);
 		});
 		
-		var ContinueFunc = function() {
+		let ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
@@ -87,7 +76,7 @@ module.exports = {
 					
 					msg.reply(fPathProcessedURL);
 				} else {
-					var magik = spawn('bash', ['./resource/scripts/vintage1', fPath, fPathProcessed]);
+					let magik = spawn('bash', ['./resource/scripts/vintage1', fPath, fPathProcessed]);
 					
 					magik.stderr.on('data', function(data) {
 						console.error(data.toString());
@@ -138,7 +127,7 @@ DBot.RegisterCommand({
 	delay: 5,
 	
 	func: function(args, cmd, msg) {
-		var url = args[0];
+		let url = args[0];
 		
 		if (typeof(url) == 'object')
 			url = url.avatarURL;
@@ -151,19 +140,19 @@ DBot.RegisterCommand({
 			}
 		}
 		
-		var hash = DBot.HashString(url);
+		let hash = DBot.HashString(url);
 		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['vintage2'], 2, args);
 		
-		var fPath;
+		let fPath;
 		
-		var fPathProcessed = DBot.WebRoot + '/vintage2/' + hash + '.png';
-		var fPathProcessedURL = DBot.URLRoot + '/vintage2/' + hash + '.png';
+		let fPathProcessed = DBot.WebRoot + '/vintage2/' + hash + '.png';
+		let fPathProcessedURL = DBot.URLRoot + '/vintage2/' + hash + '.png';
 		
 		msg.channel.startTyping();
 		
-		var msgNew;
-		var iShouldDelete = false;
+		let msgNew;
+		let iShouldDelete = false;
 		
 		msg.oldReply(DBot.GenerateWaitMessage()).then(function(i) {
 			msgNew = i;
@@ -172,7 +161,7 @@ DBot.RegisterCommand({
 				msgNew.delete(0);
 		});
 		
-		var ContinueFunc = function() {
+		let ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
@@ -182,7 +171,7 @@ DBot.RegisterCommand({
 					
 					msg.reply(fPathProcessedURL);
 				} else {
-					var magik = spawn('bash', ['./resource/scripts/vintage2', fPath, fPathProcessed]);
+					let magik = spawn('bash', ['./resource/scripts/vintage2', fPath, fPathProcessed]);
 					
 					magik.stderr.on('data', function(data) {
 						console.error(data.toString());
@@ -230,7 +219,7 @@ DBot.RegisterCommand({
 	delay: 5,
 	
 	func: function(args, cmd, msg) {
-		var url = args[0];
+		let url = args[0];
 		
 		if (typeof(url) == 'object')
 			url = url.avatarURL;
@@ -243,19 +232,19 @@ DBot.RegisterCommand({
 			}
 		}
 		
-		var hash = DBot.HashString(url);
+		let hash = DBot.HashString(url);
 		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['vintage3'], 2, args);
 		
-		var fPath;
+		let fPath;
 		
-		var fPathProcessed = DBot.WebRoot + '/vintage3/' + hash + '.png';
-		var fPathProcessedURL = DBot.URLRoot + '/vintage3/' + hash + '.png';
+		let fPathProcessed = DBot.WebRoot + '/vintage3/' + hash + '.png';
+		let fPathProcessedURL = DBot.URLRoot + '/vintage3/' + hash + '.png';
 		
 		msg.channel.startTyping();
 		
-		var msgNew;
-		var iShouldDelete = false;
+		let msgNew;
+		let iShouldDelete = false;
 		
 		msg.oldReply(DBot.GenerateWaitMessage()).then(function(i) {
 			msgNew = i;
@@ -264,7 +253,7 @@ DBot.RegisterCommand({
 				msgNew.delete(0);
 		});
 		
-		var ContinueFunc = function() {
+		let ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
@@ -274,7 +263,7 @@ DBot.RegisterCommand({
 					
 					msg.reply(fPathProcessedURL);
 				} else {
-					var magik = spawn('bash', ['./resource/scripts/vintage3', fPath, fPathProcessed]);
+					let magik = spawn('bash', ['./resource/scripts/vintage3', fPath, fPathProcessed]);
 					
 					magik.stderr.on('data', function(data) {
 						console.error(data.toString());

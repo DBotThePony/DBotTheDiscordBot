@@ -2,15 +2,12 @@
 const child_process = require('child_process');
 const spawn = child_process.spawn;
 const URL = require('url');
-var unirest = require('unirest');
-var fs = DBot.fs;
+const unirest = require('unirest');
+const fs = DBot.fs;
 
-fs.stat(DBot.WebRoot + '/vignette', function(err, stat) {
-	if (!stat)
-		fs.mkdirSync(DBot.WebRoot + '/vignette');
-});
+Util.mkdir(DBot.WebRoot + '/vignette');
 
-var allowed = [
+let allowed = [
 	'jpeg',
 	'jpg',
 	'png',
@@ -27,7 +24,7 @@ module.exports = {
 	delay: 3,
 	
 	func: function(args, cmd, msg) {
-		var url = args[0];
+		let url = args[0];
 		
 		if (typeof(url) == 'object') {
 			url = url.avatarURL;
@@ -45,19 +42,19 @@ module.exports = {
 			}
 		}
 		
-		var hash = DBot.HashString(url);
+		let hash = DBot.HashString(url);
 		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['vignette'], 2, args);
 		
 		msg.channel.startTyping();
 		
-		var fPath;
+		let fPath;
 		
-		var fPathProcessed = DBot.WebRoot + '/vignette/' + hash + '.png';
-		var fPathProcessedURL = DBot.URLRoot + '/vignette/' + hash + '.png';
+		let fPathProcessed = DBot.WebRoot + '/vignette/' + hash + '.png';
+		let fPathProcessedURL = DBot.URLRoot + '/vignette/' + hash + '.png';
 		
-		var msgNew;
-		var iShouldDelete = false;
+		let msgNew;
+		let iShouldDelete = false;
 		
 		msg.oldReply(DBot.GenerateWaitMessage()).then(function(i) {
 			msgNew = i;
@@ -66,7 +63,7 @@ module.exports = {
 				msgNew.delete(0);
 		});
 		
-		var ContinueFunc = function() {
+		let ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
@@ -76,7 +73,7 @@ module.exports = {
 					
 					msg.reply(fPathProcessedURL);
 				} else {
-					var magik = spawn('bash', ['./resource/scripts/vignette', '-i', '50', '-o', '150', '-c', 'black', '-a', '100', fPath, fPathProcessed]);
+					let magik = spawn('bash', ['./resource/scripts/vignette', '-i', '50', '-o', '150', '-c', 'black', '-a', '100', fPath, fPathProcessed]);
 					
 					magik.stderr.on('data', function(data) {
 						console.error(data.toString());
