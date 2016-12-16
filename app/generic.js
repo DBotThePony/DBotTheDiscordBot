@@ -307,6 +307,10 @@ const imageExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd)(\?|\/)?/;
 const expr = new RegExp('^https?://' + DBot.URLRootBare + '/(.*)');
 const cover = new RegExp('\\.\\./', 'gi');
 
+DBot.ExtraxtExt = function(url) {
+	return url.match(imageExt)[1];
+}
+
 DBot.LoadImageURL = function(url, callback, callbackError) {
 	let hash = DBot.HashString(url);
 	let matchExt = url.match(imageExt);
