@@ -10,12 +10,12 @@ module.exports = {
 	func: function(args, cmd, msg) {
 		if (DBot.DBot == msg.author.id) {
 			if (typeof args[0] == 'object') {
-				return '* hugs <@' + args[0].id + '> *';
+				msg.channel.sendMessage('*hugs* <@' + args[0].id + '>');
 			} else {
-				return '* hugs <@' + msg.author.id + '> *';
+				msg.channel.sendMessage('*hugs* <@' + msg.author.id + '>');
 			}
 		} else {
-			return '* hugs <@' + msg.author.id + '> *';
+			msg.channel.sendMessage('*hugs* <@' + msg.author.id + '>');
 		}
 	}
 }
