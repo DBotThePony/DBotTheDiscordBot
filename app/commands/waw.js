@@ -197,7 +197,6 @@ DBot.RegisterCommand({
 						'-delay', '4',
 						'-set', 'delay', '4',
 						'-loop', '0',
-						'-alpha', 'off',
 						fpathProcessed
 					);
 					
