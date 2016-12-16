@@ -31,7 +31,6 @@ module.exports = {
 	name: 'waw',
 	alias: ['wow', 'drugs', 'lcd'],
 	
-	argNeeded: true,
 	allowUserArgument: true,
 	delay: 10,
 	
@@ -135,7 +134,6 @@ module.exports = {
 DBot.RegisterCommand({
 	name: 'wave',
 	
-	argNeeded: true,
 	allowUserArgument: true,
 	delay: 10,
 	

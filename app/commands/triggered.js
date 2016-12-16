@@ -18,7 +18,6 @@ const allowed = [
 module.exports = {
 	name: 'triggered',
 	
-	argNeeded: true,
 	allowUserArgument: true,
 	
 	help_args: '<url or user>',
@@ -85,7 +84,6 @@ module.exports = {
 DBot.RegisterCommand({
 	name: 'triggered2',
 	
-	argNeeded: true,
 	allowUserArgument: true,
 	
 	help_args: '<url or user>',
@@ -152,7 +150,6 @@ DBot.RegisterCommand({
 DBot.RegisterCommand({
 	name: 'triggered3',
 	
-	argNeeded: true,
 	allowUserArgument: true,
 	
 	help_args: '<url or user>',
