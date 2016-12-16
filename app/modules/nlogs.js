@@ -1,6 +1,7 @@
 
 const moment = require('moment');
 const utf8 = require('utf8');
+const fs = require('fs');
 const hDuration = require('humanize-duration');
 
 cvars.ServerVar('name_notify', '0', [FCVAR_BOOLONLY], 'Enable nickname changes notifications');
@@ -107,6 +108,8 @@ hook.Add('UserInitialized', 'MemberNameLogs', function(user, id) {
 	});
 });
 
+Util.mkdir(DBot.WebRoot + '/namelog');
+
 DBot.RegisterCommand({
 	name: 'namelog',
 	alias: ['membernamelog', 'membernames', 'mnames', 'menamemeslog', 'namelogs'],
@@ -184,6 +187,60 @@ DBot.RegisterCommand({
 				msg.reply(output + '\n```');
 			});
 		}
+	}
+});
+
+DBot.RegisterCommand({
+	name: 'fnamelog',
+	alias: ['fullnamelog'],
+	
+	help_args: '',
+	desc: 'Lists last (up to 100) nickname changes',
+	allowUserArgument: true,
+	
+	func: function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'Onoh! It is PM ;n;';
+		
+		let fuckingQuery = `
+			SELECT
+				name_logs_list."OLD",
+				name_logs_list."NEW",
+				name_logs_list."STAMP"
+			FROM
+				name_logs_list,
+				member_id
+			WHERE
+				member_id."SERVER" = ${msg.channel.guild.uid} AND
+				name_logs_list."MEMBER" = member_id."ID"
+			ORDER BY name_logs_list."STAMP" DESC
+			LIMIT 100`;
+		
+		Postgres.query(fuckingQuery, function(err, data) {
+			if (err) {
+				msg.reply('WTF');
+				return;
+			}
+			
+			if (!data[0]) {
+				msg.reply('No data was returned in query');
+				return;
+			}
+			
+			let pth = '/namelog/' + DBot.HashString(CurTime() + '_' + msg.channel.guild.id) + '.txt';
+			let stream = fs.createWriteStream(DBot.WebRoot + pth);
+			stream.write('\n\n');
+			
+			for (let row of data) {
+				stream.write(Util.AppendSpaces(row.OLD, 50) + '  --->   ' + Util.AppendSpaces(row.NEW, 50) + ' (' + moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ', ' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)\n');
+			}
+			
+			stream.end();
+			
+			stream.on('finish', function() {
+				msg.reply(DBot.URLRoot + pth);
+			});
+		});
 	}
 });
 
