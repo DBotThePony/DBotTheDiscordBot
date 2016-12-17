@@ -15,6 +15,9 @@ hook.Add('SQLInitialize', 'uptime-bot', function() {
 let usersCache = [];
 
 setInterval(function() {
+	if (!DBot.IsOnline())
+		return;
+	
 	let finalQuery = 'BEGIN;';
 	
 	for (let user of usersCache) {
