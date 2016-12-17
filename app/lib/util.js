@@ -64,12 +64,9 @@ Util.ToNumber = function(arg) {
 	
 	if (arg) {
 		if (arg.match(/^-?[0-9]+$/)) {
-			var tryNum = Number(arg);
+			let tryNum = parseInt(arg);
 		
 			if (tryNum == tryNum) { // NaN ???
-				if (tryNum <= 0)
-					tryNum = 1;
-				
 				num = tryNum;
 			}
 		}
@@ -84,14 +81,11 @@ Util.ToNumberSoft = function(arg) {
 	var num;
 	
 	if (arg) {
-		var match = arg.match(/-?^[0-9]+/);
+		let match = arg.match(/^-?[0-9]+/);
 		if (match) {
-			var tryNum = Number(match[0]);
+			let tryNum = parseInt(match[0]);
 		
 			if (tryNum == tryNum) { // NaN ???
-				if (tryNum <= 0)
-					tryNum = 1;
-				
 				num = tryNum;
 			}
 		}
