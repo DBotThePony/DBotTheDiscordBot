@@ -192,6 +192,7 @@ DBot.GetUserID = function(obj) {
 		throw new Error('Initialize user first (' + (obj && obj.username || 'null') + ')');
 	}
 	
+	obj.uid = DBot.UsersIDs[id];
 	return DBot.UsersIDs[id];
 }
 
@@ -203,6 +204,7 @@ DBot.GetChannelID = function(obj) {
 		throw new Error('Initialize channel first (' + (obj && obj.name || 'null') + ')');
 	}
 	
+	obj.uid = DBot.ChannelIDs[id];
 	return DBot.ChannelIDs[id];
 }
 
@@ -214,6 +216,7 @@ DBot.GetServerID = function(obj) {
 		throw new Error('Initialize server first (' + (obj && obj.name || 'null') + ')');
 	}
 	
+	obj.uid = DBot.ServersIDs[id];
 	return DBot.ServersIDs[id];
 }
 
@@ -236,6 +239,7 @@ DBot.GetUserIDSoft = function(obj) {
 		return false;
 	}
 	
+	obj.uid = DBot.UsersIDs[id];
 	return DBot.UsersIDs[id];
 }
 
@@ -247,6 +251,7 @@ DBot.GetChannelIDSoft = function(obj) {
 		return false;
 	}
 	
+	obj.uid = DBot.ChannelIDs[id];
 	return DBot.ChannelIDs[id];
 }
 
@@ -325,8 +330,10 @@ DBot.DefineUser = function(user) {
 	if (LoadingUser[id])
 		return;
 	
-	if (DBot.UsersIDs[id])
+	if (DBot.UsersIDs[id]) {
+		user.uid = DBot.UsersIDs[id];
 		return;
+	}
 	
 	LoadingUser[id] = true;
 	
@@ -356,8 +363,10 @@ setInterval(updateLastSeenFunc, 60000);
 
 DBot.DefineChannel = function(channel) {
 	let id = channel.id;
-	if (DBot.ChannelIDs[id])
+	if (DBot.ChannelIDs[id]) {
+		channel.uid = DBot.ChannelIDs[id];
 		return;
+	}
 	
 	// PM
 	if (!channel.guild)
