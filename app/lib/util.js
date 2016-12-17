@@ -63,7 +63,7 @@ Util.ToNumber = function(arg) {
 	var num;
 	
 	if (arg) {
-		if (arg.match(/-?^[0-9]+$/)) {
+		if (arg.match(/^-?[0-9]+$/)) {
 			var tryNum = Number(arg);
 		
 			if (tryNum == tryNum) { // NaN ???
