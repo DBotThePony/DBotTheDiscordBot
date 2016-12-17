@@ -7,7 +7,7 @@ const fs = require('fs');
 
 Util.mkdir(DBot.WebRoot + '/append');
 
-let fn = function(fName, i) {
+let fn = function(fName, i, resize, fName2) {
 	return function(args, cmd, msg) {
 		let urlBuild = [];
 		
@@ -19,13 +19,13 @@ let fn = function(fName, i) {
 				url = arg.avatarURL;
 				
 				if (!url)
-					return DBot.CommandError('User have nu avatar :<', fName, args, Number(i) + 1);
+					return DBot.CommandError('User have nu avatar :<', fName2, args, Number(i) + 1);
 			} else {
 				url = arg;
 			}
 			
 			if (!DBot.CheckURLImage(url))
-				return DBot.CommandError('Invalid url maybe? ;w;', fName, args, Number(i) + 1);
+				return DBot.CommandError('Invalid url maybe? ;w;', fName2, args, Number(i) + 1);
 			
 			urlBuild.push(url);
 		}
@@ -51,10 +51,15 @@ let fn = function(fName, i) {
 					let magikArgs = [];
 					
 					for (let ur of urlStrings) {
-						magikArgs.push(ur);
+						if (!resize)
+							magikArgs.push(ur);
+						else if (resize == 1)
+							magikArgs.push('(', ur, '-resize', '512', ')');
+						else if (resize == 2)
+							magikArgs.push('(', ur, '-resize', 'x512', ')');
 					}
 					
-					magikArgs.push(arg, fpath);
+					magikArgs.push(fName, fpath);
 					
 					let magik = spawn('convert', magikArgs);
 					
@@ -97,7 +102,7 @@ module.exports = {
 	desc: 'Appends images at horisontal',
 	allowUserArgument: true,
 	
-	func: fn('+append', 1),
+	func: fn('+append', 1, null, '+append'),
 }
 
 DBot.RegisterCommand({
@@ -108,7 +113,29 @@ DBot.RegisterCommand({
 	desc: 'Appends images at vertical',
 	allowUserArgument: true,
 	
-	func: fn('-append', 2),
+	func: fn('-append', 2, null, '+append'),
+});
+
+module.exports = {
+	name: 'rappend',
+	alias: ['r+append', '+rappend'],
+	
+	help_args: '<image1> <image2> ...',
+	desc: 'Appends images at horisontal. Rescales every image',
+	allowUserArgument: true,
+	
+	func: fn('+append', 3, 2, 'r+append'),
+}
+
+DBot.RegisterCommand({
+	name: 'rvappend',
+	alias: ['r-append', '-rappend', 'vrappend'],
+	
+	help_args: '<image1> <image2> ...',
+	desc: 'Appends images at vertical. Rescales every image',
+	allowUserArgument: true,
+	
+	func: fn('-append', 4, 1, 'r-append'),
 });
 
 DBot.RegisterCommand({
