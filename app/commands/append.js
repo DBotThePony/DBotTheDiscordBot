@@ -7,41 +7,25 @@ const fs = require('fs');
 
 Util.mkdir(DBot.WebRoot + '/append');
 
-var allowedExts = [
-	'jpeg',
-	'jpg',
-	'png',
-	'tif',
-	'bmp',
-];
-
-let fn = function(arg, i) {
+let fn = function(fName, i) {
 	return function(args, cmd, msg) {
-		var urlBuild = [];
+		let urlBuild = [];
 		
-		for (let arg of args) {
+		for (let i in args) {
+			let arg = args[i];
 			let url;
 			
 			if (typeof arg == 'object') {
 				url = arg.avatarURL;
 				
-				if (!url) {
-					msg.reply('User have no avatar :<' + Util.HighlightHelp([arg], Number(i) + 2, args));
-					return;
-				}
+				if (!url)
+					return DBot.CommandError('User have nu avatar :<', fName, args, Number(i) + 1);
 			} else {
 				url = arg;
 			}
 			
-			let uObj = URL.parse(url);
-			let path = uObj.pathname;
-			let split = path.split('.');
-			let ext = split[split.length - 1].toLowerCase();
-			
-			if (!Util.HasValue(allowedExts, ext)) {
-				msg.reply('One of arguments is invalid :<' + Util.HighlightHelp([arg], Number(i) + 2, args));
-				return;
-			}
+			if (!DBot.CheckURLImage(url))
+				return DBot.CommandError('Invalid url maybe? ;w;', fName, args, Number(i) + 1);
 			
 			urlBuild.push(url);
 		}
@@ -49,9 +33,9 @@ let fn = function(arg, i) {
 		if (urlBuild.length < 2)
 			return 'Must specify at least two images';
 		
-		var sha = DBot.HashString(urlBuild.join(' '));
-		var fpath = DBot.WebRoot + '/append/' + sha + '_' + i + '.png';
-		var fpathU = DBot.URLRoot + '/append/' + sha + '_' + i + '.png';
+		let sha = DBot.HashString(urlBuild.join(' '));
+		let fpath = DBot.WebRoot + '/append/' + sha + '_' + i + '.png';
+		let fpathU = DBot.URLRoot + '/append/' + sha + '_' + i + '.png';
 		
 		msg.channel.startTyping();
 		
@@ -60,11 +44,11 @@ let fn = function(arg, i) {
 				msg.channel.stopTyping();
 				msg.reply(fpathU);
 			} else {
-				var urlStrings = [];
-				var left = urlBuild.length;
+				let urlStrings = [];
+				let left = urlBuild.length;
 				
-				var continueFunc = function() {
-					var magikArgs = [];
+				let continueFunc = function() {
+					let magikArgs = [];
 					
 					for (let ur of urlStrings) {
 						magikArgs.push(ur);
@@ -72,7 +56,7 @@ let fn = function(arg, i) {
 					
 					magikArgs.push(arg, fpath);
 					
-					var magik = spawn('convert', magikArgs);
+					let magik = spawn('convert', magikArgs);
 					
 					Util.Redirect(magik);
 					
@@ -97,7 +81,7 @@ let fn = function(arg, i) {
 						}
 					}, function(result) {
 						msg.channel.stopTyping();
-						msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '" URL: ' + urlStrings[i]);
+						msg.reply('Failed to download image. `HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '` URL: ' + urlStrings[i]);
 					});
 				}
 			}
@@ -125,4 +109,16 @@ DBot.RegisterCommand({
 	allowUserArgument: true,
 	
 	func: fn('-append', 2),
+});
+
+DBot.RegisterCommand({
+	name: 'merge',
+	
+	help_args: '',
+	desc: '',
+	help_hide: true,
+	
+	func: function() {
+		return 'There is no command named `merge`, but instead you can use `-append` (appends images at vertical) and +append (appends images at horisontal)';
+	},
 });
