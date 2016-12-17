@@ -8,6 +8,9 @@ module.exports = {
 	help_hide: true,
 	
 	func: function(args, cmd, msg) {
-		return 'sudo: You are not a Lauren Faust!';
+		if (msg.author.id == DBot.DBot)
+			return 'sudo ' + cmd + '...';
+		else
+			return '42';
 	}
 }
