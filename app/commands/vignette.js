@@ -34,17 +34,14 @@ module.exports = {
 			}
 		}
 		
-		if (!url) {
-			url = DBot.LastURLImageInChannel(msg.channel);
-			
-			if (!url) {
-				return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['vignette'], 2, args);
-			}
-		}
+		url = url || DBot.LastURLImageInChannel(msg.channel);
+		if (!url)
+			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+		
+		if (!DBot.CheckURLImage(url))
+			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
 		
 		let hash = DBot.HashString(url);
-		if (!DBot.CheckURLImage(url))
-			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['vignette'], 2, args);
 		
 		msg.channel.startTyping();
 		

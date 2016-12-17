@@ -27,17 +27,14 @@ let fn = function(name, toUse) {
 			}
 		}
 		
-		if (!url) {
-			url = DBot.LastURLImageInChannel(msg.channel);
-			
-			if (!url) {
-				return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
-			}
-		}
+		url = url || DBot.LastURLImageInChannel(msg.channel);
+		if (!url)
+			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+		
+		if (!DBot.CheckURLImage(url))
+			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
 		
 		let hash = DBot.HashString(url);
-		if (!DBot.CheckURLImage(url))
-			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 		
 		let ext = DBot.ExtraxtExt(url);
 		let fPath = DBot.WebRoot + '/reflect/' + hash + '.' + ext;
@@ -143,22 +140,14 @@ let fn2 = function(name, toUse, dir) {
 			}
 		}
 		
-		if (!url) {
-			url = DBot.LastURLImageInChannel(msg.channel);
-			
-			if (!url) {
-				return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
-			}
-		}
+		url = url || DBot.LastURLImageInChannel(msg.channel);
+		if (!url)
+			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+		
+		if (!DBot.CheckURLImage(url))
+			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
 		
 		let hash = DBot.HashString(url);
-		let uObj = URL.parse(url);
-		let path = uObj.pathname;
-		let split = path.split('.');
-		let ext = split[split.length - 1].toLowerCase();
-		
-		if (!DBot.HaveValue(allowed, ext))
-			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 		
 		let fPath;
 		let fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_' + toUse + '.png';
@@ -233,17 +222,14 @@ let fn3 = function(name) {
 			}
 		}
 		
-		if (!url) {
-			url = DBot.LastURLImageInChannel(msg.channel);
-			
-			if (!url) {
-				return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
-			}
-		}
+		url = url || DBot.LastURLImageInChannel(msg.channel);
+		if (!url)
+			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+		
+		if (!DBot.CheckURLImage(url))
+			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
 		
 		let hash = DBot.HashString(url);
-		if (!DBot.CheckURLImage(url))
-			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 		
 		let fPath;
 		let fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_' + name + '.png';

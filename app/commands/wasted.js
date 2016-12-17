@@ -33,18 +33,14 @@ module.exports = {
 			}
 		}
 		
-		if (!url) {
-			url = DBot.LastURLImageInChannel(msg.channel);
-			
-			if (!url) {
-				return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['wasted'], 2, args);
-			}
-		}
-		
-		let hash = DBot.HashString(url);
+		url = url || DBot.LastURLImageInChannel(msg.channel);
+		if (!url)
+			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
 		
 		if (!DBot.CheckURLImage(url))
-			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['wasted'], 2, args);
+			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+		
+		let hash = DBot.HashString(url);
 		
 		let fPath;
 		

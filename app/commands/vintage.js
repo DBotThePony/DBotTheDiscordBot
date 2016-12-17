@@ -37,17 +37,14 @@ module.exports = {
 			}
 		}
 		
-		if (!url) {
-			url = DBot.LastURLImageInChannel(msg.channel);
-			
-			if (!url) {
-				return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['vintage'], 2, args);
-			}
-		}
+		url = url || DBot.LastURLImageInChannel(msg.channel);
+		if (!url)
+			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+		
+		if (!DBot.CheckURLImage(url))
+			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
 		
 		let hash = DBot.HashString(url);
-		if (!DBot.CheckURLImage(url))
-			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['vintage'], 2, args);
 		
 		let fPath;
 		
@@ -132,17 +129,14 @@ DBot.RegisterCommand({
 		if (typeof(url) == 'object')
 			url = url.avatarURL;
 		
-		if (!url) {
-			url = DBot.LastURLInChannel(msg.channel);
-			
-			if (!url) {
-				return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['vintage2'], 2, args);
-			}
-		}
+		url = url || DBot.LastURLImageInChannel(msg.channel);
+		if (!url)
+			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+		
+		if (!DBot.CheckURLImage(url))
+			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
 		
 		let hash = DBot.HashString(url);
-		if (!DBot.CheckURLImage(url))
-			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['vintage2'], 2, args);
 		
 		let fPath;
 		
