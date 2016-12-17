@@ -162,23 +162,43 @@ Util.HighlightHelp = function(args, pos, toMerge, noTilds) {
 		args[pos - 1] = '<missing>';
 	}
 	
-	for (let i in args) {
-		let str = args[i];
-		
-		if (typeof args[i] == 'object') { // Assume user
-			str = '<@' + args[i].id + '>';
+	if (args.join('').length > 100) {
+		for (let i in args) {
+			let str = args[i];
+			
+			if (typeof args[i] == 'object') { // Assume user
+				str = '<@' + args[i].id + '> ';
+			}
+			
+			if (output)
+				output += str;
+			else
+				output = '\n' + str + '\n';
+			
+			if ((Number(i) + 1) == pos)
+				output += '  <----- \n' + Util.StringRepeat('^', str.length) + '\n';
+			else
+				output += '\n';
 		}
-		
-		if ((Number(i) + 1) == pos) {
-			output2 += Util.StringRepeat('^', str.length) + ' ';
-		} else {
-			output2 += Util.StringRepeat(' ', str.length) + ' ';
+	} else {
+		for (let i in args) {
+			let str = args[i];
+			
+			if (typeof args[i] == 'object') { // Assume user
+				str = '<@' + args[i].id + '>';
+			}
+			
+			if ((Number(i) + 1) == pos) {
+				output2 += Util.StringRepeat('^', str.length) + ' ';
+			} else {
+				output2 += Util.StringRepeat(' ', str.length) + ' ';
+			}
+			
+			if (output)
+				output += ' ' + str;
+			else
+				output = str;
 		}
-		
-		if (output)
-			output += ' ' + str;
-		else
-			output = str;
 	}
 	
 	if (!noTilds)
