@@ -7,6 +7,9 @@ const hDuration = require('humanize-duration');
 cvars.ServerVar('name_notify', '0', [FCVAR_BOOLONLY], 'Enable nickname changes notifications');
 
 setInterval(function() {
+	if (!DBot.IsOnline())
+		return;
+	
 	let finalQuery = '';
 	
 	for (let member of DBot.GetMembers()) {
