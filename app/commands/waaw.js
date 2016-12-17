@@ -96,6 +96,7 @@ let fn = function(name, toUse) {
 
 module.exports = {
 	name: 'waaw',
+	alias: ['mirror', 'mirrorright'],
 	
 	help_args: '<url>',
 	desc: 'Reflects image at vertical. Displays only **right** side of image',
@@ -107,6 +108,7 @@ module.exports = {
 
 DBot.RegisterCommand({
 	name: 'haah',
+	alias: ['mirrorleft'],
 	
 	help_args: '<url>',
 	desc: 'Reflects image at vertical. Displays only **left** side of image',
