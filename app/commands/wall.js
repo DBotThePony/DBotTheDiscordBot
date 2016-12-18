@@ -3,25 +3,19 @@ const child_process = require('child_process');
 const spawn = child_process.spawn;
 const fs = DBot.fs;
 
-Util.mkdir(DBot.WebRoot + '/magik');
-
-const combinations = [
-	['40', '160'],
-	['50', '150'],
-	['60', '140'],
-];
+Util.mkdir(DBot.WebRoot + '/wall');
 
 module.exports = {
-	name: 'magik',
-	alias: ['magic'],
+	name: 'wall',
+	alias: ['iwall', 'flatspace'],
 	
 	help_args: '<url>',
-	desc: 'Broken seam-carving resize ;n;',
+	desc: 'Creates a small flat space out of image',
 	allowUserArgument: true,
-	delay: 5,
+	delay: 10,
 	
 	func: function(args, cmd, msg) {
-		let url = args[0];
+		var url = args[0];
 		
 		if (typeof(url) == 'object') {
 			url = url.avatarURL;
@@ -40,18 +34,10 @@ module.exports = {
 		
 		let hash = DBot.HashString(url);
 		
-		let comb1 = DBot.RandomArray(combinations);
-		let comb2 = DBot.RandomArray(combinations);
-		
-		let selectedDimensions = comb1[0] + '%x' + comb2[0] + '%';
-		let selectedDimensions2 = comb1[1] + '%x' + comb2[1] + '%';
-		
 		let fPath;
 		
-		let newHash = DBot.HashString(url + ' ' + selectedDimensions);
-		
-		let fPathProcessed = DBot.WebRoot + '/magik/' + newHash + '.png';
-		let fPathProcessedURL = DBot.URLRoot + '/magik/' + newHash + '.png';
+		let fPathProcessed = DBot.WebRoot + '/wall/' + hash + '.png';
+		let fPathProcessedURL = DBot.URLRoot + '/wall/' + hash + '.png';
 		
 		msg.channel.startTyping();
 		
@@ -61,7 +47,7 @@ module.exports = {
 					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);
 				} else {
-					let magik = spawn('convert', ['(', '(', fPath, '-resize', '2000x2000>', ')', '-liquid-rescale', selectedDimensions, ')', '-resize', selectedDimensions2, fPathProcessed]);
+					let magik = spawn('convert', ['(', fPath, '-resize', '128', ')', '-virtual-pixel', 'tile', '-mattecolor', 'none', '-background', 'none', '-resize', '512x512!', '-distort', 'Perspective', '0,0,57,42  0,128,63,130  128,0,140,60  128,128,140,140', fPathProcessed]);
 					
 					Util.Redirect(magik);
 					
@@ -71,7 +57,7 @@ module.exports = {
 							msg.reply(fPathProcessedURL);
 						} else {
 							msg.channel.stopTyping();
-							msg.reply('Uh oh! You are trying to break me ;n; Why? ;n;');
+							msg.reply('Jump. Jump, Jump... *falls on the ground*');
 						}
 					});
 				}
@@ -83,6 +69,7 @@ module.exports = {
 			ContinueFunc();
 		}, function(result) {
 			msg.channel.stopTyping();
+			
 			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
 		});
 	}
