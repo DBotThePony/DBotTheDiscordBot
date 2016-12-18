@@ -47,7 +47,7 @@ module.exports = {
 					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);
 				} else {
-					let magik = spawn('convert', ['(', fPath, '-resize', '128', ')', '-virtual-pixel', 'tile', '-mattecolor', 'none', '-background', 'none', '-resize', '512x512!', '-distort', 'Perspective', '0,0,57,42  0,128,63,130  128,0,140,60  128,128,140,140', fPathProcessed]);
+					let magik = spawn('convert', ['(', fPath, '-resize', '256', ')', '-virtual-pixel', 'tile', '-mattecolor', 'none', '-background', 'none', '-resize', '1024x1024!', '-distort', 'Perspective', '0,0,57,42  0,128,63,130  128,0,200,85  128,128,200,165', fPathProcessed]);
 					
 					Util.Redirect(magik);
 					
