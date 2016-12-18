@@ -60,65 +60,81 @@ module.exports = {
 		if (DBot.IsPM(msg))
 			return 'Onoh! It is PM! ;n;';
 		
-		let users = msg.channel.guild.members.array();
+		msg.channel.startTyping();
 		
-		let sha = DBot.HashString(CurTime() + '_' + msg.channel.guild.id);
-		
-		let stream = fs.createWriteStream(DBot.WebRoot + '/users/' + sha + '.html');
-		
-		stream.write("<!DOCTYPE HTML><html><head><title>Users Report</title><link href='../users.css' type='text/css' rel='stylesheet' /></head><body><span id='totalusers'>Total users: " + (!msg.channel.guild.large && users.length || '~' + users.length) + "</span><table><tr id='top'><td>AVATAR</td><td>USERNAME</td><td>USER ID</td><td>TEXT TO MENTION USER</td><td>ROLES AND PERMISSIONS</td></tr>");
-		
-		for (let i in users) {
-			let member = users[i];
-			let user = users[i].user;
-			let perms = users[i].permissions;
+		try {
+			let users = msg.channel.guild.members.array();
 			
-			let av;
+			let sha = DBot.HashString(CurTime() + '_' + msg.channel.guild.id);
 			
-			if (user.avatarURL)
-				av = '<img src="' + user.avatarURL + '" />';
-			else
-				av = '<img src="../no_avatar.jpg" />';
+			let stream = fs.createWriteStream(DBot.WebRoot + '/users/' + sha + '.html');
 			
-			stream.write('<tr>');
+			stream.write("<!DOCTYPE HTML><html><head><title>Users Report</title><link href='../users.css' type='text/css' rel='stylesheet' /></head><body><span id='totalusers'>Total users: " + (!msg.channel.guild.large && users.length || '~' + users.length) + "</span><table><tr id='top'><td>AVATAR</td><td>USERNAME</td><td>USER ID</td><td>TEXT TO MENTION USER</td><td>ROLES AND PERMISSIONS</td></tr>");
 			
-			stream.write('<td class="avatar">' + av + '</td><td class="username">' + user.username + '</td><td class="userid">' + user.id + '</td><td class="userid_mention"><@' + user.id + '></td><td class="roles">ROLES:');
-			
-			let roles = member.roles.array();
-			
-			for (let roleID in roles) {
-				let role = roles[roleID];
-				stream.write('<span class="rolename" style="color: ' + role.hexColor + '">' + role.name + '</span> ');
-			}
-			
-			stream.write('<br><span class="perms">');
-			
-			let line = false;
-			
-			for (let i in PERM_ENUMS) {
-				if (line) {
-					stream.write('<span class="oddline">');
-				} else {
-					stream.write('<span class="eddline">');
+			for (let i in users) {
+				let member = users[i];
+				let user = users[i].user;
+				let perms = users[i].permissions;
+				
+				let av;
+				
+				if (user.avatarURL)
+					av = '<img src="' + user.avatarURL + '" />';
+				else
+					av = '<img src="../no_avatar.jpg" />';
+				
+				stream.write('<tr id="user_' + user.id + '">');
+				
+				stream.write('<td class="avatar">' + av + '</td><td class="username">' + user.username + '</td><td class="userid">' + user.id + '</td><td class="userid_mention"><@' + user.id + '></td><td class="roles">');
+				
+				let roles = member.roles.array();
+				let roleHit = false;
+				
+				for (let roleID in roles) {
+					let role = roles[roleID];
+					if (role.name == '@everyone')
+						continue;
+					
+					if (!roleHit) {
+						stream.write('ROLES:');
+						roleHit = true;
+					}
+					
+					stream.write('<span class="rolename" style="color: ' + role.hexColor + '">' + role.name + '</span> ');
 				}
 				
-				line = !line;
+				stream.write('<br><span class="perms">');
 				
-				if (member.hasPermission(PERM_ENUMS[i])) {
-					stream.write(PERM_ENUMS_TEXT[i] + ': <span class="permstat">Yes</span></span>');
-				} else {
-					stream.write(PERM_ENUMS_TEXT[i] + ': <span class="permstat">No</span></span>');
+				let line = false;
+				
+				for (let i in PERM_ENUMS) {
+					if (line) {
+						stream.write('<span class="oddline">');
+					} else {
+						stream.write('<span class="eddline">');
+					}
+					
+					line = !line;
+					
+					if (member.hasPermission(PERM_ENUMS[i])) {
+						stream.write(PERM_ENUMS_TEXT[i] + ': <span class="permstat">Yes</span></span>');
+					} else {
+						stream.write(PERM_ENUMS_TEXT[i] + ': <span class="permstat">No</span></span>');
+					}
 				}
+				
+				stream.write('</span></td></tr>');
 			}
 			
-			stream.write('</span></td></tr>');
+			stream.write('</table></body></html>');
+			stream.end();
+			
+			stream.on('finish', function() {
+				msg.reply(DBot.URLRoot + '/users/' + sha + '.html');
+			});
+		} catch(err) {
+			msg.channel.stopTyping();
+			throw err;
 		}
-		
-		stream.write('</table></body></html>');
-		stream.end();
-		
-		stream.on('finish', function() {
-			msg.reply(DBot.URLRoot + '/users/' + sha + '.html');
-		});
 	},
 }
