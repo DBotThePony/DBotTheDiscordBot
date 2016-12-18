@@ -53,24 +53,16 @@ module.exports = {
 		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['jpeg'], 2, args);
 		
-		
 		let fPath;
 		let fPathProcessed = DBot.WebRoot + '/jpeg/' + quality + '/' + hash + '.jpg';
 		let fPathProcessedURL = DBot.URLRoot + '/jpeg/' + quality + '/' + hash + '.jpg';
 		
-		let msgNew;
-		let iShouldDelete = false;
-		
-		msg.oldReply(DBot.GenerateWaitMessage()).then(function(i) {
-			msgNew = i;
-			
-			if (iShouldDelete)
-				msgNew.delete(0);
-		});
+		msg.channel.startTyping();
 		
 		let ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
-				if (stat && stat.isFile()) {
+				if (stat) {
+					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);
 				} else {
 					let magik = spawn('convert', [fPath, '-quality', quality.toString(), fPathProcessed]);
@@ -80,9 +72,7 @@ module.exports = {
 					});
 					
 					magik.on('close', function(code) {
-						iShouldDelete = true;
-						if (msgNew)
-							msgNew.delete(0);
+						msg.channel.stopTyping();
 						
 						if (code == 0) {
 							msg.reply(fPathProcessedURL);
@@ -98,10 +88,7 @@ module.exports = {
 			fPath = newPath;
 			ContinueFunc();
 		}, function(result) {
-			iShouldDelete = true;
-			if (msgNew)
-				msgNew.delete(0);
-			
+			msg.channel.stopTyping();
 			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
 		});
 	}
