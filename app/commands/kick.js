@@ -228,6 +228,9 @@ DBot.RegisterCommand({
 			if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot)
 				return DBot.CommandError('what', 'off', args, i + 1);
 			
+			if (!DBot.CanTarget(msg.member, member))
+				return DBot.CommandError('This pone is strong enough for ya!', 'off', args, i + 1);
+			
 			if (member.offs.includes(msg.channel.uid))
 				return DBot.CommandError('User is already turned off! (' + (member.nickname || member.user.username) + ')', 'off', args, i + 1);
 			

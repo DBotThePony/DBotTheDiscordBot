@@ -401,3 +401,24 @@ DBot.FindChannel = function(id) {
 DBot.CommandError = function(message, name, args, argID) {
 	return message + '\n' + Util.HighlightHelp([name], 1 + argID, args) + 'Help:\n```' + DBot.BuildHelpStringForCommand(name) + '```\n';
 }
+
+DBot.GetImmunityLevel = function(member) {
+	let max = 0;
+	
+	for (let role of member.roles.array()) {
+		if (role.position > max)
+			max = role.position;
+	}
+	
+	return max;
+}
+
+DBot.CanTarget = function(member_user, member_target) {
+	if (member_user.user.id == DBot.DBot)
+		return true;
+	
+	if (member_user.user.id == member_target.user.id)
+		return true;
+	
+	return DBot.GetImmunityLevel(member_user) > DBot.GetImmunityLevel(member_target);
+}
