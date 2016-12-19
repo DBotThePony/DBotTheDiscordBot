@@ -299,51 +299,85 @@ DBot.RegisterCommand({
 		if (!me.hasPermission('MANAGE_MESSAGES'))
 			return 'I must have `MANAGE_MESSAGES` permission ;n;';
 		
-		if (typeof args[0] != 'object')
-			return DBot.CommandError('You need to specify at least one user', 'deoff', args, 1);
+		if (!args[0])
+			return DBot.CommandError('Argument is required', 'deoff', args, 1);
 		
-		let found = [];
-		let server = msg.channel.guild;
-		
-		for (let i in args) {
-			let arg = args[i];
-			i = Number(i);
+		if (typeof args[0] == 'object') {
+			let found = [];
+			let server = msg.channel.guild;
 			
-			if (typeof arg != 'object')
-				return DBot.CommandError('Invalid user ;n;', 'deoff', args, i + 1);
-			
-			let member = server.member(arg);
-			
-			if (!member)
-				return DBot.CommandError('Invalid user ;n;', 'deoff', args, i + 1);
-			
-			member.offs = member.offs || [];
-			
-			if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot)
-				return DBot.CommandError('what', 'deoff', args, i + 1);
-			
-			if (!member.offs.includes(msg.channel.uid))
-				return DBot.CommandError('User is already not off! (' + (member.nickname || member.user.username) + ')', 'deoff', args, i + 1);
-			
-			found.push(member);
-		}
-		
-		let output = 'Will stop removing all new messages from: ';
-		
-		for (let member of found) {
-			output += '<@' + member.user.id + '> ';
-			
-			for (let I in member.offs) {
-				if (member.offs[I] == msg.channel.uid) {
-					member.offs.splice(I, 1);
-					break;
-				}
+			for (let i in args) {
+				let arg = args[i];
+				i = Number(i);
+				
+				if (typeof arg != 'object')
+					return DBot.CommandError('Invalid user ;n;', 'deoff', args, i + 1);
+				
+				let member = server.member(arg);
+				
+				if (!member)
+					return DBot.CommandError('Invalid user ;n;', 'deoff', args, i + 1);
+				
+				member.offs = member.offs || [];
+				
+				if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot)
+					return DBot.CommandError('what', 'deoff', args, i + 1);
+				
+				if (!member.offs.includes(msg.channel.uid))
+					return DBot.CommandError('User is already not off! (' + (member.nickname || member.user.username) + ')', 'deoff', args, i + 1);
+				
+				found.push(member);
 			}
 			
-			Postgres.query('DELETE FROM off_users WHERE "ID" =' + member.uid + ' AND "CHANNEL" = ' + msg.channel.uid);
+			let output = 'Will stop removing all new messages from: ';
+			
+			for (let member of found) {
+				output += '<@' + member.user.id + '> ';
+				
+				for (let I in member.offs) {
+					if (member.offs[I] == msg.channel.uid) {
+						member.offs.splice(I, 1);
+						break;
+					}
+				}
+				
+				Postgres.query('DELETE FROM off_users WHERE "ID" =' + member.uid + ' AND "CHANNEL" = ' + msg.channel.uid);
+			}
+			
+			return output;
+		} else if (args[0].toLowerCase() == 'all') {
+			let hit = false;
+			let output = 'Will stop removing all new messages from: ';
+			
+			for (let member of msg.channel.guild.members.array()) {
+				output += '<@' + member.user.id + '> ';
+				
+				let hitLoop = false;
+				
+				for (let I in member.offs) {
+					if (member.offs[I] == msg.channel.uid) {
+						member.offs.splice(I, 1);
+						hitLoop = true;
+						break;
+					}
+				}
+				
+				if (!hitLoop)
+					continue;
+				
+				hit = true;
+				Postgres.query('DELETE FROM off_users WHERE "ID" =' + member.uid + ' AND "CHANNEL" = ' + msg.channel.uid);
+				
+				output += '<@' + member.id + '> ';
+			}
+			
+			if (!hit)
+				return 'No users to deoff';
+			
+			return output;
+		} else {
+			return DBot.CommandError('Argument must be `all` or array of users', 'deoff', args, 1);
 		}
-		
-		return output;
 	}
 });
 
