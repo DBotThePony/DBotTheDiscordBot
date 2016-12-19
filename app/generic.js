@@ -403,6 +403,9 @@ DBot.CommandError = function(message, name, args, argID) {
 }
 
 DBot.GetImmunityLevel = function(member) {
+	if (member.user.id == member.guild.owner.user.id)
+		return 9999999;
+	
 	let max = 0;
 	
 	for (let role of member.roles.array()) {
