@@ -417,6 +417,9 @@ DBot.CanTarget = function(member_user, member_target) {
 	if (member_user.user.id == DBot.DBot)
 		return true;
 	
+	if (member_target.user.id == DBot.DBot)
+		return false;
+	
 	if (member_user.user.id == member_target.user.id)
 		return true;
 	
