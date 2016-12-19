@@ -68,29 +68,12 @@ module.exports = {
 					msg.channel.stopTyping();
 					msg.reply(fpathU);
 				} else {
-					let magikArgs = [];
-					
-					/*
-					for (let red = -50; red < 50; red += 20) {
-						for (let green = 50; green > -50; green -= 20) {
-							for (let blue = 25; blue > -25; blue -= 15) {
-								magikArgs.push(
-									'(',
-										fpath,
-										'-colorize',
-										red + ',' + green + ',' + blue,
-									')'
-								);
-							}
-						}
-					}
-					*/
+					let magikArgs = [fpath, '-resize', '256x256>'];
 					
 					for (let comb of combinations) {
 						magikArgs.push(
 							'-page', '+0+0', '(',
-								fpath,
-								'-resize', '256x256>',
+								'-clone', '0',
 								'-colorize',
 								comb[0] + ',' + comb[1] + ',' + comb[2],
 							')'
@@ -171,13 +154,12 @@ DBot.RegisterCommand({
 					msg.channel.stopTyping();
 					msg.reply(fpathU);
 				} else {
-					let magikArgs = ['-background', 'none'];
+					let magikArgs = ['-alpha', 'on', fpath, '-resize', '256x256>', '-background', 'none'];
 					
 					for (let amp = 0; amp < 20; amp += 5) {
 						magikArgs.push(
 							'-page', '+0+0', '(',
-								fpath,
-								'-resize', '256x256>',
+								'-clone', '0',
 								'-wave', '-' + amp + 'x15',
 							')'
 						);
@@ -185,15 +167,15 @@ DBot.RegisterCommand({
 					
 					for (let amp = 20; amp >= 0; amp -= 5) {
 						magikArgs.push(
-							'(',
-								fpath,
-								'-resize', '256x256>',
+							'-page', '+0+0', '(',
+								'-clone', '0',
 								'-wave', '-' + amp + 'x15',
 							')'
 						);
 					}
 					
 					magikArgs.push(
+						'-delete', '0',
 						'-delay', '4',
 						'-set', 'delay', '4',
 						'-loop', '0',
