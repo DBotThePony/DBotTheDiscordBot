@@ -1,4 +1,7 @@
 
+const fs = DBot.fs;
+Util.mkdir(DBot.WebRoot + '/blogs');
+
 module.exports = {
 	name: 'kick',
 	
@@ -257,6 +260,11 @@ DBot.RegisterCommand({
 		} else if (args[0].toLowerCase() == 'all') {
 			let rCache = DBot.GetImmunityLevel(msg.member);
 			
+			let stream;
+			let sha = DBot.HashString(CurTime() + '___' + msg.channel.guild.id + msg.channel.id);
+			let path = DBot.WebRoot + '/blogs/' + sha + '.txt';
+			let upath = DBot.URLRoot + '/blogs/' + sha + '.txt';
+			
 			for (let member of msg.channel.members.array()) {
 				if (member.user.id == msg.member.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot || DBot.GetImmunityLevel(member) >= rCache)
 					continue;
@@ -264,12 +272,25 @@ DBot.RegisterCommand({
 				member.offs = member.offs || [];
 				
 				if (!member.offs.includes(msg.channel.uid)) {
+					if (!stream)
+						stream = fs.createWriteStream(path);
+					
+					stream.write('<@' + member.user.id + '>     ' + Util.AppendSpaces(member.nickname || member.user.username, 60) + ' (' + member.user.username + ')\n');
+					
 					member.offs.push(msg.channel.uid);
 					Postgres.query('INSERT INTO off_users VALUES (' + member.uid + ', ' + msg.channel.uid + ') ON CONFLICT ("ID", "CHANNEL") DO NOTHING');
 				}
 			}
 			
-			return 'Will off messages from all who you can target!';
+			if (!stream)
+				return 'Will off messages from all who you can target!';
+			else {
+				stream.end();
+				
+				stream.on('finish', function() {
+					msg.reply('Will off messages from all who you can target!\n' + upath);
+				});
+			}
 		} else {
 			return DBot.CommandError('Argument must be `all` or array of users', 'off', args, 1);
 		}
@@ -289,17 +310,29 @@ DBot.RegisterCommand({
 		let hit = false;
 		let output = 'Offed on this channel: \n';
 		
+		let stream;
+		let sha = DBot.HashString(CurTime() + '___' + msg.channel.guild.id + msg.channel.id);
+		let path = DBot.WebRoot + '/blogs/' + sha + '.txt';
+		let upath = DBot.URLRoot + '/blogs/' + sha + '.txt';
+		
 		for (let member of msg.channel.guild.members.array()) {
 			if (member.offs && member.offs.includes(msg.channel.uid)) {
 				output += '<@' + member.user.id + '> ';
 				hit = true;
+				
+				if (!stream)
+					stream = fs.createWriteStream(path);
+				
+				stream.write('<@' + member.user.id + '>     ' + Util.AppendSpaces(member.nickname || member.user.username, 60) + ' (' + member.user.username + ')\n');
 			}
 		}
 		
 		if (!hit)
 			return 'No users is listed in the off list';
 		
-		return output;
+		stream.end();
+		
+		return 'List: ' + upath;
 	}
 });
 
@@ -378,6 +411,11 @@ DBot.RegisterCommand({
 			let hit = false;
 			let output = 'Will stop removing all new messages from: ';
 			
+			let stream;
+			let sha = DBot.HashString(CurTime() + '___' + msg.channel.guild.id + msg.channel.id);
+			let path = DBot.WebRoot + '/blogs/' + sha + '.txt';
+			let upath = DBot.URLRoot + '/blogs/' + sha + '.txt';
+			
 			for (let member of msg.channel.guild.members.array()) {
 				let hitLoop = false;
 				
@@ -392,6 +430,11 @@ DBot.RegisterCommand({
 				if (!hitLoop)
 					continue;
 				
+				if (!stream)
+					stream = fs.createWriteStream(path);
+				
+				stream.write('<@' + member.user.id + '>     ' + Util.AppendSpaces(member.nickname || member.user.username, 60) + ' (' + member.user.username + ')\n');
+				
 				hit = true;
 				Postgres.query('DELETE FROM off_users WHERE "ID" =' + member.uid + ' AND "CHANNEL" = ' + msg.channel.uid);
 				
@@ -401,7 +444,9 @@ DBot.RegisterCommand({
 			if (!hit)
 				return 'No users to deoff';
 			
-			return output;
+			stream.end();
+			
+			return 'Unmuted list: ' + upath;
 		} else {
 			return DBot.CommandError('Argument must be `all` or array of users', 'deoff', args, 1);
 		}
