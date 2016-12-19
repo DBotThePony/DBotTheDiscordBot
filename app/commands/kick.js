@@ -248,6 +248,33 @@ DBot.RegisterCommand({
 });
 
 DBot.RegisterCommand({
+	name: 'offlist',
+	
+	help_args: '',
+	desc: 'Prints offed users',
+	
+	func: function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'pm ;n;';
+		
+		let hit = false;
+		let output = 'Offed on this channel: \n';
+		
+		for (let member of msg.channel.guild.members.array()) {
+			if (member.offs && member.offs.includes(msg.channel.uid)) {
+				output += '<@' + member.user.id + '> ';
+				hit = true;
+			}
+		}
+		
+		if (!hit)
+			return 'No users is listed in the off list';
+		
+		return output;
+	}
+});
+
+DBot.RegisterCommand({
 	name: 'deoff',
 	alias: ['unoff', 'uoff', 'doff', 'on'],
 	
