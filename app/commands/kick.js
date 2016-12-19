@@ -44,6 +44,9 @@ module.exports = {
 			if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot)
 				return DBot.CommandError('what', 'kick', args, i + 1);
 			
+			if (!DBot.CanTarget(msg.member, member))
+				return DBot.CommandError('This pone is strong enough for ya!', 'kick', args, i + 1);
+			
 			if (!member.kickable)
 				return DBot.CommandError('Sorry, but i am not strong enough to walk to that user and poke him (' + (member.nickname || member.user.username) + ')', 'kick', args, i + 1);
 			
@@ -134,6 +137,9 @@ DBot.RegisterCommand({
 			
 			if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot)
 				return DBot.CommandError('what', 'ban', args, i + 1);
+			
+			if (!DBot.CanTarget(msg.member, member))
+				return DBot.CommandError('This pone is strong enough for ya!', 'ban', args, i + 1);
 			
 			if (!member.kickable)
 				return DBot.CommandError('Sorry, but i am not strong enough to walk to that user and poke him (' + (member.nickname || member.user.username) + ')', 'ban', args, i + 1);
