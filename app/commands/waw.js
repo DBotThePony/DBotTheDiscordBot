@@ -130,15 +130,15 @@ DBot.RegisterCommand({
 			url = args[0].avatarURL;
 			
 			if (!url)
-				return DBot.CommandError('User have no avatar? ;n;', 'waw', args, 1);
+				return DBot.CommandError('User have no avatar? ;n;', 'wave', args, 1);
 		}
 		
 		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', 'wave', args, 1);
 		
 		if (!DBot.CheckURLImage(url))
-			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', 'wave', args, 1);
 		
 		let sha = DBot.HashString(url);
 		

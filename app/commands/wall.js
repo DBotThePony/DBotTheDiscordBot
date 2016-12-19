@@ -27,10 +27,10 @@ module.exports = {
 		
 		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', 'wave', args, 1);
 		
 		if (!DBot.CheckURLImage(url))
-			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', 'wave', args, 1);
 		
 		let hash = DBot.HashString(url);
 		
