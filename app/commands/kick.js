@@ -205,6 +205,9 @@ DBot.RegisterCommand({
 		if (!me.hasPermission('MANAGE_MESSAGES'))
 			return 'I must have `MANAGE_MESSAGES` permission ;n;';
 		
+		if (!args[0])
+			return DBot.CommandError('Argument is required', 'off', args, 1);
+		
 		if (typeof args[0] == 'object') {
 			let found = [];
 			let server = msg.channel.guild;
@@ -245,7 +248,7 @@ DBot.RegisterCommand({
 			}
 			
 			return output;
-		} else {
+		} else if (args[0].toLowerCase() == 'all') {
 			let rCache = DBot.GetImmunityLevel(msg.member);
 			
 			for (let member of msg.channel.members.array()) {
@@ -261,6 +264,8 @@ DBot.RegisterCommand({
 			}
 			
 			return 'Will off messages from all who you can target!';
+		} else {
+			return DBot.CommandError('Argument must be `all` or array of users', 'off', args, 1);
 		}
 	}
 });
