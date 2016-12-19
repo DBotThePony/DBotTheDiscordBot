@@ -158,7 +158,7 @@ DBot.RegisterCommand({
 					
 					for (let amp = 0; amp < 20; amp += 5) {
 						magikArgs.push(
-							'-page', '+0+0', '(',
+							'(',
 								'-clone', '0',
 								'-wave', '-' + amp + 'x15',
 							')'
@@ -167,7 +167,7 @@ DBot.RegisterCommand({
 					
 					for (let amp = 20; amp >= 0; amp -= 5) {
 						magikArgs.push(
-							'-page', '+0+0', '(',
+							'(',
 								'-clone', '0',
 								'-wave', '-' + amp + 'x15',
 							')'
