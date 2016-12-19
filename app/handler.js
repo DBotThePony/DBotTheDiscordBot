@@ -230,8 +230,15 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 	SpamScore[cCommand.id] = SpamScore[cCommand.id] || 0;
 	SpamScore[cCommand.id]++;
 	
-	if (SpamScore[cCommand.id] > 4) {
-		msg.reply('You all, stop spamming "' + cCommand.id + '"');
+	if (SpamScore[cCommand.id] > 8) {
+		if (msg.channel.cooldown && msg.channel.cooldown > CurTime()) {
+			msg.channel.cooldown = CurTime() + 1;
+			return;
+		}
+		
+		msg.reply('Stop spamming `' + cCommand.id + '`');
+		msg.channel.cooldown = CurTime() + 1;
+		
 		return;
 	}
 	
@@ -241,7 +248,14 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 	if (DBot.CommandsAntiSpam[msg.author.id] && !DBot.DISABLE_ANTISPAM) {
 		var delta = DBot.CommandsAntiSpam[msg.author.id] - curr;
 		if (delta > 0) {
+			if (msg.channel.cooldown && msg.channel.cooldown > CurTime()) {
+				msg.channel.cooldown = CurTime() + 1;
+				return;
+			}
+			
 			msg.reply(':broken_heart: P... please, wait before running a new command. Wait ' + (Math.floor(delta * 10)) / 10 + ' seconds');
+			msg.channel.cooldown = CurTime() + 1;
+			
 			return;
 		}
 	}
@@ -643,12 +657,20 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 	if (!DBot.Commands[command]) {
 		if (test)
 			return false;
+		else {
+			if (msg.channel.cooldown && msg.channel.cooldown > CurTime()) {
+				msg.channel.cooldown = CurTime() + 1;
+				return;
+			}
+			
+			msg.channel.cooldown = CurTime() + 1;
+		}
 		
 		let output = 'I don\'t know what to do with that :\\';
 		let related = findRelated(command);
 		
 		if (related[0] && related[0][1] > 1) {
-			output += '\nMaybe you mean "' + related[0][0] + '"?';
+			output += '\nMaybe you mean `' + related[0][0] + '`?';
 		}
 		
 		msg.reply(output);
