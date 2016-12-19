@@ -130,6 +130,7 @@ module.exports = {
 			stream.end();
 			
 			stream.on('finish', function() {
+				msg.channel.stopTyping();
 				msg.reply(DBot.URLRoot + '/users/' + sha + '.html');
 			});
 		} catch(err) {
