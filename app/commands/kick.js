@@ -17,7 +17,7 @@ module.exports = {
 			return;
 		}
 		
-		if (!msg.member.hasPermission('KICK_MEMBERS'))
+		if (!msg.member.hasPermission('KICK_MEMBERS') && msg.author.id != DBot.DBot)
 			return 'You must have `KICK_MEMBERS` permission ;n;';
 		
 		if (!me.hasPermission('KICK_MEMBERS'))
@@ -108,7 +108,7 @@ DBot.RegisterCommand({
 			return;
 		}
 		
-		if (!msg.member.hasPermission('BAN_MEMBERS'))
+		if (!msg.member.hasPermission('BAN_MEMBERS') && msg.author.id != DBot.DBot)
 			return 'You must have `BAN_MEMBERS` permission ;n;';
 		
 		if (!me.hasPermission('BAN_MEMBERS'))
@@ -199,7 +199,7 @@ DBot.RegisterCommand({
 			return;
 		}
 		
-		if (!msg.member.hasPermission('MANAGE_MESSAGES'))
+		if (!msg.member.hasPermission('MANAGE_MESSAGES') && msg.author.id != DBot.DBot)
 			return 'You must have `MANAGE_MESSAGES` permission ;n;';
 		
 		if (!me.hasPermission('MANAGE_MESSAGES'))
@@ -266,7 +266,7 @@ DBot.RegisterCommand({
 			return;
 		}
 		
-		if (!msg.member.hasPermission('MANAGE_MESSAGES'))
+		if (!msg.member.hasPermission('MANAGE_MESSAGES') && msg.author.id != DBot.DBot)
 			return 'You must have `MANAGE_MESSAGES` permission ;n;';
 		
 		if (!me.hasPermission('MANAGE_MESSAGES'))
