@@ -205,48 +205,63 @@ DBot.RegisterCommand({
 		if (!me.hasPermission('MANAGE_MESSAGES'))
 			return 'I must have `MANAGE_MESSAGES` permission ;n;';
 		
-		if (typeof args[0] != 'object')
-			return DBot.CommandError('You need to specify at least one user', 'off', args, 1);
-		
-		let found = [];
-		let server = msg.channel.guild;
-		
-		for (let i in args) {
-			let arg = args[i];
-			i = Number(i);
+		if (typeof args[0] == 'object') {
+			let found = [];
+			let server = msg.channel.guild;
 			
-			if (typeof arg != 'object')
-				return DBot.CommandError('Invalid user ;n;', 'off', args, i + 1);
+			for (let i in args) {
+				let arg = args[i];
+				i = Number(i);
+				
+				if (typeof arg != 'object')
+					return DBot.CommandError('Invalid user ;n;', 'off', args, i + 1);
+				
+				let member = server.member(arg);
+				
+				if (!member)
+					return DBot.CommandError('Invalid user ;n;', 'off', args, i + 1);
+				
+				member.offs = member.offs || [];
+				
+				if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot)
+					return DBot.CommandError('what', 'off', args, i + 1);
+				
+				if (!DBot.CanTarget(msg.member, member))
+					return DBot.CommandError('This pone is strong enough for ya!', 'off', args, i + 1);
+				
+				if (member.offs.includes(msg.channel.uid))
+					return DBot.CommandError('User is already turned off! (' + (member.nickname || member.user.username) + ')', 'off', args, i + 1);
+				
+				found.push(member);
+			}
 			
-			let member = server.member(arg);
+			let output = 'Will remove all new messages from: ';
 			
-			if (!member)
-				return DBot.CommandError('Invalid user ;n;', 'off', args, i + 1);
+			for (let member of found) {
+				output += '<@' + member.user.id + '> ';
+				member.offs.push(msg.channel.uid);
+				
+				Postgres.query('INSERT INTO off_users VALUES (' + member.uid + ', ' + msg.channel.uid + ') ON CONFLICT ("ID", "CHANNEL") DO NOTHING');
+			}
 			
-			member.offs = member.offs || [];
+			return output;
+		} else {
+			let rCache = DBot.GetImmunityLevel(msg.member);
 			
-			if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot)
-				return DBot.CommandError('what', 'off', args, i + 1);
+			for (let member of msg.channel.members.array()) {
+				if (member.user.id == msg.member.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot || DBot.GetImmunityLevel(member) >= rCache)
+					continue;
+				
+				member.offs = member.offs || [];
+				
+				if (!member.offs.includes(msg.channel.uid)) {
+					member.offs.push(msg.channel.uid);
+					Postgres.query('INSERT INTO off_users VALUES (' + member.uid + ', ' + msg.channel.uid + ') ON CONFLICT ("ID", "CHANNEL") DO NOTHING');
+				}
+			}
 			
-			if (!DBot.CanTarget(msg.member, member))
-				return DBot.CommandError('This pone is strong enough for ya!', 'off', args, i + 1);
-			
-			if (member.offs.includes(msg.channel.uid))
-				return DBot.CommandError('User is already turned off! (' + (member.nickname || member.user.username) + ')', 'off', args, i + 1);
-			
-			found.push(member);
+			return 'Will off messages from all who you can target!';
 		}
-		
-		let output = 'Will remove all new messages from: ';
-		
-		for (let member of found) {
-			output += '<@' + member.user.id + '> ';
-			member.offs.push(msg.channel.uid);
-			
-			Postgres.query('INSERT INTO off_users VALUES (' + member.uid + ', ' + msg.channel.uid + ') ON CONFLICT ("ID", "CHANNEL") DO NOTHING');
-		}
-		
-		return output;
 	}
 });
 
@@ -353,8 +368,6 @@ DBot.RegisterCommand({
 			let output = 'Will stop removing all new messages from: ';
 			
 			for (let member of msg.channel.guild.members.array()) {
-				output += '<@' + member.user.id + '> ';
-				
 				let hitLoop = false;
 				
 				for (let I in member.offs) {
