@@ -62,7 +62,7 @@ module.exports = {
 						')',
 						
 						'(',
-							'-clone', '0', '-roll', '-5', '-channel', 'R', '-fx', '0', '-channel', 'A', '-evaluate', 'multiply', '.3',
+							'-clone', '0', '-roll', '-5', '-channel', 'G', '-fx', '0', '-channel', 'A', '-evaluate', 'multiply', '.3',
 						')',
 						
 						'(',
