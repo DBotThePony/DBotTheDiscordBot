@@ -46,42 +46,14 @@ module.exports = {
 					msg.reply(fPathProcessedURL);
 				} else {
 					let magik = spawn('convert', [
-						'(',
-							fPath,
-							'-resize', '1024x1024>',
-						')',
-						
-						'-alpha', 'on',
-						
-						'(',
-							'-clone', '0', '-channel', 'RGB', '-separate',
-						')',
-						
-						'(',
-							'-clone', '0', '-roll', '+5', '-channel', 'R', '-fx', '0', '-channel', 'A', '-evaluate', 'multiply', '.3',
-						')',
-						
-						'(',
-							'-clone', '0', '-roll', '-5', '-channel', 'G', '-fx', '0', '-channel', 'A', '-evaluate', 'multiply', '.3',
-						')',
-						
-						'(',
-							'-clone', '0', '-roll', '+0+5', '-channel', 'B', '-fx', '0', '-channel', 'A', '-evaluate', 'multiply', '.3',
-						')',
-						
-						'-delete', '0', '-background', 'none', '-layers', 'merge', '-rotate', '90', '-wave', '1x5', '-rotate', '-90', '+repage', fPathProcessed
+						'(', fPath, '-resize', '1024x1024>', ')', '-alpha', 'on', '(', '-clone', '0', '-channel', 'RGB', '-separate', '-channel', 'A', '-fx', '0', '-compose', 'CopyOpacity', '-composite', ')', '(', '-clone', '0', '-roll', '+5', '-channel', 'R', '-fx', '0', '-channel', 'A', '-evaluate', 'multiply', '.3', ')', '(', '-clone', '0', '-roll', '-5', '-channel', 'G', '-fx', '0', '-channel', 'A', '-evaluate', 'multiply', '.3', ')', '(', '-clone', '0', '-roll', '+0+5', '-channel', 'B', '-fx', '0', '-channel', 'A', '-evaluate', 'multiply', '.3', ')', '(', '-clone', '0', '-channel', 'A', '-fx', '0', ')', '-delete', '0', '-background', 'none', '-compose', 'SrcOver', '-layers', 'merge', '-rotate', '90', '-wave', '1x5', '-rotate', '-90', fPathProcessed
 					]);
 					
 					Util.Redirect(magik);
 					
 					magik.on('close', function(code) {
-						if (code == 0) {
-							msg.channel.stopTyping();
-							msg.reply(fPathProcessedURL);
-						} else {
-							msg.channel.stopTyping();
-							msg.reply('Cracked up.');
-						}
+						msg.channel.stopTyping();
+						msg.reply(fPathProcessedURL);
 					});
 				}
 			});
