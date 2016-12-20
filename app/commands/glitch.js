@@ -3,13 +3,13 @@ const child_process = require('child_process');
 const spawn = child_process.spawn;
 const fs = DBot.fs;
 
-Util.mkdir(DBot.WebRoot + '/cappend');
+Util.mkdir(DBot.WebRoot + '/glitch');
 
 module.exports = {
-	name: 'cappend',
+	name: 'glitch',
 	
 	help_args: '<url>',
-	desc: 'Appends image four times',
+	desc: 'Glitches the image',
 	allowUserArgument: true,
 	delay: 5,
 	
@@ -26,16 +26,16 @@ module.exports = {
 		
 		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', 'cappend', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', 'glitch', args, 1);
 		
 		if (!DBot.CheckURLImage(url))
-			return DBot.CommandError('Invalid url maybe? ;w;', 'cappend', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', 'glitch', args, 1);
 		
 		let hash = DBot.HashString(url);
 		
 		let fPath;
-		let fPathProcessed = DBot.WebRoot + '/cappend/' + hash + '.png';
-		let fPathProcessedURL = DBot.URLRoot + '/cappend/' + hash + '.png';
+		let fPathProcessed = DBot.WebRoot + '/glitch/' + hash + '.png';
+		let fPathProcessedURL = DBot.URLRoot + '/glitch/' + hash + '.png';
 		
 		msg.channel.startTyping();
 		
@@ -46,33 +46,30 @@ module.exports = {
 					msg.reply(fPathProcessedURL);
 				} else {
 					let magik = spawn('convert', [
-						fPath,
-						
 						'(',
 							fPath,
-							'-flop',
+							'-resize', '1024x1024>',
 						')',
 						
-						'+append',
+						'-alpha', 'on',
 						
 						'(',
-							'(',
-								fPath,
-								'-flip',
-							')',
-							
-							'(',
-								fPath,
-								'-flop',
-								'-flip',
-							')',
-							
-							'+append',
+							'-clone', '0', '-channel', 'RGB', '-separate',
 						')',
 						
-						'-append',
+						'(',
+							'-clone', '0', '-roll', '+5', '-channel', 'R', '-fx', '0', '-channel', 'A', '-evaluate', 'multiply', '.3',
+						')',
 						
-						fPathProcessed
+						'(',
+							'-clone', '0', '-roll', '-5', '-channel', 'R', '-fx', '0', '-channel', 'A', '-evaluate', 'multiply', '.3',
+						')',
+						
+						'(',
+							'-clone', '0', '-roll', '+0+5', '-channel', 'B', '-fx', '0', '-channel', 'A', '-evaluate', 'multiply', '.3',
+						')',
+						
+						'-delete', '0', '-background', 'none', '-layers', 'merge', '-rotate', '90', '-wave', '1x5', '-rotate', '-90', '+repage', fPathProcessed
 					]);
 					
 					Util.Redirect(magik);
