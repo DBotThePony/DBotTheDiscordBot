@@ -39,10 +39,10 @@ module.exports = {
 		
 		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', 'vintage', args, 1);
 		
 		if (!DBot.CheckURLImage(url))
-			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', 'vintage', args, 1);
 		
 		let hash = DBot.HashString(url);
 		
@@ -131,10 +131,10 @@ DBot.RegisterCommand({
 		
 		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', 'vintage2', args, 1);
 		
 		if (!DBot.CheckURLImage(url))
-			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', 'vintage2', args, 1);
 		
 		let hash = DBot.HashString(url);
 		

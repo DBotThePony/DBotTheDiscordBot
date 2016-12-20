@@ -29,10 +29,10 @@ let fn = function(name, toUse) {
 		
 		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 		
 		if (!DBot.CheckURLImage(url))
-			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 		
 		let hash = DBot.HashString(url);
 		
@@ -142,10 +142,10 @@ let fn2 = function(name, toUse, dir) {
 		
 		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 		
 		if (!DBot.CheckURLImage(url))
-			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 		
 		let hash = DBot.HashString(url);
 		
@@ -224,10 +224,10 @@ let fn3 = function(name) {
 		
 		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 		
 		if (!DBot.CheckURLImage(url))
-			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 		
 		let hash = DBot.HashString(url);
 		

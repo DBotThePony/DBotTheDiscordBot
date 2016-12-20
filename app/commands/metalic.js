@@ -35,10 +35,10 @@ module.exports = {
 		
 		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', 'metalic', args, 1);
 		
 		if (!DBot.CheckURLImage(url))
-			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', 'metalic', args, 1);
 		
 		let sha = DBot.HashString(url);
 		
@@ -103,10 +103,10 @@ DBot.RegisterCommand({
 		
 		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', 'cmetalic', args, 1);
 		
 		if (!DBot.CheckURLImage(url))
-			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', 'cmetalic', args, 1);
 		
 		let sha = DBot.HashString(url);
 		
