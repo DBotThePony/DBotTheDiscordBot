@@ -4,22 +4,9 @@ if (true)
 
 const child_process = require('child_process');
 const spawn = child_process.spawn;
-const URL = require('url');
-let unirest = require('unirest');
-let fs = DBot.fs;
+const fs = DBot.fs;
 
-fs.stat(DBot.WebRoot + '/dice', function(err, stat) {
-	if (!stat)
-		fs.mkdirSync(DBot.WebRoot + '/dice');
-});
-
-let allowed = [
-	'jpeg',
-	'jpg',
-	'png',
-	'tif',
-	'bmp',
-];
+Util.mkdir(DBot.WebRoot + '/dice');
 
 module.exports = {
 	name: 'dice',
@@ -35,51 +22,24 @@ module.exports = {
 		if (typeof(url) == 'object')
 			url = url.avatarURL;
 		
-		if (!url) {
-			url = DBot.LastURLInChannel(msg.channel);
-			
-			if (!url) {
-				return 'Invalid url maybe? ;w;';
-			}
-		}
-		
-		let hash = DBot.HashString(url);
+		url = url || DBot.LastURLInChannel(msg.channel);
 		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;';
 		
+		let hash = DBot.HashString(url);
 		let fPath;
 		
 		let fPathProcessed = DBot.WebRoot + '/dice/' + hash + '.png';
 		let fPathProcessedURL = DBot.URLRoot + '/dice/' + hash + '.png';
 		
-		let msgNew;
-		let iShouldDelete = false;
-		
-		msg.oldReply(DBot.GenerateWaitMessage()).then(function(i) {
-			msgNew = i;
-			
-			if (iShouldDelete)
-				msgNew.delete(0);
-		});
-		
 		let ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
-				if (stat && stat.isFile()) {
-					iShouldDelete = true;
-					if (msgNew)
-						msgNew.delete(0);
-					
+				if (stat) {
 					msg.reply(fPathProcessedURL);
 				} else {
-					let magik = spawn('bash', ['./resource/scripts/dice', '-p', '1', '-s', '32', fPath, fPathProcessed]);
+					let magik = spawn('convert', ['./resource/scripts/dice', '-p', '1', '-s', '32', fPath, fPathProcessed]);
 					
-					magik.stderr.on('data', function(data) {
-						console.error(data.toString());
-					});
-					
-					magik.stdout.on('data', function(data) {
-						console.log(data.toString());
-					});
+					Util.Redirect(magik);
 					
 					magik.on('close', function(code) {
 						if (code == 0) {
@@ -87,10 +47,6 @@ module.exports = {
 						} else {
 							msg.reply('Uh oh! You are trying to break me ;n; Why? ;n;');
 						}
-						
-						iShouldDelete = true;
-						if (msgNew)
-							msgNew.delete(0);
 					});
 				}
 			});
