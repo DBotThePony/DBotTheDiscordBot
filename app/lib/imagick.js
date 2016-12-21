@@ -541,3 +541,5 @@ IMagick.GetInfo = function(path, callback) {
 		}
 	});
 }
+
+IMagick.Identify = IMagick.GetInfo;
