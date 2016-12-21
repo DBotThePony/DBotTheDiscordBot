@@ -1,7 +1,4 @@
 
-if (true)
-	return;
-
 const child_process = require('child_process');
 const spawn = child_process.spawn;
 const fs = DBot.fs;
@@ -26,29 +23,67 @@ module.exports = {
 		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;';
 		
-		let hash = DBot.HashString(url);
+		let hash = DBot.HashString(CurTime() + '_' + msg.channel.id);
 		let fPath;
 		
 		let fPathProcessed = DBot.WebRoot + '/dice/' + hash + '.png';
 		let fPathProcessedURL = DBot.URLRoot + '/dice/' + hash + '.png';
+		let tmpFileDice = DBot.WebRoot + '/dice/' + hash + '_tmp_dice.miff';
+		
+		msg.channel.startTyping();
 		
 		let ContinueFunc = function() {
-			fs.stat(fPathProcessed, function(err, stat) {
-				if (stat) {
-					msg.reply(fPathProcessedURL);
-				} else {
-					let magik = spawn('convert', ['./resource/scripts/dice', '-p', '1', '-s', '32', fPath, fPathProcessed]);
+			IMagick.Identify(fPath, function(err, ftype, width, height) {
+				if (err) {
+					msg.channel.stopTyping();
+					console.error(err);
+					msg.reply('*falls on the ground and squeaks*');
+					return;
+				}
+				
+				let size = Math.min(Math.ceil(width * .1), Math.ceil(height * .1));
+				
+				let fragmentsW = Math.ceil(width / size);
+				let fragmentsH = Math.ceil(height / size);
+				let total = fragmentsW * fragmentsH;
+				
+				let magik = spawn('convert', ['-quiet', fPath, '-crop', size + 'x' + size, tmpFileDice]);
+				
+				Util.Redirect(magik);
+				
+				magik.on('close', function(code) {
+					if (code != 0) {
+						msg.channel.stopTyping();
+						msg.reply('*falls on the ground and squeaks*');
+						return;
+					}
+					
+					let magikArgs = ['-background', 'none', '-tile', fragmentsW + 'x' + fragmentsH, '-geometry', '+0+0'];
+					
+					for (let i = 0; i < total; i++) {
+						let rand = Util.Random(-2, 2);
+						magikArgs.push('(', tmpFileDice + '[' + i + ']', '-rotate', rand * 90, ')')
+					}
+					
+					magikArgs.push(fPathProcessed);
+					let magik = spawn('montage', magikArgs);
 					
 					Util.Redirect(magik);
 					
 					magik.on('close', function(code) {
-						if (code == 0) {
-							msg.reply(fPathProcessedURL);
-						} else {
-							msg.reply('Uh oh! You are trying to break me ;n; Why? ;n;');
+						msg.channel.stopTyping();
+						if (code != 0) {
+							msg.reply('*falls on the ground and squeaks*');
+							return;
 						}
+						
+						msg.reply(fPathProcessedURL);
+						fs.unlink(tmpFileDice, function(err) {
+							if (err)
+								console.error(err);
+						});
 					});
-				}
+				});
 			});
 		}
 		
@@ -56,6 +91,7 @@ module.exports = {
 			fPath = newPath;
 			ContinueFunc();
 		}, function(result) {
+			msg.channel.stopTyping();
 			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
 		});
 	}

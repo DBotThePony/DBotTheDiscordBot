@@ -508,7 +508,7 @@ IMagick.DrawText = function(data, callback) {
 }
 
 IMagick.GetInfo = function(path, callback) {
-	let magik = spawn('identify', [fPath]);
+	let magik = spawn('identify', [path]);
 	
 	let output = '';
 	let outputErr = '';
