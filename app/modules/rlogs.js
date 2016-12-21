@@ -557,7 +557,7 @@ DBot.RegisterCommand({
 					let rname = row.ROLENAME;
 					let perm = row.PERM;
 					
-					output += Util.AppendSpaces(rname, 10) + Util.AppendSpaces(old, 15) + Util.AppendSpaces(newVal, 15) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
+					output += Util.AppendSpaces(rname, roleSpace) + Util.AppendSpaces(old, 15) + Util.AppendSpaces(newVal, 15) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
 				}
 				
 				output += '\n```';
