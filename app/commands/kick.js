@@ -491,7 +491,7 @@ hook.Add('MemberInitialized', 'ModerationCommands', function(member) {
 	
 	member.offs = [];
 	
-	Postgres.query('SELECT CHANNEL FROM off_users WHERE last_seen."ID" = ' + member.uid, function(err, data) {
+	Postgres.query('SELECT "CHANNEL" FROM off_users WHERE off_users."ID" = ' + member.uid, function(err, data) {
 		for (let row of data) {
 			member.offs.push(row.CHANNEL);
 		}
