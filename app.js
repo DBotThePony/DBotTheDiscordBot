@@ -29,8 +29,9 @@ DBot.client = bot;
 hook.RegisterEvents();
 DBot.Discord = Discord;
 
-bot.on('message', msg => {
+bot.on('message', function(msg) {
 	try {
+		msg.internalCreateTime = CurTime();
 		hook.Run('OnMessage', msg);
 		
 		if (DBot.IsMyMessage(msg))

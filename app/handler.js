@@ -444,6 +444,12 @@ hook.Add('OnMessageEdit', 'Handler', function(omsg, nmsg) {
 	if (!omsg.executesACommand)
 		return;
 	
+	omsg.internalCreateTime = omsg.internalCreateTime || CurTime();
+	nmsg.internalCreateTime = omsg.internalCreateTime;
+	
+	if (omsg.internalCreateTime + 1 > CurTime())
+		return;
+	
 	for (let mess of omsg.replies) {
 		if (mess.deletable)
 			mess.delete(0);
