@@ -16,14 +16,6 @@ module.exports = {
 		if (!msg.channel.guild.member(DBot.bot.user).hasPermission('CHANGE_NICKNAME'))
 			return 'I dunt have `CHANGE_NICKNAME` permission ;n;';
 		
-		var me = DBot.FindMeInChannel(msg.channel);
-		
-		if (!me)
-			return '<internal pony error>';
-		
-		if (!me.hasPermission('CHANGE_NICKNAME'))
-			return 'I must have "CHANGE_NICKNAME" permission ;w;';
-		
 		if (!args[0])
 			return 'Nu name ;n;';
 		
