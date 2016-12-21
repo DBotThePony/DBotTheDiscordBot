@@ -562,3 +562,15 @@ DBot.RegisterCommand({
 	}
 });
 
+DBot.RegisterCommand({
+	name: 'frolelog',
+	alias: ['frolelogs', 'froleslog', 'froleslogs'],
+	
+	help_args: '',
+	desc: '',
+	help_hide: true,
+	
+	func: function() {
+		return 'Just a hint: Use `}rolelog <action> full` instead';
+	}
+});
