@@ -198,7 +198,7 @@ DBot.RegisterCommand({
 	alias: ['fullnamelog'],
 	
 	help_args: '',
-	desc: 'Lists last (up to 100) nickname changes',
+	desc: 'Lists last (up to 200) nickname changes',
 	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
@@ -217,7 +217,7 @@ DBot.RegisterCommand({
 				member_id."SERVER" = ${msg.channel.guild.uid} AND
 				name_logs_list."MEMBER" = member_id."ID"
 			ORDER BY name_logs_list."STAMP" DESC
-			LIMIT 100`;
+			LIMIT 200`;
 		
 		Postgres.query(fuckingQuery, function(err, data) {
 			if (err) {
