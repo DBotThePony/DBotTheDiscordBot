@@ -13,6 +13,9 @@ module.exports = {
 		if (!(msg.member.hasPermission('MANAGE_NICKNAMES') || msg.member.hasPermission('MANAGE_GUILD')) && msg.author.id != DBot.DBot)
 			return 'Nope.avi';
 		
+		if (!msg.channel.guild.member(DBot.bot.user).hasPermission('CHANGE_NICKNAME'))
+			return 'I dunt have `CHANGE_NICKNAME` permission ;n;';
+		
 		var me = DBot.FindMeInChannel(msg.channel);
 		
 		if (!me)
