@@ -2,6 +2,9 @@
 const moment = require('moment');
 const utf8 = require('utf8');
 const hDuration = require('humanize-duration');
+const fs = require('fs');
+
+Util.mkdir(DBot.WebRoot + '/rlogs');
 
 let updating = {};
 
@@ -119,6 +122,23 @@ DBot.RegisterCommand({
 			args[0] = args[0].toLowerCase();
 		
 		let mode = args[0] || 'users';
+		mode = mode.toLowerCase();
+		
+		let isFull = args[1] && (args[1].toLowerCase() == 'full' || args[1].toLowerCase() == 'f' || args[1].toLowerCase() == 'all');
+		let limitStr = !isFull && '10' || '200';
+		let sha = DBot.HashString(CurTime() + '_roles_' + msg.channel.guild.id);
+		let path = DBot.WebRoot + '/rlogs/' + sha + '.txt';
+		let pathU = DBot.URLRoot + '/rlogs/' + sha + '.txt';
+		
+		if (mode == 'full' || mode == 'f' || mode == 'all') {
+			mode = 'users';
+			limitStr = '200';
+			isFull = true;
+		}
+		
+		let userSpace = isFull && 40 || 20;
+		let roleSpace = isFull && 20 || 10;
+		let permSpace = isFull && 40 || 20;
 		
 		if (mode == 'users') {
 			let funckingQuery = 'SELECT\
@@ -146,7 +166,7 @@ DBot.RegisterCommand({
 				member_names."NAME"\
 			ORDER BY\
 				"ENTRY" DESC\
-			LIMIT 10';
+			LIMIT ' + limitStr;
 			
 			MySQL.query(funckingQuery, function(err, data) {
 				if (err) {
@@ -160,7 +180,7 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				let output = '```\n' + Util.AppendSpaces('User', 20) + Util.AppendSpaces('Role', 10) + Util.AppendSpaces('Type', 5) + Util.AppendSpaces('Time', 30) + '\n';
+				let output = '```\n' + Util.AppendSpaces('User', userSpace) + Util.AppendSpaces('Role', roleSpace) + Util.AppendSpaces('Type', 5) + Util.AppendSpaces('Time', 30) + '\n';
 				
 				for (let row of data) {
 					let date = moment.unix(row.STAMP);
@@ -168,12 +188,19 @@ DBot.RegisterCommand({
 					let name = row.MEMBERNAME;
 					let rname = row.ROLENAME;
 					
-					output += Util.AppendSpaces(name, 20) + Util.AppendSpaces(rname, 10) + Util.AppendSpaces(status && 'A' || 'D', 5) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
+					output += Util.AppendSpaces(name, userSpace) + Util.AppendSpaces(rname, roleSpace) + Util.AppendSpaces(status && 'A' || 'D', 5) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
 				}
 				
 				output += '\n```';
 				
-				msg.reply(output);
+				if (!isFull)
+					msg.reply(output);
+				else {
+					let stream = fs.createWriteStream(path);
+					stream.write(output);
+					stream.end()
+					msg.reply(pathU);
+				}
 			});
 		} else if (mode == 'user') {
 			if (typeof args[1] != 'object')
@@ -209,7 +236,7 @@ DBot.RegisterCommand({
 				member_names."NAME"\
 			ORDER BY\
 				"ENTRY" DESC\
-			LIMIT 10';
+			LIMIT ' + limitStr;
 			
 			MySQL.query(funckingQuery, function(err, data) {
 				if (err) {
@@ -223,7 +250,7 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				let output = '```\n' + Util.AppendSpaces('Role', 10) + Util.AppendSpaces('Type', 5) + Util.AppendSpaces('Time', 30) + '\n';
+				let output = '```\n' + Util.AppendSpaces('Role', roleSpace) + Util.AppendSpaces('Type', 5) + Util.AppendSpaces('Time', 30) + '\n';
 				
 				for (let row of data) {
 					let date = moment.unix(row.STAMP);
@@ -231,12 +258,19 @@ DBot.RegisterCommand({
 					let name = row.MEMBERNAME;
 					let rname = row.ROLENAME;
 					
-					output += Util.AppendSpaces(rname, 10) + Util.AppendSpaces(status && 'A' || 'D', 5) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
+					output += Util.AppendSpaces(rname, roleSpace) + Util.AppendSpaces(status && 'A' || 'D', 5) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
 				}
 				
 				output += '\n```';
 				
-				msg.reply(output);
+				if (!isFull)
+					msg.reply(output);
+				else {
+					let stream = fs.createWriteStream(path);
+					stream.write(output);
+					stream.end()
+					msg.reply(pathU);
+				}
 			});
 		} else if (mode == 'permissions' || mode == 'perms') {
 			let funckingQuery = 'SELECT\
@@ -258,7 +292,7 @@ DBot.RegisterCommand({
 				roles_names."NAME"\
 			ORDER BY\
 				"ENTRY" DESC\
-			LIMIT 10';
+			LIMIT ' + limitStr;
 			
 			MySQL.query(funckingQuery, function(err, data) {
 				if (err) {
@@ -272,7 +306,7 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				let output = '```\n' + Util.AppendSpaces('Role', 10) + Util.AppendSpaces('Permission', 20) + Util.AppendSpaces('Type', 5) + Util.AppendSpaces('Time', 30) + '\n';
+				let output = '```\n' + Util.AppendSpaces('Role', roleSpace) + Util.AppendSpaces('Permission', permSpace) + Util.AppendSpaces('Type', 5) + Util.AppendSpaces('Time', 30) + '\n';
 				
 				for (let row of data) {
 					let date = moment.unix(row.STAMP);
@@ -280,12 +314,19 @@ DBot.RegisterCommand({
 					let rname = row.ROLENAME;
 					let perm = row.PERM;
 					
-					output += Util.AppendSpaces(rname, 10) + Util.AppendSpaces(perm, 20) + Util.AppendSpaces(status && 'A' || 'D', 5) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
+					output += Util.AppendSpaces(rname, roleSpace) + Util.AppendSpaces(perm, permSpace) + Util.AppendSpaces(status && 'A' || 'D', 5) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
 				}
 				
 				output += '\n```';
 				
-				msg.reply(output);
+				if (!isFull)
+					msg.reply(output);
+				else {
+					let stream = fs.createWriteStream(path);
+					stream.write(output);
+					stream.end()
+					msg.reply(pathU);
+				}
 			});
 		} else if (mode == 'hoist') {
 			let funckingQuery = 'SELECT\
@@ -307,7 +348,7 @@ DBot.RegisterCommand({
 				roles_names."NAME"\
 			ORDER BY\
 				"ENTRY" DESC\
-			LIMIT 10';
+			LIMIT ' + limitStr;
 			
 			MySQL.query(funckingQuery, function(err, data) {
 				if (err) {
@@ -321,7 +362,7 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				let output = '```\n' + Util.AppendSpaces('Role', 10) + Util.AppendSpaces('Old', 10) + Util.AppendSpaces('New', 10) + Util.AppendSpaces('Time', 30) + '\n';
+				let output = '```\n' + Util.AppendSpaces('Role', roleSpace) + Util.AppendSpaces('Old', roleSpace) + Util.AppendSpaces('New', roleSpace) + Util.AppendSpaces('Time', 30) + '\n';
 				
 				for (let row of data) {
 					let date = moment.unix(row.STAMP);
@@ -330,12 +371,19 @@ DBot.RegisterCommand({
 					let rname = row.ROLENAME;
 					let perm = row.PERM;
 					
-					output += Util.AppendSpaces(rname, 10) + Util.AppendSpaces(old, 10) + Util.AppendSpaces(newVal, 10) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
+					output += Util.AppendSpaces(rname, roleSpace) + Util.AppendSpaces(old, roleSpace) + Util.AppendSpaces(newVal, roleSpace) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
 				}
 				
 				output += '\n```';
 				
-				msg.reply(output);
+				if (!isFull)
+					msg.reply(output);
+				else {
+					let stream = fs.createWriteStream(path);
+					stream.write(output);
+					stream.end()
+					msg.reply(pathU);
+				}
 			});
 		} else if (mode == 'position') {
 			let funckingQuery = 'SELECT\
@@ -357,7 +405,7 @@ DBot.RegisterCommand({
 				roles_names."NAME"\
 			ORDER BY\
 				"ENTRY" DESC\
-			LIMIT 10';
+			LIMIT ' + limitStr;
 			
 			MySQL.query(funckingQuery, function(err, data) {
 				if (err) {
@@ -371,7 +419,7 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				let output = '```\n' + Util.AppendSpaces('Role', 10) + Util.AppendSpaces('Old', 10) + Util.AppendSpaces('New', 10) + Util.AppendSpaces('Time', 30) + '\n';
+				let output = '```\n' + Util.AppendSpaces('Role', roleSpace) + Util.AppendSpaces('Old', roleSpace) + Util.AppendSpaces('New', roleSpace) + Util.AppendSpaces('Time', 30) + '\n';
 				
 				for (let row of data) {
 					let date = moment.unix(row.STAMP);
@@ -380,12 +428,19 @@ DBot.RegisterCommand({
 					let rname = row.ROLENAME;
 					let perm = row.PERM;
 					
-					output += Util.AppendSpaces(rname, 10) + Util.AppendSpaces(old, 10) + Util.AppendSpaces(newVal, 10) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
+					output += Util.AppendSpaces(rname, roleSpace) + Util.AppendSpaces(old, roleSpace) + Util.AppendSpaces(newVal, roleSpace) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
 				}
 				
 				output += '\n```';
 				
-				msg.reply(output);
+				if (!isFull)
+					msg.reply(output);
+				else {
+					let stream = fs.createWriteStream(path);
+					stream.write(output);
+					stream.end()
+					msg.reply(pathU);
+				}
 			});
 		} else if (mode == 'mention') {
 			let funckingQuery = 'SELECT\
@@ -407,7 +462,7 @@ DBot.RegisterCommand({
 				roles_names."NAME"\
 			ORDER BY\
 				"ENTRY" DESC\
-			LIMIT 10';
+			LIMIT ' + limitStr;
 			
 			MySQL.query(funckingQuery, function(err, data) {
 				if (err) {
@@ -421,7 +476,7 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				let output = '```\n' + Util.AppendSpaces('Role', 10) + Util.AppendSpaces('Old', 10) + Util.AppendSpaces('New', 10) + Util.AppendSpaces('Time', 30) + '\n';
+				let output = '```\n' + Util.AppendSpaces('Role', roleSpace) + Util.AppendSpaces('Old', roleSpace) + Util.AppendSpaces('New', roleSpace) + Util.AppendSpaces('Time', 30) + '\n';
 				
 				for (let row of data) {
 					let date = moment.unix(row.STAMP);
@@ -430,12 +485,19 @@ DBot.RegisterCommand({
 					let rname = row.ROLENAME;
 					let perm = row.PERM;
 					
-					output += Util.AppendSpaces(rname, 10) + Util.AppendSpaces(old, 10) + Util.AppendSpaces(newVal, 10) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
+					output += Util.AppendSpaces(rname, roleSpace) + Util.AppendSpaces(old, roleSpace) + Util.AppendSpaces(newVal, roleSpace) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
 				}
 				
 				output += '\n```';
 				
-				msg.reply(output);
+				if (!isFull)
+					msg.reply(output);
+				else {
+					let stream = fs.createWriteStream(path);
+					stream.write(output);
+					stream.end()
+					msg.reply(pathU);
+				}
 			});
 		} else if (mode == 'color') {
 			let funckingQuery = 'SELECT\
@@ -457,7 +519,7 @@ DBot.RegisterCommand({
 				roles_names."NAME"\
 			ORDER BY\
 				"ENTRY" DESC\
-			LIMIT 10';
+			LIMIT ' + limitStr;
 			
 			MySQL.query(funckingQuery, function(err, data) {
 				if (err) {
@@ -471,7 +533,7 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				let output = '```\n' + Util.AppendSpaces('Role', 10) + Util.AppendSpaces('Old', 15) + Util.AppendSpaces('New', 15) + Util.AppendSpaces('Time', 30) + '\n';
+				let output = '```\n' + Util.AppendSpaces('Role', roleSpace) + Util.AppendSpaces('Old', 15) + Util.AppendSpaces('New', 15) + Util.AppendSpaces('Time', 30) + '\n';
 				
 				for (let row of data) {
 					let date = moment.unix(row.STAMP);
@@ -485,7 +547,14 @@ DBot.RegisterCommand({
 				
 				output += '\n```';
 				
-				msg.reply(output);
+				if (!isFull)
+					msg.reply(output);
+				else {
+					let stream = fs.createWriteStream(path);
+					stream.write(output);
+					stream.end()
+					msg.reply(pathU);
+				}
 			});
 		} else {
 			return DBot.CommandError('Unknown subcommand', 'rolelogs', args, 1);
