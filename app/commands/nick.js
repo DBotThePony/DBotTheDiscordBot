@@ -5,6 +5,7 @@ module.exports = {
 	
 	help_args: '<@user> [New name]',
 	desc: 'Prints user\'s name. If new name is supplied, changes nickname',
+	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
 		if (DBot.IsPM(msg))
@@ -19,7 +20,7 @@ module.exports = {
 			return DBot.CommandError('Invalid user', 'nick', args, 1);
 		
 		if (!args[1]) {
-			msg.reply('Username: `' + args[0].username + '`, ' + (member.nickname && ('nickname: `' member.nickname + '`') || 'he has no nickname on the server'));
+			msg.reply('Username: `' + args[0].username + '`, ' + (member.nickname && ('nickname: `' + member.nickname + '`') || 'he has no nickname on the server'));
 		} else {
 			if (!(msg.member.hasPermission('MANAGE_NICKNAMES') || msg.member.hasPermission('MANAGE_GUILD')) && msg.author.id != DBot.DBot)
 				return 'Nope.avi';
