@@ -11,7 +11,7 @@ let Actions = {
 				total += server.roles.array().length;
 			}
 			
-			return 'Total roles on this server: **' + msg.channel.guild.roles.array().length + '**\nTotal roles on all server: **' + total + '**';
+			return 'Total roles on this server: **' + msg.channel.guild.roles.array().length + '**\nTotal roles on all servers: **' + total + '**';
 		} else {
 			if (args[1] == 'list') {
 				let names = [];
