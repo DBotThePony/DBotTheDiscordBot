@@ -479,7 +479,13 @@ hook.Add('PreOnValidMessage', 'ModerationCommands', function(msg) {
 		if ((identify == 'off' || identify == 'deoff') && msg.member.hasPermission('MANAGE_MESSAGES'))
 			return;
 		
-		msg.author.sendMessage('You are muted in this channel by moderator');
+		msg.member.lastNotifyMessage = msg.member.lastNotifyMessage || 0;
+		
+		if (msg.member.lastNotifyMessage < CurTime()) {
+			msg.author.sendMessage('You are muted in this channel by moderator');
+			msg.member.lastNotifyMessage = CurTime() + 2;
+		}
+		
 		msg.delete();
 		return true;
 	}
