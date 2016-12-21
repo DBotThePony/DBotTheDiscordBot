@@ -446,6 +446,7 @@ hook.Add('OnMessageEdit', 'Handler', function(omsg, nmsg) {
 	
 	omsg.internalCreateTime = omsg.internalCreateTime || CurTime();
 	nmsg.internalCreateTime = omsg.internalCreateTime;
+	nmsg.replies = omsg.replies;
 	
 	if (omsg.internalCreateTime + 1 > CurTime())
 		return;
