@@ -283,9 +283,12 @@ DBot.RegisterCommand({
 			FROM\
 				roles_changes_perms,\
 				roles_names,\
+				roles_id,\
 				server_id\
 			WHERE\
 				server_id."ID" = get_server_id(\'' + msg.channel.guild.id + '\') AND\
+				roles_id."SERVER" = server_id."ID" AND\
+				roles_id."ID" = roles_changes_perms."ROLEID" AND\
 				roles_changes_perms."ROLEID" = roles_names."ROLEID"\
 			GROUP BY\
 				"ENTRY",\
@@ -339,9 +342,12 @@ DBot.RegisterCommand({
 			FROM\
 				roles_changes_hoist,\
 				roles_names,\
+				roles_id,\
 				server_id\
 			WHERE\
 				server_id."ID" = get_server_id(\'' + msg.channel.guild.id + '\') AND\
+				roles_id."SERVER" = server_id."ID" AND\
+				roles_id."ID" = roles_changes_hoist."ROLEID" AND\
 				roles_changes_hoist."ROLEID" = roles_names."ROLEID"\
 			GROUP BY\
 				"ENTRY",\
@@ -396,9 +402,12 @@ DBot.RegisterCommand({
 			FROM\
 				roles_changes_position,\
 				roles_names,\
+				roles_id,\
 				server_id\
 			WHERE\
 				server_id."ID" = get_server_id(\'' + msg.channel.guild.id + '\') AND\
+				roles_id."SERVER" = server_id."ID" AND\
+				roles_id."ID" = roles_changes_position."ROLEID" AND\
 				roles_changes_position."ROLEID" = roles_names."ROLEID"\
 			GROUP BY\
 				"ENTRY",\
@@ -453,9 +462,12 @@ DBot.RegisterCommand({
 			FROM\
 				roles_changes_mention,\
 				roles_names,\
+				roles_id,\
 				server_id\
 			WHERE\
 				server_id."ID" = get_server_id(\'' + msg.channel.guild.id + '\') AND\
+				roles_id."SERVER" = server_id."ID" AND\
+				roles_id."ID" = roles_changes_mention."ROLEID" AND\
 				roles_changes_mention."ROLEID" = roles_names."ROLEID"\
 			GROUP BY\
 				"ENTRY",\
@@ -510,9 +522,12 @@ DBot.RegisterCommand({
 			FROM\
 				roles_changes_color,\
 				roles_names,\
+				roles_id,\
 				server_id\
 			WHERE\
 				server_id."ID" = get_server_id(\'' + msg.channel.guild.id + '\') AND\
+				roles_id."SERVER" = server_id."ID" AND\
+				roles_id."ID" = roles_changes_color."ROLEID" AND\
 				roles_changes_color."ROLEID" = roles_names."ROLEID"\
 			GROUP BY\
 				"ENTRY",\
