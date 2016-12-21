@@ -69,7 +69,14 @@ var botHooks = [
 	['userUpdate', 'UserChanges'],
 ];
 
+let REGISTERED_HOOKS = false;
+
 hook.RegisterEvents = function() {
+	if (REGISTERED_HOOKS)
+		return;
+	
+	REGISTERED_HOOKS = true;
+	
 	botHooks.forEach(function(item) {
 		DBot.bot.on(item[0], function(a, b, c, d, e) {
 			hook.Run(item[1], a, b, c, d, e);
