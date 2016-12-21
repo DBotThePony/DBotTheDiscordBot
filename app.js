@@ -56,7 +56,6 @@ bot.on('message', msg => {
 				DBot.HandleMessage(msg, true)
 				return;
 			} catch(err) {
-				msg.reply('<internal pony error>');
 				console.error(err);
 				return;
 			}
@@ -73,7 +72,6 @@ bot.on('message', msg => {
 		try {
 			DBot.HandleMessage(msg);
 		} catch(err) {
-			msg.reply('<internal pony error>');
 			console.error(err);
 		}
 	} catch(err) {
