@@ -293,6 +293,7 @@ hook.Add('CheckValidMessage', 'MySQL.Checker', function(msg) {
 			return true;
 		} else if (!msg.member) { // wtf
 			msg.channel.guild.fetchMembers();
+			console.error('Unexpected, server ' + msg.channel.guild.name + ' have null member!');
 			return true;
 		} else if (!msg.member.uid) {
 			DBot.DefineMember(msg.member);
@@ -494,8 +495,10 @@ DBot.GetMembers = function() {
 
 DBot.DefineGuild = function(guild) {
 	let id = guild.id;
-	if (DBot.ServersIDs[id])
+	if (DBot.ServersIDs[id]) {
+		guild.uid = DBot.ServersIDs[id];
 		return;
+	}
 	
 	MySQL.query('SELECT ' + sql.Server(guild) + ' AS "ID"', function(err, data) {
 		if (err) throw err;
