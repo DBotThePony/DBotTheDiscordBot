@@ -17,6 +17,10 @@ hook.Add('PreOnValidMessage', 'AntiFlood', function(msg) {
 	if (!msg.member)
 		return;
 	
+	let me = msg.channel.guild.member(DBot.bot.user);
+	if (!me || !me.hasPermission('MANAGE_MESSAGES'))
+		return;
+	
 	let member = msg.member;
 	let cv = cvars.Channel(msg.channel);
 	
