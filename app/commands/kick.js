@@ -100,6 +100,7 @@ module.exports = {
 
 DBot.RegisterCommand({
 	name: 'sban',
+	alias: ['softban'],
 	
 	help_args: '<user1> ...',
 	desc: 'Soft ban user(s). Soft banned users can join, but will be kicked in one second after join',
@@ -164,7 +165,7 @@ DBot.RegisterCommand({
 			let total = found.length;
 			
 			for (let member of found) {
-				Postgres.query('INSERT INTO member_softban ("ID", "ADMIN") VALUES (get_member_id(' + Util.escape(member.user.id) + ', ' + Util.escape(member.guild.id) + '), get_member_id(' + Util.escape(msg.member.user.id) + ', ' + Util.escape(msg.member.guild.id) + '))')
+				Postgres.query('INSERT INTO member_softban ("ID", "ADMIN") VALUES (get_member_id(' + Util.escape(member.user.id) + ', ' + Util.escape(member.guild.id) + '), get_member_id(' + Util.escape(msg.member.user.id) + ', ' + Util.escape(msg.member.guild.id) + ')) ON CONFLICT ("ID") DO NOTHING');
 				member.kick()
 				
 				.then(function() {
@@ -192,6 +193,49 @@ DBot.RegisterCommand({
 		});
 		
 		conf.echo();
+	}
+});
+
+DBot.RegisterCommand({
+	name: 'unsban',
+	alias: ['unsoftban', 'unban', 'softunban'],
+	
+	help_args: '<member id 1> ...',
+	desc: 'Unban users if they are were banned',
+	
+	func: function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'pm ;n;';
+		
+		let me = msg.channel.guild.member(DBot.bot.user);
+		
+		if (!me) {
+			msg.reply('<internal pony error>');
+			return;
+		}
+		
+		if (!msg.member.hasPermission('BAN_MEMBERS') && msg.author.id != DBot.DBot)
+			return 'You must have `BAN_MEMBERS` permission ;n;';
+		
+		if (!args[0])
+			return DBot.CommandError('You need to specify at least one user', 'sban', args, 1);
+		
+		for (let i in args) {
+			let p = Util.ToNumber(args[i]);
+			
+			if (!p || p <= 0)
+				return DBot.CommandError('Invalid ID', 'unsban', args, Number(i) + 1);
+		}
+		
+		Postgres.query('DELETE FROM member_softban WHERE "ID" = ANY(' + sql.Array(args) + '::INTEGER[])', function(err, data) {
+			if (err) {
+				console.error(err);
+				msg.reply('*squeaks because of pain*');
+				return;
+			}
+			
+			msg.reply('All listed IDs was unbanned if they are was banned');
+		});
 	}
 });
 
@@ -436,6 +480,76 @@ DBot.RegisterCommand({
 });
 
 DBot.RegisterCommand({
+	name: 'sbans',
+	alias: ['softbanslist', 'listsoftbans', 'lsbans', 'lsban', 'softbans'],
+	
+	help_args: '',
+	desc: 'Prints softbanned users (full list)',
+	
+	func: function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'pm ;n;';
+		
+		let sha = DBot.HashString(CurTime() + '_softban_' + msg.channel.guild.id + msg.channel.id);
+		let path = DBot.WebRoot + '/blogs/' + sha + '.txt';
+		let upath = DBot.URLRoot + '/blogs/' + sha + '.txt';
+		
+		let fuckingQuery = '\
+		SELECT\
+			member_softban."ID",\
+			member_softban."STAMP",\
+			member_softban."ADMIN",\
+			member_names."NAME" AS "ADMIN_NAME",\
+			user_names."USERNAME" AS "ADMIN_NAME_REAL",\
+			(SELECT member_names."NAME" FROM member_names WHERE member_names."ID" = member_softban."ID") AS "VICTIM_THAT_GOT_BANNED",\
+			(SELECT user_names."USERNAME" FROM user_names, member_id WHERE member_id."ID" = member_softban."ID" AND user_names."ID" = member_id."USER") AS "BANNED_USERNAME"\
+		FROM\
+			member_softban,\
+			member_names,\
+			member_id,\
+			user_names\
+		WHERE\
+			member_id."SERVER" = ' + msg.channel.guild.uid + ' AND\
+			member_names."ID" = member_softban."ADMIN" AND\
+			member_id."ID" = member_names."ID" AND\
+			user_names."ID" = member_id."USER"\
+		ORDER BY "STAMP" DESC';
+		
+		Postgres.query(fuckingQuery, function(err, data) {
+			if (err) {
+				console.error(err);
+				msg.reply('*squeaks because of pain*');
+				return;
+			}
+			
+			if (!data[0]) {
+				msg.reply('No data to list ;w;');
+				return;
+			}
+			
+			let stream = fs.createWriteStream(path);
+			
+			for (let row of data) {
+				let output = '\n\n\nMember ID - "' + row.ID + '" (this one is used to unban)\n';
+				output += '\tUser nickname: ' + data[0].VICTIM_THAT_GOT_BANNED + '\n';
+				output += '\tUser username: ' + data[0].BANNED_USERNAME + '\n';
+				output += '\tModerator nickname: ' + data[0].ADMIN_NAME + '\n';
+				output += '\tModerator username: ' + data[0].ADMIN_NAME_REAL + '\n';
+				output += '\tDate of ban: ' + moment.unix(data[0].STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - data[0].STAMP) * 1000) + ' ago)' + '\n';
+				
+				stream.write(output);
+			}
+			
+			stream.end();
+			
+			stream.on('finish', function() {
+				msg.reply('List: ' + upath);
+			});
+		})
+	}
+});
+
+DBot.RegisterCommand({
 	name: 'deoff',
 	alias: ['unoff', 'uoff', 'doff', 'on'],
 	
@@ -606,7 +720,7 @@ let userBanHit = function(member, row) {
 	
 	setTimeout(function() {
 		member.kick();
-	}, 1000);
+	}, 5000);
 }
 
 hook.Add('MemberInitialized', 'ModerationCommands', function(member) {
