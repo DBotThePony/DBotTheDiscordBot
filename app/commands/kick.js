@@ -1,4 +1,6 @@
 
+const moment = require('moment');
+const hDuration = require('humanize-duration');
 const fs = DBot.fs;
 Util.mkdir(DBot.WebRoot + '/blogs');
 
@@ -97,6 +99,103 @@ module.exports = {
 }
 
 DBot.RegisterCommand({
+	name: 'sban',
+	
+	help_args: '<user1> ...',
+	desc: 'Soft ban user(s). Soft banned users can join, but will be kicked in one second after join',
+	allowUserArgument: true,
+	
+	func: function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'pm ;n;';
+		
+		let me = msg.channel.guild.member(DBot.bot.user);
+		
+		if (!me) {
+			msg.reply('<internal pony error>');
+			return;
+		}
+		
+		if (!msg.member.hasPermission('BAN_MEMBERS') && msg.author.id != DBot.DBot)
+			return 'You must have `BAN_MEMBERS` permission ;n;';
+		
+		if (!me.hasPermission('KICK_MEMBERS'))
+			return 'I must have `KICK_MEMBERS` permission ;n;';
+		
+		if (typeof args[0] != 'object')
+			return DBot.CommandError('You need to specify at least one user', 'sban', args, 1);
+		
+		let found = [];
+		let server = msg.channel.guild;
+		
+		for (let i in args) {
+			let arg = args[i];
+			i = Number(i);
+			
+			if (typeof arg != 'object')
+				return DBot.CommandError('Invalid user ;n;', 'sban', args, i + 1);
+			
+			let member = server.member(arg);
+			
+			if (!member)
+				return DBot.CommandError('Invalid user ;n;', 'sban', args, i + 1);
+			
+			if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot)
+				return DBot.CommandError('what', 'sban', args, i + 1);
+			
+			if (!DBot.CanTarget(msg.member, member))
+				return DBot.CommandError('This pone is strong enough for ya!', 'sban', args, i + 1);
+			
+			if (!member.kickable)
+				return DBot.CommandError('Sorry, but i am not strong enough to walk to that user and poke him (' + (member.nickname || member.user.username) + ')', 'sban', args, i + 1);
+			
+			found.push(member);
+		}
+		
+		let conf = new DBot.Confirm(msg.author, msg.channel);
+		
+		conf.setTitle('Banning members');
+		conf.setDesc('Softban **' + found.length + '** members');
+		
+		conf.confirm(function() {
+			msg.channel.startTyping();
+			msg.reply('Softban **' + found.length + '** members ;n; Bye ;n;');
+			
+			let total = found.length;
+			
+			for (let member of found) {
+				Postgres.query('INSERT INTO member_softban ("ID", "ADMIN") VALUES (get_member_id(' + Util.escape(member.user.id) + ', ' + Util.escape(member.guild.id) + '), get_member_id(' + Util.escape(msg.member.user.id) + ', ' + Util.escape(msg.member.guild.id) + '))')
+				member.kick()
+				
+				.then(function() {
+					total--;
+					
+					if (total == 0) {
+						msg.channel.stopTyping();
+						msg.reply('Softbanned ;n;');
+					}
+				})
+				
+				.catch(function() {
+					total--;
+					
+					if (total == 0) {
+						msg.channel.stopTyping();
+						msg.reply('Softbanned ;n;');
+					}
+				});
+			}
+		});
+		
+		conf.decline(function() {
+			msg.reply('Aborting');
+		});
+		
+		conf.echo();
+	}
+});
+
+DBot.RegisterCommand({
 	name: 'ban',
 	
 	help_args: '<user1> ...',
@@ -157,7 +256,7 @@ DBot.RegisterCommand({
 		
 		conf.confirm(function() {
 			msg.channel.startTyping();
-			msg.reply('Kicking **' + found.length + '** members ;n; Bye ;n;');
+			msg.reply('BANNing **' + found.length + '** members ;n; Bye forevar ;n;');
 			
 			let total = found.length;
 			
@@ -479,17 +578,36 @@ hook.Add('PreOnValidMessage', 'ModerationCommands', function(msg) {
 		if ((identify == 'off' || identify == 'deoff') && msg.member.hasPermission('MANAGE_MESSAGES'))
 			return;
 		
-		msg.member.lastNotifyMessage = msg.member.lastNotifyMessage || 0;
-		
-		if (msg.member.lastNotifyMessage < CurTime()) {
-			msg.author.sendMessage('You are muted in this channel by moderator');
-			msg.member.lastNotifyMessage = CurTime() + 2;
+		if (!member.user.bot) {
+			msg.member.lastNotifyMessage = msg.member.lastNotifyMessage || 0;
+			
+			if (msg.member.lastNotifyMessage < CurTime()) {
+				msg.author.sendMessage('You are muted in this channel by moderator');
+				msg.member.lastNotifyMessage = CurTime() + 2;
+			}
 		}
 		
 		msg.delete();
 		return true;
 	}
 });
+
+let userBanHit = function(member, row) {
+	let output = 'You are softbanned on `' + member.guild.name + '`! ;n;\n';
+	
+	output += 'Moderator nickname: ' + data[0].ADMIN_NAME + '\n';
+	output += 'Moderator username: ' + data[0].ADMIN_NAME_REAL + '\n';
+	output += 'Date of ban: ' + moment.unix(data[0].STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - data[0].STAMP) * 1000) + ' ago)' + '\n';
+	
+	output += 'I am little Horsey, and i only do what admins tell me ;n;'
+	
+	if (!member.user.bot)
+		member.sendMessage(output);
+	
+	setTimeout(function() {
+		member.kick();
+	}, 1000);
+}
 
 hook.Add('MemberInitialized', 'ModerationCommands', function(member) {
 	if (!INIT)
@@ -502,13 +620,26 @@ hook.Add('MemberInitialized', 'ModerationCommands', function(member) {
 			member.offs.push(row.CHANNEL);
 		}
 	});
+	
+	Postgres.query('SELECT member_softban."STAMP", member_softban."ADMIN", member_names."NAME" AS "ADMIN_NAME", user_names."USERNAME" AS "ADMIN_NAME_REAL" FROM member_softban, member_names, member_id, user_names WHERE member_softban."ID" = ' + member.uid + ' AND member_names."ID" = member_softban."ADMIN" AND member_id."ID" = member_names."ID" AND user_names."ID" = member_id."USER"', function(err, data) {
+		if (err) throw err;
+		
+		if (!data[0])
+			return;
+		
+		userBanHit(member, data[0]);
+	});
 });
 
 hook.Add('MembersInitialized', 'ModerationCommands', function() {
 	let memberMap = [];
+	let validMap = [];
 	
 	for (let member of DBot.GetMembers()) {
 		memberMap[member.uid] = member;
+		
+		if (member.uid)
+			validMap.push(member.uid);
 	}
 	
 	Postgres.query('SELECT * FROM off_users, last_seen WHERE last_seen."ID" = off_users."ID" AND last_seen."TIME" > currtime() - 120', function(err, data) {
@@ -520,6 +651,19 @@ hook.Add('MembersInitialized', 'ModerationCommands', function() {
 			
 			member.offs = member.offs || [];
 			member.offs.push(row.CHANNEL);
+		}
+	});
+	
+	Postgres.query('SELECT member_softban."ID", member_softban."STAMP", member_softban."ADMIN", member_names."NAME" AS "ADMIN_NAME", user_names."USERNAME" AS "ADMIN_NAME_REAL" FROM member_softban, member_names, member_id, user_names WHERE member_softban."ID" = ANY(' + sql.Array(validMap) + '::INTEGER[]) AND member_names."ID" = member_softban."ADMIN" AND member_id."ID" = member_names."ID" AND user_names."ID" = member_id."USER"', function(err, data) {
+		if (err) throw err;
+		
+		for (let row of data) {
+			let member = memberMap[row.ID];
+			
+			if (!member)
+				continue;
+			
+			userBanHit(member, row);
 		}
 	});
 });
