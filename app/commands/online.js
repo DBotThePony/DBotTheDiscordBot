@@ -116,7 +116,7 @@ module.exports = {
 			
 			let formated = mom.format('dddd, MMMM Do YYYY, HH:mm:ss');
 			
-			msg.reply('As i remember user <@' + args[0].id + '> was last online at\n"' + formated + ' UTC +0:00" (' + deltaStr + ' ago)');
+			msg.reply('As i remember user <@' + args[0].id + '> was last online at\n`' + formated + ' UTC +0:00` (' + deltaStr + ' ago)');
 		});
 	}
 }
