@@ -40,9 +40,9 @@ module.exports = {
 				msg.reply('```' + cvars.ErrorMessages[trySet[1]] + '\n\n' + Util.HighlightHelp(['svar'], 3, args, true) + '```');
 			} else {
 				if (isPrivate) {
-					msg.author.sendMessage('```Server variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '```"');
+					msg.author.sendMessage('```Server variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
 				} else {
-					msg.channel.sendMessage('```Server variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '```"');
+					msg.channel.sendMessage('```Server variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
 				}
 			}
 		}
@@ -156,9 +156,9 @@ DBot.RegisterCommand({
 				msg.reply('```' + cvars.ErrorMessages[trySet[1]] + '\n\n' + Util.HighlightHelp(['cvar'], 3, args, true) + '```');
 			} else {
 				if (isPrivate) {
-					msg.author.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '```"');
+					msg.author.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
 				} else {
-					msg.channel.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '```"');
+					msg.channel.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
 				}
 			}
 		}
@@ -219,9 +219,9 @@ DBot.RegisterCommand({
 				msg.reply(DBot.CommandError(cvars.ErrorMessages[trySet[1]], 'mcvar', args, 3));
 			} else {
 				if (isPrivate) {
-					msg.author.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '```"');
+					msg.author.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
 				} else {
-					channel.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '```"');
+					channel.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
 				}
 			}
 		}
@@ -253,7 +253,7 @@ DBot.RegisterCommand({
 			if (!trySet[0]) {
 				msg.reply('```' + cvars.ErrorMessages[trySet[1]] + '\n\n' + Util.HighlightHelp(['uvar'], 3, args, true) + '```');
 			} else {
-				msg.author.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '```"');
+				msg.author.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
 			}
 		}
 	}
