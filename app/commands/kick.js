@@ -678,7 +678,9 @@ hook.Add('PreOnValidMessage', 'ModerationCommands', function(msg) {
 	if (!msg.member.offs)
 		return;
 	
-	if (msg.member.offs.includes(msg.channel.uid)) {
+	let member = msg.member;
+	
+	if (member.offs.includes(msg.channel.uid)) {
 		let me = msg.channel.guild.member(DBot.bot.user);
 		
 		if (!me)
@@ -689,15 +691,15 @@ hook.Add('PreOnValidMessage', 'ModerationCommands', function(msg) {
 		
 		let identify = DBot.IdentifyCommand(msg);
 		
-		if ((identify == 'off' || identify == 'deoff') && msg.member.hasPermission('MANAGE_MESSAGES'))
+		if ((identify == 'off' || identify == 'deoff') && member.hasPermission('MANAGE_MESSAGES'))
 			return;
 		
 		if (!member.user.bot) {
-			msg.member.lastNotifyMessage = msg.member.lastNotifyMessage || 0;
+			member.lastNotifyMessage = member.lastNotifyMessage || 0;
 			
-			if (msg.member.lastNotifyMessage < CurTime()) {
+			if (member.lastNotifyMessage < CurTime()) {
 				msg.author.sendMessage('You are muted in this channel by moderator');
-				msg.member.lastNotifyMessage = CurTime() + 2;
+				member.lastNotifyMessage = CurTime() + 2;
 			}
 		}
 		
