@@ -100,21 +100,21 @@ module.exports = {
 		if (args[0].presence.status != 'offline')
 			return 'User is online i think?';
 		
-		var uid = DBot.GetUserID(args[0]);
+		let uid = DBot.GetUserID(args[0]);
 		
-		Postgre.query('SELECT LASTONLINE FROM lastonline WHERE "ID" = ' + uid, function(err, data) {
+		Postgre.query('SELECT "LASTONLINE" FROM lastonline WHERE "ID" = ' + uid, function(err, data) {
 			if (err || !data || !data[0]) {
 				msg.reply('<internal pony error>');
 				return;
 			}
 			
-			var cTime = Math.floor(CurTime());
-			var delta = cTime - data[0].LASTONLINE;
+			let cTime = Math.floor(CurTime());
+			let delta = cTime - data[0].LASTONLINE;
 			
-			var deltaStr = hDuration(delta * 1000);
-			var mom = moment.unix(data[0].LASTONLINE + TimezoneOffset());
+			let deltaStr = hDuration(delta * 1000);
+			let mom = moment.unix(data[0].LASTONLINE + TimezoneOffset());
 			
-			var formated = mom.format('dddd, MMMM Do YYYY, HH:mm:ss');
+			let formated = mom.format('dddd, MMMM Do YYYY, HH:mm:ss');
 			
 			msg.reply('As i remember user <@' + args[0].id + '> was last online at\n"' + formated + ' UTC +0:00" (' + deltaStr + ' ago)');
 		});
