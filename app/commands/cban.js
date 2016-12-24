@@ -46,7 +46,7 @@ module.exports = {
 			
 			cBans = DBot.MemberCBans(getUser);
 		} else {
-			let cBans = DBot.ChannelCBans(msg.channel);
+			cBans = DBot.ChannelCBans(msg.channel);
 		}
 		
 		let success = [];
@@ -136,7 +136,7 @@ DBot.RegisterCommand({
 			
 			cBans = DBot.MemberCBans(getUser);
 		} else {
-			let cBans = DBot.ChannelCBans(msg.channel);
+			cBans = DBot.ChannelCBans(msg.channel);
 		}
 		
 		let success = [];
