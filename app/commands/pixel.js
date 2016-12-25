@@ -21,7 +21,7 @@ module.exports = {
 		
 		url = url || DBot.LastURLInChannel(msg.channel);
 		if (!DBot.CheckURLImage(url))
-			return 'Invalid url maybe? ;w;';
+			return DBot.CommandError('Invalid url maybe? ;w;', 'pixel', args, 1);
 		
 		let hash = DBot.HashString(CurTime() + '_' + msg.channel.id);
 		let fPath;
