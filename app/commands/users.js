@@ -85,7 +85,12 @@ module.exports = {
 				
 				stream.write('<tr id="user_' + user.id + '">');
 				
-				stream.write('<td class="avatar">' + av + '</td><td class="username">' + user.username + '</td><td class="userid">' + user.id + '</td><td class="userid_mention"><@' + user.id + '></td><td class="roles">');
+				let uname = member.nickname || user.username;
+				
+				if (uname != user.username)
+					uname += ' (' + user.username + ')';
+				
+				stream.write('<td class="avatar">' + av + '</td><td class="username">' + uname + '</td><td class="userid">' + user.id + '</td><td class="userid_mention"><@' + user.id + '></td><td class="roles">');
 				
 				let roles = member.roles.array();
 				let roleHit = false;
