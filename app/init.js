@@ -13,6 +13,7 @@ require('./lib/hook.js');
 require('./lib/sql_helpers.js');
 require('./lib/sql.js');
 require('./lib/imagick.js');
+require('./lib/emoji.js');
 
 require('./lib/cvars.js');
 require('./generic.js');

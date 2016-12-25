@@ -307,9 +307,67 @@ const imageExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd)(\?|\/)?/i;
 const imageExtExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd|gif)(\?|\/)?/i;
 const expr = new RegExp('^https?://' + DBot.URLRootBare + '/(.*)');
 const cover = new RegExp('\\.\\./', 'gi');
+const cover2 = new RegExp('\\./', 'gi');
+const insideBotFolder = new RegExp('^\\./resource/', '');
 
 DBot.ExtraxtExt = function(url) {
 	return url.match(imageExtExt)[1];
+}
+
+DBot.CombinedURL = function(url, channel) {
+	if (typeof(url) == 'object') {
+		url = url.avatarURL;
+		
+		if (!url)
+			return false;
+	}
+	
+	url = url || DBot.LastURLImageInChannel(channel);
+	
+	if (!url)
+		return false;
+	
+	if (url.match(cover) || url.match(cover2) || url.match(/^\//))
+		return false;
+	
+	if (!DBot.CheckURLImage(url)) {
+		let emojiMatch = url.match(DBot.emojiRegExpWeak);
+		
+		if (!emojiMatch)
+			return false;
+		else
+			return DBot.FindEmojiURL(url);
+	}
+	
+	return url;
+}
+
+DBot.CombinedURL2 = function(url, channel) {
+	if (typeof(url) == 'object') {
+		url = url.avatarURL;
+		
+		if (!url)
+			return false;
+	}
+	
+	url = url || DBot.LastURLImageInChannel2(channel);
+	
+	if (!url)
+		return false;
+	
+	if (url.match(cover) || url.match(cover2) || url.match(/^\//))
+		return false;
+	
+	if (!DBot.CheckURLImage2(url)) {
+		let emojiMatch = url.match(DBot.emojiRegExpWeak);
+		
+		if (!emojiMatch)
+			return false;
+		else
+			return DBot.FindEmojiURL(url);
+	}
+	
+	return url;
 }
 
 DBot.LoadImageURL = function(url, callback, callbackError) {
@@ -318,6 +376,12 @@ DBot.LoadImageURL = function(url, callback, callbackError) {
 	let match = url.match(expr);
 
 	let fPath = DBot.WebRoot + '/img_cache/' + hash + '.' + matchExt[1];
+	
+	let matchInternal = url.match(insideBotFolder);
+	if (matchInternal) {
+		callback(url);
+		return;
+	}
 	
 	if (match && !url.match(cover)) {
 		fPath = DBot.WebRoot + '/' + match[1];
