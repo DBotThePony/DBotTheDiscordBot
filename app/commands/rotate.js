@@ -106,7 +106,7 @@ DBot.RegisterCommand({
 		
 		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!DBot.CheckURLImage(url))
-			return DBot.CommandError('Invalid url maybe? ;w;', 'rotate', args, 2);
+			return DBot.CommandError('Invalid url maybe? ;w;', 'grotate', args, 1);
 		
 		let hash = DBot.HashString(url);
 		
