@@ -1274,6 +1274,7 @@ FROM
 	stats__phrases_server,
 	stats__command_server
 WHERE
+	server_id."ID" = ANY(%s) AND
 	server_id."ID" = server_names."ID" AND
 	stats__chars_server."UID" = server_id."ID" AND
 	stats__phrases_server."UID" = server_id."ID" AND
@@ -1302,7 +1303,13 @@ DBot.RegisterCommand({
 	func: function(args, cmd, msg) {
 		msg.channel.startTyping();
 		
-		Postgres.query(serversQuery, function(err, data) {
+		let validIDs = [];
+		
+		for (let server of DBot.bot.guilds.array()) {
+			validIDs.push(server.uid);
+		}
+		
+		Postgres.query(sprintf(serversQuery, sql.Array(validIDs) + '::INTEGER[]'), function(err, data) {
 			msg.channel.stopTyping();
 			
 			if (err) {
