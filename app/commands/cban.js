@@ -294,7 +294,7 @@ DBot.RegisterCommand({
 			return DBot.CommandError('Must be an @User', 'cmute', args, 1);
 		
 		if (args[0].id == DBot.bot.user.id)
-			return DBot.CommandError('wat', 'mute', args, 1);
+			return DBot.CommandError('wat', 'cmute', args, 1);
 		
 		let getUser = msg.channel.guild.member(args[0]);
 		
@@ -330,7 +330,7 @@ DBot.RegisterCommand({
 			return DBot.CommandError('Must be an @User', 'unmute', args, 1);
 		
 		if (args[0].id == DBot.bot.user.id)
-			return DBot.CommandError('wat', 'mute', args, 1);
+			return DBot.CommandError('wat', 'unmute', args, 1);
 		
 		let getUser = msg.channel.guild.member(args[0]);
 		
@@ -368,7 +368,7 @@ DBot.RegisterCommand({
 			return DBot.CommandError('Must be an @User', 'cumute', args, 1);
 		
 		if (args[0].id == DBot.bot.user.id)
-			return DBot.CommandError('wat', 'mute', args, 1);
+			return DBot.CommandError('wat', 'cumute', args, 1);
 		
 		let getUser = msg.channel.guild.member(args[0]);
 		
