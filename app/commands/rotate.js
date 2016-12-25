@@ -38,15 +38,15 @@ module.exports = {
 			}
 		}
 		
-		url = url || DBot.LastURLImageInChannel(msg.channel);
-		if (!DBot.CheckURLImage(url))
+		url = url || DBot.LastURLImageInChannel2(msg.channel);
+		if (!DBot.CheckURLImage2(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', 'rotate', args, 2);
 		
 		let hash = DBot.HashString(url + '___' + degree);
 		
 		let fPath;
-		let fPathProcessed = DBot.WebRoot + '/rotate/' + hash + '.png';
-		let fPathProcessedURL = DBot.URLRoot + '/rotate/' + hash + '.png';
+		let fPathProcessed;
+		let fPathProcessedURL;
 		
 		msg.channel.startTyping();
 		
@@ -73,7 +73,10 @@ module.exports = {
 			});
 		}
 		
-		DBot.LoadImageURL(url, function(newPath) {
+		DBot.LoadImageURL(url, function(newPath, newExt) {
+			fPathProcessed = DBot.WebRoot + '/rotate/' + hash + '.' + newExt;
+			fPathProcessedURL = DBot.URLRoot + '/rotate/' + hash + '.' + newExt;
+			
 			fPath = newPath;
 			ContinueFunc();
 		}, function(result) {

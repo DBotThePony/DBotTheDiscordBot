@@ -304,16 +304,17 @@ const unirest = require('unirest');
 const URL = require('url');
 
 const imageExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd)(\?|\/)?/i;
+const imageExtExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd|gif)(\?|\/)?/i;
 const expr = new RegExp('^https?://' + DBot.URLRootBare + '/(.*)');
 const cover = new RegExp('\\.\\./', 'gi');
 
 DBot.ExtraxtExt = function(url) {
-	return url.match(imageExt)[1];
+	return url.match(imageExtExt)[1];
 }
 
 DBot.LoadImageURL = function(url, callback, callbackError) {
 	let hash = DBot.HashString(url);
-	let matchExt = url.match(imageExt);
+	let matchExt = url.match(imageExtExt);
 	let match = url.match(expr);
 
 	let fPath = DBot.WebRoot + '/img_cache/' + hash + '.' + matchExt[1];
@@ -324,7 +325,7 @@ DBot.LoadImageURL = function(url, callback, callbackError) {
 	
 	fs.stat(fPath, function(err, stat) {
 		if (stat && stat.isFile()) {
-			callback(fPath);
+			callback(fPath, matchExt[1]);
 		} else {
 			unirest.get(url)
 			.encoding(null)
@@ -347,7 +348,7 @@ DBot.LoadImageURL = function(url, callback, callbackError) {
 					if (err)
 						return;
 					
-					callback(fPath);
+					callback(fPath, matchExt[1]);
 				});
 			});
 		}

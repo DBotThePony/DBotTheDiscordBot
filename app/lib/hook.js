@@ -124,38 +124,57 @@ hook.Add('ClientLeftServer', 'Default', function(client) {
 });
 
 const URL = require('url');
-var URLMessages = {};
-var URLMessagesImages = {};
-
-var allowed = [
-	'jpeg',
-	'jpg',
-	'png',
-	'tif',
-	'bmp',
-];
+let URLMessages = {};
+let URLMessagesImages = {};
+let URLMessagesImages2 = {};
 
 DBot.LastURLInChannel = function(channel) {
-	var cid = channel.id;
+	let cid = channel.id;
 	return URLMessages[cid];
 }
 
 DBot.LastURLImageInChannel = function(channel) {
-	var cid = channel.id;
+	let cid = channel.id;
 	return URLMessagesImages[cid];
 }
 
+DBot.LastURLImageInChannel2 = function(channel) {
+	let cid = channel.id;
+	return URLMessagesImages2[cid];
+}
+
 const imageExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd)(\?|\/)?/i;
+const imageExtExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd|gif)(\?|\/)?/i;
 const urlMatch = new RegExp('https?://([^ "\n]*)', 'g');
 const urlMatchStrong = new RegExp('^https?://([^ "\n]*)$');
 
 DBot.CheckURLImage = function(m) {
+	if (!m)
+		return false;
+	
 	let get = m.match(urlMatchStrong);
 
 	if (!get)
 		return false;
 	
 	let get2 = m.match(imageExt);
+	
+	if (get2)
+		return true;
+	else
+		return false;
+}
+
+DBot.CheckURLImage2 = function(m) {
+	if (!m)
+		return false;
+	
+	let get = m.match(urlMatchStrong);
+
+	if (!get)
+		return false;
+	
+	let get2 = m.match(imageExtExt);
 	
 	if (get2)
 		return true;
@@ -189,6 +208,10 @@ hook.Add('OnMessage', 'LastURLInChannel', function(msg) {
 		
 		if (url.match(imageExt)) {
 			URLMessagesImages[cid] = url;
+		}
+		
+		if (url.match(imageExtExt)) {
+			URLMessagesImages2[cid] = url;
 		}
 		
 		URLMessages[cid] = url;
