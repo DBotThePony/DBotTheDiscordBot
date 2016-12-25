@@ -85,3 +85,73 @@ module.exports = {
 		});
 	}
 }
+
+DBot.RegisterCommand({
+	name: 'grotate',
+	
+	help_args: '<image>',
+	desc: 'DO A BARRELL ROLL',
+	allowUserArgument: true,
+	
+	func: function(args, cmd, msg) {
+		let url = args[0];
+		
+		if (typeof(url) == 'object') {
+			url = url.avatarURL;
+			
+			if (!url) {
+				return 'Specified user have no avatar? ;w;';
+			}
+		}
+		
+		url = url || DBot.LastURLImageInChannel(msg.channel);
+		if (!DBot.CheckURLImage(url))
+			return DBot.CommandError('Invalid url maybe? ;w;', 'rotate', args, 2);
+		
+		let hash = DBot.HashString(url);
+		
+		let fPath;
+		let fPathProcessed = DBot.WebRoot + '/rotate/' + hash + '.gif';
+		let fPathProcessedURL = DBot.URLRoot + '/rotate/' + hash + '.gif';
+		
+		msg.channel.startTyping();
+		
+		let ContinueFunc = function() {
+			fs.stat(fPathProcessed, function(err, stat) {
+				if (stat) {
+					msg.channel.stopTyping();
+					msg.reply(fPathProcessedURL);
+				} else {
+					let magikArgs = ['(', fPath, '-scale', '256x256>', '-scale', '256x256<', ')', '-background', 'white'];
+					
+					for (let i = 0; i <= 340; i += 20) {
+						magikArgs.push('(', '-clone', '0', '-rotate', i, ')');
+					}
+					
+					magikArgs.push('-delete', '0', '-delay', '5', '-set', 'delay', '5', '-set', 'dispose', 'None', '-crop', '256x256+0+0!', fPathProcessed);
+					let magik = spawn('convert', magikArgs);
+					
+					Util.Redirect(magik);
+					
+					magik.on('close', function(code) {
+						if (code == 0) {
+							msg.reply(fPathProcessedURL);
+						} else {
+							msg.reply('*DED*');
+						}
+						
+						msg.channel.stopTyping();
+					});
+				}
+			});
+		}
+		
+		DBot.LoadImageURL(url, function(newPath, newExt) {
+			fPath = newPath;
+			ContinueFunc();
+		}, function(result) {
+			msg.channel.stopTyping();
+			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
+		});
+	}
+});
