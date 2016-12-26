@@ -38,20 +38,9 @@ module.exports = {
 	desc: 'Spooks',
 	
 	func: function(args, cmd, msg) {
-		let url = args[0];
+		let url = DBot.CombinedURL(args[0], msg.channel);
 		
-		if (typeof url == 'object') {
-			url = args[0].avatarURL;
-			
-			if (!url)
-				return DBot.CommandError('User have no avatar? ;n;', 'waw', args, 1);
-		}
-		
-		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
-		
-		if (!DBot.CheckURLImage(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
 		
 		let sha = DBot.HashString(url);
@@ -124,20 +113,9 @@ DBot.RegisterCommand({
 	desc: 'Ripple',
 	
 	func: function(args, cmd, msg) {
-		let url = args[0];
+		let url = DBot.CombinedURL(args[0], msg.channel);
 		
-		if (typeof url == 'object') {
-			url = args[0].avatarURL;
-			
-			if (!url)
-				return DBot.CommandError('User have no avatar? ;n;', 'wave', args, 1);
-		}
-		
-		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', 'wave', args, 1);
-		
-		if (!DBot.CheckURLImage(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', 'wave', args, 1);
 		
 		let sha = DBot.HashString(url);

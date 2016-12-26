@@ -27,21 +27,9 @@ module.exports = {
 	delay: 3,
 	
 	func: function(args, cmd, msg) {
-		let url = args[0];
+		let url = DBot.CombinedURL(args[0], msg.channel);
 		
-		if (typeof(url) == 'object') {
-			url = url.avatarURL;
-			
-			if (!url) {
-				return 'Specified user have no avatar? ;w;';
-			}
-		}
-		
-		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', 'vintage', args, 1);
-		
-		if (!DBot.CheckURLImage(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', 'vintage', args, 1);
 		
 		let hash = DBot.HashString(url);
@@ -124,16 +112,9 @@ DBot.RegisterCommand({
 	delay: 5,
 	
 	func: function(args, cmd, msg) {
-		let url = args[0];
+		let url = DBot.CombinedURL(args[0], msg.channel);
 		
-		if (typeof(url) == 'object')
-			url = url.avatarURL;
-		
-		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', 'vintage2', args, 1);
-		
-		if (!DBot.CheckURLImage(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', 'vintage2', args, 1);
 		
 		let hash = DBot.HashString(url);

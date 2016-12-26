@@ -17,21 +17,9 @@ const allowed = [
 
 let fn = function(name, toUse) {
 	return function(args, cmd, msg) {
-		let url = args[0];
+		let url = DBot.CombinedURL(args[0], msg.channel);
 		
-		if (typeof(url) == 'object') {
-			url = url.avatarURL;
-			
-			if (!url) {
-				return 'Specified user have no avatar? ;w;';
-			}
-		}
-		
-		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
-		
-		if (!DBot.CheckURLImage(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 		
 		let hash = DBot.HashString(url);
@@ -130,21 +118,9 @@ DBot.RegisterCommand({
 
 let fn2 = function(name, toUse, dir) {
 	return function(args, cmd, msg) {
-		let url = args[0];
+		let url = DBot.CombinedURL(args[0], msg.channel);
 		
-		if (typeof(url) == 'object') {
-			url = url.avatarURL;
-			
-			if (!url) {
-				return 'Specified user have no avatar? ;w;';
-			}
-		}
-		
-		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
-		
-		if (!DBot.CheckURLImage(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 		
 		let hash = DBot.HashString(url);
@@ -212,21 +188,9 @@ DBot.RegisterCommand({
 
 let fn3 = function(name) {
 	return function(args, cmd, msg) {
-		let url = args[0];
+		let url = DBot.CombinedURL(args[0], msg.channel);
 		
-		if (typeof(url) == 'object') {
-			url = url.avatarURL;
-			
-			if (!url) {
-				return 'Specified user have no avatar? ;w;';
-			}
-		}
-		
-		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
-		
-		if (!DBot.CheckURLImage(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 		
 		let hash = DBot.HashString(url);

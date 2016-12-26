@@ -7,24 +7,16 @@ Util.mkdir(DBot.WebRoot + '/negate')
 
 module.exports = {
 	name: 'negate',
+	alias: ['inverse'],
 	
 	help_args: '<image>',
 	desc: 'Negates image channels',
 	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
-		let url = args[0];
+		let url = DBot.CombinedURL(args[0], msg.channel);
 		
-		if (typeof(url) == 'object') {
-			url = url.avatarURL;
-			
-			if (!url) {
-				return 'Specified user have no avatar? ;w;';
-			}
-		}
-		
-		url = url || DBot.LastURLImageInChannel(msg.channel);
-		if (!DBot.CheckURLImage(url))
+		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'negate', args, 1);
 		
 		let hash = DBot.HashString(url);

@@ -24,20 +24,9 @@ module.exports = {
 	desc: '<TRIGGERED>',
 	
 	func: function(args, cmd, msg) {
-		let url = args[0];
+		let url = DBot.CombinedURL(args[0], msg.channel);
 		
-		if (typeof url == 'object') {
-			url = args[0].avatarURL;
-			
-			if (!url)
-				return DBot.CommandError('User have no avatar? ;n;', 'triggered', args, 1);
-		}
-		
-		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered', args, 1);
-		
-		if (!DBot.CheckURLImage(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered', args, 1);
 		
 		let sha = DBot.HashString(url);
@@ -90,20 +79,9 @@ DBot.RegisterCommand({
 	desc: '<TRIGGERED> variation 2',
 	
 	func: function(args, cmd, msg) {
-		let url = args[0];
+		let url = DBot.CombinedURL(args[0], msg.channel);
 		
-		if (typeof url == 'object') {
-			url = args[0].avatarURL;
-			
-			if (!url)
-				return DBot.CommandError('User have no avatar? ;n;', 'triggered2', args, 1);
-		}
-		
-		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered2', args, 1);
-		
-		if (!DBot.CheckURLImage(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered2', args, 1);
 		
 		let sha = DBot.HashString(url);
@@ -156,21 +134,10 @@ DBot.RegisterCommand({
 	desc: '<TRIGGERED> variation 3',
 	
 	func: function(args, cmd, msg) {
-		let url = args[0];
+		let url = DBot.CombinedURL(args[0], msg.channel);
 		
-		if (typeof url == 'object') {
-			url = args[0].avatarURL;
-			
-			if (!url)
-				return DBot.CommandError('User have no avatar? ;n;', 'triggered2', args, 1);
-		}
-		
-		url = url || DBot.LastURLImageInChannel(msg.channel);
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered2', args, 1);
-		
-		if (!DBot.CheckURLImage(url))
-			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered2', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered3', args, 1);
 		
 		let sha = DBot.HashString(url);
 		
