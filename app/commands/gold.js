@@ -20,8 +20,8 @@ module.exports = {
 		
 		let sha = DBot.HashString(cmd);
 		
-		let fPathProcessed = DBot.WebRoot + '/gold/' + sha + '.png';
-		let fPathProcessedURL = DBot.URLRoot + '/gold/' + sha + '.png';
+		let fPathProcessed = DBot.WebRoot + '/gold/' + sha + '.jpg';
+		let fPathProcessedURL = DBot.URLRoot + '/gold/' + sha + '.jpg';
 		
 		msg.channel.startTyping();
 		
