@@ -13,14 +13,6 @@ Util.mkdir(DBot.WebRoot + '/jpeg', function() {
 	}
 });
 
-const allowed = [
-	'jpeg',
-	'jpg',
-	'png',
-	'tif',
-	'bmp',
-];
-
 module.exports = {
 	name: 'jpeg',
 	
@@ -29,8 +21,7 @@ module.exports = {
 	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
-		let url = args[0];
-		let quality = args[1] || '3';
+		let quality = args[0] || '3';
 		
 		if (quality > 10)
 			quality = 10;
@@ -38,20 +29,12 @@ module.exports = {
 		if (quality < 1)
 			quality = 1;
 		
-		if (typeof(url) == 'object')
-			url = url.avatarURL;
+		let url = DBot.CombinedURL(args[1], msg.channel);
 		
-		if (!url) {
-			url = DBot.LastURLImageInChannel(msg.channel);
-			
-			if (!url) {
-				return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['jpeg'], 2, args);
-			}
-		}
+		if (!url)
+			return DBot.CommandError('Invalid url maybe? ;w;', 'jpeg', args, 2);
 		
 		let hash = DBot.HashString(url);
-		if (!DBot.CheckURLImage(url))
-			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['jpeg'], 2, args);
 		
 		let fPath;
 		let fPathProcessed = DBot.WebRoot + '/jpeg/' + quality + '/' + hash + '.jpg';
