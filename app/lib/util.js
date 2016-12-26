@@ -62,7 +62,7 @@ Util.Concat = function(obj, sep) {
 Util.ToNumber = function(arg) {
 	var num;
 	
-	if (arg) {
+	if (typeof arg == 'string') {
 		if (arg.match(/^-?[0-9]+$/)) {
 			let tryNum = parseInt(arg);
 		
@@ -70,6 +70,8 @@ Util.ToNumber = function(arg) {
 				num = tryNum;
 			}
 		}
+	} else if (typeof arg == 'number') {
+		return arg;
 	}
 	
 	return num;
@@ -80,7 +82,7 @@ Util.ToNumber = function(arg) {
 Util.ToNumberSoft = function(arg) {
 	var num;
 	
-	if (arg) {
+	if (typeof arg == 'string') {
 		let match = arg.match(/^-?[0-9]+/);
 		if (match) {
 			let tryNum = parseInt(match[0]);
@@ -89,6 +91,8 @@ Util.ToNumberSoft = function(arg) {
 				num = tryNum;
 			}
 		}
+	} else if (typeof arg == 'number') {
+		return arg;
 	}
 	
 	return num;
