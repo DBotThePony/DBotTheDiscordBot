@@ -146,3 +146,64 @@ DBot.RegisterCommand({
 		});
 	}
 });
+
+DBot.RegisterCommand({
+	name: 'grotate2',
+	
+	help_args: '<image>',
+	desc: 'DO A BARRELL ROLL reverse',
+	allowUserArgument: true,
+	
+	func: function(args, cmd, msg) {
+		let url = DBot.CombinedURL(args[0], msg.channel);
+		
+		if (!url)
+			return DBot.CommandError('Invalid url maybe? ;w;', 'grotate', args, 1);
+		
+		let hash = DBot.HashString(url);
+		
+		let fPath;
+		let fPathProcessed = DBot.WebRoot + '/rotate/' + hash + '.gif';
+		let fPathProcessedURL = DBot.URLRoot + '/rotate/' + hash + '.gif';
+		
+		msg.channel.startTyping();
+		
+		let ContinueFunc = function() {
+			fs.stat(fPathProcessed, function(err, stat) {
+				if (stat) {
+					msg.channel.stopTyping();
+					msg.reply(fPathProcessedURL);
+				} else {
+					let magikArgs = ['-alpha', 'on', '(', fPath, '-scale', '256x256>', '-scale', '256x256<', ')', '(', '-size', '256x256', 'xc:none', '-fill', 'white', '-draw', 'circle 128,128 128,0', ')', '-compose', 'copyopacity', '-background', 'white'];
+					
+					for (let i = 340; i >= 20; i -= 20) {
+						magikArgs.push('(', '-clone', '0', '-rotate', i, '-crop', '256x256+0+0!', '-clone', '1', '-composite', ')');
+					}
+					
+					magikArgs.push('-compose', 'srcover', '-delete', '0', '-delete', '0', '-delay', '5', '-set', 'delay', '5', '-set', 'dispose', 'None', fPathProcessed);
+					let magik = spawn('convert', magikArgs);
+					
+					Util.Redirect(magik);
+					
+					magik.on('close', function(code) {
+						if (code == 0) {
+							msg.reply(fPathProcessedURL);
+						} else {
+							msg.reply('*DED*');
+						}
+						
+						msg.channel.stopTyping();
+					});
+				}
+			});
+		}
+		
+		DBot.LoadImageURL(url, function(newPath, newExt) {
+			fPath = newPath;
+			ContinueFunc();
+		}, function(result) {
+			msg.channel.stopTyping();
+			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
+		});
+	}
+});
