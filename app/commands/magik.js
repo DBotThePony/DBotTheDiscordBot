@@ -13,7 +13,7 @@ const combinations = [
 
 module.exports = {
 	name: 'magik',
-	alias: ['magic'],
+	alias: ['magic', 'magick'],
 	
 	help_args: '<url>',
 	desc: 'Broken seam-carving resize ;n;',
@@ -75,3 +75,68 @@ module.exports = {
 		});
 	}
 }
+
+DBot.RegisterCommand({
+	name: 'gmagik',
+	alias: ['gmagic', 'gmagick'],
+	
+	help_args: '<url>',
+	desc: 'Broken seam-carving resize ;n; as gif',
+	allowUserArgument: true,
+	delay: 5,
+	
+	func: function(args, cmd, msg) {
+		let url = DBot.CombinedURL(args[0], msg.channel);
+		
+		if (!url)
+			return DBot.CommandError('Invalid url maybe? ;w;', 'magik', args, 1);
+		
+		let hash = DBot.HashString(url);
+		
+		let fPath;
+		
+		let fPathProcessed = DBot.WebRoot + '/magik/' + hash + '.gif';
+		let fPathProcessedURL = DBot.URLRoot + '/magik/' + hash + '.gif';
+		
+		msg.channel.startTyping();
+		
+		let ContinueFunc = function() {
+			fs.stat(fPathProcessed, function(err, stat) {
+				if (stat && stat.isFile()) {
+					msg.channel.stopTyping();
+					msg.reply(fPathProcessedURL);
+				} else {
+					let magikArgs = ['(', fPath, '-resize', '256x256>', '-resize', '256x256<', ')',];
+					
+					for (let i = 5; i <= 70; i += 5) {
+						magikArgs.push('(', '-clone', '0', '(', '+clone', '-liquid-rescale', (100 - i) + '%', ')', '(', '+clone', '-resize', '256', ')', '-delete', '-2', '-delete', '-2', ')');
+					}
+					
+					magikArgs.push('-delay', '8', '-set', 'delay', '8', fPathProcessed);
+					
+					let magik = spawn('convert', magikArgs);
+					
+					Util.Redirect(magik);
+					
+					magik.on('close', function(code) {
+						if (code == 0) {
+							msg.channel.stopTyping();
+							msg.reply(fPathProcessedURL);
+						} else {
+							msg.channel.stopTyping();
+							msg.reply('*sqeaks*');
+						}
+					});
+				}
+			});
+		}
+		
+		DBot.LoadImageURL(url, function(newPath) {
+			fPath = newPath;
+			ContinueFunc();
+		}, function(result) {
+			msg.channel.stopTyping();
+			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
+		});
+	}
+});
