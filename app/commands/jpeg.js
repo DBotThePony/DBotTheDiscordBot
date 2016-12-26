@@ -21,7 +21,7 @@ module.exports = {
 	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
-		let quality = args[0] || '3';
+		let quality = Util.ToNumber(args[0]) || 3;
 		
 		if (quality > 10)
 			quality = 10;
