@@ -34,7 +34,16 @@ module.exports = {
 			if (!msg.member.hasPermission('MANAGE_GUILD') && msg.author.id != DBot.DBot)
 				return 'You must have "MANAGE_GUILD" rights to set server variables';
 			
-			let trySet = cvar.setValue(args[1]);
+			let build;
+			
+			for (let i = 1; i < args.length; i++) {
+				if (build)
+					build += ' ' + args[i];
+				else
+					build = args[i];
+			}
+			
+			let trySet = cvar.setValue(build);
 			
 			if (!trySet[0]) {
 				msg.reply('```' + cvars.ErrorMessages[trySet[1]] + '\n\n' + Util.HighlightHelp(['svar'], 3, args, true) + '```');
@@ -150,7 +159,16 @@ DBot.RegisterCommand({
 			if (!msg.member.hasPermission('MANAGE_GUILD') && msg.author.id != DBot.DBot)
 				return 'You must have "MANAGE_GUILD" rights to set channel variables';
 			
-			let trySet = cvar.setValue(args[1]);
+			let build;
+			
+			for (let i = 1; i < args.length; i++) {
+				if (build)
+					build += ' ' + args[i];
+				else
+					build = args[i];
+			}
+			
+			let trySet = cvar.setValue(build);
 			
 			if (!trySet[0]) {
 				msg.reply('```' + cvars.ErrorMessages[trySet[1]] + '\n\n' + Util.HighlightHelp(['cvar'], 3, args, true) + '```');
@@ -213,7 +231,16 @@ DBot.RegisterCommand({
 			if (!msg.member.hasPermission('MANAGE_GUILD') && msg.author.id != DBot.DBot)
 				return 'You must have "MANAGE_GUILD" rights to set channel variables';
 			
-			let trySet = cvar.setValue(args[2]);
+			let build;
+			
+			for (let i = 1; i < args.length; i++) {
+				if (build)
+					build += ' ' + args[i];
+				else
+					build = args[i];
+			}
+			
+			let trySet = cvar.setValue(build);
 			
 			if (!trySet[0]) {
 				msg.reply(DBot.CommandError(cvars.ErrorMessages[trySet[1]], 'mcvar', args, 3));
@@ -248,7 +275,16 @@ DBot.RegisterCommand({
 		if (args[1] === undefined) {
 			msg.author.sendMessage('```' + cvar.format() + '```');
 		} else {
-			let trySet = cvar.setValue(args[1]);
+			let build;
+			
+			for (let i = 1; i < args.length; i++) {
+				if (build)
+					build += ' ' + args[i];
+				else
+					build = args[i];
+			}
+			
+			let trySet = cvar.setValue(build);
 			
 			if (!trySet[0]) {
 				msg.reply('```' + cvars.ErrorMessages[trySet[1]] + '\n\n' + Util.HighlightHelp(['uvar'], 3, args, true) + '```');
