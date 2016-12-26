@@ -143,8 +143,8 @@ DBot.LastURLImageInChannel2 = function(channel) {
 	return URLMessagesImages2[cid];
 }
 
-const imageExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd)(\?|\/)?/i;
-const imageExtExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd|gif)(\?|\/)?/i;
+const imageExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd|webp)(\?|\/)?/i;
+const imageExtExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd|gif|webp)(\?|\/)?/i;
 const urlMatch = new RegExp('https?://([^ "\n]*)', 'g');
 const urlMatchStrong = new RegExp('^https?://([^ "\n]*)$');
 

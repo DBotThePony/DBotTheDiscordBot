@@ -303,8 +303,8 @@ fs.stat(DBot.WebRoot + '/img_cache', function(err, stat) {
 const unirest = require('unirest');
 const URL = require('url');
 
-const imageExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd)(\?|\/)?/i;
-const imageExtExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd|gif)(\?|\/)?/i;
+const imageExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd|webp)(\?|\/)?/i;
+const imageExtExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd|gif|webp)(\?|\/)?/i;
 const expr = new RegExp('^https?://' + DBot.URLRootBare + '/(.*)');
 const cover = new RegExp('\\.\\./', 'gi');
 const cover2 = new RegExp('\\./', 'gi');
