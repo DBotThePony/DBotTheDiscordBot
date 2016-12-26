@@ -12,7 +12,7 @@ var Search = 'https://www.googleapis.com/customsearch/v1?key=AIzaSyAhhmtK4vvqV4r
 
 module.exports = {
 	name: 'image',
-	alias: ['gimage', 'im'],
+	alias: ['gimage', 'im', 'img', 'i'],
 	
 	argNeeded: true,
 	delay: 3,
