@@ -48,7 +48,7 @@ module.exports = {
 					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);
 				} else {
-					let magik = spawn('convert', [fPath, '-quality', quality.toString(), fPathProcessed]);
+					let magik = spawn('convert', [fPath, '-background', 'white', '-quality', quality.toString(), fPathProcessed]);
 					
 					magik.stderr.on('data', function(data) {
 						console.error(data.toString());
