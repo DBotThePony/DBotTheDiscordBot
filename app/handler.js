@@ -471,6 +471,9 @@ DBot.IsAskingMe = function(msg) {
 	if (msg.content.substr(0, DBot.aidLen) == DBot.askId)
 		return true;
 	
+	if (msg.content.substr(0, DBot.aidLen2) == DBot.askId2)
+		return true;
+	
 	let prefix = '}';
 	
 	if (!DBot.IsPM(msg)) {
@@ -497,6 +500,9 @@ DBot.IsAskingMe = function(msg) {
 
 DBot.IsAskingMe_Command = function(msg) {
 	if (msg.content.substr(0, DBot.aidcLen) == DBot.askIdC)
+		return true;
+	
+	if (msg.content.substr(0, DBot.aidcLen2) == DBot.askIdC2)
 		return true;
 	
 	var prefix = '}';

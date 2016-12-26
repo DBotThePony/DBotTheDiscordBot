@@ -125,10 +125,14 @@ DBot.InitVars = function() {
 	console.log('Bot ID: ' + DBot.id);
 	DBot.askId = '<@' + DBot.bot.user.id + '>';
 	DBot.askIdC = '<@' + DBot.bot.user.id + '> ';
+	DBot.askId2 = '<@!' + DBot.bot.user.id + '>';
+	DBot.askIdC2 = '<@!' + DBot.bot.user.id + '> ';
 	
 	DBot.idLen = DBot.id.length;
 	DBot.aidLen = DBot.askId.length;
 	DBot.aidcLen = DBot.askIdC.length;
+	DBot.aidLen2 = DBot.askId2.length;
+	DBot.aidcLen2 = DBot.askIdC2.length;
 }
 
 cvars.ServerVar('notify_channel', '', [FCVAR_CHANNELONLY], 'Channel to threat as notifications channel');
