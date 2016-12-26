@@ -1,6 +1,5 @@
 
 const moment = require('moment');
-const utf8 = require('utf8');
 const hDuration = require('humanize-duration');
 
 hook.Add('ValidClientJoinsServer', 'JLogs', function(user, server, member) {
@@ -38,7 +37,7 @@ DBot.RegisterCommand({
 			for (let row of data) {
 				let date = moment.unix(row.STAMP);
 				let status = row.STATUS;
-				let name = utf8.decode(row.USERNAME);
+				let name = row.USERNAME;
 				
 				output += Util.AppendSpaces(name, 20) + Util.AppendSpaces(status && 'Connect' || 'Disconnect', 16) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
 			}
