@@ -396,7 +396,7 @@ DBot.RegisterCommand({
 				output += '<@' + member.user.id + '> ';
 				member.offs.push(msg.channel.uid);
 				
-				Postgres.query('INSERT INTO off_users VALUES (' + member.uid + ', ' + msg.channel.uid + ') ON CONFLICT ("ID", "CHANNEL") DO NOTHING');
+				Postgres.query('INSERT INTO off_users VALUES (' + sql.Member(member) + ', ' + msg.channel.uid + ') ON CONFLICT ("ID", "CHANNEL") DO NOTHING');
 			}
 			
 			return output;
@@ -421,7 +421,7 @@ DBot.RegisterCommand({
 					stream.write('<@' + member.user.id + '>     ' + Util.AppendSpaces(member.nickname || member.user.username, 60) + ' (' + member.user.username + ')\n');
 					
 					member.offs.push(msg.channel.uid);
-					Postgres.query('INSERT INTO off_users VALUES (' + member.uid + ', ' + msg.channel.uid + ') ON CONFLICT ("ID", "CHANNEL") DO NOTHING');
+					Postgres.query('INSERT INTO off_users VALUES (' + sql.Member(member) + ', ' + msg.channel.uid + ') ON CONFLICT ("ID", "CHANNEL") DO NOTHING');
 				}
 			}
 			
@@ -616,7 +616,7 @@ DBot.RegisterCommand({
 					}
 				}
 				
-				Postgres.query('DELETE FROM off_users WHERE "ID" =' + member.uid + ' AND "CHANNEL" = ' + msg.channel.uid);
+				Postgres.query('DELETE FROM off_users WHERE "ID" =' + sql.Member(member) + ' AND "CHANNEL" = ' + msg.channel.uid);
 			}
 			
 			return output;
@@ -649,7 +649,7 @@ DBot.RegisterCommand({
 				stream.write('<@' + member.user.id + '>     ' + Util.AppendSpaces(member.nickname || member.user.username, 60) + ' (' + member.user.username + ')\n');
 				
 				hit = true;
-				Postgres.query('DELETE FROM off_users WHERE "ID" =' + member.uid + ' AND "CHANNEL" = ' + msg.channel.uid);
+				Postgres.query('DELETE FROM off_users WHERE "ID" =' + sql.Member(member) + ' AND "CHANNEL" = ' + msg.channel.uid);
 				
 				output += '<@' + member.id + '> ';
 			}
@@ -737,7 +737,7 @@ hook.Add('MemberInitialized', 'ModerationCommands', function(member) {
 		}
 	});
 	
-	Postgres.query('SELECT member_softban."STAMP", member_softban."ADMIN", member_names."NAME" AS "ADMIN_NAME", user_names."USERNAME" AS "ADMIN_NAME_REAL" FROM member_softban, member_names, member_id, user_names WHERE member_softban."ID" = ' + member.uid + ' AND member_names."ID" = member_softban."ADMIN" AND member_id."ID" = member_names."ID" AND user_names."ID" = member_id."USER"', function(err, data) {
+	Postgres.query('SELECT member_softban."STAMP", member_softban."ADMIN", member_names."NAME" AS "ADMIN_NAME", user_names."USERNAME" AS "ADMIN_NAME_REAL" FROM member_softban, member_names, member_id, user_names WHERE member_softban."ID" = ' + sql.Member(member) + ' AND member_names."ID" = member_softban."ADMIN" AND member_id."ID" = member_names."ID" AND user_names."ID" = member_id."USER"', function(err, data) {
 		if (err) throw err;
 		
 		if (!data[0])
