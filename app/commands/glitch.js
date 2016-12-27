@@ -56,3 +56,69 @@ module.exports = {
 		});
 	}
 }
+
+DBot.RegisterCommand({
+	name: 'glitch2',
+	
+	help_args: '<url>',
+	desc: 'Glitches the image by messing up it\'s bytes',
+	allowUserArgument: true,
+	
+	func: function(args, cmd, msg) {
+		let url = DBot.CombinedURL(args[0], msg.channel);
+		
+		if (!url)
+			return DBot.CommandError('Invalid url maybe? ;w;', 'glitch', args, 1);
+		
+		let hash = DBot.HashString(CurTime().toString());
+		
+		let fPath;
+		let fPathProcessed = DBot.WebRoot + '/glitch/' + hash + '.jpg';
+		let fPathProcessedURL = DBot.URLRoot + '/glitch/' + hash + '.jpg';
+		
+		msg.channel.startTyping();
+		
+		let ContinueFunc = function() {
+			let magik = spawn('convert', [fPath, '-resize', '1500x1500>', 'jpg:-']);
+			
+			let output2 = '';
+			
+			magik.stdout.on('data', function(chunk) {
+				output2 += chunk.toString('base64');
+			});
+			
+			magik.on('close', function(code) {
+				if (code != 0) {
+					msg.channel.stopTyping();
+					msg.reply('*sqeaks*');
+					return;
+				}
+				
+				let output = Buffer.from(output2, 'base64');
+				let step = Math.floor(output.length / Util.Random(150, 300));
+				
+				for (let i = 400; i < output.length - 200; i += step) {
+					if (Util.Random(1, 100) > 40) {
+						output[i] = Util.Random(50, 180);
+					}
+				}
+				
+				let stream = fs.createWriteStream(fPathProcessed);
+				stream.write(output);
+				stream.end();
+				stream.on('finish', function() {
+					msg.channel.stopTyping();
+					msg.reply(fPathProcessedURL);
+				});
+			});
+		}
+		
+		DBot.LoadImageURL(url, function(newPath) {
+			fPath = newPath;
+			ContinueFunc();
+		}, function(result) {
+			msg.channel.stopTyping();
+			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
+		});
+	}
+});
