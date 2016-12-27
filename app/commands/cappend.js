@@ -7,6 +7,7 @@ Util.mkdir(DBot.WebRoot + '/cappend');
 
 module.exports = {
 	name: 'cappend',
+	alias: ['layer', '4append'],
 	
 	help_args: '<url>',
 	desc: 'Appends image four times',
