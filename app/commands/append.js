@@ -116,7 +116,7 @@ DBot.RegisterCommand({
 	func: fn('-append', 2, null, '+append'),
 });
 
-module.exports = {
+DBot.RegisterCommand({
 	name: 'rappend',
 	alias: ['r+append', '+rappend'],
 	
@@ -125,7 +125,7 @@ module.exports = {
 	allowUserArgument: true,
 	
 	func: fn('+append', 3, 2, 'r+append'),
-}
+});
 
 DBot.RegisterCommand({
 	name: 'rvappend',
