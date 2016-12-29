@@ -19,6 +19,9 @@ setInterval(function() {
 			
 			let name = member.nickname || member.user.username;
 			
+			if (!name)
+				continue;
+			
 			member.oldNickname = member.oldNickname || name;
 			
 			let notifications = cvars.Server(member.guild).getVar('notifications').getBool();
