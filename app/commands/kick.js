@@ -720,10 +720,41 @@ let userBanHit = function(member, row) {
 	if (!member.user.bot)
 		member.sendMessage(output);
 	
+	member.aboutToKick = true;
+	
 	setTimeout(function() {
+		member.aboutToKick = undefined;
 		member.kick();
 	}, 5000);
 }
+
+hook.Add('ValidClientJoinsServer', 'ModerationCommands', function(user, server, member) {
+	if (member.aboutToKick)
+		return;
+	
+	Postgres.query('SELECT member_softban."STAMP", member_softban."ADMIN", member_names."NAME" AS "ADMIN_NAME", user_names."USERNAME" AS "ADMIN_NAME_REAL" FROM member_softban, member_names, member_id, user_names WHERE member_softban."ID" = ' + sql.Member(member) + ' AND member_names."ID" = member_softban."ADMIN" AND member_id."ID" = member_names."ID" AND user_names."ID" = member_id."USER"', function(err, data) {
+		if (err) throw err;
+		
+		if (!data[0])
+			return;
+		
+		userBanHit(member, data[0]);
+	});
+});
+
+hook.Add('ValidClientAvaliable', 'ModerationCommands', function(user, server, member) {
+	if (member.aboutToKick)
+		return;
+	
+	Postgres.query('SELECT member_softban."STAMP", member_softban."ADMIN", member_names."NAME" AS "ADMIN_NAME", user_names."USERNAME" AS "ADMIN_NAME_REAL" FROM member_softban, member_names, member_id, user_names WHERE member_softban."ID" = ' + sql.Member(member) + ' AND member_names."ID" = member_softban."ADMIN" AND member_id."ID" = member_names."ID" AND user_names."ID" = member_id."USER"', function(err, data) {
+		if (err) throw err;
+		
+		if (!data[0])
+			return;
+		
+		userBanHit(member, data[0]);
+	});
+});
 
 hook.Add('MemberInitialized', 'ModerationCommands', function(member) {
 	if (!INIT)
@@ -737,14 +768,15 @@ hook.Add('MemberInitialized', 'ModerationCommands', function(member) {
 		}
 	});
 	
-	Postgres.query('SELECT member_softban."STAMP", member_softban."ADMIN", member_names."NAME" AS "ADMIN_NAME", user_names."USERNAME" AS "ADMIN_NAME_REAL" FROM member_softban, member_names, member_id, user_names WHERE member_softban."ID" = ' + sql.Member(member) + ' AND member_names."ID" = member_softban."ADMIN" AND member_id."ID" = member_names."ID" AND user_names."ID" = member_id."USER"', function(err, data) {
-		if (err) throw err;
-		
-		if (!data[0])
-			return;
-		
-		userBanHit(member, data[0]);
-	});
+	if (!member.aboutToKick)
+		Postgres.query('SELECT member_softban."STAMP", member_softban."ADMIN", member_names."NAME" AS "ADMIN_NAME", user_names."USERNAME" AS "ADMIN_NAME_REAL" FROM member_softban, member_names, member_id, user_names WHERE member_softban."ID" = ' + sql.Member(member) + ' AND member_names."ID" = member_softban."ADMIN" AND member_id."ID" = member_names."ID" AND user_names."ID" = member_id."USER"', function(err, data) {
+			if (err) throw err;
+			
+			if (!data[0])
+				return;
+			
+			userBanHit(member, data[0]);
+		});
 });
 
 hook.Add('MembersInitialized', 'ModerationCommands', function() {
