@@ -30,10 +30,10 @@ module.exports = {
 		
 		let ContinueFunc2 = function() {
 			fs.stat(fpathProcessed, function(err, stat) {
-				/*if (stat) {
+				if (stat) {
 					msg.channel.stopTyping();
 					msg.reply(fpathU);
-				} else {*/
+				} else {
 					let magik = spawn('convert', [
 						'-size', '512x580!',
 						'canvas:white',
@@ -107,7 +107,7 @@ module.exports = {
 							msg.reply('I am cracked up ;w;');
 						}
 					});
-			//	}
+				}
 			});
 		}
 		
