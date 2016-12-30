@@ -109,7 +109,7 @@ DBot.RegisterCommand({
 			if (member.hasPermission(perm)) {
 				i++;
 				
-				if (i > 6) {
+				if (i > 20) {
 					more++;
 				} else {
 					output += Util.AppendSpaces('@' + (member.nickname || member.user.username), 30) + '<@' + member.user.id + '>\n';
