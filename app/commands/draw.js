@@ -6,9 +6,31 @@ const fs = require('fs');
 const font = 'Hack-Regular';
 const size = 48;
 
+const AvaliableCustomFonts = [
+	[font, 'Hack'],
+	['Comic-Sans-MS', 'ComicSans'],
+	['PricedownBl-Regular', 'GTA'],
+	['OptimusPrinceps', 'DarkSouls'],
+	['TF2', 'TF2'],
+	['BebasNeue', 'ESRB'],
+	['Source-Sans-Pro', 'AdobeSans'],
+	['Source-Serif-Pro', 'AdobeSerif'],
+	['Calibri', 'Calibri'],
+	['Times-New-Roman', 'TimesNR'],
+	['Open-Sans', 'OpenSans'],
+	['Liberation-Mono', 'Liberation'],
+	['Liberation-Sans', 'LiberationSans'],
+	['Linux-Biolinum-G-Regular', 'Biolinum'],
+	['Linux-Libertine-G-Regular', 'Libertine'],
+];
+
 hook.Add('PrecacheFonts', 'DrawCommand', function() {
 	IMagick.PrecacheFont(font);
 	IMagick.PrecacheFont('Comic-Sans-MS');
+	
+	for (let row of AvaliableCustomFonts) {
+		IMagick.PrecacheFont(row[0]);
+	}
 });
 
 Util.mkdir(DBot.WebRoot + '/text', function() {
@@ -60,6 +82,74 @@ DBot.RegisterCommandPipe({
 	argNeeded: true,
 	
 	func: createFunc(font, size, 'NorthWest'),
+});
+
+let fnc = function(name, gr) {
+	return function(args, cmd, msg) {
+		if (!args[0])
+			return DBot.CommandError('Font is required', name, args, 1);
+		
+		let sFont;
+		args[0] = args[0].toLowerCase();
+		
+		for (let row of AvaliableCustomFonts) {
+			if (row[1].toLowerCase() == args[0]) {
+				sFont = row[0];
+			}
+		}
+		
+		if (!sFont)
+			return DBot.CommandError('Invalid font', name, args, 1);
+		
+		if (!args[1])
+			return DBot.CommandError('Text is required', name, args, 2);
+		
+		let fCmd;
+		
+		for (let i = 1; i < args.length; i++) {
+			if (fCmd)
+				fCmd += ' ' + args[i];
+			else
+				fCmd = args[i];
+		}
+		
+		IMagick.DrawText({
+			text: fCmd,
+			font: sFont,
+			size: size,
+			gravity: gr,
+		}, function(err, fpath, fpathU) {
+			if (err) {
+				msg.reply('<internal pony error>');
+			} else {
+				msg.reply(fpathU);
+			}
+		});
+		
+		return true;
+	};
+}
+
+DBot.RegisterCommandPipe({
+	name: 'cdraw',
+	alias: ['ctext', 'cdrawtext'],
+	
+	help_args: '<font> <text>',
+	desc: 'Draws a text as image using specified font',
+	argNeeded: true,
+	
+	func: fnc('cdraw', 'North'),
+});
+
+DBot.RegisterCommandPipe({
+	name: 'cndraw',
+	alias: ['cntext', 'cndrawtext'],
+	
+	help_args: '<font> <text>',
+	desc: 'Draws a text as image using specified font, Uses North West text align',
+	argNeeded: true,
+	
+	func: fnc('cdraw', 'NorthWest'),
 });
 
 DBot.RegisterCommandPipe({
