@@ -26,6 +26,7 @@ const AvaliableCustomFonts = [
 	['Impact', 'Impact'],
 	['Arimo', 'Arimo'],
 	['Cousine', 'Cousine'],
+	['Roboto', 'Roboto'],
 	['Roboto-Mono', 'RobotoMono'],
 	['Roboto-Slab-Regular', 'RobotoSlab'],
 	['Courier-New', 'Courier'],
