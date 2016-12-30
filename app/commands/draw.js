@@ -23,6 +23,7 @@ const AvaliableCustomFonts = [
 	['Linux-Biolinum-G-Regular', 'Biolinum'],
 	['Linux-Libertine-G-Regular', 'Libertine'],
 	['Arial', 'Arial'],
+	['Impact', 'Impact'],
 	['Arimo', 'Arimo'],
 	['Cousine', 'Cousine'],
 	['Roboto-Mono', 'RobotoMono'],
