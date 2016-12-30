@@ -33,6 +33,21 @@ hook.Add('PrecacheFonts', 'DrawCommand', function() {
 	}
 });
 
+{
+	let magikArgs = ['-background', 'none', '-fill', 'black', '-gravity', 'NorthWest', '-pointsize', '72'];
+	
+	for (let row of AvaliableCustomFonts) {
+		magikArgs.push('(', '-font', row[0], 'label:' + row[1], ')');
+	}
+	
+	magikArgs.push('-append', DBot.WebRoot + '/drawfonts.png');
+	
+	let magik = spawn('convert', magikArgs);
+	
+	magik.stdout.pipe(process.stdout);
+	magik.stderr.pipe(process.stdout);
+}
+
 Util.mkdir(DBot.WebRoot + '/text', function() {
 	Util.mkdir(DBot.WebRoot + '/text/temp');
 });
@@ -87,7 +102,7 @@ DBot.RegisterCommandPipe({
 let fnc = function(name, gr) {
 	return function(args, cmd, msg) {
 		if (!args[0])
-			return DBot.CommandError('Font is required', name, args, 1);
+			return DBot.CommandError('Font is required. To see all avaliable fonts, use `drawlist`', name, args, 1);
 		
 		let sFont;
 		args[0] = args[0].toLowerCase();
@@ -99,7 +114,7 @@ let fnc = function(name, gr) {
 		}
 		
 		if (!sFont)
-			return DBot.CommandError('Invalid font', name, args, 1);
+			return DBot.CommandError('Invalid font. To see all avaliable fonts, use `drawlist`', name, args, 1);
 		
 		if (!args[1])
 			return DBot.CommandError('Text is required', name, args, 2);
@@ -129,6 +144,19 @@ let fnc = function(name, gr) {
 		return true;
 	};
 }
+
+DBot.RegisterCommandPipe({
+	name: 'drawlist',
+	alias: ['drawfonts', 'customfonts', 'drawfontlist'],
+	
+	help_args: '',
+	desc: 'List of avaliable fonts.',
+	argNeeded: true,
+	
+	func: function() {
+		return DBot.URLRoot + '/drawfonts.png';
+	},
+});
 
 DBot.RegisterCommandPipe({
 	name: 'cdraw',
