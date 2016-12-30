@@ -52,10 +52,12 @@ setInterval(function() {
 			if (!uid)
 				continue;
 			
-			user.oldUName = user.oldUName;
+			if (!name)
+				continue;
+			
+			user.oldUName = user.oldUName || name;
 			
 			if (user.oldUName != name) {
-				
 				for (let server of DBot.GetUserServers(user)) {
 					let member = server.member(user);
 					let notifications = cvars.Server(server).getVar('notifications').getBool();
