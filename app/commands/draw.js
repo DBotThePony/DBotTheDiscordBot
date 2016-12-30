@@ -151,7 +151,6 @@ DBot.RegisterCommandPipe({
 	
 	help_args: '',
 	desc: 'List of avaliable fonts.',
-	argNeeded: true,
 	
 	func: function() {
 		return DBot.URLRoot + '/drawfonts.png';
@@ -164,7 +163,6 @@ DBot.RegisterCommandPipe({
 	
 	help_args: '<font> <text>',
 	desc: 'Draws a text as image using specified font',
-	argNeeded: true,
 	
 	func: fnc('cdraw', 'North'),
 });
@@ -175,7 +173,6 @@ DBot.RegisterCommandPipe({
 	
 	help_args: '<font> <text>',
 	desc: 'Draws a text as image using specified font, Uses North West text align',
-	argNeeded: true,
 	
 	func: fnc('cdraw', 'NorthWest'),
 });

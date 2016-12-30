@@ -52,9 +52,9 @@ IMagick.GetTextSize = function(text, font, size) {
 		}
 		
 		if (IMagick.PrecacheFontsData[font][p1]) {
-			widths[cLine] += IMagick.PrecacheFontsData[font][p1] * mult * .95;
+			widths[cLine] += IMagick.PrecacheFontsData[font][p1] * mult * .97;
 		} else {
-			widths[cLine] += IMagick.PrecacheFontsData[font]['W'] * mult * .95;
+			widths[cLine] += IMagick.PrecacheFontsData[font]['W'] * mult * .97;
 		}
 		
 		return '';
