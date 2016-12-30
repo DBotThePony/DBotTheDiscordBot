@@ -131,10 +131,11 @@ DBot.RegisterCommand({
 			return 'Onoh! It is PM ;n;';
 		
 		if (typeof args[0] == 'object') {
-			if (!msg.channel.guild.member(args[0]))
+			let member = msg.channel.guild.member(args[0]);
+			if (!member)
 				return DBot.CommandError('Must be valid user', 'namelog', args, 1);
 			
-			MySQL.query('SELECT "NAME", "LASTUSE", "TIME" FROM name_logs WHERE "MEMBER" = ' + sql.UMember(args[0], msg.channel.guild) + ' ORDER BY "LASTUSE" DESC', function(err, data) {
+			Postgres.query('SELECT "NAME", "LASTUSE", "TIME" FROM name_logs WHERE "MEMBER" = ' + sql.Member(member) + ' ORDER BY "LASTUSE" DESC LIMIT 10', function(err, data) {
 				if (err) {
 					msg.reply('WTF');
 					console.error(err);
@@ -200,9 +201,9 @@ DBot.RegisterCommand({
 
 DBot.RegisterCommand({
 	name: 'fnamelog',
-	alias: ['fullnamelog'],
+	alias: ['fullnamelog', 'fnamelogs'],
 	
-	help_args: '',
+	help_args: '[user]',
 	desc: 'Lists last (up to 200) nickname changes',
 	allowUserArgument: true,
 	
@@ -210,45 +211,84 @@ DBot.RegisterCommand({
 		if (DBot.IsPM(msg))
 			return 'Onoh! It is PM ;n;';
 		
-		let fuckingQuery = `
-			SELECT
-				name_logs_list."OLD",
-				name_logs_list."NEW",
-				name_logs_list."STAMP"
-			FROM
-				name_logs_list,
-				member_id
-			WHERE
-				member_id."SERVER" = ${msg.channel.guild.uid} AND
-				name_logs_list."MEMBER" = member_id."ID"
-			ORDER BY name_logs_list."STAMP" DESC
-			LIMIT 200`;
-		
-		Postgres.query(fuckingQuery, function(err, data) {
-			if (err) {
-				msg.reply('WTF');
-				return;
-			}
+		if (typeof args[0] == 'object') {
+			let member = msg.channel.guild.member(args[0]);
+			if (!member)
+				return DBot.CommandError('Must be valid user', 'namelog', args, 1);
 			
-			if (!data[0]) {
-				msg.reply('No data was returned in query');
-				return;
-			}
-			
-			let pth = '/namelog/' + DBot.HashString(CurTime() + '_' + msg.channel.guild.id) + '.txt';
-			let stream = fs.createWriteStream(DBot.WebRoot + pth);
-			stream.write('\n\n');
-			
-			for (let row of data) {
-				stream.write(Util.AppendSpaces(row.OLD, 50) + '  --->   ' + Util.AppendSpaces(row.NEW, 50) + ' (' + moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ', ' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)\n');
-			}
-			
-			stream.end();
-			
-			stream.on('finish', function() {
-				msg.reply(DBot.URLRoot + pth);
+			Postgres.query('SELECT "NAME", "LASTUSE", "TIME" FROM name_logs WHERE "MEMBER" = ' + sql.Member(member) + ' ORDER BY "LASTUSE"', function(err, data) {
+				if (err) {
+					msg.reply('WTF');
+					console.error(err);
+					return;
+				}
+				
+				if (!data || !data[0]) {
+					msg.reply('No data was returned');
+					return;
+				}
+				
+				let pth = '/namelog/' + DBot.HashString(CurTime()) + '.txt';
+				let stream = fs.createWriteStream(DBot.WebRoot + pth);
+				
+				stream.write('\n' + Util.AppendSpaces('Nickname', 40) + Util.AppendSpaces('Total time in use', 40) + Util.AppendSpaces('Last use', 30) + '\n')
+				
+				for (let row of data) {
+					let date = moment.unix(row.LASTUSE);
+					let total = row.TIME;
+					let name = row.NAME;
+					
+					stream.write(Util.AppendSpaces(name, 40) + Util.AppendSpaces(hDuration(Math.floor(total) * 1000), 40) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.LASTUSE) * 1000) + ' ago)', 30) + '\n');
+				}
+				
+				stream.write('\nLast use and Total time updates about every 20 seconds\n');
+				stream.end();
+				
+				stream.on('finish', function() {
+					msg.reply(DBot.URLRoot + pth);
+				});
 			});
-		});
+		} else {
+			let fuckingQuery = `
+				SELECT
+					name_logs_list."OLD",
+					name_logs_list."NEW",
+					name_logs_list."STAMP"
+				FROM
+					name_logs_list,
+					member_id
+				WHERE
+					member_id."SERVER" = ${msg.channel.guild.uid} AND
+					name_logs_list."MEMBER" = member_id."ID"
+				ORDER BY name_logs_list."STAMP" DESC
+				LIMIT 200`;
+			
+			Postgres.query(fuckingQuery, function(err, data) {
+				if (err) {
+					msg.reply('WTF');
+					return;
+				}
+				
+				if (!data[0]) {
+					msg.reply('No data was returned in query');
+					return;
+				}
+				
+				let pth = '/namelog/' + DBot.HashString(CurTime() + '_' + msg.channel.guild.id) + '.txt';
+				let stream = fs.createWriteStream(DBot.WebRoot + pth);
+				stream.write('\n\n');
+				
+				for (let row of data) {
+					stream.write(Util.AppendSpaces(row.OLD, 50) + '  --->   ' + Util.AppendSpaces(row.NEW, 50) + ' (' + moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ', ' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)\n');
+				}
+				
+				stream.end();
+				
+				stream.on('finish', function() {
+					msg.reply(DBot.URLRoot + pth);
+				});
+			});
+		}
 	}
 });
 
