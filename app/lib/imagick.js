@@ -189,7 +189,7 @@ let loadingStage3 = function() {
 					if (code != 0 || output == '')
 						throw new Error('Stage 3 of Image Magick load failed; Font: ' + font);
 					
-					let newLines = output.split('\r\n');
+					let newLines = output.replace(/\r/g, '').split('\n');
 					
 					for (let i in newLines) {
 						let Char = CharsToCheckForSize[i];
