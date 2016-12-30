@@ -738,6 +738,9 @@ hook.Add('ValidClientJoinsServer', 'ModerationCommands', function(user, server, 
 		if (!data[0])
 			return;
 		
+		if (member.aboutToKick)
+			return;
+		
 		userBanHit(member, data[0]);
 	});
 });
@@ -750,6 +753,9 @@ hook.Add('ValidClientAvaliable', 'ModerationCommands', function(user, server, me
 		if (err) throw err;
 		
 		if (!data[0])
+			return;
+		
+		if (member.aboutToKick)
 			return;
 		
 		userBanHit(member, data[0]);
@@ -773,6 +779,9 @@ hook.Add('MemberInitialized', 'ModerationCommands', function(member) {
 			if (err) throw err;
 			
 			if (!data[0])
+				return;
+			
+			if (member.aboutToKick)
 				return;
 			
 			userBanHit(member, data[0]);
