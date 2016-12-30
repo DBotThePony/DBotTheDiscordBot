@@ -22,6 +22,9 @@ const AvaliableCustomFonts = [
 	['Liberation-Sans', 'LiberationSans'],
 	['Linux-Biolinum-G-Regular', 'Biolinum'],
 	['Linux-Libertine-G-Regular', 'Libertine'],
+	['Arial', 'Arial'],
+	['Courier-New', 'Courier'],
+	['Time-Normal', 'Time'],
 ];
 
 hook.Add('PrecacheFonts', 'DrawCommand', function() {
