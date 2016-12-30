@@ -41,13 +41,21 @@ hook.Add('PrecacheFonts', 'DrawCommand', function() {
 });
 
 {
-	let magikArgs = ['-background', 'none', '-fill', 'black', '-gravity', 'NorthWest', '-pointsize', '72'];
+	let squareRoot = Math.ceil(Math.sqrt(AvaliableCustomFonts.length));
+	let magikArgs = ['-background', 'none', '-fill', 'black', '-gravity', 'NorthWest', '-pointsize', '72', '(', '-size', '600x100%!',];
+	let cI = 0;
 	
 	for (let row of AvaliableCustomFonts) {
+		cI++;
 		magikArgs.push('(', '-font', row[0], 'label:' + row[1], ')');
+		
+		if (cI >= squareRoot) {
+			magikArgs.push('-append', '-size', '600x100%!', ')', '(');
+			cI = 0;
+		}
 	}
 	
-	magikArgs.push('-append', DBot.WebRoot + '/drawfonts.png');
+	magikArgs.push('-append', '-size', '600x100%!', ')', '+append', DBot.WebRoot + '/drawfonts.png');
 	
 	let magik = spawn('convert', magikArgs);
 	
