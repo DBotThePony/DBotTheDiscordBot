@@ -14,8 +14,8 @@ ImageMagik = IMagick;
 
 const Match = /Font: ([^\r\n]+)/;
 const MatchGlobal = /Font: ([^\r\n]+)/gi;
-const CharsToCheckForSize = '`1234567890-=~!@#$%^&*()_+qwertyuiop[]asdfghjkl\'\\zxcvbnm,./QWERTYUIOP{}ASDFGHJKL:ZXCVBNM<>?|ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮйцукенгшщзхъфывапролджэячсмитьбю"№; ';
-const CharsExprStr = '`|1|2|3|4|5|6|7|8|9|0|-|=|~|\\!|@|#|\\$|%|\\^|\\&|\\*|\\(|\\)|_|\\+|q|w|e|r|t|y|u|i|o|p|[|]|a|s|d|f|g|h|j|k|l|\'|\\|z|x|c|v|b|n|m|,|.|/|Q|W|E|R|T|Y|U|I|O|P|{|}|A|S|D|F|G|H|J|K|L|:|Z|X|C|V|B|N|M|<|>|\\?|\\||Й|Ц|У|К|Е|Н|Г|Ш|Щ|З|Х|Ъ|Ф|Ы|В|А|П|Р|О|Л|Д|Ж|Э|Я|Ч|С|М|И|Т|Ь|Б|Ю|й|ц|у|к|е|н|г|ш|щ|з|х|ъ|ф|ы|в|а|п|р|о|л|д|ж|э|я|ч|с|м|и|т|ь|б|ю|"|№|;| ';
+const CharsToCheckForSize = '`1234567890-=~!@#$%^&*()_+qwertyuiop[]asdfghjkl\'\\zxcvbnm,./QWERTYUIOP{}ASDFGHJKL:ZXCVBNM<>?|ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮйцукенгшщзхъфывапролджэячсмитьбю"№;';
+const CharsExprStr = '`|1|2|3|4|5|6|7|8|9|0|-|=|~|\\!|@|#|\\$|%|\\^|\\&|\\*|\\(|\\)|_|\\+|q|w|e|r|t|y|u|i|o|p|[|]|a|s|d|f|g|h|j|k|l|\'|\\|z|x|c|v|b|n|m|,|.|/|Q|W|E|R|T|Y|U|I|O|P|{|}|A|S|D|F|G|H|J|K|L|:|Z|X|C|V|B|N|M|<|>|\\?|\\||Й|Ц|У|К|Е|Н|Г|Ш|Щ|З|Х|Ъ|Ф|Ы|В|А|П|Р|О|Л|Д|Ж|Э|Я|Ч|С|М|И|Т|Ь|Б|Ю|й|ц|у|к|е|н|г|ш|щ|з|х|ъ|ф|ы|в|а|п|р|о|л|д|ж|э|я|ч|с|м|и|т|ь|б|ю|"|№|;';
 
 const CharsExp = new RegExp('(' + CharsExprStr + ')', 'g');
 const CharsExp2 = new RegExp('(' + CharsExprStr + '|\n)', 'g');
@@ -141,35 +141,64 @@ let loadingStage3 = function() {
 			}
 			
 			let finalQuery = 'BEGIN;';
-			let total = 0;
 			
-			for (let Char of CharsToCheckForSize) {
-				total++;
+			let hash = DBot.HashString(font);
+			let totalChars = CharsToCheckForSize.length;
+			let magikArgs = ['xc:none', '-background', 'none', '-font', font];
+			
+			for (let i in CharsToCheckForSize) {
+				let Char = CharsToCheckForSize[i];
 				let oldChar = Char;
 				
 				if (Char == '\\')
 					Char = '\\\\';
 				
-				let hash = DBot.HashString(font + '___' + Char);
-				let magik = spawn('convert', ['-background', 'none', '-font', font, 'label:' + Char, DBot.WebRoot + '/imtmp/' + hash + '.png']);
+				magikArgs.push('label:' + Char, '-write', DBot.WebRoot + '/imtmp/' + hash + '_' + i + '.png', '+delete');
+			}
+			
+			magikArgs.push('empty.png');
+			
+			let magik = spawn('convert', magikArgs);
+			
+			Util.Redirect(magik);
+			
+			magik.on('close', function(code) {
+				fs.unlink('empty.png', function() {});
+				fs.unlink('empty-0.png', function() {});
+				fs.unlink('empty-1.png', function() {});
+				
+				if (code != 0)
+					throw new Error('Stage 3 of Image Magick load failed; FONT: ' + font);
+				
+				let magikArgs = [];
+				
+				for (let i in CharsToCheckForSize)
+					magikArgs.push(DBot.WebRoot + '/imtmp/' + hash + '_' + i + '-1.png');
+				
+				let magik = spawn('identify', magikArgs);
+				
+				let output = '';
+				
+				magik.stdout.on('data', function(data) {
+					output += data.toString();
+				});
+				
+				magik.stderr.pipe(process.stdout);
 				
 				magik.on('close', function(code) {
-					if (code != 0)
-						throw new Error('Stage 3 of Image Magick load failed; CHAR: ' + Char + '; FONT: ' + font);
+					if (code != 0 || output == '')
+						throw new Error('Stage 3 of Image Magick load failed; Font: ' + font);
 					
-					let magik = spawn('identify', [DBot.WebRoot + '/imtmp/' + hash + '.png']);
+					let newLines = output.split('\r\n');
 					
-					let output = '';
-					
-					magik.stdout.on('data', function(data) {
-						output += data.toString();
-					});
-					
-					magik.on('close', function(code) {
-						if (code != 0 || output == '')
-							throw new Error('Stage 3 of Image Magick load failed');
+					for (let i in newLines) {
+						let Char = CharsToCheckForSize[i];
+						let oldChar = CharsToCheckForSize[i];
 						
-						let parse = output.split(' ');
+						if (newLines[i] == '' || newLines[i] == ' ')
+							continue;
+						
+						let parse = newLines[i].split(' ');
 						let fileName = parse[0];
 						let fileType = parse[1];
 						let fileSizes = parse[2];
@@ -192,15 +221,11 @@ let loadingStage3 = function() {
 						}
 						
 						IMagick.PrecacheFontsData[font][oldChar] = width;
-						
-						total--;
-						
-						if (total == 0) {
-							Postgres.query(finalQuery + 'COMMIT;')
-						}
-					});
+					}
+					
+					Postgres.query(finalQuery + 'COMMIT;');
 				});
-			}
+			});
 		});
 	}
 }
