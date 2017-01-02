@@ -711,9 +711,9 @@ hook.Add('PreOnValidMessage', 'ModerationCommands', function(msg) {
 let userBanHit = function(member, row) {
 	let output = 'You are softbanned on `' + member.guild.name + '`! ;n;\n';
 	
-	output += 'Moderator nickname: ' + data[0].ADMIN_NAME + '\n';
-	output += 'Moderator username: ' + data[0].ADMIN_NAME_REAL + '\n';
-	output += 'Date of ban: ' + moment.unix(data[0].STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - data[0].STAMP) * 1000) + ' ago)' + '\n';
+	output += 'Moderator nickname: ' + row.ADMIN_NAME + '\n';
+	output += 'Moderator username: ' + row.ADMIN_NAME_REAL + '\n';
+	output += 'Date of ban: ' + moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)' + '\n';
 	
 	output += 'I am little Horsey, and i only do what admins tell me ;n;'
 	
