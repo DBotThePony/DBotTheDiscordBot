@@ -13,6 +13,9 @@ let updateFunc = function() {
 	.end(function(res) {
 		let matches = res.raw_body.match(grabber);
 		
+		if (!matches)
+			return;
+		
 		let potential = matches.length;
 		let count = matches.length;
 		
