@@ -285,13 +285,13 @@ DBot.RegisterCommand({
 						'canvas:white',
 						'-size', '512x680!',
 						'-resize', '512x680!',
-						'-draw', 'image srcover -60,-60 0,0 "' + fpathProcessedPrepare + '"',
+						'-draw', 'image srcover -60,-60 0,0 "' + fpathProcessed + '"',
 						'-draw', 'image srcover 0,512 0,0 "./resource/files/triggered.jpg"',
 						
 						'(',
 							'canvas:white',
 							'-size', '512x680!',
-							'-draw', 'image srcover -45,-50 0,0 "' + fpathProcessedPrepare + '"',
+							'-draw', 'image srcover -45,-50 0,0 "' + fpathProcessed + '"',
 							'-draw', 'image srcover 0,512 0,0 "./resource/files/triggered.jpg"',
 							
 						')',
@@ -299,14 +299,14 @@ DBot.RegisterCommand({
 						'(',
 							'canvas:white',
 							'-size', '512x680!',
-							'-draw', 'image srcover -50,-45 0,0 "' + fpathProcessedPrepare + '"',
+							'-draw', 'image srcover -50,-45 0,0 "' + fpathProcessed + '"',
 							'-draw', 'image srcover 0,512 0,0 "./resource/files/triggered.jpg"',
 						')',
 						
 						'(',
 							'canvas:white',
 							'-size', '512x680!',
-							'-draw', 'image srcover -45,-65 0,0 "' + fpathProcessedPrepare + '"',
+							'-draw', 'image srcover -45,-65 0,0 "' + fpathProcessed + '"',
 							'-draw', 'image srcover 0,512 0,0 "./resource/files/triggered.jpg"',
 						')',
 						
