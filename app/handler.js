@@ -498,6 +498,28 @@ DBot.IsAskingMe = function(msg) {
 	return false;
 }
 
+DBot.MessagePrefix = function(msg) {
+	if (DBot.IsPM(msg))
+		return '';
+	else {
+		if (cvars.Server(msg.channel.guild).getVar('prefix_disable').getBool())
+			return false;
+		
+		if (cvars.Channel(msg.channel).getVar('prefix_disable').getBool())
+			return false;
+		
+		let sPrefix = cvars.Server(msg.channel.guild).getVar('prefix').getString();
+		let cPrefix = cvars.Channel(msg.channel).getVar('prefix').getString();
+		
+		if (cPrefix != '')
+			return cPrefix;
+		else
+			return sPrefix;
+	}
+	
+	return '}';
+}
+
 DBot.IsAskingMe_Command = function(msg) {
 	if (msg.content.substr(0, DBot.aidcLen) == DBot.askIdC)
 		return true;

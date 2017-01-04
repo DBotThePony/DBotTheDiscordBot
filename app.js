@@ -66,7 +66,14 @@ bot.on('message', function(msg) {
 			return;
 		
 		if (DBot.IsAskingMe(msg) && !DBot.IsAskingMe_Command(msg)) {
-			msg.reply('Hi? x3 @NotDBot help or }help')
+			let myPrefix = DBot.MessagePrefix(msg);
+			
+			if (myPrefix)
+				msg.reply('Hi? x3 @NotDBot help or ' + myPrefix + 'help');
+			else
+				msg.reply('Hi? x3 @NotDBot help');
+			
+			
 			return;
 		}
 		
