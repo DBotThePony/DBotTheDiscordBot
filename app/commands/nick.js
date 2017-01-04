@@ -19,7 +19,7 @@ module.exports = {
 		if (!member)
 			return DBot.CommandError('Invalid user', 'nick', args, 1);
 		
-		if (!args[1]) {
+		if (args[1] === undefined) {
 			msg.reply('Username: `' + args[0].username + '`, ' + (member.nickname && ('nickname: `' + member.nickname + '`') || 'he has no nickname on the server'));
 		} else {
 			if (!(msg.member.hasPermission('MANAGE_NICKNAMES') || msg.member.hasPermission('MANAGE_GUILD')) && msg.author.id != DBot.DBot)
