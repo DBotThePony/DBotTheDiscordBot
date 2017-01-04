@@ -47,7 +47,7 @@ module.exports = {
 				return DBot.CommandError('Invalid user ;n;', 'kick', args, i + 1);
 			
 			if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot)
-				return DBot.CommandError('what', 'kick', args, i + 1);
+				return DBot.CommandError('oh', 'kick', args, i + 1);
 			
 			if (!DBot.CanTarget(msg.member, member))
 				return DBot.CommandError('This pone is strong enough for ya!', 'kick', args, i + 1);
@@ -142,7 +142,7 @@ DBot.RegisterCommand({
 				return DBot.CommandError('Invalid user ;n;', 'sban', args, i + 1);
 			
 			if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot)
-				return DBot.CommandError('what', 'sban', args, i + 1);
+				return DBot.CommandError('oh', 'sban', args, i + 1);
 			
 			if (!DBot.CanTarget(msg.member, member))
 				return DBot.CommandError('This pone is strong enough for ya!', 'sban', args, i + 1);
@@ -282,7 +282,7 @@ DBot.RegisterCommand({
 				return DBot.CommandError('Invalid user ;n;', 'ban', args, i + 1);
 			
 			if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot)
-				return DBot.CommandError('what', 'ban', args, i + 1);
+				return DBot.CommandError('oh', 'ban', args, i + 1);
 			
 			if (!DBot.CanTarget(msg.member, member))
 				return DBot.CommandError('This pone is strong enough for ya!', 'ban', args, i + 1);
@@ -379,7 +379,7 @@ DBot.RegisterCommand({
 				member.offs = member.offs || [];
 				
 				if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot)
-					return DBot.CommandError('what', 'off', args, i + 1);
+					return DBot.CommandError('oh', 'off', args, i + 1);
 				
 				if (!DBot.CanTarget(msg.member, member))
 					return DBot.CommandError('This pone is strong enough for ya!', 'off', args, i + 1);
@@ -596,7 +596,7 @@ DBot.RegisterCommand({
 				member.offs = member.offs || [];
 				
 				if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot)
-					return DBot.CommandError('what', 'deoff', args, i + 1);
+					return DBot.CommandError('oh', 'deoff', args, i + 1);
 				
 				if (!member.offs.includes(msg.channel.uid))
 					return DBot.CommandError('User is already not off! (' + (member.nickname || member.user.username) + ')', 'deoff', args, i + 1);
