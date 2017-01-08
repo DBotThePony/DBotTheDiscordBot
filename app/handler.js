@@ -326,6 +326,26 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 		
 		promise.then(function(nmsg) {
 			self.replies.push(nmsg);
+			
+			if (self.wasDeleted)
+				nmsg.delete(0);
+		});
+		
+		return promise;
+	}
+	
+	msg.promiseSend = function(str) {
+		if (this.wasDeleted)
+			return {then: function() {}, catch: function() {}};
+		
+		let promise = this.channel.sendMessage(str);
+		let self = this;
+		
+		promise.then(function(nmsg) {
+			self.replies.push(nmsg);
+			
+			if (self.wasDeleted)
+				nmsg.delete(0);
 		});
 		
 		return promise;
@@ -390,6 +410,79 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 					return;
 				} else if (typeof reply == 'string') {
 					return this.promiseReply(reply);
+				} else if (reply === false) {
+					return this.promiseReply('Pipe that you specified does not accept command output');
+				}
+			}
+		}
+		
+		let promise = this.oldReply(str);
+		let self = this;
+		
+		promise.then(function(nmsg) {
+			self.replies.push(nmsg);
+		});
+		
+		return promise;
+	}
+	
+	msg.sendMessage = function(str) {
+		if (this.wasDeleted)
+			return;
+		
+		if (PIPE_HIT) {
+			let promise = this.oldReply(str);
+			let self = this;
+			
+			promise.then(function(nmsg) {
+				self.replies.push(nmsg);
+			});
+			
+			return promise;
+		}
+		
+		if (cCommand.id != 'more' && cCommand.id != 'retry' && parsedHandlers[0]) {
+			let pipeID = parsedHandlers[0].toLowerCase();
+			let pipe = DBot.CommandsPipes[pipeID];
+			
+			if (pipe) {
+				let spliced = Util.CopyArray(parsedHandlers);
+				spliced.splice(0, 1);
+				let splitted = Util.AppendArrays(spliced, str.split(' '));
+				
+				let rawcmd = '';
+				let first = true;
+				
+				for (let i in splitted) {
+					if (first) {
+						rawcmd = splitted[i];
+						first = false;
+					} else {
+						rawcmd += ' ' + splitted[i];
+					}
+				}
+				
+				if (!pipe.no_touch)
+					rawcmd = rawcmd.replace(/```/gi, '');
+				
+				let parsedData = DBot.ParseString(rawcmd, true);
+				let parsedArgs = parsedData[0];
+				
+				PIPE_HIT = true;
+				let reply;
+				
+				try {
+					reply = pipe.func(parsedArgs, rawcmd, msg);
+				} catch(err) {
+					msg.oldReply('<internal pony error>');
+					console.error(err);
+					return;
+				}
+				
+				if (reply === true) {
+					return;
+				} else if (typeof reply == 'string') {
+					return this.promiseSend(reply);
 				} else if (reply === false) {
 					return this.promiseReply('Pipe that you specified does not accept command output');
 				}
