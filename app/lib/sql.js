@@ -353,11 +353,33 @@ DBot.DefineUser = function(user) {
 let updateLastSeenFunc = function(callback) {
 	let build = [];
 	
-	for (let uid in DBot.UsersIDs_R) {
+	for (let uid in DBot.UsersIDs_R)
 		build.push(uid);
+	
+	let buildServers = [];
+	let buildChannels = [];
+	
+	for (let server of DBot.bot.guilds.array()) {
+		let uid = DBot.GetServerIDSoft(server);
+		
+		if (!uid)
+			continue;
+		
+		buildServers.push(uid);
+		
+		for (let channel of server.channels.array()) {
+			let uid = DBot.GetChannelIDSoft(channel);
+			
+			if (!uid)
+				continue;
+			
+			buildChannels.push(uid);
+		}
 	}
 	
-	Postgre.query('SELECT uptdate_last_seen(' + sql.Array(build) + '::INTEGER[], ' + Math.floor(CurTime()) + ')', callback);
+	let cTime = Math.floor(CurTime());
+	
+	Postgre.query('UPDATE last_seen SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + build.join(',') + ');UPDATE last_seen_servers SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + buildServers.join(',') + ');UPDATE last_seen_channels SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + buildChannels.join(',') + ');', callback);
 }
 
 setInterval(updateLastSeenFunc, 60000);
@@ -395,6 +417,8 @@ DBot.DefineChannel = function(channel) {
 hook.Add('ChannelInitialized', 'MySQL.Saves', function(channel, id) {
 	if (!channel.name)
 		return;
+	
+	Postgre.query('INSERT INTO last_seen_channels VALUES (' + id + ', ' + Math.floor(CurTime()) + ') ON CONFLICT ("ID") DO UPDATE SET "TIME" = ' + Math.floor(CurTime()));
 	
 	MySQL.query('INSERT INTO channel_names ("ID", "NAME") VALUES (' + id + ', ' + Util.escape(channel.name) + ') ON CONFLICT ("ID") DO UPDATE SET "NAME" = ' + Util.escape(channel.name), function(err) {
 		if (!err)
@@ -521,6 +545,8 @@ DBot.DefineGuild = function(guild) {
 hook.Add('ServerInitialized', 'MySQL.Saves', function(server, id) {
 	if (!server.name)
 		return;
+	
+	Postgre.query('INSERT INTO last_seen_servers VALUES (' + id + ', ' + Math.floor(CurTime()) + ') ON CONFLICT ("ID") DO UPDATE SET "TIME" = ' + Math.floor(CurTime()));
 	
 	MySQL.query('INSERT INTO server_names ("ID", "NAME") VALUES (' + id + ', ' + Util.escape(server.name) + ') ON CONFLICT ("ID") DO UPDATE SET "NAME" = ' + Util.escape(server.name), function(err) {
 		if (!err)
