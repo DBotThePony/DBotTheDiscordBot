@@ -50,6 +50,7 @@ DBot.RegisterCommand({
 
 DBot.RegisterCommand({
 	name: 'shitbot',
+	alias: ['shittybot'],
 	
 	help_args: '',
 	desc: '',
@@ -63,6 +64,7 @@ DBot.RegisterCommand({
 
 DBot.RegisterCommand({
 	name: 'shit',
+	alias: ['shitty'],
 	
 	help_args: '',
 	desc: '',
