@@ -12,7 +12,7 @@ var hellows = [
 var __hello = [];
 
 for (var i in hellows) {
-	__hello[i] = new RegExp('^' + hellows[i], '');
+	__hello[i] = new RegExp('^' + hellows[i], 'i');
 }
 
 hook.Add('OnHumanMessage', 'AnswerPMHello', function(msg) {
