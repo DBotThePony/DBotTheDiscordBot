@@ -431,14 +431,7 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 			return;
 		
 		if (PIPE_HIT) {
-			let promise = this.oldReply(str);
-			let self = this;
-			
-			promise.then(function(nmsg) {
-				self.replies.push(nmsg);
-			});
-			
-			return promise;
+			return this.promiseReply(str);
 		}
 		
 		if (cCommand.id != 'more' && cCommand.id != 'retry' && parsedHandlers[0]) {
@@ -489,14 +482,7 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 			}
 		}
 		
-		let promise = this.oldReply(str);
-		let self = this;
-		
-		promise.then(function(nmsg) {
-			self.replies.push(nmsg);
-		});
-		
-		return promise;
+		return this.promiseSend(str);
 	}
 	
 	hook.Run('PreExecuteCommand', cCommand.id, msg.author, parsedArgs, rawcmd, msg, extraArgument, parsedHandlers);
