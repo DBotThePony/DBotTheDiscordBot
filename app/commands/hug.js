@@ -29,6 +29,16 @@ module.exports = {
 }
 
 DBot.RegisterCommand({
+	name: 'poke',
+	
+	help_args: '[user]',
+	desc: 'Slaps',
+	allowUserArgument: true,
+	
+	func: defAction('slap', 'pokes'),
+});
+
+DBot.RegisterCommand({
 	name: 'slap',
 	
 	help_args: '[user]',
