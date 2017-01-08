@@ -132,7 +132,7 @@ DBot.ParseString = function(str, ignoreHandlers) {
 }
 
 DBot.TrimArray = function(arr) {
-	var newArray = [];
+	let newArray = [];
 	
 	arr.forEach(function(item, i) {
 		if (item != '') {
@@ -151,7 +151,7 @@ hook.Add('ChannelInitialized', 'LastMoreCommand', function(channel) {
 	DBot.__LastRetryCommand[channel.id] = {};
 });
 
-var CompareStrings = function(Str1, Str2) {
+let CompareStrings = function(Str1, Str2) {
 	let result = Math.min(Str1.length, Str2.length);
 	
 	for (let I1 in Str1) {
@@ -181,13 +181,16 @@ var CompareStrings = function(Str1, Str2) {
 	return result;
 }
 
-var findRelated = function(str) {
-	var matches = [];
-	var len = str.length;
-	var minimum = len * .6;
+let findRelated = function(str) {
+	let matches = [];
+	let len = str.length;
+	let minimum = len * .6;
 	
-	for (var Command in DBot.Commands) {
-		var comp = CompareStrings(Command, str);
+	for (let Command in DBot.Commands) {
+		if (Command.help_hide)
+			continue;
+		
+		let comp = CompareStrings(Command, str);
 		
 		if (comp >= minimum) {
 			matches.push([Command, comp]);
@@ -210,7 +213,7 @@ var findRelated = function(str) {
 	return matches;
 }
 
-var SpamScore = {};
+let SpamScore = {};
 
 setInterval(function() {
 	for (let i in SpamScore) {
