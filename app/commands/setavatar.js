@@ -5,15 +5,18 @@ module.exports = {
 	help_hide: true,
 	help_args: 'Nope.avi',
 	desc: 'Nope.avi',
+	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
 		if (msg.author.id != DBot.DBot)
 			return 'Nope.avi';
 		
-		if (!args[0])
-			return 'Nu URL ;n;';
+		let url = DBot.CombinedURL(args[0], msg.channel);
 		
-		DBot.LoadImageURL(args[0], function(newPath) {
+		if (!url)
+			return DBot.CommandError('Nu URL ;n;', 'setavatar', args, 1);
+		
+		DBot.LoadImageURL(url, function(newPath) {
 			DBot.bot.user.setAvatar(newPath);
 			msg.reply('Done');
 		});
