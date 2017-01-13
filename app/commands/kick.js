@@ -724,6 +724,7 @@ let userBanHit = function(member, row) {
 	
 	setTimeout(function() {
 		member.aboutToKick = undefined;
+		member.kickedBySoftban = true;
 		member.kick();
 	}, 5000);
 }
@@ -732,14 +733,22 @@ hook.Add('ValidClientJoinsServer', 'ModerationCommands', function(user, server, 
 	if (member.aboutToKick)
 		return;
 	
+	member.kickedBySoftban = undefined;
+	
+	if (member.checkingSoftBan)
+		return;
+	
+	member.checkingSoftBan = true;
+	
 	Postgres.query('SELECT member_softban."STAMP", member_softban."ADMIN", member_names."NAME" AS "ADMIN_NAME", user_names."USERNAME" AS "ADMIN_NAME_REAL" FROM member_softban, member_names, member_id, user_names WHERE member_softban."ID" = ' + sql.Member(member) + ' AND member_names."ID" = member_softban."ADMIN" AND member_id."ID" = member_names."ID" AND user_names."ID" = member_id."USER"', function(err, data) {
+		member.checkingSoftBan = undefined;
 		if (err) throw err;
 		
 		if (!data[0])
-			return;
+			return hook.Run('SoftbanJoinPass', member);
 		
 		if (member.aboutToKick)
-			return;
+			return hook.Run('SoftbanJoinPass', member);
 		
 		userBanHit(member, data[0]);
 	});
@@ -749,7 +758,15 @@ hook.Add('ValidClientAvaliable', 'ModerationCommands', function(user, server, me
 	if (member.aboutToKick)
 		return;
 	
+	member.kickedBySoftban = undefined;
+	
+	if (member.checkingSoftBan)
+		return;
+	
+	member.checkingSoftBan = true;
+	
 	Postgres.query('SELECT member_softban."STAMP", member_softban."ADMIN", member_names."NAME" AS "ADMIN_NAME", user_names."USERNAME" AS "ADMIN_NAME_REAL" FROM member_softban, member_names, member_id, user_names WHERE member_softban."ID" = ' + sql.Member(member) + ' AND member_names."ID" = member_softban."ADMIN" AND member_id."ID" = member_names."ID" AND user_names."ID" = member_id."USER"', function(err, data) {
+		member.checkingSoftBan = undefined;
 		if (err) throw err;
 		
 		if (!data[0])
@@ -774,8 +791,12 @@ hook.Add('MemberInitialized', 'ModerationCommands', function(member) {
 		}
 	});
 	
-	if (!member.aboutToKick)
+	if (!member.aboutToKick && !member.checkingSoftBan) {
+		member.kickedBySoftban = undefined;
+		member.checkingSoftBan = true;
+		
 		Postgres.query('SELECT member_softban."STAMP", member_softban."ADMIN", member_names."NAME" AS "ADMIN_NAME", user_names."USERNAME" AS "ADMIN_NAME_REAL" FROM member_softban, member_names, member_id, user_names WHERE member_softban."ID" = ' + sql.Member(member) + ' AND member_names."ID" = member_softban."ADMIN" AND member_id."ID" = member_names."ID" AND user_names."ID" = member_id."USER"', function(err, data) {
+			member.checkingSoftBan = undefined;
 			if (err) throw err;
 			
 			if (!data[0])
@@ -786,6 +807,7 @@ hook.Add('MemberInitialized', 'ModerationCommands', function(member) {
 			
 			userBanHit(member, data[0]);
 		});
+	}
 });
 
 hook.Add('MembersInitialized', 'ModerationCommands', function() {
