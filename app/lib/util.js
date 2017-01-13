@@ -1,5 +1,6 @@
 
 Util = {};
+util = Util;
 
 const fs = require('fs');
 const utf8 = require('utf8');
@@ -205,18 +206,14 @@ Util.HighlightHelp = function(args, pos, toMerge, noTilds) {
 		return output + '\n' + output2;
 }
 
-Util.output = function(process) {
-	process.stderr.on('data', function(data) {
-		console.error(data.toString());
-	});
-	
-	process.stdout.on('data', function(data) {
-		console.log(data.toString());
-	});
+Util.output = function(process2) {
+	process2.stderr.pipe(process.stdout);
+	process2.stdout.pipe(process.stdout);
 }
 
 Util.Redirectstd = Util.output;
 Util.Redirect = Util.output;
+Util.redirect = Util.output;
 
 var replaceBlocks = [
 	[/&/gi, '&amp;'],
