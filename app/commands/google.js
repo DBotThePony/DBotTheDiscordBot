@@ -3,7 +3,7 @@ const unirest = require('unirest');
 const JSON3 = require('json3');
 const fs = require('fs');
 
-Util.mkdir(DBot.WebRoot + '/google')
+Util.mkdir(DBot.WebRoot + '/google');
 
 const Search = 'https://www.googleapis.com/customsearch/v1?key=AIzaSyAhhmtK4vvqV4ryhhbPeJAJAjlRmzNP-2g&cx=011142896060985630711:sibr51l3m7a&safe=medium&q=';
 
@@ -153,7 +153,7 @@ let fn = function(prefix) {
 
 module.exports = {
 	name: 'google',
-	alias: ['search'],
+	alias: ['search', 'g'],
 	
 	argNeeded: true,
 	delay: 3,
