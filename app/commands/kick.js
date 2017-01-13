@@ -745,10 +745,10 @@ hook.Add('ValidClientJoinsServer', 'ModerationCommands', function(user, server, 
 		if (err) throw err;
 		
 		if (!data[0])
-			return hook.Run('SoftbanJoinPass', member);
+			return hook.Run('SoftbanJoinPass', user, server, member);
 		
 		if (member.aboutToKick)
-			return hook.Run('SoftbanJoinPass', member);
+			return hook.Run('SoftbanJoinPass', user, server, member);
 		
 		userBanHit(member, data[0]);
 	});
