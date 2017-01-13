@@ -182,7 +182,7 @@ DBot.CheckURLImage2 = function(m) {
 		return false;
 }
 
-hook.Add('OnMessage', 'LastURLInChannel', function(msg) {
+let messageParseFunc = function(msg) {
 	let cid = msg.channel.id;
 	
 	if (msg.attachments) {
@@ -216,6 +216,12 @@ hook.Add('OnMessage', 'LastURLInChannel', function(msg) {
 		
 		URLMessages[cid] = url;
 	}
+}
+
+hook.Add('OnMessage', 'LastURLInChannel', messageParseFunc);
+
+hook.Add('OnMessageEdit', 'LastURLInChannel', function(omsg, nmsg) {
+	messageParseFunc(nmsg);
 });
 
 hook.Add('ChannelDeleted', 'LastURLInChannel', function(channel) {
