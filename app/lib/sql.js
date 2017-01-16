@@ -460,7 +460,7 @@ DBot.DefineRole = function(role, callback) {
 		updateRole(role);
 		hook.Run('RoleInitialized', role, role.uid);
 		
-		if (callback)
+		if (typeof callback == 'function')
 			callback(role, data[0].ID);
 	});
 }

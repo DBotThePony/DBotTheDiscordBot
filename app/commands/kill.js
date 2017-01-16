@@ -81,19 +81,24 @@ let generateFunc = function(col1, col2) {
 		let fpath = DBot.WebRoot + '/killfeed/' + sha + '.png';
 		let fpathU = DBot.URLRoot + '/killfeed/' + sha + '.png';
 		
+		msg.channel.startTyping();
+		
 		fs.stat(fpath, function(err, stat) {
 			if (stat) {
+				msg.channel.stopTyping();
 				msg.reply(fpathU);
 				return;
 			}
 			
 			MySQL.query('SELECT * FROM killicons WHERE "CLASSNAME" = ' + Util.escape(weapon) + ' OR "NAME" = ' + Util.escape(weapon) + ' OR "NAME" LIKE ' + Util.escape('%' + weapon + '%') + ' OR "CLASSNAME" LIKE ' + Util.escape('%' + weapon + '%'), function(err, data) {
 				if (err) {
+					msg.channel.stopTyping();
 					msg.reply('<internal pony error>');
 					return;
 				}
 				
 				if (!data || !data[0]) {
+					msg.channel.stopTyping();
 					msg.reply('No such weapon');
 					return;
 				}
@@ -140,6 +145,8 @@ let generateFunc = function(col1, col2) {
 				Util.Redirect(magik);
 				
 				magik.on('close', function(code) {
+					msg.channel.stopTyping();
+					
 					if (code != 0) {
 						msg.reply('<internal pony error>');
 						return;
