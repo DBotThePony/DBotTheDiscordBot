@@ -13,9 +13,9 @@ let updateRoleRules = function(role) {
 		return;
 	
 	let members = role.members.array();
-	let sRole = sql.Role(role);
+	let sRole = role.uid;
 	
-	MySQL.query('SELECT "MEMBER", restore_member(member_roles."MEMBER") as "USER" FROM member_roles WHERE "ROLE" = ' + sRole, function(err, data) {
+	let continueFunc = function(err, data) {
 		if (err) throw err;
 		data = data || {};
 		
@@ -50,7 +50,17 @@ let updateRoleRules = function(role) {
 				MySQL.query('DELETE FROM member_roles WHERE "MEMBER" = \'' + row.MEMBER + '\' AND "ROLE" = ' + sRole);
 			}
 		}
-	});
+	}
+	
+	let q = 'SELECT "member_roles"."MEMBER", "user_id"."UID" as "USER" FROM "member_roles", "user_id", "member_id" WHERE "member_roles"."ROLE" = ' + sRole + ' AND "member_id"."ID" = "member_roles"."MEMBER" AND "user_id"."ID" = "member_id"."USER"';
+	
+	if (!sRole)
+		return DBot.DefineRole(role, function(role, newuid) {
+			sRole = newuid;
+			MySQL.query(q, continueFunc);
+		});
+	else
+		MySQL.query(q, continueFunc);
 }
 
 hook.Add('RoleInitialized', 'Default', updateRoleRules);

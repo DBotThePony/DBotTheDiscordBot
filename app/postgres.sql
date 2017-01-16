@@ -1522,9 +1522,7 @@ CREATE OR REPLACE FUNCTION restore_member(memberid INTEGER)
 RETURNS VARCHAR(64) as $$
 DECLARE iuid INTEGER;
 BEGIN
-	iuid := restore_member_id(memberid);
-	
-	RETURN (SELECT "user_id"."UID" FROM "user_id" WHERE "user_id"."ID" = iuid);
+	RETURN (SELECT "user_id"."UID" FROM "user_id", "member_id" WHERE "member_id"."ID" = memberid AND "user_id"."ID" = "member_id"."USER");
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION stats_get_rank(userid INTEGER)

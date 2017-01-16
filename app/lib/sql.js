@@ -450,7 +450,7 @@ let updateRole = function(role) {
 	Postgres.query(finalQuery)
 }
 
-DBot.DefineRole = function(role) {
+DBot.DefineRole = function(role, callback) {
 	let id = role.id;
 	let uid = DBot.GetServerID(role.guild);
 	
@@ -459,6 +459,9 @@ DBot.DefineRole = function(role) {
 		role.uid = data[0].ID;
 		updateRole(role);
 		hook.Run('RoleInitialized', role, role.uid);
+		
+		if (callback)
+			callback(role, data[0].ID);
 	});
 }
 
