@@ -316,43 +316,7 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 	}
 	
 	msg.oldReply = msg.oldReply || msg.reply;
-	msg.replies = msg.replies || [];
-	msg.executesACommand = true;
 	let PIPE_HIT = false;
-	
-	msg.promiseReply = function(str) {
-		if (this.wasDeleted)
-			return {then: function() {}, catch: function() {}};
-		
-		let promise = this.oldReply(str);
-		let self = this;
-		
-		promise.then(function(nmsg) {
-			self.replies.push(nmsg);
-			
-			if (self.wasDeleted)
-				nmsg.delete(0);
-		});
-		
-		return promise;
-	}
-	
-	msg.promiseSend = function(str) {
-		if (this.wasDeleted)
-			return {then: function() {}, catch: function() {}};
-		
-		let promise = this.channel.sendMessage(str);
-		let self = this;
-		
-		promise.then(function(nmsg) {
-			self.replies.push(nmsg);
-			
-			if (self.wasDeleted)
-				nmsg.delete(0);
-		});
-		
-		return promise;
-	}
 	
 	msg.reply = function(str) {
 		if (this.wasDeleted)
@@ -523,11 +487,9 @@ hook.Add('OnMessageDeleted', 'Handler', function(msg) {
 });
 
 hook.Add('OnMessageEdit', 'Handler', function(omsg, nmsg) {
-	if (!omsg.executesACommand)
-		return;
-	
 	omsg.internalCreateTime = omsg.internalCreateTime || CurTime();
 	nmsg.internalCreateTime = omsg.internalCreateTime;
+	omsg.replies = omsg.replies || [];
 	nmsg.replies = omsg.replies;
 	
 	if (omsg.internalCreateTime + 1 > CurTime())

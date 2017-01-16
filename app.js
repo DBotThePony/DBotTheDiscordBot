@@ -29,7 +29,50 @@ DBot.client = bot;
 hook.RegisterEvents();
 DBot.Discord = Discord;
 
+let msgFuncs = [
+	function(str) {
+		if (this.wasDeleted)
+			return {then: function() {}, catch: function() {}};
+		
+		let promise = this.___reply(str);
+		let self = this;
+		
+		promise.then(function(nmsg) {
+			self.replies.push(nmsg);
+			
+			if (self.wasDeleted)
+				nmsg.delete(0);
+		});
+		
+		return promise;
+	},
+	
+	function(str) {
+		if (this.wasDeleted)
+			return {then: function() {}, catch: function() {}};
+		
+		let promise = this.channel.sendMessage(str);
+		let self = this;
+		
+		promise.then(function(nmsg) {
+			self.replies.push(nmsg);
+			
+			if (self.wasDeleted)
+				nmsg.delete(0);
+		});
+		
+		return promise;
+	}
+];
+
 bot.on('message', function(msg) {
+	msg.replies = msg.replies || [];
+	
+	msg.promiseReply = msgFuncs[0];
+	msg.promiseSend = msgFuncs[1];
+	msg.___reply = msg.___reply || msg.reply; // There is also oldReply, but oldReply is used when command was actually executed.
+	msg.reply = msg.promiseReply;
+	
 	try {
 		msg.internalCreateTime = CurTime();
 		hook.Run('OnMessage', msg);
