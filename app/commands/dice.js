@@ -16,14 +16,10 @@ module.exports = {
 	delay: 5,
 	
 	func: function(args, cmd, msg) {
-		let url = args[0];
+		let url = DBot.CombinedURL(args[0], msg.channel);
 		
-		if (typeof(url) == 'object')
-			url = url.avatarURL;
-		
-		url = url || DBot.LastURLInChannel(msg.channel);
-		if (!DBot.CheckURLImage(url))
-			return 'Invalid url maybe? ;w;';
+		if (!url)
+			return DBot.CommandError('Invalid url maybe? ;w;', 'dice', args, 1);
 		
 		let hash = DBot.HashString(CurTime() + '_' + msg.channel.id);
 		let fPath;
@@ -108,14 +104,10 @@ DBot.RegisterCommand({
 	delay: 5,
 	
 	func: function(args, cmd, msg) {
-		let url = args[0];
+		let url = DBot.CombinedURL(args[0], msg.channel);
 		
-		if (typeof(url) == 'object')
-			url = url.avatarURL;
-		
-		url = url || DBot.LastURLInChannel(msg.channel);
-		if (!DBot.CheckURLImage(url))
-			return 'Invalid url maybe? ;w;';
+		if (!url)
+			return DBot.CommandError('Invalid url maybe? ;w;', 'scramble', args, 1);
 		
 		let hash = DBot.HashString(CurTime() + '_2_' + msg.channel.id);
 		let fPath;
@@ -208,14 +200,10 @@ DBot.RegisterCommand({
 	delay: 5,
 	
 	func: function(args, cmd, msg) {
-		let url = args[0];
+		let url = DBot.CombinedURL(args[0], msg.channel);
 		
-		if (typeof(url) == 'object')
-			url = url.avatarURL;
-		
-		url = url || DBot.LastURLInChannel(msg.channel);
-		if (!DBot.CheckURLImage(url))
-			return 'Invalid url maybe? ;w;';
+		if (!url)
+			return DBot.CommandError('Invalid url maybe? ;w;', 'scramble2', args, 1);
 		
 		let hash = DBot.HashString(CurTime() + '_2_' + msg.channel.id);
 		let fPath;
@@ -308,14 +296,10 @@ DBot.RegisterCommand({
 	delay: 5,
 	
 	func: function(args, cmd, msg) {
-		let url = args[0];
+		let url = DBot.CombinedURL(args[0], msg.channel);
 		
-		if (typeof(url) == 'object')
-			url = url.avatarURL;
-		
-		url = url || DBot.LastURLInChannel(msg.channel);
-		if (!DBot.CheckURLImage(url))
-			return 'Invalid url maybe? ;w;';
+		if (!url)
+			return DBot.CommandError('Invalid url maybe? ;w;', 'multi', args, 1);
 		
 		let hash = DBot.HashString(CurTime() + '_' + msg.channel.id);
 		let fPath;
@@ -472,14 +456,10 @@ DBot.RegisterCommand({
 	delay: 5,
 	
 	func: function(args, cmd, msg) {
-		let url = args[0];
+		let url = DBot.CombinedURL(args[0], msg.channel);
 		
-		if (typeof(url) == 'object')
-			url = url.avatarURL;
-		
-		url = url || DBot.LastURLInChannel(msg.channel);
-		if (!DBot.CheckURLImage(url))
-			return 'Invalid url maybe? ;w;';
+		if (!url)
+			return DBot.CommandError('Invalid url maybe? ;w;', 'spinned', args, 1);
 		
 		let hash = DBot.HashString(url);
 		let fPath;
