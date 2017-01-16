@@ -57,6 +57,7 @@ let updateRoleRules = function(role) {
 	if (!sRole)
 		return DBot.DefineRole(role, function(role, newuid) {
 			sRole = newuid;
+			q = 'SELECT "member_roles"."MEMBER", "user_id"."UID" as "USER" FROM "member_roles", "user_id", "member_id" WHERE "member_roles"."ROLE" = ' + sRole + ' AND "member_id"."ID" = "member_roles"."MEMBER" AND "user_id"."ID" = "member_id"."USER"';
 			MySQL.query(q, continueFunc);
 		});
 	else
