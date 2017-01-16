@@ -41,26 +41,16 @@ setInterval(function() {
 hook.Add('UserInitialized', 'LastSeen', function(user) {
 	usersCache.push(user);
 	
-	Postgre.query('SELECT "ID" FROM lastonline WHERE "ID" = ' + DBot.GetUserID(user), function(err, data) {
-		if (data && data[0])
-			return;
-		
-		Postgre.query('INSERT INTO lastonline VALUES (' + DBot.GetUserID(user) + ', ' + Math.floor(CurTime()) + ')', function(err, data) {
-			if (err) {
-				console.error('Failed to create lastonline entry: ' + err);
-			}
-		});
+	Postgre.query('INSERT INTO lastonline VALUES (' + user.uid + ', currtime()) ON CONFLICT ("ID") DO UPDATE SET "LASTONLINE" = currtime()', function(err, data) {
+		if (err) {
+			console.error('Failed to create lastonline entry: ' + err);
+		}
 	});
 	
-	Postgre.query('SELECT "ID" FROM uptime WHERE "ID" = ' + DBot.GetUserID(user), function(err, data) {
-		if (data && data[0])
-			return;
-		
-		Postgre.query('INSERT INTO uptime ("ID", "STAMP") VALUES (' + DBot.GetUserID(user) + ', ' + Math.floor(CurTime()) + ')', function(err, data) {
-			if (err) {
-				console.error('Failed to create lastonline entry: ' + err);
-			}
-		});
+	Postgre.query('INSERT INTO uptime ("ID", "STAMP") VALUES (' + user.uid + ', currtime()) ON CONFLICT ("ID") DO UPDATE SET "STAMP" = currtime()', function(err, data) {
+		if (err) {
+			console.error('Failed to create lastonline entry: ' + err);
+		}
 	});
 	
 	try {
