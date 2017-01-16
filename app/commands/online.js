@@ -38,23 +38,27 @@ setInterval(function() {
 	Postgre.query(finalQuery);
 }, 5000);
 
+let INIT_BOT = false;
+let INIT = false;
+
 hook.Add('UserInitialized', 'LastSeen', function(user) {
 	usersCache.push(user);
 	
+	if (!INIT)
+		return;
+	
 	Postgre.query('INSERT INTO lastonline VALUES (' + user.uid + ', currtime()) ON CONFLICT ("ID") DO UPDATE SET "LASTONLINE" = currtime()', function(err, data) {
-		if (err) {
+		if (err)
 			console.error('Failed to create lastonline entry: ' + err);
-		}
 	});
 	
 	Postgre.query('INSERT INTO uptime ("ID", "STAMP") VALUES (' + user.uid + ', currtime()) ON CONFLICT ("ID") DO UPDATE SET "STAMP" = currtime()', function(err, data) {
-		if (err) {
+		if (err)
 			console.error('Failed to create lastonline entry: ' + err);
-		}
 	});
 	
 	try {
-		Postgre.query('INSERT INTO user_status ("ID", "STATUS") VALUES (' + DBot.GetUserID(user) + ', ' + Util.escape(user.presence.status) + ') ON CONFLICT ("ID") DO UPDATE SET "STATUS" = ' + Util.escape(user.presence.status));
+		Postgre.query('INSERT INTO user_status ("ID", "STATUS") VALUES (' + user.uid + ', ' + Util.escape(user.presence.status) + ') ON CONFLICT ("ID") DO UPDATE SET "STATUS" = ' + Util.escape(user.presence.status));
 		
 		user.lastStatus = user.presence.status;
 	} catch(err) {
@@ -62,17 +66,53 @@ hook.Add('UserInitialized', 'LastSeen', function(user) {
 	}
 });
 
-var INIT = false;
-
-hook.Add('BotOnline', 'BotUptime', function() {
-	if (INIT)
-		return;
-	
+hook.Add('MembersInitialized', 'LastSeen', function() {
 	INIT = true;
-	setInterval(function() {
-		Postgre.query('UPDATE uptime_bot SET "AMOUNT" = "AMOUNT" + 1');
-	}, 1000);
+	
+	let users = DBot.GetUsers();
+	
+	let updateStr;
+	let statusStr;
+	
+	for (let user of users) {
+		if (updateStr)
+			updateStr = '(' + (user.uid || sql.User(user)) + ',currtime())';
+		else
+			updateStr += ',(' + (user.uid || sql.User(user)) + ',currtime())';
+		
+		try {
+			user.lastStatus = user.presence.status;
+			
+			if (statusStr)
+				statusStr = '(' + (user.uid || sql.User(user)) + ',' + Util.escape(user.lastStatus) + ')';
+			else
+				statusStr += ',(' + (user.uid || sql.User(user)) + ',' + Util.escape(user.lastStatus) + ')';
+		} catch(err) {
+			
+		}
+		
+	}
+	
+	Postgre.query('INSERT INTO lastonline VALUES ' + updateStr + ' ON CONFLICT ("ID") DO UPDATE SET "LASTONLINE" = currtime()', function(err, data) {
+		if (err)
+			console.error('Failed to create lastonline entry ON STARTUP: ' + err);
+	});
+	
+	Postgre.query('INSERT INTO uptime ("ID", "STAMP") VALUES ' + updateStr + ' ON CONFLICT ("ID") DO UPDATE SET "STAMP" = currtime()', function(err, data) {
+		if (err)
+			console.error('Failed to create lastonline entry ON STARTUP: ' + err);
+	});
+	
+	Postgre.query('INSERT INTO user_status ("ID", "STATUS") VALUES ' + statusStr + ' ON CONFLICT ("ID") DO UPDATE SET "STATUS" = EXCLUDED."STATUS"', function(err, data) {
+		if (err)
+			console.error('Failed to create user_status entry ON STARTUP: ' + err);
+	});
 });
+
+setInterval(function() {
+	if (DBot.IsOnline())
+		Postgre.query('UPDATE uptime_bot SET "AMOUNT" = "AMOUNT" + 1');
+}, 1000);
 
 module.exports = {
 	name: 'online',

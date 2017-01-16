@@ -195,10 +195,10 @@ DBot.UserIsGarbage = function(userID) {
 }
 
 DBot.GetUsers = function() {
-	var output = {};
-	var reply = [];
+	let output = {};
+	let reply = [];
 	
-	var servers = DBot.client.guilds.array();
+	let servers = DBot.client.guilds.array();
 	
 	for (let server of servers) {
 		let members = server.members.array();
