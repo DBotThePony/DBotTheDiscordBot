@@ -131,8 +131,8 @@ let generateFunc = function(col1, col2) {
 				
 				if (username2) {
 					magikArgs.push('-draw', 'text 40,20 ' + Util.escape(username));
-					magikArgs.push('-draw', 'image over ' + (calcWidthFirst) + ',' + (height / 2 - iheight / 2) + ' 0,0 "./resource/killicons/' + data[0].FILENAME + '"');
-					magikArgs.push('-fill', col2, '-draw', 'text ' + (25 + calcWidthFirst + width) + ',20 ' + Util.escape(username2));
+					magikArgs.push('-draw', 'image over ' + (calcWidthFirst + 40) + ',' + (height / 2 - iheight / 2) + ' 0,0 "./resource/killicons/' + data[0].FILENAME + '"');
+					magikArgs.push('-fill', col2, '-draw', 'text ' + (45 + calcWidthFirst + width) + ',20 ' + Util.escape(username2));
 				} else {
 					magikArgs.push('-draw', 'image over 30,' + (height / 2 - iheight / 2) + ' 0,0 "./resource/killicons/' + data[0].FILENAME + '"');
 					magikArgs.push('-draw', 'text ' + (60 + width) +',20 ' + Util.escape(username));
