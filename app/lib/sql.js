@@ -11,61 +11,39 @@ const pgConfig = {
 	port: 5432, //env var: PGPORT
 }
 
-let pgWorkers = 4;
-let pgWorkersConnections = [];
-let pgWorkersConnectionsWork = [];
+let pgConnection = new pg.Client(pgConfig);
 
-let pgAbstractObject = {};
-
-MySQL = pgAbstractObject;
-MySQLM = pgAbstractObject;
+MySQL = pgConnection;
+MySQLM = pgConnection;
 
 DBot.MySQL = MySQL;
 DBot.MySQLM = MySQLM;
 
-PG = pgAbstractObject;
-Postgre = pgAbstractObject;
-Postgres = pgAbstractObject;
-DBot.PG = pgAbstractObject;
-DBot.Postgre = pgAbstractObject;
-DBot.Postgres = pgAbstractObject;
+PG = pgConnection;
+Postgre = pgConnection;
+Postgres = pgConnection;
+DBot.PG = pgConnection;
+DBot.Postgre = pgConnection;
+DBot.Postgres = pgConnection;
 
 let sqlPg = fs.readFileSync('./app/postgres.sql', 'utf8').replace(/\r/gi, '');
 
-pgAbstractObject.escape = Util.escape;
-pgAbstractObject.totalQueries = 0;
+pgConnection.oldQuery = pgConnection.query;
 
-pgAbstractObject.query = function(query, callback) {
+pgConnection.query = function(query, callback) {
 	let oldStack = new Error().stack;
 	
-	let findConnection;
-	let findConnectionID;
-	let max;
+	let finished = false;
 	
-	for (let pgConnectionID in pgWorkersConnections) {
-		let pgConnection = pgWorkersConnections[pgConnectionID];
-		let pgConnectionConcurrent = pgWorkersConnectionsWork[pgConnectionID];
+	setTimeout(function() {
+		if (finished)
+			return;
 		
-		if (pgConnectionConcurrent == 0) {
-			findConnection = pgConnection;
-			findConnectionID = pgConnectionID;
-			break;
-		}
-		
-		if (typeof max == 'undefined' || max > pgConnectionConcurrent) {
-			findConnection = pgConnection;
-			findConnectionID = pgConnectionID;
-			max = pgConnectionConcurrent;
-		}
-	}
+		// console.error('SLOW QUERY: ' + query);
+	}, 6000);
 	
-	pgWorkersConnectionsWork[findConnectionID]++;
-	pgAbstractObject.totalQueries++;
-	
-	oldStack = 'PG Thread #' + findConnectionID + '\n' + oldStack;
-	
-	findConnection.query(query, function(err, data) {
-		pgWorkersConnectionsWork[findConnectionID]--;
+	pgConnection.oldQuery(query, function(err, data) {
+		finished = true;
 		
 		if (err) {
 			if (!callback) {
@@ -118,30 +96,17 @@ pgAbstractObject.query = function(query, callback) {
 	});
 }
 
-{
-	let currentConnected = 0;
+pgConnection.connect(function(err) {
+	if (err)
+		throw err;
 	
-	for (let i = 1; i <= pgWorkers; i++) {
-		let pgConnection = new pg.Client(pgConfig);
-		pgWorkersConnections.push(pgConnection);
-		pgWorkersConnectionsWork.push(0);
+	pgConnection.query(sqlPg, function(err) {
+		if (err)
+			throw err;
 		
-		pgConnection.connect(function(err) {
-			if (err)
-				throw err;
-			
-			currentConnected++;
-			
-			if (currentConnected == pgWorkers)
-				pgAbstractObject.query(sqlPg, function(err) {
-					if (err)
-						throw err;
-					
-					hook.Run('SQLInitialize');
-				});
-		});
-	}
-}
+		hook.Run('SQLInitialize');
+	});
+});
 
 DBot.ChannelIDs = {};
 DBot.ServersIDs = {};
