@@ -32,6 +32,45 @@ const AvaliableCustomFonts = [
 	['Roboto-Slab-Regular', 'RobotoSlab'],
 	['Courier-New', 'Courier'],
 	['Time-Normal', 'Time'],
+	
+	// Google custom fonts
+	
+	['Aclonica', 'Aclonica'],
+	['Calligraffitti', 'Calligraffitti'],
+	['Cherry-Cream-Soda', 'Cherry-Cream-Soda'],
+	['Chewy', 'Chewy'],
+	['Coming-Soon', 'Coming-Soon'],
+	['Crafty-Girls', 'CraftyGirls'],
+	['Creepster-Caps-Regular', 'Creepster-Caps'],
+	['Crushed', 'Crushed'],
+	['Droid-Sans', 'DroidSans'],
+	['Droid-Serif', 'DroidSerif'],
+	['Fontdiner-Swanky', 'Fontdiner-Swanky'],
+	['Homemade-Apple', 'Homemade-Apple'],
+	['Irish-Grover', 'Irish-Grover'],
+	['Irish-Growler', 'Irish-Growler'],
+	['Just-Another-Hand', 'Just-Another-Hand'],
+	['Kranky', 'Kranky'],
+	['Luckiest-Guy', 'Luckiest-Guy'],
+	['Maiden-Orange', 'Maiden-Orange'],
+	['Montez', 'Montez'],
+	['Mountains-of-Christmas', 'MChristmas'],
+	['Permanent-Marker', 'Permanent-Marker'],
+	['Rancho', 'Rancho'],
+	['Redressed', 'Redressed'],
+	['Rochester', 'Rochester'],
+	['Rock-Salt', 'Rock-Salt'],
+	['Satisfy', 'Satisfy'],
+	['Schoolbell', 'Schoolbell'],
+	['Slackey', 'Slackey'],
+	['Smokum', 'Smokum'],
+	['Special-Elite', 'Special-Elite'],
+	['Sunshiney', 'Sunshiney'],
+	['Syncopate-Regular', 'Syncopate'],
+	['Ultra', 'Ultra'],
+	['Unkempt', 'Unkempt'],
+	['Walter-Turncoat', 'Walter-Turncoat'],
+	['Yellowtail', 'Yellowtail'],
 ];
 
 hook.Add('PrecacheFonts', 'DrawCommand', function() {
@@ -48,17 +87,25 @@ hook.Add('PrecacheFonts', 'DrawCommand', function() {
 	let magikArgs = ['-background', 'none', '-fill', 'black', '-gravity', 'NorthWest', '-pointsize', '72', '(', '-size', '600x100%!',];
 	let cI = 0;
 	
-	for (let row of AvaliableCustomFonts) {
+	for (let i in AvaliableCustomFonts) {
+		let row = AvaliableCustomFonts[i];
 		cI++;
 		magikArgs.push('(', '-font', row[0], 'label:' + row[1], ')');
 		
 		if (cI >= squareRoot) {
-			magikArgs.push('-append', '-size', '600x100%!', ')', '(');
+			if (i == AvaliableCustomFonts.length)
+				magikArgs.push('-append', '-size', '900x150%!', ')');
+			else
+				magikArgs.push('-append', '-size', '900x150%!', ')', '(');
+			
 			cI = 0;
 		}
 	}
 	
-	magikArgs.push('-append', '-size', '600x100%!', ')', '+append', DBot.WebRoot + '/drawfonts.png');
+	if (cI != 0)
+		magikArgs.push('-append', '-size', '900x150%!', ')', '+append', DBot.WebRoot + '/drawfonts.png');
+	else
+		magikArgs.push('+append', DBot.WebRoot + '/drawfonts.png');
 	
 	let magik = spawn('convert', magikArgs);
 	
