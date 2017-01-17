@@ -71,6 +71,33 @@ const AvaliableCustomFonts = [
 	['Unkempt', 'Unkempt'],
 	['Walter-Turncoat', 'Walter-Turncoat'],
 	['Yellowtail', 'Yellowtail'],
+	
+	// Other Fonts
+	
+	['Andada', 'Andada'],
+	['Andada-SC', 'Andada-SC'],
+	['Anonymous-Pro', 'Anonymous'],
+	['Anonymous-Pro-Bold', 'Anonymous-Bold'],
+	['Anonymous-Pro-Bold-Italic', 'Anonymous-Bold-Italic'],
+	['Anonymous-Pro-Italic', 'Anonymous-Italic'],
+	['Exo-2-Thin', 'Exo2Thin'],
+	['PT-Sans', 'PTSans'],
+	['PT-Sans-Bold', 'PTSansBold'],
+	['PT-Sans-Bold-Italic', 'PTSansBoldItalic'],
+	['PT-Sans-Caption', 'PTSansCaption'],
+	['PT-Sans-Caption-Bold', 'PTSansCaptionBold'],
+	['PT-Sans-Italic', 'PTSansItalic'],
+	['PT-Sans-Narrow', 'PTSansNarrow'],
+	['PT-Sans-Narrow-Bold', 'PTSansNarrowBold'],
+	['Ubuntu', 'Ubuntu'],
+	['Ubuntu-Bold', 'UbuntuBold'],
+	['Ubuntu-Bold-Italic', 'UbuntuBoldItalic'],
+	['Ubuntu-Condensed', 'UbuntuCondensed'],
+	['Ubuntu-Italic', 'UbuntuItalic'],
+	['Ubuntu-Light', 'UbuntuLight'],
+	['Ubuntu-Light-Italic', 'UbuntuLightItalic'],
+	['Ubuntu-Medium', 'UbuntuMedium'],
+	['Ubuntu-Medium-Italic', 'UbuntuMediumItalic'],
 ];
 
 hook.Add('PrecacheFonts', 'DrawCommand', function() {
