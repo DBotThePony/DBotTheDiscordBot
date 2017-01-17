@@ -42,7 +42,7 @@ DBot.RegisterCommand({
 			return 'Bigg fukk';
 		
 		let len = cmd.length;
-		let build = '\n';
+		let build = '';
 		
 		for (let i = 0; i <= len; i++) {
 			build += '\n' + cmd.substr(i) + ' ' + cmd.substr(0, i);
