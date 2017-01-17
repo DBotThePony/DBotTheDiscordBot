@@ -106,7 +106,7 @@ for (let item of cows) {
 		desc: 'Renders TEH word as image + lolcat',
 		
 		func: function(args, cmd, msg) {
-			var ask = item;
+			let ask = item;
 			
 			if (item == 'cow')
 				ask = 'default';
@@ -133,6 +133,8 @@ for (let item of cows) {
 					msg.reply(fpathU);
 				}
 			})
+			
+			return true;
 		},
 	});
 }
