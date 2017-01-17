@@ -83,8 +83,8 @@ hook.Add('PrecacheFonts', 'DrawCommand', function() {
 });
 
 {
-	let squareRoot = Math.ceil(Math.sqrt(AvaliableCustomFonts.length));
-	let magikArgs = ['-background', 'none', '-fill', 'black', '-gravity', 'NorthWest', '-pointsize', '72', '(', '-size', '600x100%!',];
+	let squareRoot = Math.ceil(Math.sqrt(AvaliableCustomFonts.length)) * 2;
+	let magikArgs = ['-background', 'none', '-fill', 'black', '-gravity', 'NorthWest', '-pointsize', '48', '(', '-size', '600x100%!',];
 	let cI = 0;
 	
 	for (let i in AvaliableCustomFonts) {
@@ -94,16 +94,16 @@ hook.Add('PrecacheFonts', 'DrawCommand', function() {
 		
 		if (cI >= squareRoot) {
 			if (i == AvaliableCustomFonts.length)
-				magikArgs.push('-append', '-size', '900x150%!', ')');
+				magikArgs.push('-append', '-size', '600x100%!', ')');
 			else
-				magikArgs.push('-append', '-size', '900x150%!', ')', '(');
+				magikArgs.push('-append', '-size', '600x100%!', ')', '(');
 			
 			cI = 0;
 		}
 	}
 	
 	if (cI != 0)
-		magikArgs.push('-append', '-size', '900x150%!', ')', '+append', DBot.WebRoot + '/drawfonts.png');
+		magikArgs.push('-append', '-size', '600x100%!', ')', '+append', DBot.WebRoot + '/drawfonts.png');
 	else
 		magikArgs.push('+append', DBot.WebRoot + '/drawfonts.png');
 	
