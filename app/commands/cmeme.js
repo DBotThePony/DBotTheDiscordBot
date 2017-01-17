@@ -14,7 +14,7 @@ fs.stat(DBot.WebRoot + '/cmeme', function(err, stat) {
 		fs.mkdirSync(DBot.WebRoot + '/cmeme');
 });
 
-var allowed = [
+let allowed = [
 	'jpeg',
 	'jpg',
 	'png',
@@ -32,145 +32,116 @@ module.exports = {
 	delay: 5,
 	
 	func: function(args, cmd, msg) {
-		var url = args[0];
+		let url = DBot.CombinedURL(args[0], msg.channel);
 		
-		if (typeof(url) == 'object') {
-			url = url.avatarURL;
-			
-			if (!url) {
-				return 'Specified user have no avatar? ;w;';
-			}
-		}
+		if (!url)
+			return DBot.CommandError('Invalid url maybe? ;w;', 'cmeme', args, 1);
 		
-		if (!url) {
-			url = DBot.LastURLInChannel(msg.channel);
-			
-			if (!url) {
-				return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['cmeme'], 2, args);
-			}
-		}
-		
-		var topText = args[1];
+		let topText = args[1];
 		
 		if (!topText)
 			return 'You must say me the text to place on top' + Util.HighlightHelp(['cmeme'], 3, args);
 		
-		var bottomText;
+		let bottomText;
 		
-		for (i = 2; i < args.length; i++) {
+		for (let i = 2; i < args.length; i++) {
 			if (bottomText)
 				bottomText += ' ' + args[i];
 			else
 				bottomText = args[i];
 		}
 		
-		var hash = DBot.HashString(url + topText + (bottomText || ''));
+		let hash = DBot.HashString(url + topText + (bottomText || ''));
 		
 		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;';
 		
-		var fPath;
+		let fPath;
 		
-		var fPathProcessed = DBot.WebRoot + '/cmeme/' + hash + '.png';
-		var fPathProcessedURL = DBot.URLRoot + '/cmeme/' + hash + '.png';
+		let fPathProcessed = DBot.WebRoot + '/cmeme/' + hash + '.png';
+		let fPathProcessedURL = DBot.URLRoot + '/cmeme/' + hash + '.png';
 		
 		msg.channel.startTyping();
 		
-		var msgNew;
-		var iShouldDelete = false;
-		
-		msg.oldReply(DBot.GenerateWaitMessage()).then(function(i) {
-			msgNew = i;
-			
-			if (iShouldDelete)
-				msgNew.delete(0);
-		});
-		
-		var ContinueFunc = function() {
+		let ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
-					iShouldDelete = true;
-					if (msgNew)
-						msgNew.delete(0);
-					
 					msg.reply(fPathProcessedURL);
 				} else {
-					var magik = spawn('identify', [fPath]);
-					
-					var output = '';
-					
-					magik.stderr.on('data', function(data) {
-						console.error(data.toString());
-					});
-					
-					magik.stdout.on('data', function(data) {
-						output += data.toString();
-						// console.log(data.toString());
-					});
-					
-					magik.on('close', function(code) {
-						if (code == 0 && output != '') {
-							var parse = output.split(' ');
+					IMagick.Identify(fPath, function(err, fileType, width, height, aspectRatio, aspectRatio2) {
+						if (err) {
+							msg.channel.stopTyping();
+							msg.reply('<internal pony error>');
+							return;
+						}
+						
+						let args = [fPath];
+						
+						if (width < 256) {
+							args.push('-resize');
 							
-							var fileName = parse[0];
-							var fileType = parse[1];
-							var fileSizes = parse[2];
+							width = 256;
+							height = Math.floor(aspectRatio * 256);
 							
-							var fileSizesS = fileSizes.split('x');
-							var width = Number(fileSizesS[0]);
-							var height = Number(fileSizesS[1]);
-							var aspectRatio = height / width;
-							var aspectRatio2 = width / height;
+							args.push('256x' + height);
+						}
+						
+						if (height < 256) {
+							args.push('-resize');
 							
-							var args = [fPath];
+							height = 256;
+							width = Math.floor(aspectRatio2 * 256);
 							
-							if (width < 256) {
-								args.push('-resize');
-								
-								width = 256;
-								height = Math.floor(aspectRatio * 256);
-								
-								args.push('256x' + height);
-							}
+							args.push(width);
+						}
+						
+						if (width > 1500 || height > 1500)
+							msg.reply('Big Picture OwO, Cropping to 1500x1500');
+						
+						if (width > 1500) {
+							args.push('-resize');
 							
-							if (height < 256) {
-								args.push('-resize');
-								
-								height = 256;
-								width = Math.floor(aspectRatio2 * 256);
-								
-								args.push(width);
-							}
+							width = 1500;
+							height = Math.floor(aspectRatio * 1500);
 							
-							if (width > 1500 || height > 1500)
-								msg.reply('Big Picture OwO, Cropping to 1500x1500');
+							args.push('1500x' + height);
+						}
+						
+						if (height > 1500) {
+							args.push('-resize');
 							
-							if (width > 1500) {
-								args.push('-resize');
-								
-								width = 1500;
-								height = Math.floor(aspectRatio * 1500);
-								
-								args.push('1500x' + height);
-							}
+							height = 1500;
+							width = Math.floor(aspectRatio2 * 1500);
 							
-							if (height > 1500) {
-								args.push('-resize');
-								
-								height = 1500;
-								width = Math.floor(aspectRatio2 * 1500);
-								
-								args.push(width);
-							}
+							args.push(width);
+						}
+						
+						height = Math.floor(height);
+						width = Math.floor(width);
+						
+						args.push('-gravity', 'South', '-font', 'Impact', '-fill', 'white', '-stroke', 'black', '-strokewidth', '2', '-weight', '500', '-pointsize');
+						
+						let fSize = IMagick.GetTextSize(topText, 'Impact', 1);
+						
+						let calc = (width - 40) / fSize[0];
+						
+						if (calc > height / 4) {
+							calc = Math.floor(height / 4);
+						} else if (calc < 18) {
+							calc = 18;
+						}
+						
+						let tSize = IMagick.GetFontHeight('Impact', calc);
+						
+						args.push(String(calc));
+						
+						args.push('-draw', 'text 0,' + (height - calc * 1.3) + ' "' + topText + '"');
+						
+						if (bottomText) {
+							args.push('-pointsize');
 							
-							height = Math.floor(height);
-							width = Math.floor(width);
-							
-							args.push('-gravity', 'South', '-font', 'Impact', '-fill', 'white', '-stroke', 'black', '-strokewidth', '2', '-weight', '500', '-pointsize');
-							
-							let fSize = IMagick.GetTextSize(topText, 'Impact', 1);
-							
+							let fSize = IMagick.GetTextSize(bottomText, 'Impact', 1);
 							let calc = (width - 40) / fSize[0];
 							
 							if (calc > height / 4) {
@@ -183,60 +154,25 @@ module.exports = {
 							
 							args.push(String(calc));
 							
-							args.push('-draw', 'text 0,' + (height - calc * 1.3) + ' "' + topText + '"');
-							
-							if (bottomText) {
-								args.push('-pointsize');
-								
-								let fSize = IMagick.GetTextSize(bottomText, 'Impact', 1);
-								let calc = (width - 40) / fSize[0];
-								
-								if (calc > height / 4) {
-									calc = Math.floor(height / 4);
-								} else if (calc < 18) {
-									calc = 18;
-								}
-								
-								let tSize = IMagick.GetFontHeight('Impact', calc);
-								
-								args.push(String(calc));
-								
-								args.push('-draw');
-								args.push('text 0,' + (calc * 0.2) + ' "' + bottomText + '"');
+							args.push('-draw');
+							args.push('text 0,' + (calc * 0.2) + ' "' + bottomText + '"');
+						}
+						
+						args.push(fPathProcessed);
+						
+						let magik = spawn('convert', args);
+						
+						Util.Redirect(magik);
+						
+						magik.on('close', function(code) {
+							if (code == 0) {
+								msg.reply(fPathProcessedURL);
+							} else {
+								msg.reply('<internal pony error>');
 							}
 							
-							args.push(fPathProcessed);
-							
-							var magik = spawn('convert', args);
-							
-							magik.stderr.on('data', function(data) {
-								console.error(data.toString());
-							});
-							
-							magik.stdout.on('data', function(data) {
-								console.log(data.toString());
-							});
-							
-							magik.on('close', function(code) {
-								if (code == 0) {
-									msg.reply(fPathProcessedURL);
-								} else {
-									msg.reply('<internal pony error>');
-								}
-								
-								msg.channel.stopTyping();
-								
-								iShouldDelete = true;
-								if (msgNew)
-									msgNew.delete(0);
-							});
-						} else {
 							msg.channel.stopTyping();
-							msg.reply('<internal pony error>');
-							iShouldDelete = true;
-							if (msgNew)
-								msgNew.delete(0);
-						}
+						});
 					});
 				}
 			});
@@ -247,10 +183,6 @@ module.exports = {
 			ContinueFunc();
 		}, function(result) {
 			msg.channel.stopTyping();
-			iShouldDelete = true;
-			if (msgNew)
-				msgNew.delete(0);
-			
 			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
 		});
 	}
