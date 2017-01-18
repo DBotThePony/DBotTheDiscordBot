@@ -234,7 +234,12 @@ hook.Add('MembersInitialized', 'MemberCommandBans', function() {
 		if (err) throw err;
 		
 		for (let row of data) {
-			DBot.GetMember(row.UID).channelBans.push(Number(row.CHANNEL));
+			let get = DBot.GetMember(row.UID);
+			
+			if (!get)
+				continue;
+			
+			get.channelBans.push(Number(row.CHANNEL));
 		}
 		
 		initCount--;
@@ -245,7 +250,12 @@ hook.Add('MembersInitialized', 'MemberCommandBans', function() {
 		if (err) throw err;
 		
 		for (let row of data) {
-			DBot.GetMember(row.UID).totalMute = true;
+			let get = DBot.GetMember(row.UID);
+			
+			if (!get)
+				continue;
+			
+			get.totalMute = true;
 		}
 		
 		initCount--;
