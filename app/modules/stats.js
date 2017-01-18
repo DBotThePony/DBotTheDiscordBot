@@ -183,11 +183,11 @@ DBot.RegisterCommand({
 						output += '------ Statistics\n';
 						
 						output += 'Total Channels on this server:            ' + numeral(channels).format('0,0') + '\n';
-						output += 'Total Users on this server:               ' + numeral(users).format('0,0') + '\n';
+						output += 'Total Users on this server:              ' + (msg.channel.guild.large && '~' || ' ') + numeral(users).format('0,0') + '\n';
 						output += 'Total chars printed by all users:         ' + numeral(TotalChars).format('0,0') + '\n';
 						output += 'Total words said by all users:            ' + numeral(TotalWordsSaid).format('0,0') + '\n';
 						output += 'Total unique words:                       ' + numeral(TotalUniqueWords).format('0,0') + '\n';
-						output += 'Total images sended:                      ' + numeral(TotalImagesSend).format('0,0') + '\n';
+						output += 'Total images sent:                        ' + numeral(TotalImagesSend).format('0,0') + '\n';
 						output += 'Total phrases said by all users:          ' + numeral(TotalPhrasesSaid).format('0,0') + '\n';
 						output += 'Total phrases edited:                     ' + numeral(TotalPhrasesEdited).format('0,0') + '\n';
 						output += 'Total phrases deleted:                    ' + numeral(TotalPhrasesDeleted).format('0,0') + '\n';
@@ -200,7 +200,7 @@ DBot.RegisterCommand({
 						output += 'Total chars printed:                      ' + numeral(TotalChars_USER).format('0,0') + '\n';
 						output += 'Total words said:                         ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
 						output += 'Total unique words said:                  ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
-						output += 'Total images sended:                      ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
+						output += 'Total images sent:                        ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
 						output += 'Total phrases said:                       ' + numeral(TotalPhrasesSaid_USER).format('0,0') + '\n';
 						output += 'Total amount of commands executed:        ' + numeral(TotalCommandsExecuted_USER).format('0,0') + '\n';
 						output += 'Most command used:                        ' + MostUsedCommand_USER + '; Times Executed: ' + MostUsedCommand_count_USER + '\n';
@@ -260,7 +260,7 @@ DBot.RegisterCommand({
 					output += 'Total chars printed:                          ' + numeral(TotalChars_USER).format('0,0') + '\n';
 					output += 'Total words said:                             ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
 					output += 'Total unique words said:                      ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
-					output += 'Total images sended:                          ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
+					output += 'Total images sent:                            ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
 					output += 'Total phrases said:                           ' + numeral(TotalPhrasesSaid_USER).format('0,0') + '\n';
 					output += 'Total phrases edited:                         ' + numeral(TotalPhrasesEdited_USER).format('0,0') + '\n';
 					output += 'Total phrases deleted:                        ' + numeral(TotalPhrasesDeleted_USER).format('0,0') + '\n';
@@ -375,7 +375,7 @@ DBot.RegisterCommand({
 						output += 'Total chars printed by all users:        ' + numeral(TotalChars).format('0,0') + '\n';
 						output += 'Total words said by all users:           ' + numeral(TotalWordsSaid).format('0,0') + '\n';
 						output += 'Total unique words:                      ' + numeral(TotalUniqueWords).format('0,0') + '\n';
-						output += 'Total images sended:                     ' + numeral(TotalImagesSend).format('0,0') + '\n';
+						output += 'Total images sent:                       ' + numeral(TotalImagesSend).format('0,0') + '\n';
 						output += 'Total phrases said by all users:         ' + numeral(TotalPhrasesSaid).format('0,0') + '\n';
 						output += 'Total phrases edited:                    ' + numeral(TotalPhrasesEdited).format('0,0') + '\n';
 						output += 'Total phrases deleted:                   ' + numeral(TotalPhrasesDeleted).format('0,0') + '\n';
@@ -388,7 +388,7 @@ DBot.RegisterCommand({
 						output += 'Total chars printed:                     ' + numeral(TotalChars_USER).format('0,0') + '\n';
 						output += 'Total words said:                        ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
 						output += 'Total unique words said:                 ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
-						output += 'Total images sended:                     ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
+						output += 'Total images sent:                       ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
 						output += 'Total phrases said:                      ' + numeral(TotalPhrasesSaid_USER).format('0,0') + '\n';
 						output += 'Total phrases edited:                    ' + numeral(TotalPhrasesEdited_USER).format('0,0') + '\n';
 						output += 'Total phrases deleted:                   ' + numeral(TotalPhrasesDeleted_USER).format('0,0') + '\n';
@@ -450,7 +450,7 @@ DBot.RegisterCommand({
 					output += 'Total chars printed:                        ' + numeral(TotalChars_USER).format('0,0') + '\n';
 					output += 'Total words said:                           ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
 					output += 'Total unique words said:                    ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
-					output += 'Total images sended:                        ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
+					output += 'Total images sent:                          ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
 					output += 'Total phrases said:                         ' + numeral(TotalPhrasesSaid_USER).format('0,0') + '\n';
 					output += 'Total phrases edited:                       ' + numeral(TotalPhrasesEdited_USER).format('0,0') + '\n';
 					output += 'Total phrases deleted:                      ' + numeral(TotalPhrasesDeleted_USER).format('0,0') + '\n';
@@ -589,7 +589,7 @@ DBot.RegisterCommand({
 					output += 'Total chars printed by all users:        ' + numeral(TotalChars).format('0,0') + '\n';
 					output += 'Total words said by all users:           ' + numeral(TotalWordsSaid).format('0,0') + '\n';
 					output += 'Total unique words:                      ' + numeral(TotalUniqueWords).format('0,0') + '\n';
-					output += 'Total images sended:                     ' + numeral(TotalImagesSend).format('0,0') + '\n';
+					output += 'Total images sent:                       ' + numeral(TotalImagesSend).format('0,0') + '\n';
 					output += 'Total phrases said by all users:         ' + numeral(TotalPhrasesSaid).format('0,0') + '\n';
 					output += 'Total phrases edited:                    ' + numeral(TotalPhrasesEdited).format('0,0') + '\n';
 					output += 'Total phrases deleted:                   ' + numeral(TotalPhrasesDeleted).format('0,0') + '\n';
@@ -602,7 +602,7 @@ DBot.RegisterCommand({
 					output += 'Total chars printed:                     ' + numeral(TotalChars_USER).format('0,0') + '\n';
 					output += 'Total words said:                        ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
 					output += 'Total unique words said:                 ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
-					output += 'Total images sended:                     ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
+					output += 'Total images sent:                       ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
 					output += 'Total phrases said:                      ' + numeral(TotalPhrasesSaid_USER).format('0,0') + '\n';
 					output += 'Total phrases edited:                    ' + numeral(TotalPhrasesEdited_USER).format('0,0') + '\n';
 					output += 'Total phrases deleted:                   ' + numeral(TotalPhrasesDeleted_USER).format('0,0') + '\n';
@@ -664,7 +664,7 @@ DBot.RegisterCommand({
 					output += 'Total chars printed:                    ' + numeral(TotalChars_USER).format('0,0') + '\n';
 					output += 'Total words said:                       ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
 					output += 'Total unique words said:                ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
-					output += 'Total images sended:                    ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
+					output += 'Total images sent:                      ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
 					output += 'Total phrases said:                     ' + numeral(TotalPhrasesSaid_USER).format('0,0') + '\n';
 					output += 'Total phrases edited:                   ' + numeral(TotalPhrasesEdited_USER).format('0,0') + '\n';
 					output += 'Total phrases deleted:                  ' + numeral(TotalPhrasesDeleted_USER).format('0,0') + '\n';
