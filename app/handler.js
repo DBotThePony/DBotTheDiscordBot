@@ -319,7 +319,7 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 	let PIPE_HIT = false;
 	
 	msg.reply = function(str) {
-		if (this.wasDeleted)
+		if (this.wasDeleted || this.instantEdit)
 			return;
 		
 		if (PIPE_HIT) {
@@ -394,7 +394,7 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 	}
 	
 	msg.sendMessage = function(str) {
-		if (this.wasDeleted)
+		if (this.wasDeleted || this.instantEdit)
 			return;
 		
 		if (PIPE_HIT) {
@@ -492,8 +492,18 @@ hook.Add('OnMessageEdit', 'Handler', function(omsg, nmsg) {
 	omsg.replies = omsg.replies || [];
 	nmsg.replies = omsg.replies;
 	
+	let contentsChanged = omsg.content && nmsg.content && omsg.content != nmsg.content;
+	
 	if (omsg.internalCreateTime + 1 > CurTime())
 		return;
+	
+	if (omsg.internalCreateTime + 3 > CurTime() && contentsChanged && (!omsg.replies || !omsg.replies[0]) && (!nmsg.replies || !nmsg.replies[0])) {
+		omsg.instantEdit = true;
+		nmsg.instantEdit = true;
+	} else {
+		omsg.instantEdit = false;
+		nmsg.instantEdit = false;
+	}
 	
 	for (let mess of omsg.replies) {
 		if (mess.deletable)
