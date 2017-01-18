@@ -113,6 +113,8 @@ DBot.RegisterCommand({
 					
 					if (status != 'offline')
 						onlineUsers++;
+				} catch(err) {
+					
 				}
 			}
 			
