@@ -17,6 +17,11 @@ setInterval(function() {
 			if (!member.guild.uid)
 				continue;
 			
+			let UiD = DBot.GetMemberIDSoft(member);
+			
+			if (!UiD)
+				continue;
+			
 			let name = member.nickname || member.user.username;
 			
 			if (!name)
@@ -36,7 +41,7 @@ setInterval(function() {
 					}
 				}
 				
-				finalQuery += 'UPDATE member_names SET "NAME" = ' + Util.escape(name) + ' WHERE "ID" = ' + member.uid + ';';
+				finalQuery += 'UPDATE member_names SET "NAME" = ' + Util.escape(name) + ' WHERE "ID" = ' + UiD + ';';
 			}
 			
 			member.oldNickname = name;
