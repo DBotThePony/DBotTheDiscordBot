@@ -3,6 +3,33 @@ const numeral = require('numeral');
 const moment = require('moment');
 const hDuration = require('humanize-duration');
 
+let never_talk_sql = `
+SELECT
+	TRIM(user_id."UID") AS "USERID",
+	user_names."USERNAME" AS "USERNAME",
+	member_names."NAME" AS "MEMBERNAME"
+FROM
+	user_id,
+	user_names,
+	member_id,
+	member_names,
+	last_seen
+WHERE
+	last_seen."TIME" > currtime() - 120 AND
+	user_id."ID" = last_seen."ID" AND
+	user_id."UID" != '%s' AND
+	member_id."SERVER" = %i AND
+	member_id."USER" = user_id."ID" AND
+	member_names."ID" = member_id."ID" AND
+	user_names."ID" = user_id."ID" AND
+    member_id."USER" NOT IN (
+    	SELECT stats__uphrases_server."UID" FROM stats__uphrases_server WHERE stats__uphrases_server."USERVER" = %i
+    )
+GROUP BY
+	"USERID", "USERNAME", "MEMBERNAME"
+`;
+
+
 hook.Add('OnValidMessage', 'Statistics', function(msg) {
 	if (msg.author.id == '210879254378840074')
 		return; // Loal
@@ -148,84 +175,96 @@ DBot.RegisterCommand({
 				
 				// Server Stats by user
 				Postgres.query(qU, function(err, uData) {
-					msg.channel.stopTyping();
 					
-					try {
-						for (let i = 0; i <= 8; i++) {
-							uData[i] = uData[i] || [];
-							data[i] = data[i] || [];
-							uData[i][0] = uData[i][0] || {};
-							data[i][0] = data[i][0] || {};
+					// Users that are inactive
+					Postgres.query(sprintf(never_talk_sql, DBot.bot.user.id, msg.channel.guild.uid, msg.channel.guild.uid), function(err, iData) {
+						msg.channel.stopTyping();
+						
+						try {
+							for (let i = 0; i <= 8; i++) {
+								uData[i] = uData[i] || [];
+								data[i] = data[i] || [];
+								uData[i][0] = uData[i][0] || {};
+								data[i][0] = data[i][0] || {};
+							}
+							
+							let inactiveCount = 0;
+							
+							for (let i of iData) {
+								inactiveCount++;
+							}
+							
+							let percentInactive = Math.floor(inactiveCount / users * 100);
+							
+							let TotalChars = data[0].cnt || 0;
+							let TotalWordsSaid = data[1].cnt || 0;
+							let TotalUniqueWords = data[2].cnt || 0;
+							let TotalImagesSend = data[3].cnt || 0;
+							let TotalPhrasesSaid = data[4].cnt || 0;
+							let TotalCommandsExecuted = data[5].cnt || 0;
+							
+							let MostUsedCommand = data[6].COMMAND || '<unknown>';
+							let MostUsedCommand_count = data[6].summ || 0;
+							let TotalPhrasesDeleted = data[7].cnt || 0;
+							let TotalPhrasesEdited = data[8].cnt || 0;
+							
+							let TotalChars_USER = uData[0].cnt || 0;
+							let TotalWordsSaid_USER = uData[1].cnt || 0;
+							let TotalUniqueWords_USER = uData[2].cnt || 0;
+							let TotalImagesSend_USER = uData[3].cnt || 0;
+							let TotalPhrasesSaid_USER = uData[4].cnt || 0;
+							let TotalCommandsExecuted_USER = uData[5].cnt || 0;
+							
+							let TotalPhrasesDeleted_USER = uData[7].cnt || 0;
+							let TotalPhrasesEdited_USER = uData[8].cnt || 0;
+							let RANK = uData[6].RANK || 0;
+							let MostUsedCommand_USER = uData[9].COMMAND || '<unknown>';
+							let MostUsedCommand_count_USER = uData[9].summ || 0;
+							
+							let output = '\n```';
+							
+							output += '------ Infos\n';
+							output += 'Server Name:                              ' + msg.channel.guild.name + '\n';
+							output += 'Server ID:                                ' + msg.channel.guild.id + '\n';
+							output += 'Server Owner:                             @' + msg.channel.guild.owner.user.username + '\n';
+							output += 'Server ID in my Database:                 ' + ID + '\n';
+							output += 'Server region:                            ' + msg.channel.guild.region + '\n';
+							output += 'Server default channel:                   #' + msg.channel.guild.defaultChannel.name + '\n';
+							output += 'Server avatar URL:\n' + (msg.channel.guild.iconURL || '<no avatar>') + '\n';
+							output += 'Server is large?:                         ' + (msg.channel.guild.large && 'yes' || 'no') + '\n';
+							output += '------ Statistics\n';
+							
+							output += 'Total Channels on this server:            ' + numeral(channels).format('0,0') + '\n';
+							output += 'Total Users on this server:              ' + (msg.channel.guild.large && '~' || ' ') + numeral(users).format('0,0') + ' (' + numeral(onlineUsers).format('0,0') + ' online, ' + percentOnline + '%, ' + numeral(inactiveCount).format('0,0') + ' inactive, ' + percentInactive + '%)\n';
+							output += 'Total chars printed by all users:         ' + numeral(TotalChars).format('0,0') + '\n';
+							output += 'Total words said by all users:            ' + numeral(TotalWordsSaid).format('0,0') + '\n';
+							output += 'Total unique words:                       ' + numeral(TotalUniqueWords).format('0,0') + '\n';
+							output += 'Total images sent:                        ' + numeral(TotalImagesSend).format('0,0') + '\n';
+							output += 'Total phrases said by all users:          ' + numeral(TotalPhrasesSaid).format('0,0') + '\n';
+							output += 'Total phrases edited:                     ' + numeral(TotalPhrasesEdited).format('0,0') + '\n';
+							output += 'Total phrases deleted:                    ' + numeral(TotalPhrasesDeleted).format('0,0') + '\n';
+							output += 'Total amount of commands executed:        ' + numeral(TotalCommandsExecuted).format('0,0') + '\n';
+							output += 'Most command used:                        ' + MostUsedCommand + '; Times Executed: ' + numeral(MostUsedCommand_count).format('0,0') + '\n';
+							
+							output += '------ Your stats on this server\n';
+							
+							output += 'Rank:                                     ' + numeral(RANK).format('0,0') + '\n';
+							output += 'Total chars printed:                      ' + numeral(TotalChars_USER).format('0,0') + '\n';
+							output += 'Total words said:                         ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
+							output += 'Total unique words said:                  ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
+							output += 'Total images sent:                        ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
+							output += 'Total phrases said:                       ' + numeral(TotalPhrasesSaid_USER).format('0,0') + '\n';
+							output += 'Total amount of commands executed:        ' + numeral(TotalCommandsExecuted_USER).format('0,0') + '\n';
+							output += 'Most command used:                        ' + MostUsedCommand_USER + '; Times Executed: ' + MostUsedCommand_count_USER + '\n';
+							
+							output += '```\nAlso try stats (global statistics) and cstats (channel statistics)';
+							
+							msg.reply(output);
+						} catch(err) {
+							console.error(err);
+							msg.reply('<internal pony error>');
 						}
-						
-						let TotalChars = data[0].cnt || 0;
-						let TotalWordsSaid = data[1].cnt || 0;
-						let TotalUniqueWords = data[2].cnt || 0;
-						let TotalImagesSend = data[3].cnt || 0;
-						let TotalPhrasesSaid = data[4].cnt || 0;
-						let TotalCommandsExecuted = data[5].cnt || 0;
-						
-						let MostUsedCommand = data[6].COMMAND || '<unknown>';
-						let MostUsedCommand_count = data[6].summ || 0;
-						let TotalPhrasesDeleted = data[7].cnt || 0;
-						let TotalPhrasesEdited = data[8].cnt || 0;
-						
-						let TotalChars_USER = uData[0].cnt || 0;
-						let TotalWordsSaid_USER = uData[1].cnt || 0;
-						let TotalUniqueWords_USER = uData[2].cnt || 0;
-						let TotalImagesSend_USER = uData[3].cnt || 0;
-						let TotalPhrasesSaid_USER = uData[4].cnt || 0;
-						let TotalCommandsExecuted_USER = uData[5].cnt || 0;
-						
-						let TotalPhrasesDeleted_USER = uData[7].cnt || 0;
-						let TotalPhrasesEdited_USER = uData[8].cnt || 0;
-						let RANK = uData[6].RANK || 0;
-						let MostUsedCommand_USER = uData[9].COMMAND || '<unknown>';
-						let MostUsedCommand_count_USER = uData[9].summ || 0;
-						
-						let output = '\n```';
-						
-						output += '------ Infos\n';
-						output += 'Server Name:                              ' + msg.channel.guild.name + '\n';
-						output += 'Server ID:                                ' + msg.channel.guild.id + '\n';
-						output += 'Server Owner:                             @' + msg.channel.guild.owner.user.username + '\n';
-						output += 'Server ID in my Database:                 ' + ID + '\n';
-						output += 'Server region:                            ' + msg.channel.guild.region + '\n';
-						output += 'Server default channel:                   #' + msg.channel.guild.defaultChannel.name + '\n';
-						output += 'Server avatar URL:                        ' + (msg.channel.guild.iconURL || '<no avatar>') + '\n';
-						output += 'Server is large?:                         ' + (msg.channel.guild.large && 'yes' || 'no') + '\n';
-						output += '------ Statistics\n';
-						
-						output += 'Total Channels on this server:            ' + numeral(channels).format('0,0') + '\n';
-						output += 'Total Users on this server:              ' + (msg.channel.guild.large && '~' || ' ') + numeral(users).format('0,0') + ' (' + numeral(onlineUsers).format('0,0') + ' online, ' + percentOnline + '%)\n';
-						output += 'Total chars printed by all users:         ' + numeral(TotalChars).format('0,0') + '\n';
-						output += 'Total words said by all users:            ' + numeral(TotalWordsSaid).format('0,0') + '\n';
-						output += 'Total unique words:                       ' + numeral(TotalUniqueWords).format('0,0') + '\n';
-						output += 'Total images sent:                        ' + numeral(TotalImagesSend).format('0,0') + '\n';
-						output += 'Total phrases said by all users:          ' + numeral(TotalPhrasesSaid).format('0,0') + '\n';
-						output += 'Total phrases edited:                     ' + numeral(TotalPhrasesEdited).format('0,0') + '\n';
-						output += 'Total phrases deleted:                    ' + numeral(TotalPhrasesDeleted).format('0,0') + '\n';
-						output += 'Total amount of commands executed:        ' + numeral(TotalCommandsExecuted).format('0,0') + '\n';
-						output += 'Most command used:                        ' + MostUsedCommand + '; Times Executed: ' + numeral(MostUsedCommand_count).format('0,0') + '\n';
-						
-						output += '------ Your stats on this server\n';
-						
-						output += 'Rank:                                     ' + numeral(RANK).format('0,0') + '\n';
-						output += 'Total chars printed:                      ' + numeral(TotalChars_USER).format('0,0') + '\n';
-						output += 'Total words said:                         ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
-						output += 'Total unique words said:                  ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
-						output += 'Total images sent:                        ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
-						output += 'Total phrases said:                       ' + numeral(TotalPhrasesSaid_USER).format('0,0') + '\n';
-						output += 'Total amount of commands executed:        ' + numeral(TotalCommandsExecuted_USER).format('0,0') + '\n';
-						output += 'Most command used:                        ' + MostUsedCommand_USER + '; Times Executed: ' + MostUsedCommand_count_USER + '\n';
-						
-						output += '```\nAlso try stats (global statistics) and cstats (channel statistics)';
-						
-						msg.reply(output);
-					} catch(err) {
-						console.error(err);
-						msg.reply('<internal pony error>');
-					}
+					});
 				});
 			});
 		} else {
@@ -1873,38 +1912,12 @@ DBot.RegisterCommand({
 	},
 });
 
-let never_talk_sql = `
-SELECT
-	TRIM(user_id."UID") AS "USERID",
-	user_names."USERNAME" AS "USERNAME",
-	member_names."NAME" AS "MEMBERNAME"
-FROM
-	user_id,
-	user_names,
-	member_id,
-	member_names,
-	last_seen
-WHERE
-	last_seen."TIME" > currtime() - 120 AND
-	user_id."ID" = last_seen."ID" AND
-	user_id."UID" != '%s' AND
-	member_id."SERVER" = %i AND
-	member_id."USER" = user_id."ID" AND
-	member_names."ID" = member_id."ID" AND
-	user_names."ID" = user_id."ID" AND
-    member_id."USER" NOT IN (
-    	SELECT stats__uphrases_server."UID" FROM stats__uphrases_server WHERE stats__uphrases_server."USERVER" = %i
-    )
-GROUP BY
-	"USERID", "USERNAME", "MEMBERNAME"
-`;
-
 Util.mkdir(DBot.WebRoot + '/ntstats');
 const fs = require('fs');
 
 DBot.RegisterCommand({
 	name: 'nevertalked',
-	alias: ['nevertalk', 'newbies', 'newbie', 'voicelesses', 'speechlesses', 'silents'],
+	alias: ['nevertalk', 'newbies', 'newbie', 'voicelesses', 'speechlesses', 'silents', 'inactive'],
 	
 	help_args: '[prune]',
 	desc: 'Lists all users that don\'t talk\nIf first argument is "prune", it will kick **all** users',
