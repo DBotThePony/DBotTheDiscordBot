@@ -57,7 +57,7 @@ DBot.RegisterCommand({
 	allowUserArgument: true,
 	help_hide: true,
 	
-	func: function() {
+	func: function(args) {
 		return 'You aren\'t better';
 	},
 });
@@ -71,7 +71,7 @@ DBot.RegisterCommand({
 	allowUserArgument: true,
 	help_hide: true,
 	
-	func: function() {
+	func: function(args) {
 		if (!args[0])
 			return 'What';
 		else if (args[0] == 'bot')
@@ -90,7 +90,7 @@ DBot.RegisterCommand({
 	allowUserArgument: true,
 	help_hide: true,
 	
-	func: function() {
+	func: function(args) {
 		if (args[0] == 'you')
 			return 'fuck you too~';
 		
