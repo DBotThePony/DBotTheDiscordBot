@@ -105,6 +105,18 @@ DBot.RegisterCommand({
 			let Users = server.members.array();
 			let channels = Channels.length;
 			let users = Users.length;
+			let onlineUsers = 0;
+			
+			for (let member of Users) {
+				try {
+					let status = member.user.presence.status;
+					
+					if (status != 'offline')
+						onlineUsers++;
+				}
+			}
+			
+			let percentOnline = Math.floor(onlineUsers / users * 100);
 			
 			let q = 'SELECT SUM("COUNT") as "cnt" FROM stats__chars_server WHERE "UID" = ' + ID + ';\
 			SELECT SUM("COUNT") as "cnt" FROM stats__words_server WHERE "UID" = ' + ID + ';\
@@ -183,7 +195,7 @@ DBot.RegisterCommand({
 						output += '------ Statistics\n';
 						
 						output += 'Total Channels on this server:            ' + numeral(channels).format('0,0') + '\n';
-						output += 'Total Users on this server:              ' + (msg.channel.guild.large && '~' || ' ') + numeral(users).format('0,0') + '\n';
+						output += 'Total Users on this server:              ' + (msg.channel.guild.large && '~' || ' ') + numeral(users).format('0,0') + ' (' + numeral(onlineUsers).format('0,0') + ' online, ' + percentOnline + '%)\n';
 						output += 'Total chars printed by all users:         ' + numeral(TotalChars).format('0,0') + '\n';
 						output += 'Total words said by all users:            ' + numeral(TotalWordsSaid).format('0,0') + '\n';
 						output += 'Total unique words:                       ' + numeral(TotalUniqueWords).format('0,0') + '\n';
