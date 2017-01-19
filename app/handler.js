@@ -510,10 +510,19 @@ hook.Add('OnMessageEdit', 'Handler', function(omsg, nmsg) {
 			mess.delete(0);
 	}
 	
-	let can = DBot.HandleMessage(nmsg, DBot.IsPM(nmsg), true);
+	let pm = DBot.IsPM(nmsg);
+	
+	if (pm && (!nmsg.member || nmsg.member.uid)) {
+		if (nmsg.member)
+			DBot.DefineMember(nmsg.member);
+		
+		return;
+	}
+	
+	let can = DBot.HandleMessage(nmsg, pm, true);
 	
 	if (can)
-		DBot.HandleMessage(nmsg, DBot.IsPM(nmsg));
+		DBot.HandleMessage(nmsg, pm);
 });
 
 cvars.ServerVar('prefix', '}', [FCVAR_NOTNULL], 'Prefix of bot commands on server');
