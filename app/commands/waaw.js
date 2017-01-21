@@ -25,13 +25,16 @@ let fn = function(name, toUse) {
 		let hash = DBot.HashString(url);
 		
 		let ext = DBot.ExtraxtExt(url);
-		let fPath = DBot.WebRoot + '/reflect/' + hash + '.' + ext;
+		let fPath;
 		let fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_' + toUse + '.' + ext;
 		let fPathProcessedURL = DBot.URLRoot + '/reflect/' + hash + '_' + toUse + '.' + ext;
+		
+		msg.channel.startTyping();
 		
 		let ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
 				if (stat && stat.isFile()) {
+					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);
 				} else {
 					let magik = spawn('bash', ['./resource/scripts/reflect', fPath]);
@@ -43,38 +46,25 @@ let fn = function(name, toUse) {
 							fs.rename('./' + hash + '_right.' + ext, DBot.WebRoot + '/reflect/' + hash + '_right.' + ext, function() {
 								fs.rename('./' + hash + '_left.' + ext, DBot.WebRoot + '/reflect/' + hash + '_left.' + ext, function() {
 									fs.rename('./' + hash + '_blend.' + ext, DBot.WebRoot + '/reflect/' + hash + '_blend.' + ext, function() {
+										msg.channel.stopTyping();
 										msg.reply(fPathProcessedURL);
 									});
 								});
 							});
 						} else {
-							msg.reply('Uh oh! You are trying to break me ;n; Why? ;n;');
+							msg.reply('*DED*');
 						}
 					});
 				}
 			});
 		}
 		
-		fs.stat(fPath, function(err, stat) {
-			if (stat && stat.isFile()) {
-				ContinueFunc();
-			} else {
-				unirest.get(url)
-				.encoding(null)
-				.end(function(result) {
-					let body = result.raw_body;
-					
-					if (!body)
-						return;
-					
-					fs.writeFile(fPath, body, {flag: 'w'}, function(err) {
-						if (err)
-							return;
-						
-						ContinueFunc();
-					});
-				});
-			}
+		DBot.LoadImageURL(url, function(newPath) {
+			fPath = newPath;
+			ContinueFunc();
+		}, function(result) {
+			msg.channel.stopTyping();
+			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
 		});
 	}
 }
