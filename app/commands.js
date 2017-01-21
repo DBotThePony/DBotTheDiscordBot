@@ -342,10 +342,7 @@ DBot.RegisterCommand({
 			if (!DBot.IsPM(msg))
 				return 'Look into your PM';
 		} else {
-			msg.author.sendMessage(DBot.BuildHelpStringForCommand(args[0]));
-			
-			if (!DBot.IsPM(msg))
-				return 'Look into your PM';
+			return DBot.BuildHelpStringForCommand(args[0]);
 		}
 	},
 });
