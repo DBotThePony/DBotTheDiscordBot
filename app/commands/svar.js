@@ -43,7 +43,7 @@ module.exports = {
 					build = args[i];
 			}
 			
-			let trySet = cvar.setValue(build);
+			let trySet = cvar.setValue(build, msg);
 			
 			if (!trySet[0]) {
 				msg.reply('```' + cvars.ErrorMessages[trySet[1]] + '\n\n' + Util.HighlightHelp(['svar'], 3, args, true) + '```');
@@ -168,7 +168,7 @@ DBot.RegisterCommand({
 					build = args[i];
 			}
 			
-			let trySet = cvar.setValue(build);
+			let trySet = cvar.setValue(build, msg);
 			
 			if (!trySet[0]) {
 				msg.reply('```' + cvars.ErrorMessages[trySet[1]] + '\n\n' + Util.HighlightHelp(['cvar'], 3, args, true) + '```');
@@ -240,7 +240,7 @@ DBot.RegisterCommand({
 					build = args[i];
 			}
 			
-			let trySet = cvar.setValue(build);
+			let trySet = cvar.setValue(build, msg);
 			
 			if (!trySet[0]) {
 				msg.reply(DBot.CommandError(cvars.ErrorMessages[trySet[1]], 'mcvar', args, 3));
@@ -284,7 +284,7 @@ DBot.RegisterCommand({
 					build = args[i];
 			}
 			
-			let trySet = cvar.setValue(build);
+			let trySet = cvar.setValue(build, msg);
 			
 			if (!trySet[0]) {
 				msg.reply('```' + cvars.ErrorMessages[trySet[1]] + '\n\n' + Util.HighlightHelp(['uvar'], 3, args, true) + '```');
