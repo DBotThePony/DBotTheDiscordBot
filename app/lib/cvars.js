@@ -1,6 +1,4 @@
 
-var utf8 = require('utf8');
-
 // Users can't grab convar value
 // Always printed in PM
 FCVAR_PROTECTED 			= 1;
@@ -15,7 +13,9 @@ FCVAR_NUMERSONLY_INT 		= 8;
 FCVAR_NUMERSONLY_UINT 		= 9;
 FCVAR_ONECHAR_ONLY 			= 10;
 FCVAR_NOTNULL 				= 11;
+FCVAR_ROLE	 				= 12;
 FCVAR_ERROR_TOOLONG 		= 255;
+FCVAR_ROLE_NOT_INTIALIZED	= 256;
 
 cvars = {};
 
@@ -31,6 +31,8 @@ cvars.Strings[FCVAR_NUMERSONLY_INT] = 'FCVAR_NUMERSONLY_INT';
 cvars.Strings[FCVAR_NUMERSONLY_UINT] = 'FCVAR_NUMERSONLY_UINT';
 cvars.Strings[FCVAR_ONECHAR_ONLY] = 'FCVAR_ONECHAR_ONLY';
 cvars.Strings[FCVAR_NOTNULL] = 'FCVAR_NOTNULL';
+cvars.Strings[FCVAR_ROLE] = 'FCVAR_ROLE';
+cvars.Strings[FCVAR_ROLE_NOT_INTIALIZED] = 'FCVAR_ROLE_NOT_INTIALIZED';
 
 cvars.ErrorMessages = [];
 cvars.ErrorMessages[FCVAR_ERROR_TOOLONG] = 'Variable value is too long!';
@@ -46,6 +48,8 @@ cvars.ErrorMessages[FCVAR_NUMERSONLY_INT] = 'Variable accepts only integer value
 cvars.ErrorMessages[FCVAR_NUMERSONLY_UINT] = 'Variable accepts only unsigned integer values';
 cvars.ErrorMessages[FCVAR_ONECHAR_ONLY] = 'Variable accepts only one symbol';
 cvars.ErrorMessages[FCVAR_NOTNULL] = 'Variable accepts not null values';
+cvars.ErrorMessages[FCVAR_ROLE] = 'Roles only';
+cvars.ErrorMessages[FCVAR_ROLE_NOT_INTIALIZED] = 'Role wasn\'t initalized! Welp, thit is awkward. Try }retry';
 
 cvars.CONVARS_SERVER = {};
 cvars.CONVARS_CHANNEL = {};
@@ -83,7 +87,7 @@ class ConVar {
 		
 		MySQL.query('SELECT "VALUE" FROM cvar_' + this.realm + ' WHERE "ID" = ' + this.id + ' AND "CVAR" = ' + Util.escape(this.name), function(err, data) {
 			if (!data || !data[0]) {
-				MySQL.query('INSERT INTO cvar_' + me.realm + ' ("ID", "CVAR", "VALUE") VALUES (' + me.id + ', ' + Util.escape(me.name) + ', ' + Util.escape(utf8.encode(me.defValue)) + ')');
+				MySQL.query('INSERT INTO cvar_' + me.realm + ' ("ID", "CVAR", "VALUE") VALUES (' + me.id + ', ' + Util.escape(me.name) + ', ' + Util.escape(me.defValue) + ')');
 			} else {
 				me.value = data[0].VALUE;
 			}
@@ -107,7 +111,7 @@ class ConVar {
 		return this.session;
 	}
 	
-	setValue(val) {
+	setValue(val, msg) {
 		if (typeof val != 'string')
 			throw new TypeError('Value must be a string');
 		
@@ -207,12 +211,44 @@ class ConVar {
 					return [false, FCVAR_USERONLY];
 				
 				val = DBot.GetUserID(find);
+			} else if (flag == FCVAR_ROLE) {
+				if (val == '')
+					continue;
+				
+				let role;
+				let find = val.toLowerCase();
+				
+				for (let rl of msg.channel.guild.roles.array()) {
+					if (rl.name.toLowerCase() == find) {
+						role = rl;
+						break;
+					}
+				}
+				
+				if (!role) {
+					for (let rl of msg.channel.guild.roles.array()) {
+						if (rl.name.toLowerCase().match(find)) {
+							role = rl;
+							break;
+						}
+					}
+				}
+				
+				if (!role)
+					return [false, FCVAR_ROLE];
+				
+				val = role.uid;
+				
+				if (!val) {
+					DBot.DefineRole(role);
+					return [false, FCVAR_ROLE_NOT_INTIALIZED];
+				}
 			}
 		}
 		
 		let oldVal = this.value;
 		this.value = val;
-		MySQL.query('UPDATE cvar_' + this.realm + ' SET "VALUE" = ' + Util.escape(utf8.encode(val)) + ' WHERE "ID" = ' + Util.escape(this.id) + ' AND "CVAR" = ' + Util.escape(this.name));
+		MySQL.query('UPDATE cvar_' + this.realm + ' SET "VALUE" = ' + Util.escape(val) + ' WHERE "ID" = ' + Util.escape(this.id) + ' AND "CVAR" = ' + Util.escape(this.name));
 		
 		this.session.onValueChanged(this, oldVal, val);
 		this.onValueChanged(oldVal, val);
@@ -246,6 +282,13 @@ class ConVar {
 					return 'INVALID USER';
 				else
 					return '@' + find.username;
+			} else if (flag == FCVAR_ROLE) {
+				let find = this.getRole();
+				
+				if (!find)
+					return 'INVALID ROLE';
+				else
+					return '@' + find.name;
 			}
 		}
 		
@@ -307,6 +350,32 @@ class ConVar {
 			return false;
 		
 		return DBot.GetUser(this.value);
+	}
+	
+	getRole() {
+		if (this.value === '')
+			return false;
+		
+		let srv;
+		
+		if (this.session.guild)
+			srv = this.session.guild;
+		else if (this.session.roles)
+			srv = this.session;
+		
+		if (!srv)
+			return false;
+		
+		let findRole = null;
+		
+		for (let role of srv.roles.array()) {
+			if (role.uid == this.value) {
+				findRole = role;
+				break;
+			}
+		}
+		
+		return findRole;
 	}
 	
 	changeCallback(fID, func) {
