@@ -452,7 +452,6 @@ let updateRole = function(role) {
 
 DBot.DefineRole = function(role, callback) {
 	let id = role.id;
-	let uid = DBot.GetServerID(role.guild);
 	
 	MySQL.query('SELECT ' + sql.Role(role) + ' AS "ID"', function(err, data) {
 		if (err) throw err;
