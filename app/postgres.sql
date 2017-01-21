@@ -1434,6 +1434,38 @@ BEGIN
 	RETURN QUERY SELECT channel_id."ID", TRIM(channel_id."UID")::VARCHAR(64) FROM channel_id WHERE channel_id."UID" = ANY (sID);
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION get_roles_id(serverid INTEGER, rolesids VARCHAR(64)[])
+RETURNS TABLE ("ID" INTEGER, "UID" VARCHAR(64), "SERVER" INTEGER) AS $$
+BEGIN
+	WITH missing_tab AS (
+		WITH missing AS (
+			SELECT
+				UNNEST(rolesids) AS "MISSING_ROLE",
+				serverid AS "MISSING_SERVER"
+		)
+		
+		SELECT
+			missing."MISSING_ROLE",
+			missing."MISSING_SERVER"
+		FROM
+			missing
+		WHERE NOT EXISTS (
+			SELECT
+				missing."MISSING_ROLE",
+				missing."MISSING_SERVER"
+			FROM
+				roles_id
+			WHERE
+				missing."MISSING_ROLE" = roles_id."UID" AND
+				missing."MISSING_SERVER" = roles_id."SERVER"
+		)
+	)
+	
+	INSERT INTO "roles_id" ("UID", "SERVER") SELECT * FROM missing_tab WHERE missing_tab."MISSING_ROLE" IS NOT NULL;
+	
+	RETURN QUERY SELECT roles_id."ID", TRIM(roles_id."UID")::VARCHAR(64), roles_id."SERVER" FROM roles_id WHERE roles_id."UID" = ANY (rolesids);
+END; $$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION get_members_id(sID INTEGER[], sID2 INTEGER[])
 RETURNS TABLE ("ID" INTEGER, "USER" INTEGER, "SERVER" INTEGER) AS $$
 BEGIN

@@ -596,7 +596,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 		LoadingUser[users1[i].id] = true;
 	}
 	
-	LoadingLevel = 5;
+	LoadingLevel = 6;
 	
 	Postgre.query('SELECT get_servers_id(' + sql.Array(build) + '::CHAR(64)[]);', function(err, data) {
 		if (err) throw err;
@@ -605,6 +605,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 		let channels1 = [];
 		let channels2 = [];
 		let channel_map = [];
+		let role_map = {};
 		
 		for (let row of data) {
 			let exp = row.get_servers_id.split(',');
@@ -621,7 +622,15 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			hook.Run('ServerInitialized', srv, id);
 			
 			// Needs better code
-			srv.roles.array().forEach(DBot.DefineRole);
+			// srv.roles.array().forEach(DBot.DefineRole);
+			
+			let roleMap = [[], {}];
+			role_map[id] = roleMap;
+			
+			for (role of srv.roles.array()) {
+				roleMap[0].push(role.id);
+				roleMap[1][role.id] = role;
+			}
 			
 			for (let channel of srv.channels.array()) {
 				channels1.push(channel.id);
@@ -629,6 +638,39 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				channel_map[channel.id] = channel;
 			}
 		}
+		
+		let roleQuery = '';
+		
+		for (let serverid in role_map) {
+			roleQuery += 'SELECT get_roles_id(' + serverid + ',' + sql.Array(role_map[serverid][0]) + ');';
+		}
+		
+		Postgre.query(roleQuery, function(err, data) {
+			if (err) {
+				console.log(roleQuery);
+				throw err;
+			}
+			
+			LoadingLevel--;
+			
+			for (let row of data) {
+				let exp = row.get_roles_id.split(',');
+				let id = Number(exp[0].substr(1));
+				let uid = exp[1];
+				let serverid = Number(exp[2].substr(0, exp[2].length - 1));
+				
+				if (!serverid || !role_map[serverid])
+					throw new Error('Invalid server in result: ' + serverid);
+				
+				let mapped = role_map[serverid];
+				let role = mapped[1][uid];
+				
+				role.uid = id;
+				
+				updateRole(role);
+				hook.Run('RoleInitialized', role, role.uid);
+			}
+		});
 		
 		let q = 'SELECT get_channels_id(' + sql.Array(channels1) + '::CHAR(64)[],' + sql.Array(channels2) + '::INTEGER[])';
 		Postgre.query(q, function(err, data) {
