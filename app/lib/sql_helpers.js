@@ -7,6 +7,9 @@ sql.query = function(str, callback) {
 }
 
 sql.Member = function(obj) {
+	if (obj.uid)
+		return '\'' + obj.uid + '\'';
+	
 	return 'get_member_id(\'' + obj.user.id + '\', \'' + obj.guild.id + '\')';
 }
 

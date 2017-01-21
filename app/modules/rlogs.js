@@ -7,9 +7,13 @@ const fs = require('fs');
 Util.mkdir(DBot.WebRoot + '/rlogs');
 
 let updating = {};
+let INIT = false;
 
 let updateRoleRules = function(role) {
 	if (role.name == '@everyone')
+		return;
+	
+	if (!INIT)
 		return;
 	
 	let members = role.members.array();
@@ -63,9 +67,81 @@ let updateRoleRules = function(role) {
 		MySQL.query(q, continueFunc);
 }
 
-hook.Add('RoleInitialized', 'Default', updateRoleRules);
+hook.Add('RoleInitialized', 'RoleLogs', updateRoleRules);
+hook.Add('RolesInitialized', 'RoleLogs', function(role_map, role_array, role_array_ids, roleHashMap, role_array_uids) {
+	INIT = true;
+	
+	let q = 'SELECT\
+				"member_roles"."ROLE",\
+				array_to_string(array_agg("member_roles"."MEMBER"), \',\') AS "MEMBER",\
+				array_to_string(array_agg(TRIM("user_id"."UID")), \',\') AS "USER"\
+			FROM\
+				"member_roles",\
+				"user_id",\
+				"member_id"\
+			WHERE\
+				"member_roles"."ROLE" = ANY (' + sql.Array(role_array_uids) + '::INTEGER[]) AND\
+				"member_id"."ID" = "member_roles"."MEMBER" AND\
+				"user_id"."ID" = "member_id"."USER"\
+			GROUP BY\
+				"member_roles"."ROLE"';
+	
+	Postgres.query(q, function(err, data) {
+		if (err) throw err;
+		
+		let cTime = Util.escape(Math.floor(CurTime()));
+		
+		for (let row of data) {
+			let role = roleHashMap[row.ROLE];
+			let usersArray = row.USER.split(',');
+			let membersIDArray = row.MEMBER.split(',');
+			
+			let members = role.members.array();
+			let sRole = role.uid;
+			
+			for (let member of members) {
+				let hit = false;
+				
+				for (let userid of usersArray) {
+					if (userid == member.id) {
+						hit = true;
+						break;
+					}
+				}
+				
+				if (!hit) {
+					MySQL.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (' + sql.Member(member) + ', ' + sRole + ', true, ' + cTime + ')');
+					MySQL.query('INSERT INTO member_roles VALUES (' + sql.Member(member) + ', ' + sRole + ') ON CONFLICT DO NOTHING');
+				}
+			}
+			
+			for (let userid of usersArray) {
+				let hit = false;
+				let memberid = 0;
+				
+				for (let member of members) {
+					if (userid == member.id) {
+						hit = true;
+						break;
+					}
+					
+					memberid++;
+				}
+				
+				if (!hit) {
+					let mbr = membersIDArray[memberid];
+					if (!mbr)
+						return; // WTF?
+					
+					MySQL.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (\'' + mbr + '\', ' + sRole + ', false, ' + cTime + ')');
+					MySQL.query('DELETE FROM member_roles WHERE "MEMBER" = \'' + mbr + '\' AND "ROLE" = ' + sRole);
+				}
+			}
+		}
+	});
+});
 
-hook.Add('MemberChanges', 'Default', function(oldM, newM) {
+hook.Add('MemberChanges', 'RoleLogs', function(oldM, newM) {
 	for (let role of oldM.roles.array()) {
 		updateRoleRules(role);
 	}

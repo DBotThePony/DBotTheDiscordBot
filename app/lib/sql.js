@@ -606,6 +606,8 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 		let channels2 = [];
 		let channel_map = [];
 		let role_map = {};
+		let role_array = [];
+		let role_array_ids = [];
 		
 		for (let row of data) {
 			let exp = row.get_servers_id.split(',');
@@ -630,6 +632,9 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			for (role of srv.roles.array()) {
 				roleMap[0].push(role.id);
 				roleMap[1][role.id] = role;
+				
+				role_array.push(role);
+				role_array_ids.push(role.id);
 			}
 			
 			for (let channel of srv.channels.array()) {
@@ -653,6 +658,9 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			
 			LoadingLevel--;
 			
+			let roleHashMap = {};
+			let role_array_uids = [];
+			
 			for (let row of data) {
 				let exp = row.get_roles_id.split(',');
 				let id = Number(exp[0].substr(1));
@@ -667,9 +675,14 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				
 				role.uid = id;
 				
+				roleHashMap[id] = role;
+				role_array_uids.push(id);
+				
 				updateRole(role);
 				hook.Run('RoleInitialized', role, role.uid);
 			}
+			
+			hook.Run('RolesInitialized', role_map, role_array, role_array_ids, roleHashMap, role_array_uids);
 		});
 		
 		let q = 'SELECT get_channels_id(' + sql.Array(channels1) + '::CHAR(64)[],' + sql.Array(channels2) + '::INTEGER[])';
