@@ -451,8 +451,6 @@ let updateRole = function(role) {
 }
 
 DBot.DefineRole = function(role, callback) {
-	let id = role.id;
-	
 	MySQL.query('SELECT ' + sql.Role(role) + ' AS "ID"', function(err, data) {
 		if (err) throw err;
 		role.uid = data[0].ID;
@@ -621,6 +619,9 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			
 			hook.Run('GuildInitialized', srv, id);
 			hook.Run('ServerInitialized', srv, id);
+			
+			// Needs better code
+			srv.roles.array().forEach(DBot.DefineRole);
 			
 			for (let channel of srv.channels.array()) {
 				channels1.push(channel.id);
