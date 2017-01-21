@@ -32,10 +32,117 @@ DBot.RegisterCommand({
 	name: 'poke',
 	
 	help_args: '[user]',
-	desc: 'Slaps',
+	desc: 'Pokes',
 	allowUserArgument: true,
 	
-	func: defAction('slap', 'pokes'),
+	func: defAction('poke', 'pokes'),
+});
+
+DBot.RegisterCommand({
+	name: 'punch',
+	
+	help_args: '[user]',
+	desc: 'Punches',
+	allowUserArgument: true,
+	
+	func: defAction('punch', 'punches'),
+});
+
+DBot.RegisterCommand({
+	name: 'squeeze',
+	
+	help_args: '[user]',
+	desc: 'Squeezes',
+	allowUserArgument: true,
+	
+	func: defAction('squeeze', 'hugs tight'),
+});
+
+DBot.RegisterCommand({
+	name: 'cuddle',
+	
+	help_args: '[user]',
+	desc: 'Cuddles',
+	allowUserArgument: true,
+	
+	func: defAction('cuddle', 'cuddles'),
+});
+
+DBot.RegisterCommand({
+	name: 'rub',
+	
+	help_args: '[user]',
+	desc: 'Rubs',
+	allowUserArgument: true,
+	
+	func: defAction('rub', 'rubs body of'),
+});
+
+DBot.RegisterCommand({
+	name: 'stroke',
+	
+	help_args: '[user]',
+	desc: 'Strokes',
+	allowUserArgument: true,
+	
+	func: defAction('stroke', 'slowly strokes'),
+});
+
+DBot.RegisterCommand({
+	name: 'sit',
+	
+	help_args: '',
+	desc: 'Sits',
+	
+	func: function(args) {
+		if (args[0])
+			msg.sendMessage('<@' + msg.author.id + '> *sits on ' + args[0] + ' *');
+		else
+			msg.sendMessage('<@' + msg.author.id + '> *sits*');
+	},
+});
+
+DBot.RegisterCommand({
+	name: 'jump',
+	
+	help_args: '',
+	desc: 'Jumps',
+	
+	func: function(args) {
+		if (args[0])
+			msg.sendMessage('<@' + msg.author.id + '> *jumps on ' + args[0] + ' *');
+		else
+			msg.sendMessage('<@' + msg.author.id + '> *jumps around*');
+	},
+});
+
+DBot.RegisterCommand({
+	name: 'sleep',
+	
+	help_args: '',
+	desc: 'Sleeps',
+	
+	func: function(args) {
+		if (args[0])
+			msg.sendMessage('<@' + msg.author.id + '> *sleeps on ' + args[0] + ' *');
+		else
+			msg.sendMessage('<@' + msg.author.id + '> *sleeps on a bed*');
+	},
+});
+
+DBot.RegisterCommand({
+	name: 'lay',
+	alias: ['lays'],
+	
+	help_args: '',
+	desc: 'Lays',
+	
+	func: function(args) {
+		if (args[0])
+			msg.sendMessage('<@' + msg.author.id + '> *lays on ' + args[0] + ' *');
+		else
+			msg.sendMessage('<@' + msg.author.id + '> *lays*');
+	},
 });
 
 DBot.RegisterCommand({
@@ -83,7 +190,7 @@ DBot.RegisterCommand({
 
 DBot.RegisterCommand({
 	name: 'cock',
-	alias: ['fuck', 'dick'],
+	alias: ['dick', 'cunt'],
 	
 	help_args: '',
 	desc: 'rood',
@@ -91,9 +198,22 @@ DBot.RegisterCommand({
 	help_hide: true,
 	
 	func: function(args) {
-		if (args[0] == 'you')
-			return 'fuck you too~';
-		
 		msg.sendMessage('Rood');
+	}
+});
+
+DBot.RegisterCommand({
+	name: 'fuck',
+	
+	help_args: '',
+	desc: 'rood',
+	allowUserArgument: true,
+	help_hide: true,
+	
+	func: function(args) {
+		if (!args[0])
+			msg.sendMessage('No buttfucking');
+		else
+			msg.sendMessage('Fuck you <@' + msg.author.id + '>');
 	}
 });
