@@ -140,14 +140,18 @@ DBot.RegisterCommand({
 			if (!member)
 				return DBot.CommandError('Must be valid user', 'namelog', args, 1);
 			
+			msg.channel.startTyping();
+			
 			Postgres.query('SELECT "NAME", "LASTUSE", "TIME" FROM name_logs WHERE "MEMBER" = ' + sql.Member(member) + ' ORDER BY "LASTUSE" DESC LIMIT 10', function(err, data) {
 				if (err) {
+					msg.channel.stopTyping();
 					msg.reply('WTF');
 					console.error(err);
 					return;
 				}
 				
 				if (!data || !data[0]) {
+					msg.channel.stopTyping();
 					msg.reply('No data was returned');
 					return;
 				}
@@ -164,6 +168,7 @@ DBot.RegisterCommand({
 				
 				output += '\nLast use and Total time updates about every 20 seconds\n```';
 				
+				msg.channel.stopTyping();
 				msg.reply(output);
 			});
 		} else {
@@ -181,13 +186,17 @@ DBot.RegisterCommand({
 				ORDER BY name_logs_list."STAMP" DESC
 				LIMIT 10`;
 			
+			msg.channel.startTyping();
+			
 			Postgres.query(fuckingQuery, function(err, data) {
 				if (err) {
+					msg.channel.stopTyping();
 					msg.reply('WTF');
 					return;
 				}
 				
 				if (!data[0]) {
+					msg.channel.stopTyping();
 					msg.reply('No data was returned in query');
 					return;
 				}
@@ -198,6 +207,7 @@ DBot.RegisterCommand({
 					output += row.OLD + '  --->   ' + row.NEW + '   (' + moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ', ' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)\n'
 				}
 				
+				msg.channel.stopTyping();
 				msg.reply(output + '\n```');
 			});
 		}
@@ -221,14 +231,18 @@ DBot.RegisterCommand({
 			if (!member)
 				return DBot.CommandError('Must be valid user', 'namelog', args, 1);
 			
+			msg.channel.startTyping();
+			
 			Postgres.query('SELECT "NAME", "LASTUSE", "TIME" FROM name_logs WHERE "MEMBER" = ' + sql.Member(member) + ' ORDER BY "LASTUSE"', function(err, data) {
 				if (err) {
+					msg.channel.stopTyping();
 					msg.reply('WTF');
 					console.error(err);
 					return;
 				}
 				
 				if (!data || !data[0]) {
+					msg.channel.stopTyping();
 					msg.reply('No data was returned');
 					return;
 				}
@@ -251,6 +265,7 @@ DBot.RegisterCommand({
 				
 				stream.on('finish', function() {
 					msg.reply(DBot.URLRoot + pth);
+					msg.channel.stopTyping();
 				});
 			});
 		} else {
@@ -268,13 +283,17 @@ DBot.RegisterCommand({
 				ORDER BY name_logs_list."STAMP" DESC
 				LIMIT 200`;
 			
+			msg.channel.startTyping();
+			
 			Postgres.query(fuckingQuery, function(err, data) {
 				if (err) {
+					msg.channel.stopTyping();
 					msg.reply('WTF');
 					return;
 				}
 				
 				if (!data[0]) {
+					msg.channel.stopTyping();
 					msg.reply('No data was returned in query');
 					return;
 				}
@@ -290,6 +309,7 @@ DBot.RegisterCommand({
 				stream.end();
 				
 				stream.on('finish', function() {
+					msg.channel.stopTyping();
 					msg.reply(DBot.URLRoot + pth);
 				});
 			});
@@ -310,14 +330,18 @@ DBot.RegisterCommand({
 		if (typeof args[0] != 'object')
 			return 'Must be an user ;n;';
 		
+		msg.channel.startTyping();
+		
 		MySQL.query('SELECT "NAME", "LASTUSE", "TIME" FROM uname_logs WHERE "USER" = ' + sql.User(args[0]) + ' ORDER BY "LASTUSE" DESC', function(err, data) {
 			if (err) {
+				msg.channel.stopTyping();
 				msg.reply('WTF');
 				console.error(err);
 				return;
 			}
 			
 			if (!data || !data[0]) {
+				msg.channel.stopTyping();
 				msg.reply('No data was returned');
 				return;
 			}
@@ -334,6 +358,7 @@ DBot.RegisterCommand({
 			
 			output += '\nLast use and Total time updates about every 20 seconds\n```';
 			
+			msg.channel.stopTyping();
 			msg.reply(output);
 		});
 	}
