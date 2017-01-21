@@ -150,6 +150,8 @@ DBot.RegisterCommand({
 		let roleSpace = isFull && 20 || 10;
 		let permSpace = isFull && 40 || 20;
 		
+		msg.channel.startTyping();
+		
 		if (mode == 'users') {
 			let funckingQuery = 'SELECT\
 				roles_log."ID" AS "ENTRY",\
@@ -180,13 +182,15 @@ DBot.RegisterCommand({
 			
 			MySQL.query(funckingQuery, function(err, data) {
 				if (err) {
+					msg.channel.stopTyping();
 					msg.reply('WTF');
 					console.error(err);
 					return;
 				}
 				
 				if (!data || !data[0]) {
-					msg.reply('No data is returned in query');
+					msg.channel.stopTyping();
+					msg.reply('No data was returned in query');
 					return;
 				}
 				
@@ -203,23 +207,29 @@ DBot.RegisterCommand({
 				
 				output += '\n```';
 				
-				if (!isFull)
+				if (!isFull) {
 					msg.reply(output);
-				else {
+					msg.channel.stopTyping();
+				} else {
 					let stream = fs.createWriteStream(path);
 					stream.write(output);
 					stream.end()
 					msg.reply(pathU);
+					msg.channel.stopTyping();
 				}
 			});
 		} else if (mode == 'user') {
-			if (typeof args[1] != 'object')
+			if (typeof args[1] != 'object') {
+				msg.channel.stopTyping();
 				return DBot.CommandError('Must be user', 'rolelog', args, 2);
+			}
 			
 			let getUser = msg.channel.guild.member(args[1]);
 			
-			if (!getUser)
+			if (!getUser) {
+				msg.channel.stopTyping();
 				return DBot.CommandError('Must be member of this server', 'rolelog', args, 2);
+			}
 			
 			let funckingQuery = 'SELECT\
 				roles_log."ID" AS "ENTRY",\
@@ -250,13 +260,15 @@ DBot.RegisterCommand({
 			
 			MySQL.query(funckingQuery, function(err, data) {
 				if (err) {
+					msg.channel.stopTyping();
 					msg.reply('WTF');
 					console.error(err);
 					return;
 				}
 				
 				if (!data || !data[0]) {
-					msg.reply('No data is returned in query');
+					msg.channel.stopTyping();
+					msg.reply('No data was returned in query');
 					return;
 				}
 				
@@ -273,13 +285,15 @@ DBot.RegisterCommand({
 				
 				output += '\n```';
 				
-				if (!isFull)
+				if (!isFull) {
+					msg.channel.stopTyping();
 					msg.reply(output);
-				else {
+				} else {
 					let stream = fs.createWriteStream(path);
 					stream.write(output);
 					stream.end()
 					msg.reply(pathU);
+					msg.channel.stopTyping();
 				}
 			});
 		} else if (mode == 'permissions' || mode == 'perms') {
@@ -309,13 +323,15 @@ DBot.RegisterCommand({
 			
 			MySQL.query(funckingQuery, function(err, data) {
 				if (err) {
+					msg.channel.stopTyping();
 					msg.reply('WTF');
 					console.error(err);
 					return;
 				}
 				
 				if (!data || !data[0]) {
-					msg.reply('No data is returned in query');
+					msg.channel.stopTyping();
+					msg.reply('No data was returned in query');
 					return;
 				}
 				
@@ -332,13 +348,15 @@ DBot.RegisterCommand({
 				
 				output += '\n```';
 				
-				if (!isFull)
+				if (!isFull) {
+					msg.channel.stopTyping();
 					msg.reply(output);
-				else {
+				} else {
 					let stream = fs.createWriteStream(path);
 					stream.write(output);
 					stream.end()
 					msg.reply(pathU);
+					msg.channel.stopTyping();
 				}
 			});
 		} else if (mode == 'hoist') {
@@ -368,13 +386,15 @@ DBot.RegisterCommand({
 			
 			MySQL.query(funckingQuery, function(err, data) {
 				if (err) {
+					msg.channel.stopTyping();
 					msg.reply('WTF');
 					console.error(err);
 					return;
 				}
 				
 				if (!data || !data[0]) {
-					msg.reply('No data is returned in query');
+					msg.channel.stopTyping();
+					msg.reply('No data was returned in query');
 					return;
 				}
 				
@@ -392,13 +412,15 @@ DBot.RegisterCommand({
 				
 				output += '\n```';
 				
-				if (!isFull)
+				if (!isFull) {
 					msg.reply(output);
-				else {
+					msg.channel.stopTyping();
+				} else {
 					let stream = fs.createWriteStream(path);
 					stream.write(output);
 					stream.end()
 					msg.reply(pathU);
+					msg.channel.stopTyping();
 				}
 			});
 		} else if (mode == 'position') {
@@ -428,13 +450,15 @@ DBot.RegisterCommand({
 			
 			MySQL.query(funckingQuery, function(err, data) {
 				if (err) {
+					msg.channel.stopTyping();
 					msg.reply('WTF');
 					console.error(err);
 					return;
 				}
 				
 				if (!data || !data[0]) {
-					msg.reply('No data is returned in query');
+					msg.channel.stopTyping();
+					msg.reply('No data was returned in query');
 					return;
 				}
 				
@@ -452,13 +476,15 @@ DBot.RegisterCommand({
 				
 				output += '\n```';
 				
-				if (!isFull)
+				if (!isFull) {
+					msg.channel.stopTyping();
 					msg.reply(output);
-				else {
+				} else {
 					let stream = fs.createWriteStream(path);
 					stream.write(output);
 					stream.end()
 					msg.reply(pathU);
+					msg.channel.stopTyping();
 				}
 			});
 		} else if (mode == 'mention') {
@@ -488,13 +514,15 @@ DBot.RegisterCommand({
 			
 			MySQL.query(funckingQuery, function(err, data) {
 				if (err) {
+					msg.channel.stopTyping();
 					msg.reply('WTF');
 					console.error(err);
 					return;
 				}
 				
 				if (!data || !data[0]) {
-					msg.reply('No data is returned in query');
+					msg.channel.stopTyping();
+					msg.reply('No data was returned in query');
 					return;
 				}
 				
@@ -512,13 +540,15 @@ DBot.RegisterCommand({
 				
 				output += '\n```';
 				
-				if (!isFull)
+				if (!isFull) {
+					msg.channel.stopTyping();
 					msg.reply(output);
-				else {
+				} else {
 					let stream = fs.createWriteStream(path);
 					stream.write(output);
 					stream.end()
 					msg.reply(pathU);
+					msg.channel.stopTyping();
 				}
 			});
 		} else if (mode == 'color') {
@@ -548,13 +578,15 @@ DBot.RegisterCommand({
 			
 			MySQL.query(funckingQuery, function(err, data) {
 				if (err) {
+					msg.channel.stopTyping();
 					msg.reply('WTF');
 					console.error(err);
 					return;
 				}
 				
 				if (!data || !data[0]) {
-					msg.reply('No data is returned in query');
+					msg.channel.stopTyping();
+					msg.reply('No data was returned in query');
 					return;
 				}
 				
@@ -572,13 +604,15 @@ DBot.RegisterCommand({
 				
 				output += '\n```';
 				
-				if (!isFull)
+				if (!isFull) {
+					msg.channel.stopTyping();
 					msg.reply(output);
-				else {
+				} else {
 					let stream = fs.createWriteStream(path);
 					stream.write(output);
 					stream.end()
 					msg.reply(pathU);
+					msg.channel.stopTyping();
 				}
 			});
 		} else {
