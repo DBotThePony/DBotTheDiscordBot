@@ -85,7 +85,7 @@ DBot.RegisterCommand({
 		
 		let me = msg.channel.guild.member(DBot.bot.user);
 		
-		if (!msg.member.hasPermission('MANAGE_ROLES_OR_PERMISSIONS'))
+		if (!msg.member.hasPermission('MANAGE_ROLES_OR_PERMISSIONS') && msg.member.user.id != DBot.DBot)
 			return 'You must have `MANAGE_ROLES_OR_PERMISSIONS` permission!';
 		
 		if (!me.hasPermission('MANAGE_ROLES_OR_PERMISSIONS'))
@@ -146,7 +146,7 @@ DBot.RegisterCommand({
 		
 		let me = msg.channel.guild.member(DBot.bot.user);
 		
-		if (!msg.member.hasPermission('MANAGE_ROLES_OR_PERMISSIONS'))
+		if (!msg.member.hasPermission('MANAGE_ROLES_OR_PERMISSIONS') && msg.member.user.id != DBot.DBot)
 			return 'You must have `MANAGE_ROLES_OR_PERMISSIONS` permission!';
 		
 		if (!me.hasPermission('MANAGE_ROLES_OR_PERMISSIONS'))
@@ -217,7 +217,7 @@ DBot.RegisterCommand({
 		
 		let me = msg.channel.guild.member(DBot.bot.user);
 		
-		if (!msg.member.hasPermission('MANAGE_ROLES_OR_PERMISSIONS'))
+		if (!msg.member.hasPermission('MANAGE_ROLES_OR_PERMISSIONS') && msg.member.user.id != DBot.DBot)
 			return 'You must have `MANAGE_ROLES_OR_PERMISSIONS` permission!';
 		
 		if (!me.hasPermission('MANAGE_ROLES_OR_PERMISSIONS'))
