@@ -94,7 +94,7 @@ DBot.RegisterCommand({
 	help_args: '',
 	desc: 'Sits',
 	
-	func: function(args) {
+	func: function(args, cmd, msg) {
 		if (args[0])
 			msg.sendMessage('<@' + msg.author.id + '> *sits on ' + args[0] + ' *');
 		else
@@ -108,7 +108,7 @@ DBot.RegisterCommand({
 	help_args: '',
 	desc: 'Jumps',
 	
-	func: function(args) {
+	func: function(args, cmd, msg) {
 		if (args[0])
 			msg.sendMessage('<@' + msg.author.id + '> *jumps on ' + args[0] + ' *');
 		else
@@ -122,7 +122,7 @@ DBot.RegisterCommand({
 	help_args: '',
 	desc: 'Sleeps',
 	
-	func: function(args) {
+	func: function(args, cmd, msg) {
 		if (args[0])
 			msg.sendMessage('<@' + msg.author.id + '> *sleeps on ' + args[0] + ' *');
 		else
@@ -137,7 +137,7 @@ DBot.RegisterCommand({
 	help_args: '',
 	desc: 'Lays',
 	
-	func: function(args) {
+	func: function(args, cmd, msg) {
 		if (args[0])
 			msg.sendMessage('<@' + msg.author.id + '> *lays on ' + args[0] + ' *');
 		else
@@ -164,7 +164,7 @@ DBot.RegisterCommand({
 	allowUserArgument: true,
 	help_hide: true,
 	
-	func: function(args) {
+	func: function(args, cmd, msg) {
 		return 'You aren\'t better';
 	},
 });
@@ -178,7 +178,7 @@ DBot.RegisterCommand({
 	allowUserArgument: true,
 	help_hide: true,
 	
-	func: function(args) {
+	func: function(args, cmd, msg) {
 		if (!args[0])
 			return 'What';
 		else if (args[0] == 'bot')
@@ -197,7 +197,7 @@ DBot.RegisterCommand({
 	allowUserArgument: true,
 	help_hide: true,
 	
-	func: function(args) {
+	func: function(args, cmd, msg) {
 		msg.sendMessage('Rood');
 	}
 });
@@ -210,7 +210,7 @@ DBot.RegisterCommand({
 	allowUserArgument: true,
 	help_hide: true,
 	
-	func: function(args) {
+	func: function(args, cmd, msg) {
 		if (!args[0])
 			msg.sendMessage('No buttfucking');
 		else
