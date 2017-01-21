@@ -450,6 +450,59 @@ let updateRole = function(role) {
 	Postgres.query(finalQuery)
 }
 
+let updateRoles = function(roles) {
+	let namesQuery;
+	let optionsQuery;
+	let permsQuery;
+	
+	let rolesDup = {};
+	
+	for (let role of roles) {
+		if (rolesDup[role.uid])
+			return;
+		
+		rolesDup[role.uid] = true;
+		
+		let perms = role.serialize();
+		let arr = [];
+		
+		for (let name in perms) {
+			if (perms[name])
+				arr.push(name);
+		}
+		
+		let arr2 = sql.Array(arr) + '::discord_permission[]';
+		
+		let col = Util.parseHexColor(role.hexColor);
+		let colStr = '(' + col[0] + ',' + col[1] + ',' + col[2] + ')';
+		
+		if (namesQuery)
+			namesQuery += ',';
+		else
+			namesQuery = '';
+		
+		if (optionsQuery)
+			optionsQuery += ',';
+		else
+			optionsQuery = '';
+		
+		if (permsQuery)
+			permsQuery += ',';
+		else
+			permsQuery = '';
+		
+		namesQuery += '(' + Util.escape(role.uid) + ', ' + Util.escape(role.name) + ')';
+		optionsQuery += '(' + sql.UConcat(Util.escape(role.uid), colStr, Util.escape(role.hoist), Util.escape(role.position), Util.escape(role.mentionable)) + ')';
+		permsQuery += '(' + role.uid + ', ' + arr2 + ')';
+	}
+	
+	let finalQuery = 'INSERT INTO roles_names ("ROLEID", "NAME") VALUES ' + namesQuery + ' ON CONFLICT ("ROLEID") DO UPDATE SET "NAME" = excluded."NAME";'
+		+ 'INSERT INTO roles_perms VALUES ' + permsQuery + ' ON CONFLICT ("ID") DO UPDATE SET "PERMS" = excluded."PERMS";'
+		+ 'INSERT INTO roles_options VALUES ' + optionsQuery + ' ON CONFLICT ("ID") DO UPDATE SET "COLOR_R" = excluded."COLOR_R", "HOIST" = excluded."HOIST", "POSITION" = excluded."POSITION", "MENTION" = excluded."MENTION";';
+	
+	Postgres.query(finalQuery);
+}
+
 DBot.DefineRole = function(role, callback) {
 	MySQL.query('SELECT ' + sql.Role(role) + ' AS "ID"', function(err, data) {
 		if (err) throw err;
@@ -678,10 +731,10 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				roleHashMap[id] = role;
 				role_array_uids.push(id);
 				
-				updateRole(role);
 				hook.Run('RoleInitialized', role, role.uid);
 			}
 			
+			updateRoles(role_array);
 			hook.Run('RolesInitialized', role_map, role_array, role_array_ids, roleHashMap, role_array_uids);
 		});
 		
