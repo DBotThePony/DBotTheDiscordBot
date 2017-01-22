@@ -130,8 +130,9 @@ bot.on('message', function(msg) {
 	}
 });
 
-var IS_INITIALIZED = false;
-var LEVEL_OF_CONNECTION = 0;
+let IS_INITIALIZED = false;
+let LEVEL_OF_CONNECTION = 0;
+let ALREADY_CONNECTING = false;
 
 DBot.IsOnline = function() {
 	return LEVEL_OF_CONNECTION > 0;
@@ -139,7 +140,7 @@ DBot.IsOnline = function() {
 
 IsOnline = DBot.IsOnline;
 
-var loginFunc = function() {
+let loginFunc = function() {
 	if (LEVEL_OF_CONNECTION > 0)
 		return;
 	
@@ -149,10 +150,18 @@ var loginFunc = function() {
 	if (!IS_INITIALIZED)
 		return;
 	
+	if (ALREADY_CONNECTING)
+		return;
+	
+	ALREADY_CONNECTING = true;
+	
 	bot.login(token)
-	.then(function() {})
+	.then(function() {
+		ALREADY_CONNECTING = false;
+	})
 	.catch(function() {
 		console.log('Reconnect failed. Retrying in 10 seconds');
+		ALREADY_CONNECTING = false;
 	});
 }
 
@@ -173,8 +182,14 @@ bot.on('disconnect', function() {
 	hook.Run('OnDisconnected');
 });
 
-bot.login(token).then(function() {
+ALREADY_CONNECTING = true;
+
+bot.login(token)
+.then(function() {
 	IS_INITIALIZED = true;
+	ALREADY_CONNECTING = false;
+}).catch(function() {
+	ALREADY_CONNECTING = false;
 });
 
 bot.on('ready', function() {
@@ -184,6 +199,12 @@ bot.on('ready', function() {
 	DBot.InitVars();
 	
 	setTimeout(function() {
+		if (ALREADY_CONNECTING)
+			return;
+		
+		if (LEVEL_OF_CONNECTION == 0)
+			return;
+		
 		console.log('Initializing stuff');
 		hook.Run('BotOnline', DBot.bot);
 	}, 4000); // Wait before all loads
