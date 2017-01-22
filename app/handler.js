@@ -512,7 +512,7 @@ hook.Add('OnMessageEdit', 'Handler', function(omsg, nmsg) {
 	
 	let pm = DBot.IsPM(nmsg);
 	
-	if (!pm && (!nmsg.member || nmsg.member.uid)) {
+	if (!pm && (!nmsg.member || !nmsg.member.uid)) {
 		if (nmsg.member)
 			DBot.DefineMember(nmsg.member);
 		
