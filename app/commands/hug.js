@@ -5,7 +5,7 @@ let defAction = function(name, text) {
 		let target;
 		
 		if (!args[0]) {
-			actor = DBot.bot.client;
+			actor = DBot.bot.user;
 			target = msg.author;
 		} else if (typeof args[0] == 'object') {
 			actor = msg.author;
