@@ -258,8 +258,12 @@ hook.Add('UserInitialized', 'UserTags', function(obj) {
 });
 
 hook.Add('UsersInitialized', 'UserTags', function() {
-	Postgre.query('SELECT init_tags();', function(err, data) {
-		if (err) throw err;
+	let callbackFunc = function(err, data) {
+		if (err) {
+			console.error(err);
+			Postgre.query('SELECT init_tags();', callbackFunc);
+			return;
+		};
 		
 		init = true;
 		
@@ -294,7 +298,9 @@ hook.Add('UsersInitialized', 'UserTags', function() {
 				}
 			}
 		});
-	});
+	}
+	
+	Postgre.query('SELECT init_tags();', callbackFunc);
 });
 
 hook.Add('ServerInitialized', 'ServerTags', function(obj) {
