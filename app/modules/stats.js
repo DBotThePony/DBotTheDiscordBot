@@ -867,8 +867,6 @@ let gtop10fn = function(name, order) {
 		
 		msg.channel.startTyping();
 		
-		let ID = DBot.GetServerID(msg.channel.guild);
-		
 		let query = `
 			SELECT
 				user_id."UID" as "USERID",
