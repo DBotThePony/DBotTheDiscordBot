@@ -35,7 +35,7 @@ hook.Add('OnValidMessage', 'Statistics', function(msg) {
 		return; // Loal
 	
 	let extra = msg.channel.guild != undefined && msg.channel.type != 'dm';
-	let Words = msg.content.split(/( |\n)+/gi);
+	let Words = msg.content.split(/( |\n)+/);
 	let rWords = [];
 	let length = msg.content.length;
 	
