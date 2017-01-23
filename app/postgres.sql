@@ -576,10 +576,29 @@ CREATE TABLE IF NOT EXISTS stats__uphrases_server_e (
 	PRIMARY KEY ("UID", "USERVER")
 );
 
+/*
+-- Upgrading word stats from old tables to new
+
+DROP TABLE IF EXISTS stats__words;
+
+CREATE TABLE IF NOT EXISTS stats__words (
+	"ID" SERIAL PRIMARY KEY,
+	"WORD" VARCHAR(64) NOT NULL,
+	"COUNT" INTEGER NOT NULL
+);
+
+INSERT INTO stats__words ("WORD", "COUNT") SELECT "WORD", SUM("COUNT") FROM stats__words_client GROUP BY "WORD";
+
+ALTER TABLE stats__words_client RENAME TO stats__words_client_old;
+ALTER TABLE stats__words_server RENAME TO stats__words_server_old;
+ALTER TABLE stats__words_channel RENAME TO stats__words_channel_old;
+ALTER TABLE stats__uwords_channel RENAME TO stats__uwords_channel_old;
+ALTER TABLE stats__uwords_server RENAME TO stats__uwords_server_old;
+
 CREATE TABLE IF NOT EXISTS stats__uwords_channel (
 	"UID" INTEGER NOT NULL,
 	"CHANNEL" INTEGER NOT NULL,
-	"WORD" VARCHAR(64) NOT NULL,
+	"WORD" INTEGER NOT NULL,
 	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "WORD", "CHANNEL")
 );
@@ -587,30 +606,81 @@ CREATE TABLE IF NOT EXISTS stats__uwords_channel (
 CREATE TABLE IF NOT EXISTS stats__uwords_server (
 	"UID" INTEGER NOT NULL,
 	"USERVER" INTEGER NOT NULL,
-	"WORD" VARCHAR(64) NOT NULL,
+	"WORD" INTEGER NOT NULL,
 	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "WORD", "USERVER")
 );
 
 CREATE TABLE IF NOT EXISTS stats__words_channel (
 	"UID" INTEGER NOT NULL,
-	"WORD" VARCHAR(64) NOT NULL,
+	"WORD" INTEGER NOT NULL,
 	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "WORD")
 );
 
 CREATE TABLE IF NOT EXISTS stats__words_client (
 	"UID" INTEGER NOT NULL,
-	"WORD" VARCHAR(64) NOT NULL,
+	"WORD" INTEGER NOT NULL,
 	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "WORD")
 );
 
 CREATE TABLE IF NOT EXISTS stats__words_server (
 	"UID" INTEGER NOT NULL,
-	"WORD" VARCHAR(64) NOT NULL,
+	"WORD" INTEGER NOT NULL,
 	"COUNT" INTEGER NOT NULL,
 	PRIMARY KEY ("UID", "WORD")
+);
+
+INSERT INTO stats__words_client SELECT stats__words_client_old."UID", stats__words."ID", stats__words_client_old."COUNT" FROM stats__words_client_old, stats__words WHERE stats__words."WORD" = stats__words_client_old."WORD" ON CONFLICT ("UID", "WORD") DO NOTHING;
+INSERT INTO stats__words_server SELECT stats__words_server_old."UID", stats__words."ID", stats__words_server_old."COUNT" FROM stats__words_server_old, stats__words WHERE stats__words."WORD" = stats__words_server_old."WORD" ON CONFLICT ("UID", "WORD") DO NOTHING;
+INSERT INTO stats__words_channel SELECT stats__words_channel_old."UID", stats__words."ID", stats__words_channel_old."COUNT" FROM stats__words_channel_old, stats__words WHERE stats__words."WORD" = stats__words_channel_old."WORD" ON CONFLICT ("UID", "WORD") DO NOTHING;
+
+INSERT INTO stats__uwords_channel SELECT stats__uwords_channel_old."UID", stats__uwords_channel_old."CHANNEL", stats__words."ID", stats__uwords_channel_old."COUNT" FROM stats__uwords_channel_old, stats__words WHERE stats__words."WORD" = stats__uwords_channel_old."WORD" ON CONFLICT ("UID", "WORD", "CHANNEL") DO NOTHING;
+INSERT INTO stats__uwords_server SELECT stats__uwords_server_old."UID", stats__uwords_server_old."USERVER", stats__words."ID", stats__uwords_server_old."COUNT" FROM stats__uwords_server_old, stats__words WHERE stats__words."WORD" = stats__uwords_server_old."WORD" ON CONFLICT ("UID", "WORD", "USERVER") DO NOTHING;
+*/
+
+CREATE TABLE IF NOT EXISTS stats__uwords_channel (
+	"UID" INTEGER NOT NULL,
+	"CHANNEL" INTEGER NOT NULL,
+	"WORD" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
+	PRIMARY KEY ("UID", "WORD", "CHANNEL")
+);
+
+CREATE TABLE IF NOT EXISTS stats__uwords_server (
+	"UID" INTEGER NOT NULL,
+	"USERVER" INTEGER NOT NULL,
+	"WORD" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
+	PRIMARY KEY ("UID", "WORD", "USERVER")
+);
+
+CREATE TABLE IF NOT EXISTS stats__words_channel (
+	"UID" INTEGER NOT NULL,
+	"WORD" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
+	PRIMARY KEY ("UID", "WORD")
+);
+
+CREATE TABLE IF NOT EXISTS stats__words_client (
+	"UID" INTEGER NOT NULL,
+	"WORD" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
+	PRIMARY KEY ("UID", "WORD")
+);
+
+CREATE TABLE IF NOT EXISTS stats__words_server (
+	"UID" INTEGER NOT NULL,
+	"WORD" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL,
+	PRIMARY KEY ("UID", "WORD")
+);
+
+CREATE TABLE IF NOT EXISTS stats__words (
+	"ID" SERIAL PRIMARY KEY,
+	"WORD" VARCHAR(64) NOT NULL,
+	"COUNT" INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS steam_emoji_fail (
@@ -1081,9 +1151,37 @@ BEGIN
 	INSERT INTO stats__phrases_client ("UID", "COUNT") VALUES (user_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_client."COUNT" + 1;
 	INSERT INTO stats__chars_client ("UID", "COUNT") VALUES (user_id, message_length) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_client."COUNT" + message_length;
 	
-	FOREACH word IN ARRAY words LOOP
-		INSERT INTO stats__words_client ("UID", "WORD", "COUNT") VALUES (user_id, word, 1) ON CONFLICT ("UID", "WORD") DO UPDATE SET "COUNT" = stats__words_client."COUNT" + 1;
-	END LOOP;
+	WITH valid_words AS (
+		SELECT
+			UNNEST(words) AS "WORD",
+			SUM(1) AS "WORD_COUNT"
+		GROUP BY
+			"WORD"
+	),
+	
+	words_ids AS (
+		INSERT INTO
+			stats__words ("WORD", "COUNT")
+			(SELECT * FROM valid_words)
+		ON CONFLICT ("WORD") DO
+			UPDATE SET "COUNT" = stats__words."COUNT" + excluded."COUNT"
+		RETURNING "ID", "WORD"
+	),
+	
+	words_to_insert AS (
+		SELECT
+			words_ids."ID", valid_words."WORD_COUNT"
+		FROM
+			valid_words, words_ids
+		WHERE
+			words_ids."WORD" = valid_words."WORD"
+	)
+	
+	INSERT INTO
+		stats__words_client ("UID", "WORD", "COUNT")
+		(SELECT user_id, words_to_insert."ID", words_to_insert."WORD_COUNT" AS "COUNT" FROM words_to_insert)
+	ON CONFLICT ("UID", "WORD") DO
+		UPDATE SET "COUNT" = stats__words_client."COUNT" + excluded."COUNT";
 	
 	IF (images_seneded > 0) THEN
 		INSERT INTO stats__images_client ("UID", "COUNT") VALUES (user_id, images_seneded) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__images_client."COUNT" + images_seneded;
@@ -1121,7 +1219,12 @@ RETURNS void AS $$
 DECLARE user_id INTEGER;
 DECLARE server_id INTEGER;
 DECLARE channel_id INTEGER;
+
+DECLARE words_parse_words VARCHAR(64)[];
+DECLARE words_parse_counts INTEGER[];
+DECLARE word_i INTEGER;
 DECLARE word VARCHAR(64);
+DECLARE word_check VARCHAR(64);
 BEGIN
 	user_id := get_user_id(user_id_raw);
 	server_id := get_server_id(server_id_raw);
@@ -1140,14 +1243,69 @@ BEGIN
 	INSERT INTO stats__chars_server ("UID", "COUNT") VALUES (server_id, message_length) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_server."COUNT" + message_length;
 	INSERT INTO stats__uchars_server ("UID", "USERVER", "COUNT") VALUES (user_id, server_id, message_length) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uchars_server."COUNT" + message_length;
 	
-	FOREACH word IN ARRAY words LOOP
-		INSERT INTO stats__words_client ("UID", "WORD", "COUNT") VALUES (user_id, word, 1) ON CONFLICT ("UID", "WORD") DO UPDATE SET "COUNT" = stats__words_client."COUNT" + 1;
-		
-		INSERT INTO stats__words_channel ("UID", "WORD", "COUNT") VALUES (channel_id, word, 1) ON CONFLICT ("UID", "WORD") DO UPDATE SET "COUNT" = stats__words_channel."COUNT" + 1;
-		INSERT INTO stats__uwords_channel ("UID", "CHANNEL", "WORD", "COUNT") VALUES (user_id, channel_id, word, 1) ON CONFLICT ("UID", "CHANNEL", "WORD") DO UPDATE SET "COUNT" = stats__uwords_channel."COUNT" + 1;
-		INSERT INTO stats__words_server ("UID", "WORD", "COUNT") VALUES (server_id, word, 1) ON CONFLICT ("UID", "WORD") DO UPDATE SET "COUNT" = stats__words_server."COUNT" + 1;
-		INSERT INTO stats__uwords_server ("UID", "USERVER", "WORD", "COUNT") VALUES (user_id, server_id, word, 1) ON CONFLICT ("UID", "USERVER", "WORD") DO UPDATE SET "COUNT" = stats__uwords_server."COUNT" + 1;
-	END LOOP;
+	WITH valid_words AS (
+		SELECT
+			UNNEST(words) AS "WORD",
+			SUM(1) AS "WORD_COUNT"
+		GROUP BY
+			"WORD"
+	),
+	
+	words_ids AS (
+		INSERT INTO
+			stats__words ("WORD", "COUNT")
+			(SELECT * FROM valid_words)
+		ON CONFLICT ("WORD") DO
+			UPDATE SET "COUNT" = stats__words."COUNT" + excluded."COUNT"
+		RETURNING "ID", "WORD"
+	),
+	
+	words_to_insert AS (
+		SELECT
+			words_ids."ID", valid_words."WORD_COUNT"
+		FROM
+			valid_words, words_ids
+		WHERE
+			words_ids."WORD" = valid_words."WORD"
+	),
+	
+	fake_words_channel AS (
+		INSERT INTO
+			stats__words_channel ("UID", "WORD", "COUNT")
+			(SELECT channel_id, words_to_insert."ID", words_to_insert."WORD_COUNT" AS "COUNT" FROM words_to_insert)
+		ON CONFLICT ("UID", "WORD") DO
+			UPDATE SET "COUNT" = stats__words_channel."COUNT" + excluded."COUNT"
+	),
+	
+	fake_words_server AS (
+		INSERT INTO
+			stats__words_server ("UID", "WORD", "COUNT")
+			(SELECT server_id, words_to_insert."ID", words_to_insert."WORD_COUNT" AS "COUNT" FROM words_to_insert)
+		ON CONFLICT ("UID", "WORD") DO
+			UPDATE SET "COUNT" = stats__words_server."COUNT" + excluded."COUNT"
+	),
+	
+	fake_uwords_channel AS (
+		INSERT INTO
+			stats__uwords_channel ("UID", "CHANNEL", "WORD", "COUNT")
+			(SELECT user_id, channel_id, words_to_insert."ID", words_to_insert."WORD_COUNT" AS "COUNT" FROM words_to_insert)
+		ON CONFLICT ("UID", "CHANNEL", "WORD") DO
+			UPDATE SET "COUNT" = stats__uwords_channel."COUNT" + excluded."COUNT"
+	),
+	
+	fake_uwords_server AS (
+		INSERT INTO
+			stats__uwords_server ("UID", "USERVER", "WORD", "COUNT")
+			(SELECT user_id, server_id, words_to_insert."ID", words_to_insert."WORD_COUNT" AS "COUNT" FROM words_to_insert)
+		ON CONFLICT ("UID", "USERVER", "WORD") DO
+			UPDATE SET "COUNT" = stats__uwords_server."COUNT" + excluded."COUNT"
+	)
+	
+	INSERT INTO
+		stats__words_client ("UID", "WORD", "COUNT")
+		(SELECT user_id, words_to_insert."ID", words_to_insert."WORD_COUNT" AS "COUNT" FROM words_to_insert)
+	ON CONFLICT ("UID", "WORD") DO
+		UPDATE SET "COUNT" = stats__words_client."COUNT" + excluded."COUNT";
 	
 	IF (images_seneded > 0) THEN
 		INSERT INTO stats__images_client ("UID", "COUNT") VALUES (user_id, images_seneded) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__images_client."COUNT" + images_seneded;
