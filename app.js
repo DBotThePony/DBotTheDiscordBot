@@ -73,6 +73,9 @@ bot.on('message', function(msg) {
 	msg.___reply = msg.___reply || msg.reply; // There is also oldReply, but oldReply is used when command was actually executed.
 	msg.reply = msg.promiseReply;
 	
+	if (!DBot.SQLReady)
+		return;
+	
 	try {
 		msg.internalCreateTime = CurTime();
 		hook.Run('OnMessage', msg);
@@ -165,6 +168,8 @@ let loginFunc = function() {
 	});
 }
 
+let TimeoutID = null;
+
 bot.on('disconnect', function() {
 	LEVEL_OF_CONNECTION--;
 	
@@ -176,6 +181,13 @@ bot.on('disconnect', function() {
 	
 	if (!IS_INITIALIZED)
 		return;
+	
+	DBot.SQL_START = false;
+	
+	if (TimeoutID)
+		clearTimeout(TimeoutID);
+	
+	TimeoutID = null;
 	
 	console.log('Disconnected from servers!');
 	
@@ -198,7 +210,12 @@ bot.on('ready', function() {
 	console.log('Connection established');
 	DBot.InitVars();
 	
-	setTimeout(function() {
+	DBot.SQL_START = false;
+	
+	if (TimeoutID)
+		clearTimeout(TimeoutID);
+	
+	TimeoutID = setTimeout(function() {
 		if (ALREADY_CONNECTING)
 			return;
 		

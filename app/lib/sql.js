@@ -279,6 +279,7 @@ DBot.ServerIsInitialized = function(obj) {
 }
 
 hook.Add('CheckValidMessage', 'MySQL.Checker', function(msg) {
+	if (!DBot.IsReady()) return true;
 	if (!DBot.UserIsInitialized(msg.author)) {
 		DBot.DefineUser(msg.author);
 		return true;
@@ -326,6 +327,7 @@ DBot.GetServer = function(id) {
 let LoadingUser = {};
 
 DBot.DefineUser = function(user) {
+	if (!DBot.IsReady()) return;
 	let id = user.id;
 	
 	if (LoadingUser[id])
@@ -385,6 +387,7 @@ let updateLastSeenFunc = function(callback) {
 setInterval(updateLastSeenFunc, 60000);
 
 DBot.DefineChannel = function(channel) {
+	if (!DBot.IsReady()) return;
 	let id = channel.id;
 	if (DBot.ChannelIDs[id]) {
 		channel.uid = DBot.ChannelIDs[id];
@@ -504,6 +507,7 @@ let updateRoles = function(roles) {
 }
 
 DBot.DefineRole = function(role, callback) {
+	if (!DBot.IsReady()) return;
 	MySQL.query('SELECT ' + sql.Role(role) + ' AS "ID"', function(err, data) {
 		if (err) throw err;
 		role.uid = data[0].ID;
@@ -516,6 +520,7 @@ DBot.DefineRole = function(role, callback) {
 }
 
 hook.Add('RoleChanged', 'MySQL.Handlers', function(oldRole, newRole) {
+	if (!DBot.IsReady()) return;
 	if (!oldRole.guild.uid)
 		return;
 	
@@ -537,6 +542,8 @@ DBot.GetMember = function(ID) {
 }
 
 DBot.DefineMember = function(member) {
+	if (!DBot.IsReady()) return;
+	
 	if (member.uid)
 		return;
 	
@@ -613,10 +620,21 @@ hook.Add('ServerInitialized', 'MySQL.Saves', function(server, id) {
 DBot.DefineServer = DBot.DefineGuild;
 
 let LoadingLevel = 0;
+DBot.SQL_START = false;
+
+DBot.SQLReady = function() {
+	return LoadingLevel <= 0 && DBot.SQL_START;
+}
+
+DBot.IsReady = function() {
+	return DBot.IsOnline() && LoadingLevel <= 0 && DBot.SQL_START;
+}
 
 hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 	if (LoadingLevel > 0)
 		return;
+	
+	DBot.SQL_START = true;
 	
 	let build = [];
 	let users = [];
