@@ -1,5 +1,4 @@
 
-const utf8 = require('utf8');
 const fs = require('fs');
 const pg = require('pg');
 
@@ -33,18 +32,7 @@ pgConnection.oldQuery = pgConnection.query;
 pgConnection.query = function(query, callback) {
 	let oldStack = new Error().stack;
 	
-	let finished = false;
-	
-	setTimeout(function() {
-		if (finished)
-			return;
-		
-		// console.error('SLOW QUERY: ' + query);
-	}, 6000);
-	
 	pgConnection.oldQuery(query, function(err, data) {
-		finished = true;
-		
 		if (err) {
 			if (!callback) {
 				let newErr = new Error(err.message + '\n' + query);
@@ -694,9 +682,6 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			hook.Run('GuildInitialized', srv, id);
 			hook.Run('ServerInitialized', srv, id);
 			
-			// Needs better code
-			// srv.roles.array().forEach(DBot.DefineRole);
-			
 			let roleMap = [[], {}];
 			role_map[id] = roleMap;
 			
@@ -786,12 +771,16 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			
 			let ctime = Math.floor(CurTime());
 			
+			let usersArrayToPass = [];
+			let membersArrayToPass = [];
+			
 			for (let row of data) {
 				let exp = row.get_users_id.split(',');
 				let id = Number(exp[0].substr(1));
 				let uid = exp[1].substr(0, exp[1].length - 1);
 				
 				let user = users1[uid];
+				usersArrayToPass.push(user);
 				user.uid = id;
 				
 				DBot.UsersIDs[uid] = id;
@@ -808,11 +797,11 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			
 			updateLastSeenFunc(function() {
 				LoadingLevel--;
-				hook.Run('UsersInitialized');
+				hook.Run('UsersInitialized', usersArrayToPass);
 				updateInit = true;
 				
 				if (memberInit)
-					hook.Run('MembersInitialized');
+					hook.Run('MembersInitialized', membersArrayToPass);
 			});
 			
 			let members1 = [];
@@ -850,9 +839,10 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 					
 					let member = members_map[userid][serverid];
 					
-					if (!member) {
+					if (!member)
 						continue; // WTF?
-					}
+					
+					membersArrayToPass.push(member);
 					
 					member.uid = id;
 					MembersTable[member.uid] = member;
@@ -876,7 +866,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				memberInit = true;
 				
 				if (updateInit)
-					hook.Run('MembersInitialized');
+					hook.Run('MembersInitialized', membersArrayToPass);
 			});
 		});
 	});

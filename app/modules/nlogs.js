@@ -97,6 +97,9 @@ setInterval(function() {
 }, 10000);
 
 hook.Add('MemberInitialized', 'MemberNameLogs', function(member) {
+	if (!DBot.SQLReady)
+		return;
+	
 	let name = Util.escape(member.nickname || member.user.username);
 	member.oldNickname = member.nickname || member.user.username;
 	MySQL.query('INSERT INTO member_names VALUES (' + Util.escape(member.uid) + ', ' + name + ') ON CONFLICT ("ID") DO UPDATE SET "NAME" = ' + name, function(err) {
@@ -108,7 +111,28 @@ hook.Add('MemberInitialized', 'MemberNameLogs', function(member) {
 	});
 });
 
+hook.Add('MembersInitialized', 'MemberNameLogs', function() {
+	let finalQuery;
+	
+	for (let member of DBot.GetMembers()) {
+		let name = Util.escape(member.nickname || member.user.username);
+		member.oldNickname = member.nickname || member.user.username;
+		
+		if (finalQuery)
+			finalQuery += ',';
+		else
+			finalQuery = '';
+		
+		finalQuery += '(' + Util.escape(member.uid) + ', ' + name + ')';
+	}
+	
+	Postgres.query('INSERT INTO member_names VALUES ' + finalQuery + ' ON CONFLICT ("ID") DO UPDATE SET "NAME" = excluded."NAME"');
+});
+
 hook.Add('UserInitialized', 'MemberNameLogs', function(user, id) {
+	if (!DBot.SQLReady)
+		return;
+	
 	let name = Util.escape(user.username);
 	user.oldUName = user.username;
 	
@@ -119,6 +143,24 @@ hook.Add('UserInitialized', 'MemberNameLogs', function(user, id) {
 		console.error('Failed to save username for user ' + id + ' (' + user.username + ')!');
 		console.error(err);
 	});
+});
+
+hook.Add('UsersInitialized', 'MemberNameLogs', function() {
+	let finalQuery;
+	
+	for (let user of DBot.GetUsers()) {
+		let name = Util.escape(user.username);
+		user.oldUName = user.username;
+		
+		if (finalQuery)
+			finalQuery += ',';
+		else
+			finalQuery = '';
+		
+		finalQuery += '(' + DBot.GetUserID(user) + ', ' + name + ')';
+	}
+	
+	Postgres.query('INSERT INTO user_names ("ID", "USERNAME") VALUES ' + finalQuery + ' ON CONFLICT ("ID") DO UPDATE SET "USERNAME" = excluded."USERNAME"');
 });
 
 Util.mkdir(DBot.WebRoot + '/namelog');
