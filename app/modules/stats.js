@@ -1593,14 +1593,12 @@ DBot.RegisterCommand({
 
 let word_global_sql = `
 SELECT
-	stats__words_client."WORD",
-	SUM(stats__words_client."COUNT") AS "SUM"
+	stats__words."WORD",
+	stats__words."COUNT" AS "SUM"
 FROM
-	stats__words_client
+	stats__words
 WHERE
-	TRIM(stats__words_client."WORD") != ''
-GROUP BY
-	stats__words_client."WORD"
+	TRIM(stats__words."WORD") != ''
 ORDER BY
 	"SUM" DESC
 LIMIT 20
@@ -1608,15 +1606,18 @@ LIMIT 20
 
 let word_sql = `
 SELECT
-	stats__words_client."WORD",
+	stats__words."WORD",
 	SUM(stats__words_client."COUNT") AS "SUM"
 FROM
-	stats__words_client
+	stats__words_client,
+	stats__words
 WHERE
 	stats__words_client."UID" = %i AND
-	TRIM(stats__words_client."WORD") != ''
+	TRIM(stats__words."WORD") != '' AND
+	stats__words."ID" = stats__words_client."WORD"
 GROUP BY
-	stats__words_client."WORD"
+	stats__words_client."WORD",
+	stats__words."WORD"
 ORDER BY
 	"SUM" DESC
 LIMIT 20
@@ -1624,15 +1625,18 @@ LIMIT 20
 
 let word_server_sql = `
 SELECT
-	stats__words_server."WORD",
+	stats__words."WORD",
 	SUM(stats__words_server."COUNT") AS "SUM"
 FROM
-	stats__words_server
+	stats__words_server,
+	stats__words
 WHERE
 	stats__words_server."USERVER" = %i AND
-	TRIM(stats__words_server."WORD") != ''
+	TRIM(stats__words."WORD") != '' AND
+	stats__words."ID" = stats__words_server."WORD"
 GROUP BY
-	stats__words_server."WORD"
+	stats__words_server."WORD",
+	stats__words."WORD"
 ORDER BY
 	"SUM" DESC
 LIMIT 20
@@ -1640,16 +1644,19 @@ LIMIT 20
 
 let word_server_sql_user = `
 SELECT
-	stats__uwords_server."WORD",
+	stats__words."WORD",
 	SUM(stats__uwords_server."COUNT") AS "SUM"
 FROM
-	stats__uwords_server
+	stats__uwords_server,
+	stats__words
 WHERE
 	stats__uwords_server."USERVER" = %i AND
 	stats__uwords_server."UID" = %i AND
-	TRIM(stats__uwords_server."WORD") != ''
+	TRIM(stats__words."WORD") != '' AND
+	stats__words."ID" = stats__uwords_server."WORD"
 GROUP BY
-	stats__uwords_server."WORD"
+	stats__uwords_server."WORD",
+	stats__words."WORD"
 ORDER BY
 	"SUM" DESC
 LIMIT 20
@@ -1657,15 +1664,17 @@ LIMIT 20
 
 let word_channel_sql = `
 SELECT
-	stats__words_channel."WORD",
+	stats__words."WORD",
 	SUM(stats__words_channel."COUNT") AS "SUM"
 FROM
 	stats__words_channel
 WHERE
 	stats__words_channel."CHANNEL" = %i AND
-	TRIM(stats__words_channel."WORD") != ''
+	TRIM(stats__words."WORD") != '' AND
+	stats__words."ID" = stats__words_channel."WORD"
 GROUP BY
-	stats__words_channel."WORD"
+	stats__words_channel."WORD",
+	stats__words."WORD"
 ORDER BY
 	"SUM" DESC
 LIMIT 20
@@ -1673,16 +1682,18 @@ LIMIT 20
 
 let word_channel_sql_user = `
 SELECT
-	stats__uwords_channel."WORD",
+	stats__words."WORD",
 	SUM(stats__uwords_channel."COUNT") AS "SUM"
 FROM
 	stats__uwords_channel
 WHERE
 	stats__uwords_channel."CHANNEL" = %i AND
 	stats__uwords_channel."UID" = %i AND
-	TRIM(stats__uwords_channel."WORD") != ''
+	TRIM(stats__words."WORD") != '' AND
+	stats__words."ID" = stats__uwords_channel."WORD"
 GROUP BY
-	stats__uwords_channel."WORD"
+	stats__uwords_channel."WORD",
+	stats__words."WORD"
 ORDER BY
 	"SUM" DESC
 LIMIT 20
