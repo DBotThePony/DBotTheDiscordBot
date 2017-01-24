@@ -256,3 +256,76 @@ DBot.RegisterCommand({
 		}
 	}
 });
+
+DBot.RegisterCommand({
+	name: 'rbantags',
+	alias: ['resetbantags', 'rtaglist', 'resettaglist'],
+	
+	help_args: '<realm: server/channel/client> <space>',
+	desc: 'Resets tag bans to default bans for named space. Not needed to define realm while running in PM.',
+	
+	func: function(args, cmd, msg) {
+		if (!DBot.IsPM(msg)) {
+			// Channel and Server realm
+			
+			let realm = args[0];
+			let space = args[1];
+			
+			if (!realm)
+				return DBot.CommandError('Invalid realm. Valid are: server, client and channel', 'rbantags', args, 1);
+			
+			realm = realm.toLowerCase();
+			
+			if (realm != 'client' && realm != 'server' && realm != 'channel')
+				return DBot.CommandError('Invalid realm. Valid are: server, client and channel', 'rbantags', args, 1);
+			
+			if (!space)
+				return DBot.CommandError('Invalid space. Valid are: ' + DBot.ValidTagSpaces(), 'rbantags', args, 2);
+			
+			space = space.toLowerCase();
+			
+			if (!DBot.tags[space])
+				return DBot.CommandError('Invalid space. Valid are: ' + DBot.ValidTagSpaces(), 'rbantags', args, 2);
+			
+			if (realm == 'client') {
+				let Tags = DBot.UserTags(msg.author, space);
+				Tags.reset();
+				
+				return 'Tags for space ' + space + ' for you successfully resetted!';
+			} else if (realm == 'channel') {
+				if (!msg.member.hasPermission('MANAGE_CHANNELS') && msg.author.id != DBot.DBot)
+					return 'Onoh! You must have at least MANAGE_CHANNELS permission to command me to do that :s';
+				
+				let Tags = DBot.ChannelTags(msg.channel, space);
+				Tags.reset();
+				
+				return 'Tags for space ' + space + ' for this channel successfully resetted!';
+			} else if (realm == 'server') {
+				if (!msg.member.hasPermission('MANAGE_GUILD') && msg.author.id != DBot.DBot)
+					return 'Onoh! You must have at least MANAGE_GUILD permission to command me to do that :s';
+				
+				let Tags = DBot.ServerTags(msg.channel.guild, space);
+				Tags.reset();
+				
+				return 'Tags for space ' + space + ' for this server successfully resetted!';
+			}
+		} else {
+			// Clientonly realm
+			
+			let space = args[0];
+			
+			if (!space)
+				return DBot.CommandError('Invalid space. Valid are: ' + DBot.ValidTagSpaces(), 'rbantags', args, 1);
+			
+			space = space.toLowerCase();
+			
+			if (!DBot.tags[space])
+				return DBot.CommandError('Invalid space. Valid are: ' + DBot.ValidTagSpaces(), 'rbantags', args, 1);
+			
+			let Tags = DBot.UserTags(msg.author, space);
+			Tags.reset();
+			
+			return 'Tags for space ' + space + ' for you successfully resetted!';
+		}	
+	}
+});
