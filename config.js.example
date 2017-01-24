@@ -18,6 +18,10 @@ module.exports = {
 	yandex_tr: 'trnsl.1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 	yandex_tr_enable: true,
 	
+	// Steam API key
+	steam: 'A670xxxxxxxxxxxxxxxxxxx',
+	steam_enable: true,
+	
 	// PostgreSQL database connection options
 	
 	// Hostname

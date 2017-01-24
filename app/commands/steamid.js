@@ -1,6 +1,8 @@
 
-let apiBase = 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=A6705637E4E80BD04C8471C143C91DBE&steamids=';
-let resolveBase = 'http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=A6705637E4E80BD04C8471C143C91DBE&vanityurl=';
+if (!DBot.cfg.steam_enable) return;
+
+let apiBase = 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=' + DBot.cfg.steam + '&steamids=';
+let resolveBase = 'http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=' + DBot.cfg.steam + '&vanityurl=';
 let unirest = DBot.js.unirest;
 let BigNumber = require('bignumber.js');
 
