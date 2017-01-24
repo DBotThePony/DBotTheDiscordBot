@@ -1,11 +1,13 @@
 
+if (!DBot.cfg.google_enable) return;
+
 const unirest = DBot.js.unirest;
 const JSON3 = DBot.js.json3;
 const fs = DBot.js.fs;
 
 Util.mkdir(DBot.WebRoot + '/google_images')
 
-const Search = 'https://www.googleapis.com/customsearch/v1?key=AIzaSyAhhmtK4vvqV4ryhhbPeJAJAjlRmzNP-2g&cx=011142896060985630711:sibr51l3m7a&safe=medium&searchType=image&q=';
+const Search = 'https://www.googleapis.com/customsearch/v1?key=' + DBot.cfg.google + '&cx=011142896060985630711:sibr51l3m7a&safe=medium&searchType=image&q=';
 
 module.exports = {
 	name: 'image',

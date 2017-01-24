@@ -1,8 +1,10 @@
 
+if (!DBot.cfg.tumblr_enable) return;
+
 const unirest = DBot.js.unirest;
 const fs = DBot.js.fs;
 const JSON3 = DBot.js.json3;
-const token = '6RO3cAAWTFlIyOCsUVvuZkdNq8PpLAGR5fXaxIKbzUxs7PbWul';
+const token = DBot.cfg.tumblr;
 const urlBase = 'https://api.tumblr.com/v2/blog/';
 
 Util.mkdir(DBot.WebRoot + '/tumblr');

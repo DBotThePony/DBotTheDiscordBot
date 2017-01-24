@@ -3,11 +3,11 @@ const fs = require('fs');
 const pg = require('pg');
 
 const pgConfig = {
-	user: 'notdbot', //env var: PGUSER
-	database: 'notdbot', //env var: PGDATABASE
-	password: 'notdbot', //env var: PGPASSWORD
-	host: 'localhost', // Server hosting the postgres database
-	port: 5432, //env var: PGPORT
+	user: DBot.cfg.sql_user,
+	database: DBot.cfg.sql_database,
+	password: DBot.cfg.sql_password,
+	host: DBot.cfg.sql_hostname,
+	port: DBot.cfg.sql_port,
 }
 
 let pgConnection = new pg.Client(pgConfig);

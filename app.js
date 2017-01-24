@@ -4,7 +4,6 @@ const stamp = (new Date()).getTime();
 
 const Discord = require('discord.js');
 const bot = new Discord.Client();
-const token = "MjQ4NzU2MjM1ODg3ODM3MTk0.Cw8Xzg.wAxaM4qN6docKitkQe-PDud_IM0";
 
 let stdin = process.openStdin();
 
@@ -26,7 +25,7 @@ stdin.addListener('data', function(data) {
 DBot = {};
 DBot.bot = bot;
 DBot.client = bot;
-
+DBot.cfg = require('./config.js');
 require('./app/init.js');
 
 hook.RegisterEvents();
@@ -35,6 +34,7 @@ DBot.Discord = Discord;
 let IS_INITIALIZED = false;
 let LEVEL_OF_CONNECTION = 0;
 let ALREADY_CONNECTING = false;
+const token = DBot.cfg.token;
 
 DBot.IsOnline = function() {
 	return LEVEL_OF_CONNECTION > 0;

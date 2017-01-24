@@ -1,0 +1,40 @@
+
+// This is a config file for this bot
+
+module.exports = {
+	// Bot login token
+	token: 'MjQ4Nzxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+	
+	// Google search token
+	google: 'AIzaxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+	google_enable: true,
+	
+	// Tumblr API token
+	tumblr: '6RO3cAAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+	tumblr_enable: true,
+	
+	// Yandex Translation API key
+	yandex_tr: 'trnsl.1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+	yandex_tr_enable: true,
+	
+	// PostgreSQL database connection options
+	
+	// Hostname
+	sql_hostname: 'localhost',
+	
+	// Port
+	// env var: PGPORT
+	sql_port: 5432,
+	
+	// Username of database. It can be superuser, or not.
+	// env var: PGUSER
+	sql_user: 'notdbot',
+	
+	// User password of database
+	// env var: PGPASSWORD
+	sql_password: 'notdbot',
+	
+	// Name of database to use
+	// env var: PGDATABASE
+	sql_database: 'notdbot',
+}
