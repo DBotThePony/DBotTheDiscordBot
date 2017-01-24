@@ -1,7 +1,6 @@
 
-// TODO - Rewrite
-
-const http = require('http');
+const unirest = DBot.js.unirest;
+const fs = DBot.js.fs;
 const path = 'D:/www/derpco/bot/tomb';
 
 let endPhrases = [
@@ -23,41 +22,28 @@ module.exports = {
 		args[1] = args[1] || DBot.RandomArray(endPhrases);
 		let bArgs = '';
 		
-		args.forEach(function(item, i) {
-			if (i > 3)
-				return;
-			
-			bArgs += '&top' + (i + 1) + '=' + encodeURIComponent(item);
-		});
+		for (let i = 0; i < Math.min(args.length, 3); i++) {
+			bArgs += '&top' + (i + 1) + '=' + encodeURIComponent(args[i]);
+		}
+		
+		msg.channel.startTyping();
 		
 		let hash = DBot.HashString(bArgs);
-		let myPath = path + '/' + hash + '.jpg'
+		let myPath = path + '/' + hash + '.jpg';
+		let url = 'https://dbot.serealia.ca/bot/tomb/' + hash + '.jpg';
 		
-		DBot.fs.stat(myPath, function(err, result) {
-			if (err || !result.isFile()) {
-				let options = {
-					host: 'www.tombstonebuilder.com',
-					port: 80,
-					protocol: 'http:',
-					path: '/generate.php?' + bArgs,
-				};
-				
-				let Stream = DBot.fs.createWriteStream(myPath);
-				
-				http.request(options, function(response) {
-					response.on('data', function(data) {
-						Stream.write(data);
-					});
-					
-					response.on('end', function() {
-						Stream.end();
-						Stream.on('finish', function() {
-							msg.reply('https://dbot.serealia.ca/bot/tomb/' + hash + '.jpg');
-						});
-					});
-				}).end();
+		fs.stat(myPath, function(err, stat) {
+			if (stat) {
+				msg.channel.stopTyping();
+				msg.reply(url);
 			} else {
-				msg.reply('https://dbot.serealia.ca/bot/tomb/' + hash + '.jpg');
+				unirest.get('http://www.tombstonebuilder.com/generate.php?' + bArgs)
+				.encoding(null)
+				.end(function(result) {
+					msg.channel.stopTyping();
+					fs.writeFile(myPath, result.body);
+					msg.reply(url);
+				});
 			}
 		});
 	},
