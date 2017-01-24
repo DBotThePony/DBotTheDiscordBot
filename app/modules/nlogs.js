@@ -111,10 +111,10 @@ hook.Add('MemberInitialized', 'MemberNameLogs', function(member) {
 	});
 });
 
-hook.Add('MembersInitialized', 'MemberNameLogs', function() {
+hook.Add('MembersInitialized', 'MemberNameLogs', function(members) {
 	let finalQuery;
 	
-	for (let member of DBot.GetMembers()) {
+	for (let member of members) {
 		let name = Util.escape(member.nickname || member.user.username);
 		member.oldNickname = member.nickname || member.user.username;
 		
