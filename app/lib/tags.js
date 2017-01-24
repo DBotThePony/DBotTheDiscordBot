@@ -1,8 +1,7 @@
 
 DBot.tags = {};
 DBot.tagCache = {};
-var cache = DBot.tagCache;
-var MySQL = DBot.MySQL;
+let cache = DBot.tagCache;
 
 cache.server = {};
 cache.client = {};
@@ -59,7 +58,7 @@ class TagBase {
 	}
 	
 	removeTag(tag) {
-		for (var i in this.bans) {
+		for (let i in this.bans) {
 			if (this.bans[i] == tag) {
 				this.bans.splice(i, 1);
 				this.onUnBanned(tag);
@@ -109,7 +108,7 @@ class TagBase {
 	simulateSelect(data) {
 		this.ready = false;
 		
-		for (var i in data) {
+		for (let i in data) {
 			this.banTag(data[i].TAG);
 		}
 		
@@ -204,9 +203,9 @@ DBot.ChannelTags = function(channel, space) {
 }
 
 DBot.ValidTagSpaces = function() {
-	var output;
+	let output;
 	
-	for (var k in DBot.tags) {
+	for (let k in DBot.tags) {
 		if (output)
 			output += ', ' + k;
 		else
@@ -229,19 +228,19 @@ DBot.UnloadChannelTags = function(channel, space) {
 }
 
 hook.Add('PreDeleteUser', 'UserTags', function(obj) {
-	for (var i in DBot.tags) {
+	for (let i in DBot.tags) {
 		DBot.UnloadUserTags(obj, i);
 	}
 });
 
 hook.Add('PreDeleteChannel', 'ChannelTags', function(obj) {
-	for (var i in DBot.tags) {
+	for (let i in DBot.tags) {
 		DBot.UnloadChannelTags(obj, i);
 	}
 });
 
 hook.Add('PreDeleteServer', 'ServerTags', function(obj) {
-	for (var i in DBot.tags) {
+	for (let i in DBot.tags) {
 		DBot.UnloadServerTags(obj, i);
 	}
 });
@@ -252,7 +251,7 @@ hook.Add('UserInitialized', 'UserTags', function(obj) {
 	if (!init)
 		return;
 	
-	for (var i in DBot.tags) {
+	for (let i in DBot.tags) {
 		DBot.UserTags(obj, i);
 	}
 });
@@ -304,13 +303,13 @@ hook.Add('UsersInitialized', 'UserTags', function() {
 });
 
 hook.Add('ServerInitialized', 'ServerTags', function(obj) {
-	for (var i in DBot.tags) {
+	for (let i in DBot.tags) {
 		DBot.ServerTags(obj, i);
 	}
 });
 
 hook.Add('ChannelInitialized', 'ChannelTags', function(obj) {
-	for (var i in DBot.tags) {
+	for (let i in DBot.tags) {
 		DBot.ChannelTags(obj, i);
 	}
 });

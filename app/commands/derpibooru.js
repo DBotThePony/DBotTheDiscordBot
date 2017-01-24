@@ -1,8 +1,8 @@
 
-var http = require('https');
-var unirest = DBot.js.unirest;
-var JSON3 = DBot.js.json3;
-var fs = DBot.js.fs;
+const http = require('https');
+const unirest = DBot.js.unirest;
+const JSON3 = DBot.js.json3;
+const fs = DBot.js.fs;
 
 DBot.CreateTagsSpace('derpibooru', [
 	'anthro',
@@ -18,23 +18,13 @@ DBot.CreateTagsSpace('derpibooru', [
 	'dick',
 ]);
 
-fs.stat(DBot.WebRoot + '/derpibooru', function(err, stat) {
-	if (!stat)
-		fs.mkdirSync(DBot.WebRoot + '/derpibooru');
-	
-	fs.stat(DBot.WebRoot + '/derpibooru/search', function(err, stat) {
-		if (!stat)
-			fs.mkdir(DBot.WebRoot + '/derpibooru/search');
-	});
-	
-	fs.stat(DBot.WebRoot + '/derpibooru/image', function(err, stat) {
-		if (!stat)
-			fs.mkdir(DBot.WebRoot + '/derpibooru/image');
-	});
+Util.mkdir(DBot.WebRoot + '/derpibooru', function() {
+	Util.mkdir(DBot.WebRoot + '/derpibooru/search');
+	Util.mkdir(DBot.WebRoot + '/derpibooru/image');
 });
 
-var GetImage = function(ID, callback) {
-	var path = DBot.WebRoot + '/derpibooru/image/' + ID + '.json';
+let GetImage = function(ID, callback) {
+	let path = DBot.WebRoot + '/derpibooru/image/' + ID + '.json';
 	
 	fs.stat(path, function(err, stat) {
 		if (stat) {
@@ -67,18 +57,18 @@ var GetImage = function(ID, callback) {
 	});
 }
 
-var getRandomImage = function(callback) {
-	var options = {
+let getRandomImage = function(callback) {
+	let options = {
 		host: 'trixiebooru.org',
 		port: 443,
 		protocol: 'https:',
 		path: '/images/random',
 	};
 	
-	var req = http.request(options, function(response) {
-		var location = response.headers.location;
-		var split = location.split('/');
-		var myID = split[split.length - 1];
+	let req = http.request(options, function(response) {
+		let location = response.headers.location;
+		let split = location.split('/');
+		let myID = split[split.length - 1];
 		
 		GetImage(myID, callback);
 	});
@@ -90,7 +80,7 @@ var getRandomImage = function(callback) {
 	req.end();
 }
 
-var bannedChars = [
+let bannedChars = [
 	'||',
 	'AND',
 	'OR',
@@ -111,92 +101,51 @@ module.exports = {
 	desc: 'Posts link to a image from derpibooru.\nIf no tags specified, posts a random image',
 	
 	func: function(args, cmd, msg, previousStuff) {
-		var ServerTags;
-		var ClientTags = DBot.UserTags(msg.author, 'derpibooru');
-		var ChannelTags;
+		let ServerTags;
+		let ClientTags = DBot.UserTags(msg.author, 'derpibooru');
+		let ChannelTags;
 		
 		if (!DBot.IsPM(msg)) {
 			ChannelTags = DBot.ChannelTags(msg.channel, 'derpibooru');
 			ServerTags = DBot.ServerTags(msg.channel.guild, 'derpibooru');
 		}
 		
-		var num;
-		
-		if (args[0]) {
-			if (args[0].match(/^[0-9]+$/)) {
-				var tryNum = Number(args[0]);
-			
-				if (tryNum == tryNum) { // NaN ???
-					if (tryNum <= 0)
-						tryNum = 1;
-					
-					num = tryNum;
-				}
-			}
-		}
+		let num = Util.ToNumber(args[0]);
 		
 		if (!args[0]) {
-			var msgNew;
-			var tries = 0;
-			var iShouldDelete = false;
-			msg.oldReply(DBot.GenerateWaitMessage()).then(function(i) {
-				msgNew = i;
-				
-				if (iShouldDelete)
-					msgNew.delete(0);
-			});
+			let tries = 0;
 			
-			var searchFunc;
+			let searchFunc;
 			
 			searchFunc = function() {
 				tries++;
 				
 				if (tries >= 4) {
-					if (msgNew)
-						msgNew.delete(0);
-					
-					iShouldDelete = true;
-					
 					msg.reply('Could not find an valid image. Maybe you or server banned most of valid tags');
 					return;
 				}
 				
 				getRandomImage(function(parse, myID) {
 					if (myID == -1) {
-						if (msgNew)
-							msgNew.delete(0);
-						
-						iShouldDelete = true;
-						
 						msg.reply('Derpibooru is down! Oh fuck.');
 						return;
 					}
 					
 					if (!parse || !parse.representations) {
-						if (msgNew)
-							msgNew.delete(0);
-						
-						iShouldDelete = true;
-						
 						msg.reply('Derpibooru is down!');
 						return;
 					}
 					
-					var target = parse.representations.medium || parse.representations.small || parse.image;
-					var itags = parse.tags;
-					var split = itags.split(', ');
+					let target = parse.representations.medium || parse.representations.small || parse.image;
+					let itags = parse.tags;
+					let split = itags.split(', ');
 					
-					for (var i in split) {
+					for (let i in split) {
 						if (!(msg.channel.name || 'private').match('nsfw') && (ClientTags.isBanned(split[i]) || ServerTags && ServerTags.isBanned(split[i]) || ChannelTags && ChannelTags.isBanned(split[i]))) {
 							searchFunc();
 							return;
 						}
 					}
-					
-					if (msgNew)
-						msgNew.delete(0);
-					
-					iShouldDelete = true;
 					
 					msg.reply('Tags: ' + itags + '\n<https://trixiebooru.org/' + myID +'>\nhttps:' + target);
 				});
@@ -204,68 +153,38 @@ module.exports = {
 			
 			searchFunc();
 		} else if (num) {
-			var msgNew;
-			var iShouldDelete = false;
-			
-			msg.oldReply(DBot.GenerateWaitMessage()).then(function(i) {
-				msgNew = i;
-				
-				if (iShouldDelete)
-					msgNew.delete(0);
-			});
-			
 			GetImage(num, function(data, ID, isError) {
 				if (isError) {
-					if (msgNew)
-						msgNew.delete(0);
-					
-					iShouldDelete = true;
-					
 					msg.reply('Not a valid image ID!');
 					return;
 				}
 				
 				if (!data || !data.representations) {
-					if (msgNew)
-						msgNew.delete(0);
-					
-					iShouldDelete = true;
-					
 					msg.reply('Derpibooru is down, or told me invalid phrase');
 					return;
 				}
 				
-				var target = data.representations.medium || data.representations.small || data.image;
-				var itags = data.tags;
-				var split = itags.split(', ');
+				let target = data.representations.medium || data.representations.small || data.image;
+				let itags = data.tags;
+				let split = itags.split(', ');
 				
-				for (var i in split) {
+				for (let i in split) {
 					if (!(msg.channel.name || 'private').match('nsfw') && (ClientTags.isBanned(split[i]) || ServerTags && ServerTags.isBanned(split[i]) || ChannelTags && ChannelTags.isBanned(split[i]))) {
-						if (msgNew)
-							msgNew.delete(0);
-						
-						iShouldDelete = true;
-						
 						msg.reply('Image have tags that was blocked by server, channel or even you ;n; Next tag was banned: ' + split[i]);
 						return;
 					}
 				}
 				
-				if (msgNew)
-					msgNew.delete(0);
-				
-				iShouldDelete = true;
-				
 				msg.reply('Tags: ' + itags + '\n<https://trixiebooru.org/' + ID +'>\nhttps:' + target);
 			});
 		} else {
-			var encode = '';
-			var first = true;
+			let encode = '';
+			let first = true;
 			
-			for (var i in args) {
-				var str = args[i];
+			for (let i in args) {
+				let str = args[i];
 				
-				for (var bk in bannedChars) {
+				for (let bk in bannedChars) {
 					if (str.search(bannedChars[bk]) > 0) {
 						msg.reply('Illegal charactets. AND, OR, NOT are also blocked');
 						return;
@@ -285,29 +204,19 @@ module.exports = {
 				}
 			}
 			
-			var msgNew;
-			var iShouldDelete = false;
+			let path = DBot.WebRoot + '/derpibooru/search/' + DBot.HashString(encode) + '.json';
 			
-			msg.oldReply(DBot.GenerateWaitMessage()).then(function(i) {
-				msgNew = i;
+			let continueLoad = function(parsed, isCached) {
+				let valids = [];
 				
-				if (iShouldDelete)
-					msgNew.delete(0);
-			});
-			
-			var path = DBot.WebRoot + '/derpibooru/search/' + DBot.HashString(encode) + '.json';
-			
-			var continueLoad = function(parsed, isCached) {
-				var valids = [];
-				
-				for (var k in parsed.search) {
-					var data = parsed.search[k];
-					var itags = data.tags;
+				for (let k in parsed.search) {
+					let data = parsed.search[k];
+					let itags = data.tags;
 					
-					var split = itags.split(', ');
-					var hit = false;
+					let split = itags.split(', ');
+					let hit = false;
 					
-					for (var i in split) {
+					for (let i in split) {
 						if (ClientTags.isBanned(split[i]) || ServerTags && ServerTags.isBanned(split[i]) || ChannelTags && ChannelTags.isBanned(split[i])) {
 							hit = true;
 							break;
@@ -324,25 +233,20 @@ module.exports = {
 					else
 						msg.reply('Sorry, no results');
 					
-					if (msgNew)
-						msgNew.delete(0);
-					
-					iShouldDelete = true;
-					
 					return;
 				}
 				
-				var valids2;
+				let valids2;
 				
 				if (!previousStuff)
 					valids2 = valids;
 				else {
 					valids2 = [];
 					
-					for (var i2 in valids) {
-						var hit = false;
+					for (let i2 in valids) {
+						let hit = false;
 						
-						for (var i in previousStuff) {
+						for (let i in previousStuff) {
 							if (previousStuff[i] == valids[i2].id) {
 								hit = true;
 								break;
@@ -356,17 +260,11 @@ module.exports = {
 				
 				if (!valids2[0]) {
 					msg.reply('Oops! No more unique results!\nMight you want reset me by typing }derpibooru again?');
-					
-					if (msgNew)
-						msgNew.delete(0);
-					
-					iShouldDelete = true;
-					
 					return;
 				}
 				
-				var data = DBot.RandomArray(valids2);
-				var target = data.representations.medium || data.representations.small || data.image;
+				let data = DBot.RandomArray(valids2);
+				let target = data.representations.medium || data.representations.small || data.image;
 				
 				if (previousStuff)
 					previousStuff.push(data.id);
@@ -375,11 +273,6 @@ module.exports = {
 					msg.reply('(cached results)\nTags: ' + data.tags + '\n<https://trixiebooru.org/' + data.id + '>\nhttps:' + target);
 				else
 					msg.reply('Tags: ' + data.tags + '\n<https://trixiebooru.org/' + data.id + '>\nhttps:' + target);
-				
-				if (msgNew)
-					msgNew.delete(0);
-				
-				iShouldDelete = true;
 			}
 			
 			fs.stat(path, function(err, stat) {
@@ -391,24 +284,14 @@ module.exports = {
 					} catch(err) {
 						console.log(err);
 						msg.reply('Uh oh, i broke for now');
-						
-						if (msgNew)
-							msgNew.delete(0);
-						
-						iShouldDelete = true;
 					}
 				} else {
 					unirest.get('https://trixiebooru.org/search.json?q=' + encode)
 					.end(function (response) {
 						try {
-							var parsed = response.body;
+							let parsed = response.body;
 							if (!parsed) {
 								msg.reply('Derpibooru is down! Onoh!');
-								
-								if (msgNew)
-									msgNew.delete(0);
-								
-								iShouldDelete = true;
 								return;
 							}
 							
@@ -417,11 +300,6 @@ module.exports = {
 						} catch(err) {
 							console.log(err);
 							msg.reply('Uh oh, i broke for now');
-							
-							if (msgNew)
-								msgNew.delete(0);
-							
-							iShouldDelete = true;
 						}
 					});
 				}

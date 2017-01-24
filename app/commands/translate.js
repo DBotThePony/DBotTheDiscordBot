@@ -2,12 +2,12 @@
 const unirest = DBot.js.unirest;
 const fs = DBot.js.fs;
 const JSON3 = DBot.js.json3;
-var apiKey = 'trnsl.1.1.20161127T134540Z.02165681560fc8c8.fa36e3a21cf74adf636c739e24b2c78e17b66425';
+let apiKey = 'trnsl.1.1.20161127T134540Z.02165681560fc8c8.fa36e3a21cf74adf636c739e24b2c78e17b66425';
 
-var validLangs = [];
-var validLangsNames = [];
+let validLangs = [];
+let validLangsNames = [];
 
-var alias = {
+let alias = {
 	rus: 'ru',
 	eng: 'en',
 	deu: 'de',
@@ -17,10 +17,10 @@ Util.mkdir(DBot.WebRoot + '/translate', function() {
 	fs.stat(DBot.WebRoot + '/translate/langs.json', function(err, stat) {
 		if (stat) {
 			fs.readFile(DBot.WebRoot + '/translate/langs.json' , 'utf8', function(err, data) {
-				var dt = JSON3.parse(data);
+				let dt = JSON3.parse(data);
 				
 				for (let lID in dt.langs) {
-					var lName = dt.langs[lID];
+					let lName = dt.langs[lID];
 					
 					validLangs.push(lID);
 					validLangsNames.push(lName);
@@ -42,7 +42,7 @@ Util.mkdir(DBot.WebRoot + '/translate', function() {
 				console.log('Fetched avaliable translation languages');
 				
 				for (let lID in result.body.langs) {
-					var lName = result.body.langs[lID];
+					let lName = result.body.langs[lID];
 					
 					validLangs.push(lID);
 					validLangsNames.push(lName);
@@ -73,7 +73,7 @@ module.exports = {
 			args[0] = alias[args[0]];
 		}
 		
-		var hit = false;
+		let hit = false;
 		
 		for (let i in validLangs) {
 			if (validLangs[i] == args[0]) {
@@ -94,8 +94,8 @@ module.exports = {
 			return 'Too long text! You hurt me ;n;';
 		}
 		
-		var toCheck = '';
-		var toTranslate = '';
+		let toCheck = '';
+		let toTranslate = '';
 		
 		for (let i = 1; i <= 3; i++) {
 			if (!args[i])
@@ -108,10 +108,10 @@ module.exports = {
 			toTranslate += ' ' + args[i];
 		}
 		
-		var sha = DBot.HashString(cmd);
-		var fpath = DBot.WebRoot + '/translate/' + sha + '.json';
+		let sha = DBot.HashString(cmd);
+		let fpath = DBot.WebRoot + '/translate/' + sha + '.json';
 		
-		var continueFunc = function(data) {
+		let continueFunc = function(data) {
 			msg.channel.stopTyping();
 			msg.reply('\n```' + data.text + '```')
 		}
@@ -143,7 +143,7 @@ module.exports = {
 						return;
 					}
 					
-					var lang = result.body.lang;
+					let lang = result.body.lang;
 					
 					unirest.post('https://translate.yandex.net/api/v1.5/tr.json/translate')
 					.send({
@@ -176,7 +176,7 @@ DBot.RegisterCommand({
 	desc: 'Lists all avaliable languages in Yandex translate API',
 	
 	func: function(args, cmd, msg) {
-		var output = '```';
+		let output = '```';
 		
 		for (let i in validLangs) {
 			output += '\n' + validLangs[i] + ': ' + validLangsNames[i];

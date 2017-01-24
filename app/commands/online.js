@@ -160,7 +160,7 @@ DBot.RegisterCommand({
 	
 	func: function(args, cmd, msg) {
 		if (typeof args[0] == 'object') {
-			var uid = DBot.GetUserID(args[0]);
+			let uid = DBot.GetUserID(args[0]);
 			
 			Postgre.query('SELECT * FROM uptime WHERE "ID" = ' + uid, function(err, data) {
 				if (err || !data || !data[0]) {
@@ -168,17 +168,17 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				var TOTAL_ONLINE = data[0].TOTAL_ONLINE;
-				var ONLINE = data[0].ONLINE;
-				var AWAY = data[0].AWAY;
-				var DNT = data[0].DNT;
-				var STAMP = data[0].STAMP;
-				var TOTAL_TIME = CurTime() - STAMP;
-				var TOTAL_OFFLINE = data[0].TOTAL_OFFLINE;
-				var offlinePercent = TOTAL_OFFLINE / (TOTAL_ONLINE + TOTAL_OFFLINE);
-				var onlinePercent = 1 - offlinePercent;
+				let TOTAL_ONLINE = data[0].TOTAL_ONLINE;
+				let ONLINE = data[0].ONLINE;
+				let AWAY = data[0].AWAY;
+				let DNT = data[0].DNT;
+				let STAMP = data[0].STAMP;
+				let TOTAL_TIME = CurTime() - STAMP;
+				let TOTAL_OFFLINE = data[0].TOTAL_OFFLINE;
+				let offlinePercent = TOTAL_OFFLINE / (TOTAL_ONLINE + TOTAL_OFFLINE);
+				let onlinePercent = 1 - offlinePercent;
 				
-				var output = '\n```';
+				let output = '\n```';
 				
 				output += 'User:                           @' + args[0].username + ' <@' + args[0].id + '>\n';
 				output += 'Total online time:              ' + hDuration(Math.floor(TOTAL_ONLINE) * 1000) + '\n';
@@ -198,14 +198,14 @@ DBot.RegisterCommand({
 			});
 		} else {
 			Postgre.query('SELECT * FROM uptime_bot', function(err, data) {
-				var TOTAL_ONLINE = data[0].AMOUNT;
-				var TOTAL_TIME = CurTime() - data[0].START;
-				var TOTAL_OFFLINE = TOTAL_TIME - TOTAL_ONLINE;
+				let TOTAL_ONLINE = data[0].AMOUNT;
+				let TOTAL_TIME = CurTime() - data[0].START;
+				let TOTAL_OFFLINE = TOTAL_TIME - TOTAL_ONLINE;
 				
-				var offlinePercent = TOTAL_OFFLINE / TOTAL_TIME;
-				var onlinePercent = 1 - offlinePercent;
+				let offlinePercent = TOTAL_OFFLINE / TOTAL_TIME;
+				let onlinePercent = 1 - offlinePercent;
 				
-				var output = '\n```';
+				let output = '\n```';
 				
 				output += '--------- My uptime statistics\n';
 				output += 'Current session uptime:         ' + hDuration(Math.floor((CurTime() - DBot.START_STAMP)) * 1000) + '\n';

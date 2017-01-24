@@ -89,7 +89,7 @@ class ConVar {
 		this.name = data.id;
 		this.cvar = data.id;
 		
-		var me = this;
+		let me = this;
 		
 		this.value = this.defValue;
 		
@@ -304,7 +304,7 @@ class ConVar {
 	}
 	
 	joinFlags() {
-		var concatFlags = '';
+		let concatFlags = '';
 		
 		for (let flag of this.flags) {
 			concatFlags += ' ' + cvars.Strings[flag];
@@ -314,8 +314,8 @@ class ConVar {
 	}
 	
 	format() {
-		var output = '';
-		var concatFlags = this.joinFlags();
+		let output = '';
+		let concatFlags = this.joinFlags();
 		
 		output += ' "' + this.name + '" = "' + this.getFormatedString() + '"' + (this.value != this.defValue && ' (default "' + this.defValue + '")' || '');
 		output += '\n  ' + concatFlags;
@@ -325,12 +325,12 @@ class ConVar {
 	}
 	
 	getInt() {
-		var val = Util.ToNumber(this.value) || Util.ToNumber(this.defValue);
+		let val = Util.ToNumber(this.value) || Util.ToNumber(this.defValue);
 		return Math.floor(val);
 	}
 	
 	getFloat() {
-		var val = Util.ToNumber(this.value) || Util.ToNumber(this.defValue);
+		let val = Util.ToNumber(this.value) || Util.ToNumber(this.defValue);
 		return val;
 	}
 	
@@ -338,7 +338,7 @@ class ConVar {
 		if (this.value == '' || this.value == '0' || this.value == 'false' || this.value == 'lie')
 			return false;
 		
-		var num = Util.ToNumber(this.value);
+		let num = Util.ToNumber(this.value);
 		
 		if (num && num < 0)
 			return false;
@@ -438,7 +438,7 @@ class UserVarSession {
 	}
 	
 	cvarlist() {
-		var output = '';
+		let output = '';
 		
 		for (let id in this.cvars) {
 			let cvar = this.cvars[id];
@@ -491,7 +491,7 @@ class ServerVarSession {
 	}
 	
 	cvarlist() {
-		var output = '';
+		let output = '';
 		
 		for (let id in this.cvars) {
 			let cvar = this.cvars[id];
@@ -543,7 +543,7 @@ class ChannelVarSession {
 	}
 	
 	cvarlist() {
-		var output = '';
+		let output = '';
 		
 		for (let id in this.cvars) {
 			let cvar = this.cvars[id];

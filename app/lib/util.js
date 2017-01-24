@@ -23,7 +23,7 @@ CurTimeOffset = TimezoneOffset;
 RealTimeOffset = TimezoneOffset;
 SysTimeOffset = TimezoneOffset;
 
-var emptyFunc = function() {}
+let emptyFunc = function() {}
 
 Util.CreateDirectory = function(path, callback) {
 	callback = callback || emptyFunc;
@@ -41,11 +41,11 @@ Util.CreateDir = Util.CreateDirectory
 
 Util.Concat = function(obj, sep) {
 	sep = sep || '';
-	var first = true;
-	var out = '';
+	let first = true;
+	let out = '';
 	
-	for (var i in obj) {
-		var item = obj[i];
+	for (let i in obj) {
+		let item = obj[i];
 		
 		if (first) {
 			first = false;
@@ -61,7 +61,7 @@ Util.Concat = function(obj, sep) {
 // Returns valid number or nothing
 
 Util.ToNumber = function(arg) {
-	var num;
+	let num;
 	
 	if (typeof arg == 'string') {
 		if (arg.match(/^-?[0-9]+$/)) {
@@ -81,7 +81,7 @@ Util.ToNumber = function(arg) {
 // Returns valid number or nothing, but casts even if string is not totaly a number
 
 Util.ToNumberSoft = function(arg) {
-	var num;
+	let num;
 	
 	if (typeof arg == 'string') {
 		let match = arg.match(/^-?[0-9]+/);
@@ -108,9 +108,9 @@ Util.RandomArray = function(arr) {
 }
 
 Util.Spaces = function(num) {
-	var output = '';
+	let output = '';
 	
-	for (var i = 0; i < num; i++) {
+	for (let i = 0; i < num; i++) {
 		output += ' ';
 	}
 	
@@ -118,9 +118,9 @@ Util.Spaces = function(num) {
 }
 
 Util.StringRepeat = function(str, times) {
-	var output = '';
+	let output = '';
 	
-	for (var i = 0; i < times; i++) {
+	for (let i = 0; i < times; i++) {
 		output += str;
 	}
 	
@@ -132,7 +132,7 @@ Util.AppendSpaces = function(str, target) {
 }
 
 Util.AppendArrays = function(Dest, Source) {
-	for (var i in Source) {
+	for (let i in Source) {
 		Dest.push(Source[i]);
 	}
 	
@@ -140,9 +140,9 @@ Util.AppendArrays = function(Dest, Source) {
 }
 
 Util.CopyArray = function(Source) {
-	var Dest = [];
+	let Dest = [];
 	
-	for (var i in Source) {
+	for (let i in Source) {
 		Dest.push(Source[i]);
 	}
 	
@@ -150,8 +150,8 @@ Util.CopyArray = function(Source) {
 }
 
 Util.HighlightHelp = function(args, pos, toMerge, noTilds) {
-	var output;
-	var output2 = '';
+	let output;
+	let output2 = '';
 	
 	if (toMerge) {
 		Util.AppendArrays(args, toMerge);
@@ -215,7 +215,7 @@ Util.Redirectstd = Util.output;
 Util.Redirect = Util.output;
 Util.redirect = Util.output;
 
-var replaceBlocks = [
+const replaceBlocks = [
 	[/&/gi, '&amp;'],
 	[/"/gi, '&quot;'],
 	[/'/gi, '&#039;'],
@@ -230,9 +230,9 @@ var replaceBlocks = [
 ];
 
 Util.ParseMarkdown = function(str) {
-	var output = str;
+	let output = str;
 	
-	for (var i in replaceBlocks) {
+	for (let i in replaceBlocks) {
 		output = output.replace(replaceBlocks[i][0], replaceBlocks[i][1]);
 	}
 	
@@ -240,7 +240,7 @@ Util.ParseMarkdown = function(str) {
 }
 
 Util.HaveValue = function(arr, val) {
-	for (var i in arr) {
+	for (let i in arr) {
 		if (arr[i] == val)
 			return true;
 	}
@@ -268,7 +268,7 @@ Util.escape = function(str) {
 Util.HasValue = Util.HaveValue;
 
 Util.BuildArgumentsString = function(arr) {
-	var newArr = [];
+	let newArr = [];
 	
 	for (let arg of arr) {
 		newArr.push('"' +
@@ -286,9 +286,9 @@ Util.BuildArgumentsString = function(arr) {
 }
 
 Util.ReadString = function(buf, offestStart) {
-	var output = '';
+	let output = '';
 	
-	for (var i = offestStart; i < buf.length; i++) {
+	for (let i = offestStart; i < buf.length; i++) {
 		let Char = String.fromCharCode(buf[i]);
 		
 		if (Char != '\0') {

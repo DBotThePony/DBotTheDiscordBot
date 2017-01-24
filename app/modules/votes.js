@@ -39,7 +39,7 @@ DBot.RegisterCommand({
 				return;
 			}
 			
-			var uid = data[0].ID;
+			let uid = data[0].ID;
 			
 			for (let i = 1; i < args.length; i++) {
 				MySQL.query('INSERT INTO votes_choices ("VOTE", "CHOICEID", "NAME") VALUES (' + uid + ', ' + i + ', ' + Util.escape(args[i]) + ')');
@@ -67,9 +67,9 @@ DBot.RegisterCommand({
 		if (!args[0])
 			return 'Name of vote is required' + Util.HighlightHelp(['votetext'], 2, args);
 		
-		var voteID = Util.ToNumber(args[0]);
+		let voteID = Util.ToNumber(args[0]);
 		
-		var newCMD = args[1];
+		let newCMD = args[1];
 		
 		for (let i = 2; i < args.length; i++) {
 			newCMD += ' ' + args[i];
@@ -92,7 +92,7 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				var voteData = data[0];
+				let voteData = data[0];
 				
 				MySQL.query('INSERT INTO votes_text VALUES (' + voteID + ', ' + Util.escape(newCMD) + ') ON CONFLICT ("ID") DO UPDATE SET "TEXT" = ' + Util.escape(newCMD), function(err) {
 					if (err) {
@@ -120,8 +120,8 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				var voteID = data[0].ID;
-				var voteData = data[0];
+				let voteID = data[0].ID;
+				let voteData = data[0];
 				
 				MySQL.query('INSERT INTO votes_text VALUES (' + voteID + ', ' + Util.escape(newCMD) + ') ON CONFLICT ("ID") DO UPDATE SET "TEXT" = ' + Util.escape(newCMD), function(err) {
 					if (err) {
@@ -152,7 +152,7 @@ DBot.RegisterCommand({
 		if (!args[0])
 			return 'Name of vote is required' + Util.HighlightHelp(['votetext'], 2, args);
 		
-		var voteID = Util.ToNumber(cmd);
+		let voteID = Util.ToNumber(cmd);
 		
 		if (voteID) {
 			MySQL.query('SELECT * FROM votes_list WHERE "ID" = ' + voteID + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
@@ -176,7 +176,7 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				var voteData = data[0];
+				let voteData = data[0];
 				
 				MySQL.query('UPDATE votes_list SET "CLOSED" = true WHERE "ID" = ' + voteID, function(err) {
 					if (err) {
@@ -209,8 +209,8 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				var voteID = data[0].ID;
-				var voteData = data[0];
+				let voteID = data[0].ID;
+				let voteData = data[0];
 				
 				MySQL.query('UPDATE votes_list SET "CLOSED" = true WHERE "ID" = ' + voteID, function(err) {
 					if (err) {
@@ -241,7 +241,7 @@ DBot.RegisterCommand({
 		if (!args[0])
 			return 'Name of vote is required' + Util.HighlightHelp(['votetext'], 2, args);
 		
-		var voteID = Util.ToNumber(cmd);
+		let voteID = Util.ToNumber(cmd);
 		
 		if (voteID) {
 			MySQL.query('SELECT * FROM votes_list WHERE "ID" = ' + voteID + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
@@ -265,7 +265,7 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				var voteData = data[0];
+				let voteData = data[0];
 				
 				MySQL.query('UPDATE votes_list SET "CLOSED" = false WHERE "ID" = ' + voteID, function(err) {
 					if (err) {
@@ -298,8 +298,8 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				var voteID = data[0].ID;
-				var voteData = data[0];
+				let voteID = data[0].ID;
+				let voteData = data[0];
 				
 				MySQL.query('UPDATE votes_list SET "CLOSED" = false WHERE "ID" = ' + voteID, function(err) {
 					if (err) {
@@ -331,7 +331,7 @@ DBot.RegisterCommand({
 		if (!args[0])
 			return 'Name of vote is required' + Util.HighlightHelp(['votetext'], 2, args);
 		
-		var voteID = Util.ToNumber(cmd);
+		let voteID = Util.ToNumber(cmd);
 		
 		if (voteID) {
 			MySQL.query('SELECT * FROM votes_list WHERE "ID" = ' + voteID + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
@@ -345,7 +345,7 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				var voteData = data[0];
+				let voteData = data[0];
 				
 				MySQL.query('UPDATE votes_list SET "CHANNEL" = ' + DBot.GetChannelID(msg.channel) + ' WHERE "ID" = ' + voteID, function(err) {
 					if (err) {
@@ -368,8 +368,8 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				var voteID = data[0].ID;
-				var voteData = data[0];
+				let voteID = data[0].ID;
+				let voteData = data[0];
 				
 				MySQL.query('UPDATE votes_list SET "CHANNEL" = ' + DBot.GetChannelID(msg.channel) + ' WHERE "ID" = ' + voteID, function(err) {
 					if (err) {
@@ -401,7 +401,7 @@ DBot.RegisterCommand({
 		if (!args[0])
 			return 'Name of vote is required' + Util.HighlightHelp(['votetext'], 2, args);
 		
-		var voteID = Util.ToNumber(cmd);
+		let voteID = Util.ToNumber(cmd);
 		
 		if (voteID) {
 			MySQL.query('SELECT * FROM votes_list WHERE "ID" = ' + voteID + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
@@ -415,7 +415,7 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				var voteData = data[0];
+				let voteData = data[0];
 				
 				MySQL.query('UPDATE votes_list SET "CHANNEL" = NULL WHERE "ID" = ' + voteID, function(err) {
 					if (err) {
@@ -438,8 +438,8 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				var voteID = data[0].ID;
-				var voteData = data[0];
+				let voteID = data[0].ID;
+				let voteData = data[0];
 				
 				MySQL.query('UPDATE votes_list SET "CHANNEL" = NULL WHERE "ID" = ' + voteID, function(err) {
 					if (err) {
@@ -454,8 +454,8 @@ DBot.RegisterCommand({
 	}
 });
 
-var Bar = function(perc, votes) {
-	var output = '[';
+let Bar = function(perc, votes) {
+	let output = '[';
 	perc = perc * 100;
 	
 	for (let i = 0; i < perc / 4; i++) {
@@ -484,7 +484,7 @@ DBot.RegisterCommand({
 		if (!args[0])
 			return 'Name of vote is required' + Util.HighlightHelp(['voteinfo'], 2, args);
 		
-		var voteID = Util.ToNumber(args[0]);
+		let voteID = Util.ToNumber(args[0]);
 		
 		if (voteID) {
 			MySQL.query('SELECT * FROM votes_list WHERE "ID" = ' + voteID + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
@@ -503,7 +503,7 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				var voteData = data[0];
+				let voteData = data[0];
 				
 				MySQL.query('SELECT "CHOICEID", "NAME", "VOTES" FROM votes_choices WHERE "VOTE" = ' + voteID, function(err, data) {
 					if (err) {
@@ -517,8 +517,8 @@ DBot.RegisterCommand({
 							return;
 						}
 						
-						var output = '```Vote name: ' + voteData.NAME + '\n';
-						var total = 0;
+						let output = '```Vote name: ' + voteData.NAME + '\n';
+						let total = 0;
 						
 						for (let row of data) {
 							total += Number(row.VOTES);
@@ -565,8 +565,8 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				var voteID = data[0].ID;
-				var voteData = data[0];
+				let voteID = data[0].ID;
+				let voteData = data[0];
 				
 				MySQL.query('SELECT "CHOICEID", "NAME", "VOTES" FROM votes_choices WHERE "VOTE" = ' + voteID, function(err, data) {
 					if (err) {
@@ -580,8 +580,8 @@ DBot.RegisterCommand({
 							return;
 						}
 						
-						var output = '```Vote name: ' + voteData.NAME + '\n';
-						var total = 0;
+						let output = '```Vote name: ' + voteData.NAME + '\n';
+						let total = 0;
 						
 						for (let row of data) {
 							total += Number(row.VOTES);
@@ -631,10 +631,10 @@ DBot.RegisterCommand({
 		if (!args[1])
 			return 'Name of choice is required' + Util.HighlightHelp(['vote'], 3, args);
 		
-		var voteID = Util.ToNumber(args[0]);
-		var userID = DBot.GetUserID(msg.author);
+		let voteID = Util.ToNumber(args[0]);
+		let userID = DBot.GetUserID(msg.author);
 		
-		var voteCMD = args[1];
+		let voteCMD = args[1];
 		
 		for (let i = 2; i < args.length; i++) {
 			voteCMD += ' ' + args[i];
@@ -662,7 +662,7 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				var voteData = data[0];
+				let voteData = data[0];
 				
 				MySQL.query('SELECT "CHOICE" FROM votes_votes WHERE "VOTE" = ' + voteID, function(err, data) {
 					if (err) {
@@ -678,7 +678,7 @@ DBot.RegisterCommand({
 						return;
 					}
 					
-					var choiceID = Util.ToNumber(args[1]);
+					let choiceID = Util.ToNumber(args[1]);
 					
 					if (choiceID) {
 						MySQL.query('SELECT "NAME" FROM votes_choices WHERE "VOTE" = ' + voteID + ' AND "CHOICEID" = ' + choiceID, function(err, data) {
@@ -720,7 +720,7 @@ DBot.RegisterCommand({
 								return;
 							}
 							
-							var choiceID = data[0].CHOICEID;
+							let choiceID = data[0].CHOICEID;
 							
 							MySQL.query('INSERT INTO votes_votes VALUE (' + voteID + ', ' + userID + ', ' + choiceID + ')', function(err) {
 								if (err) {
@@ -763,8 +763,8 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				var voteID = data[0].ID;
-				var voteData = data[0];
+				let voteID = data[0].ID;
+				let voteData = data[0];
 				
 				MySQL.query('SELECT "CHOICE" FROM votes_votes WHERE "VOTE" = ' + voteID, function(err, data) {
 					if (err) {
@@ -780,7 +780,7 @@ DBot.RegisterCommand({
 						return;
 					}
 					
-					var choiceID = Util.ToNumber(args[1]);
+					let choiceID = Util.ToNumber(args[1]);
 					
 					if (choiceID) {
 						MySQL.query('SELECT "NAME" FROM votes_choices WHERE "VOTE" = ' + voteID + ' AND "CHOICEID" = ' + choiceID, function(err, data) {
@@ -822,7 +822,7 @@ DBot.RegisterCommand({
 								return;
 							}
 							
-							var choiceID = data[0].CHOICEID;
+							let choiceID = data[0].CHOICEID;
 							
 							MySQL.query('INSERT INTO votes_votes VALUE (' + voteID + ', ' + userID + ', ' + choiceID + ')', function(err) {
 								if (err) {

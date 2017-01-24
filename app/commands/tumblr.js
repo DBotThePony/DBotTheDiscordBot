@@ -2,8 +2,8 @@
 const unirest = DBot.js.unirest;
 const fs = DBot.js.fs;
 const JSON3 = DBot.js.json3;
-var token = '6RO3cAAWTFlIyOCsUVvuZkdNq8PpLAGR5fXaxIKbzUxs7PbWul';
-var urlBase = 'https://api.tumblr.com/v2/blog/';
+const token = '6RO3cAAWTFlIyOCsUVvuZkdNq8PpLAGR5fXaxIKbzUxs7PbWul';
+const urlBase = 'https://api.tumblr.com/v2/blog/';
 
 Util.mkdir(DBot.WebRoot + '/tumblr');
 
@@ -18,12 +18,12 @@ module.exports = {
 	desc: 'Posts a random post from specified blog',
 	
 	func: function(args, cmd, msg, previousStuff) {
-		var sha = DBot.HashString(args[0]);
-		var fpath = DBot.WebRoot + '/tumblr/' + sha + '.json';
+		let sha = DBot.HashString(args[0]);
+		let fpath = DBot.WebRoot + '/tumblr/' + sha + '.json';
 		
 		msg.channel.startTyping();
 		
-		var continueFunc = function(data) {
+		let continueFunc = function(data) {
 			msg.channel.stopTyping();
 			
 			try {

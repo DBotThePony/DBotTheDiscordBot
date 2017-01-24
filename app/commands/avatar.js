@@ -10,11 +10,9 @@ module.exports = {
 		if (!args[0])
 			return 'Nu user argument ;w;';
 		
-		var build = '';
+		let build = '';
 		
-		for (var i in args) {
-			var user = args[i];
-			
+		for (let user of args) {
 			if (typeof(user) != 'object')
 				return 'Invalid user argument. Use @User';
 			

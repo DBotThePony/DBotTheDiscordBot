@@ -1,62 +1,64 @@
 
-var apiBase = 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=A6705637E4E80BD04C8471C143C91DBE&steamids=';
-var resolveBase = 'http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=A6705637E4E80BD04C8471C143C91DBE&vanityurl=';
-var unirest = DBot.js.unirest;
-var BigNumber = require('bignumber.js');
+let apiBase = 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=A6705637E4E80BD04C8471C143C91DBE&steamids=';
+let resolveBase = 'http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=A6705637E4E80BD04C8471C143C91DBE&vanityurl=';
+let unirest = DBot.js.unirest;
+let BigNumber = require('bignumber.js');
 
-var SteamIDTo64 = function(id) {
-	var server = 0;
-	var AuthID = 0;
+let SteamIDTo64 = function(id) {
+	let server = 0;
+	let AuthID = 0;
 	
-	var split = id.split(':');
+	let split = id.split(':');
 	
-	var server = Util.ToNumber(split[1]);
-	var AuthID = Util.ToNumber(split[2]);
+	let server = Util.ToNumber(split[1]);
+	let AuthID = Util.ToNumber(split[2]);
 	
-	var Mult = AuthID * 2;
+	let Mult = AuthID * 2;
 	
-	var one = new BigNumber('76561197960265728');
-	var two = new BigNumber(Mult);
-	var three = new BigNumber(server);
+	let one = new BigNumber('76561197960265728');
+	let two = new BigNumber(Mult);
+	let three = new BigNumber(server);
 	
 	return one.plus(two).plus(three).toString(10);
 }
 
-var SteamIDFrom64 = function(id) {
-	var newNum = new BigNumber(id);
-	var num = Util.ToNumber(newNum.minus(new BigNumber('76561197960265728')).toString(10));
+let SteamIDFrom64 = function(id) {
+	let newNum = new BigNumber(id);
+	let num = Util.ToNumber(newNum.minus(new BigNumber('76561197960265728')).toString(10));
 	
-	var server = num % 2;
+	let server = num % 2;
 	num = num - server;
 	
 	return 'STEAM_0:' + server + ':' + (num / 2);
 }
 
-var SteamIDTo3 = function(id) {
-	var server = 0;
-	var AuthID = 0;
+let SteamIDTo3 = function(id) {
+	let server = 0;
+	let AuthID = 0;
 	
-	var split = id.split(':');
+	let split = id.split(':');
 	
-	var server = Util.ToNumber(split[1]);
-	var AuthID = Util.ToNumber(split[2]);
+	let server = Util.ToNumber(split[1]);
+	let AuthID = Util.ToNumber(split[2]);
 	
 	return '[U:1:' + (AuthID * 2 + server) + ']';
 }
 
-var SteamIDFrom3 = function(id) {
-	var sub = id.substr(1, id.length - 2);
-	var split = sub.split(':');
+let SteamIDFrom3 = function(id) {
+	let sub = id.substr(1, id.length - 2);
+	let split = sub.split(':');
 	
-	var uid = Util.ToNumber(split[2]);
+	let uid = Util.ToNumber(split[2]);
 	if (!uid)
 		return false;
 	
-	var server = uid % 2;
+	let server = uid % 2;
 	uid = uid - server;
 	
 	return 'STEAM_0:' + server + ':' + (uid / 2);
 }
+
+let manipulateRegExp = new RegExp('/', 'g');
 
 module.exports = {
 	name: 'steamid',
@@ -69,26 +71,26 @@ module.exports = {
 		if (!args[0])
 			return 'Argument must be a valid SteamID, SteamID3, SteamID64 or Custom profile URL' + Util.HighlightHelp(['steamid'], 2, args);
 		
-		var toManipulate = args[0];
+		let toManipulate = args[0];
 		toManipulate = toManipulate
-		.replace('http://steamcommunity.com/id/', '')
-		.replace('https://steamcommunity.com/id/', '')
-		.replace('https://steamcommunity.com/profile/', '')
-		.replace('http://steamcommunity.com/profile/', '')
-		.replace(new RegExp('/', 'g'), '');
+			.replace('http://steamcommunity.com/id/', '')
+			.replace('https://steamcommunity.com/id/', '')
+			.replace('https://steamcommunity.com/profile/', '')
+			.replace('http://steamcommunity.com/profile/', '')
+			.replace(manipulateRegExp, '');
 		
-		var validID = Util.ToNumber(toManipulate);
+		let validID = Util.ToNumber(toManipulate);
 		
-		var SteamID = '';
-		var SteamID3 = '';
-		var SteamID64 = '';
-		var CustomProfileURL = '';
+		let SteamID = '';
+		let SteamID3 = '';
+		let SteamID64 = '';
+		let CustomProfileURL = '';
 		
 		msg.channel.startTyping();
 		
-		var continueFunc = function() {
+		let continueFunc = function() {
 			msg.channel.stopTyping();
-			var output = '\n';
+			let output = '\n';
 			
 			output += 'Player SteamID(32): `' + SteamID + '`\n';
 			output += 'Player SteamID3: `' + SteamID3 + '`\n';
@@ -98,7 +100,7 @@ module.exports = {
 			msg.reply(output);
 		}
 		
-		var getFunc = function(id) {
+		let getFunc = function(id) {
 			MySQL.query('SELECT * FROM steamid_fail WHERE "STEAMID64" = ' + Util.escape(id) + '', function(err, data2) {
 				if (err) {
 					msg.channel.stopTyping();
@@ -122,7 +124,7 @@ module.exports = {
 					} else {
 						unirest.get(apiBase + id)
 						.end(function(result) {
-							var data = result.body.response.players;
+							let data = result.body.response.players;
 							
 							if (!data[0]) {
 								MySQL.query('INSERT INTO steamid_fail ("STEAMID64") VALUES (' + Util.escape(id) + ')');
@@ -131,12 +133,12 @@ module.exports = {
 								return;
 							}
 							
-							var ply = data[0];
-							var profileurl = ply.profileurl;
-							var steamid = SteamIDFrom64(id);
-							var steamid3 = SteamIDTo3(steamid);
+							let ply = data[0];
+							let profileurl = ply.profileurl;
+							let steamid = SteamIDFrom64(id);
+							let steamid3 = SteamIDTo3(steamid);
 							
-							var profile = profileurl.replace('http://steamcommunity.com/id/', '').replace('/', '');
+							let profile = profileurl.replace('http://steamcommunity.com/id/', '').replace('/', '');
 							
 							CustomProfileURL = profile;
 							SteamID = steamid;
@@ -159,11 +161,11 @@ module.exports = {
 		
 		if (toManipulate.substr(0, 2) == '[U') {
 			// assume this is SteamID3
-			var steamid = SteamIDFrom3(toManipulate);
+			let steamid = SteamIDFrom3(toManipulate);
 			getFunc(steamid);
 		} else if (toManipulate.substr(0, 7) == 'STEAM_0') {
 			// assume this is SteamID
-			var steamid = SteamIDTo64(toManipulate);
+			let steamid = SteamIDTo64(toManipulate);
 			getFunc(steamid);
 		} else if (validID) {
 			// assume this is SteamID64
@@ -188,14 +190,14 @@ module.exports = {
 					} else {
 						unirest.get(resolveBase + encodeURIComponent(toManipulate))
 						.end(function(result) {
-							var res = result.body;
+							let res = result.body;
 							
 							if (!res.response || res.response.success == 42) {
 								MySQL.query('INSERT INTO steamid_fail ("CUSTOMID") VALUES (' + Util.escape(toManipulate) + ')');
 								msg.reply('No such Steam account: ' + toManipulate);
 								msg.channel.stopTyping();
 							} else {
-								var uid = res.response.steamid;
+								let uid = res.response.steamid;
 								
 								getFunc(uid);
 							}

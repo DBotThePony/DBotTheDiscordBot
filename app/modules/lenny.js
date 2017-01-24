@@ -1,5 +1,5 @@
 
-var lennyRegExp = /\([ ]* ͡°[ ]* ͜?ʖ[ ]* ͡°[ ]*\)/gi;
+const lennyRegExp = /\([ ]* ͡°[ ]* ͜?ʖ[ ]* ͡°[ ]*\)/gi;
 
 hook.Add('OnHumanMessage', 'Lenny', function(msg) {
 	if (DBot.IsAskingMe(msg))
@@ -9,7 +9,7 @@ hook.Add('OnHumanMessage', 'Lenny', function(msg) {
 		return;
 	
 	if (!DBot.IsPM(msg)) {
-		var mute = cvars.Channel(msg.channel).getVar('mute');
+		let mute = cvars.Channel(msg.channel).getVar('mute');
 		
 		if (mute) {
 			if (mute.getBool()) {

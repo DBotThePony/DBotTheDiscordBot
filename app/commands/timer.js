@@ -4,13 +4,13 @@ Util.SafeCopy('./node_modules/numeral/numeral.js', DBot.WebRoot + '/numeral.js')
 Util.SafeCopy('./resource/files/jquery-3.0.0.min.js', DBot.WebRoot + '/jquery-3.0.0.min.js');
 Util.mkdir(DBot.WebRoot + '/countdown');
 
-var INIT = false;
-var NOTIFY = {};
+let INIT = false;
+let NOTIFY = {};
 
 hook.Add('BotOnline', 'Timers', function() {
 	INIT = true;
 	MySQL.query('SELECT "ID", "STAMP" FROM timers_ids WHERE "NOTIFY" = false', function(err, data) {
-		for (var i in data) {
+		for (let i in data) {
 			NOTIFY[data[i].ID] = data[i].STAMP;
 		}
 	});
@@ -20,20 +20,20 @@ setInterval(function() {
 	if (!INIT)
 		return;
 	
-	var curr = CurTime();
+	let curr = CurTime();
 	
-	for (var ID in NOTIFY) {
+	for (let ID in NOTIFY) {
 		if (NOTIFY[ID] <= curr) {
 			(function() {
-				var id = ID;
+				let id = ID;
 				
 				MySQL.query('UPDATE timers_ids SET "NOTIFY" = true WHERE "ID" = ' + id);
 				
 				MySQL.query('SELECT "TITLE", "HASH" FROM timers_ids WHERE "ID" = ' + id, function(err, data2) {
 					MySQL.query('SELECT "ID" FROM timers_users WHERE "TIMERID" = ' + id, function(err, data) {
-						for (var I in data) {
-							var row = data[I];
-							var user = DBot.GetUser(row.ID);
+						for (let I in data) {
+							let row = data[I];
+							let user = DBot.GetUser(row.ID);
 							
 							if (user) {
 								user.sendMessage('Timer #' + id + ' "' + data2[0].TITLE + '" has runned out!\n' + DBot.URLRoot + '/countdown/' + data2[0].HASH + '.html');
@@ -48,11 +48,11 @@ setInterval(function() {
 	}
 }, 1000);
 
-var crypto = DBot.js.crypto;
-var fs = DBot.js.fs;
-var moment = DBot.js.moment;
+const crypto = DBot.js.crypto;
+const fs = DBot.js.fs;
+const moment = DBot.js.moment;
 
-var stuff = [];
+let stuff = [];
 
 stuff[0] = `<!DOCTYPE HTML>
 <html>
@@ -98,17 +98,17 @@ body {
 <script src='/bot/jquery-3.0.0.min.js'></script>
 <script type='application/javascript'>`;
 
-stuff[1] = `var countdown;
-var nums;
+stuff[1] = `let countdown;
+let nums;
 
-var func = function() {
+let func = function() {
 	countdown = countdown || $('#countdown');
 	nums = nums || $('#nums');
-	var delta = CountingUntil - (new Date()).getTime() / 1000;
-	var valid = delta % 86000;
-	var toDays = delta - valid;
+	let delta = CountingUntil - (new Date()).getTime() / 1000;
+	let valid = delta % 86000;
+	let toDays = delta - valid;
 	
-	var apply = '';
+	let apply = '';
 	
 	if (toDays > 0) {
 		apply = Math.floor(toDays / 86000) + ' days, ';
@@ -139,8 +139,8 @@ module.exports = {
 	desc: 'Creates a timer. When timer runs out, i will notify you in PM.\nAlso generates an HTML page.\nTime parsed by Moment.JS, to see avaliable\nformats of input time, see http://momentjs.com/docs/#/parsing/\nIf you want timer that will alarm in some amount of seconds, just\ninstead of time type number that represents amount of seconds.\nAlso i support values like 1h30m10s (you can use hours instead of h,\nminutes instead of m, seconds instead of s)',
 	
 	func: function(args, cmd, msg) {
-		var title = args[0];
-		var time = args[1];
+		let title = args[0];
+		let time = args[1];
 		
 		if (!title)
 			return 'There must be a title' + Util.HighlightHelp(['timer'], 2, args);
@@ -148,22 +148,22 @@ module.exports = {
 		if (!time)
 			return 'There is must be time' + Util.HighlightHelp(['timer'], 3, args);
 		
-		var num = Util.ToNumber(time);
+		let num = Util.ToNumber(time);
 		
-		for (var i = 2; i < args.length; i++) {
+		for (let i = 2; i < args.length; i++) {
 			time += ' ' + args[i];
 		}
 		
-		var unix;
+		let unix;
 		
 		if (num) {
 			unix = CurTime() + num;
 		} else {
-			var parsed = 0;
+			let parsed = 0;
 			
-			var hours = time.match(/[0-9]+(h|hours)/);
-			var minutes = time.match(/[0-9]+(m|minutes)/);
-			var seconds = time.match(/[0-9]+(s|seconds)/);
+			let hours = time.match(/[0-9]+(h|hours)/);
+			let minutes = time.match(/[0-9]+(m|minutes)/);
+			let seconds = time.match(/[0-9]+(s|seconds)/);
 			
 			if (hours) {
 				parsed += Util.ToNumberSoft(hours[0]) * 3600;
@@ -178,7 +178,7 @@ module.exports = {
 			}
 			
 			if (parsed == 0) {
-				var M;
+				let M;
 				
 				try {
 					M = moment(time);
@@ -199,14 +199,14 @@ module.exports = {
 			return 'Invalid date!' + Util.HighlightHelp(['timer'], 3, args);
 		}
 		
-		var hash = crypto.createHash('sha256');
+		let hash = crypto.createHash('sha256');
 		
 		hash.update(unix + ' || ');
 		hash.update(title);
 		
-		var sha = hash.digest('hex');
-		var fpath = DBot.WebRoot + '/countdown/' + sha + '.html';
-		var fpathURL = DBot.URLRoot + '/countdown/' + sha + '.html';
+		let sha = hash.digest('hex');
+		let fpath = DBot.WebRoot + '/countdown/' + sha + '.html';
+		let fpathURL = DBot.URLRoot + '/countdown/' + sha + '.html';
 		
 		fs.stat(fpath, function(err, stat) {
 			if (stat) {
@@ -226,12 +226,12 @@ module.exports = {
 						return;
 					}
 					
-					var timerID = data[0].ID;
-					var stream = fs.createWriteStream(fpath);
+					let timerID = data[0].ID;
+					let stream = fs.createWriteStream(fpath);
 					
 					stream.write(stuff[0]);
 					
-					stream.write('var CountingUntil = ' + unix + ';\n');
+					stream.write('CountingUntil = ' + unix + ';\n');
 					
 					stream.write(stuff[1]);
 					stream.write("<span id='timer'>Timer #" + timerID + "<br>" + title + "</span>");
@@ -259,20 +259,20 @@ DBot.RegisterCommand({
 	desc: 'Prints all timers bounded to you',
 	
 	func: function(args, cmd, msg) {
-		var id = DBot.GetUserID(msg.author);
+		let id = DBot.GetUserID(msg.author);
 		
 		MySQL.query('SELECT "TIMERID" FROM timers_users WHERE "ID" = ' + id, function(err, data) {
-			var timerz = [];
+			let timerz = [];
 			
-			var continueFunc = function() {
+			let continueFunc = function() {
 				if (timerz.length == 0) {
 					msg.reply('None timers found.');
 					return;
 				}
 				
-				var output = '```';
+				let output = '```';
 				
-				for (var i in timerz) {
+				for (let i in timerz) {
 					output += 'Timer #' + timerz[i].ID + ' "' + timerz[i].TITLE + '", Will Alarm ' + moment.unix(timerz[i].STAMP).fromNow() + ' ' + DBot.URLRoot + '/countdown/' + timerz[i].HASH + '.html\n';
 				}
 				
@@ -280,23 +280,21 @@ DBot.RegisterCommand({
 				msg.reply(output);
 			}
 			
-			var count = 0;
+			let count = 0;
 			
-			for (var i in data) {
+			for (let i in data) {
 				count++;
-				(function() {
-					var id2 = data[i].TIMERID;
+				let id2 = data[i].TIMERID;
+				
+				MySQL.query('SELECT * FROM timers_ids WHERE "ID" = ' + id2 + ' AND "NOTIFY" = false', function(err, data) {
+					count--;
 					
-					MySQL.query('SELECT * FROM timers_ids WHERE "ID" = ' + id2 + ' AND "NOTIFY" = false', function(err, data) {
-						count--;
-						
-						if (data && data[0])
-							timerz.push(data[0]);
-						
-						if (count == 0)
-							continueFunc();
-					});
-				})();
+					if (data && data[0])
+						timerz.push(data[0]);
+					
+					if (count == 0)
+						continueFunc();
+				});
 			}
 		});
 	}
@@ -313,7 +311,7 @@ DBot.RegisterCommand({
 		if (!args[0])
 			return 'Must specify timer ID' + Util.HighlightHelp(['rtimer'], 2, args);
 		
-		var id = DBot.GetUserID(msg.author);
+		let id = DBot.GetUserID(msg.author);
 		MySQL.query('SELECT "TIMERID" FROM timers_users WHERE "ID" = ' + id + ' AND "TIMERID" = ' + Util.escape(args[0]), function(err, data) {
 			if (data && data[0]) {
 				MySQL.query('DELETE FROM timers_users WHERE "ID" = ' + id + ' AND "TIMERID" = ' + Util.escape(args[0]));

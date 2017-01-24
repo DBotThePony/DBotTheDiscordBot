@@ -15,7 +15,7 @@ Util.mkdir(DBot.WebRoot + '/cowsay', function() {
 	Util.mkdir(DBot.WebRoot + '/cowsay/temp');
 });
 
-var cows = [
+const cows = [
 	'cow',
 	'tux',
 	'sheep',
@@ -37,12 +37,12 @@ for (let item of cows) {
 		desc: 'Say TEH word',
 		
 		func: function(args, cmd, msg) {
-			var ask = item;
+			let ask = item;
 			
 			if (item == 'cow')
 				ask = 'default';
 			
-			var result = cowsay.say({
+			let result = cowsay.say({
 				text: cmd.replace(/```/gi, ''),
 				f: ask,
 			});

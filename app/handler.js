@@ -57,7 +57,7 @@ DBot.bot.on('message', function(msg) {
 		hook.Run('OnValidMessage', msg);
 		
 		if (!msg.author.bot) {
-			var supp = hook.Run('OnHumanMessage', msg);
+			let supp = hook.Run('OnHumanMessage', msg);
 			
 			if (supp === true) return;
 		}
@@ -98,14 +98,14 @@ DBot.bot.on('message', function(msg) {
 DBot.CommandsAntiSpam = {};
 
 DBot.ParseString = function(str, ignoreHandlers) {
-	var charset = str.split('');
-	var nextHaveNoAction = false;
-	var output = [];
-	var handlers = [];
-	var current = '';
-	var inDouble = false;
-	var inSingle = false;
-	var parsingHandlers = false;
+	let charset = str.split('');
+	let nextHaveNoAction = false;
+	let output = [];
+	let handlers = [];
+	let current = '';
+	let inDouble = false;
+	let inSingle = false;
+	let parsingHandlers = false;
 	
 	for (let item of charset) {
 		if (nextHaveNoAction) {
@@ -320,7 +320,7 @@ setInterval(function() {
 }, 1000);
 
 DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extraArgument, parsedHandlers) {
-	var can = hook.Run('ExecuteCommand', msg.author, command, msg);
+	let can = hook.Run('ExecuteCommand', msg.author, command, msg);
 	
 	if (can === false) {
 		return;
@@ -341,11 +341,11 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 		return;
 	}
 	
-	var timeout = cCommand.delay || 1.5;
-	var curr = UnixStamp();
+	let timeout = cCommand.delay || 1.5;
+	let curr = UnixStamp();
 	
 	if (DBot.CommandsAntiSpam[msg.author.id] && !DBot.DISABLE_ANTISPAM) {
-		var delta = DBot.CommandsAntiSpam[msg.author.id] - curr;
+		let delta = DBot.CommandsAntiSpam[msg.author.id] - curr;
 		if (delta > 0) {
 			if (msg.channel.cooldown && msg.channel.cooldown > CurTime()) {
 				msg.channel.cooldown = CurTime() + 1;
@@ -362,19 +362,19 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 	DBot.CommandsAntiSpam[msg.author.id] = curr + timeout;
 	
 	if ((!parsedArgs || !parsedArgs[0]) && cCommand.argNeeded) {
-		var messageFromCommand = cCommand.failMessage || 'Invalid arguments';
+		let messageFromCommand = cCommand.failMessage || 'Invalid arguments';
 		
 		msg.reply(messageFromCommand + Util.HighlightHelp([cCommand.id, '<missing>'], 2) + 'Help:\n```' + DBot.BuildHelpStringForCommand(command) + '```\n');
 		return;
 	}
 	
 	if (cCommand.allowUserArgument) {
-		for (var k in parsedArgs) {
+		for (let k in parsedArgs) {
 			if (typeof parsedArgs[k] != 'string') {
 				continue;
 			}
 			
-			var user = DBot.IdentifyUser(parsedArgs[k]);
+			let user = DBot.IdentifyUser(parsedArgs[k]);
 			
 			if (user)
 				parsedArgs[k] = user;
@@ -385,7 +385,7 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 	}
 	
 	if (cCommand.checkAccess) {
-		var reply = cCommand.checkAccess(parsedArgs, rawcmd, msg);
+		let reply = cCommand.checkAccess(parsedArgs, rawcmd, msg);
 		
 		if (!reply) {
 			msg.reply('No access');
@@ -550,8 +550,10 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 	
 	hook.Run('PreExecuteCommand', cCommand.id, msg.author, parsedArgs, rawcmd, msg, extraArgument, parsedHandlers);
 	
+	let reply;
+	
 	try {
-		var reply = cCommand.func(parsedArgs, rawcmd, msg, extraArgument);
+		reply = cCommand.func(parsedArgs, rawcmd, msg, extraArgument);
 	} catch(err) {
 		msg.oldReply('<internal pony error>');
 		console.error(err);
@@ -686,7 +688,7 @@ DBot.IsAskingMe_Command = function(msg) {
 	if (msg.content.substr(0, DBot.aidcLen2) == DBot.askIdC2)
 		return true;
 	
-	var prefix = '}';
+	let prefix = '}';
 	
 	if (!DBot.IsPM(msg)) {
 		if (cvars.Server(msg.channel.guild).getVar('prefix_disable').getBool())

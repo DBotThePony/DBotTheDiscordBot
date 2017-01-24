@@ -472,7 +472,7 @@ IMagick.DrawText = function(data, callback) {
 				let linesLeft = magikLines.length;
 				let BREAK = false;
 				
-				var continueFunc = function() {
+				let continueFunc = function() {
 					let outputArgs = [];
 					
 					for (let line in magikLines) {

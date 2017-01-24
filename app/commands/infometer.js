@@ -1,7 +1,6 @@
 
 // https://dbot.serealia.ca/info/
 
-
 module.exports = {
 	name: 'infometer',
 	alias: ['infometr', 'dmetr', 'info'],
@@ -17,11 +16,11 @@ module.exports = {
 			if (data && data[0]) {
 				msg.reply('\n```' + cmd + '\nInfo - ' + data[0].VALUE + '%```');
 			} else {
-				var length = cmd.length;
-				var min = 0;
-				var finalPercent = 0;
+				let length = cmd.length;
+				let min = 0;
+				let finalPercent = 0;
 				
-				var Jackpot = Util.Random(0, 25);
+				let Jackpot = Util.Random(0, 25);
 				
 				if (Jackpot == 5) {
 					finalPercent = Util.Random(75, 100);

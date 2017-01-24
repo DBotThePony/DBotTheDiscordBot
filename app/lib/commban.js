@@ -1,10 +1,9 @@
 
 DBot.commBanCache = {};
-var cache = DBot.commBanCache;
+let cache = DBot.commBanCache;
 cache.server = {};
 cache.channel = {};
 cache.member = {};
-var MySQL = DBot.MySQL;
 
 DBot.DisallowCommandManipulate = [
 	'invite', 'cban', 'ucban',
@@ -44,7 +43,7 @@ class CommandBanClass {
 	}
 	
 	removeCommand(command) {
-		for (var i in this.bans) {
+		for (let i in this.bans) {
 			if (this.bans[i] == command) {
 				this.bans.splice(i, 1);
 				this.onUnBanned(command);
@@ -85,13 +84,13 @@ class CommandBanClass {
 		this.realm = realm;
 		this.ready = false;
 		this.uid = IDFunc(obj);
-		var Me = this;
+		let Me = this;
 		
 		if (noFetch)
 			return;
 		
 		MySQL.query('SELECT "COMMAND" FROM command_bans_' + this.realm + ' WHERE "UID" = ' + this.uid, function(err, data) {
-			for (var i in data) {
+			for (let i in data) {
 				Me.ban(data[i].COMMAND);
 			}
 			

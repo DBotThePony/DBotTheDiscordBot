@@ -24,17 +24,17 @@ module.exports = {
 			return DBot.CommandError('Must specify at least one string ;w;', 'ratedby', args, 3);
 		}
 		
-		var age = Util.ToNumber(args[1]);
-		var ageArg = args[1];
+		let age = Util.ToNumber(args[1]);
+		let ageArg = args[1];
 		
 		if (age) {
 			ageArg = args[1] + '+™';
 		}
 		
-		var ageLen = ageArg.toString().length;
-		var sha = DBot.HashString(msg.author.id + ' ' + cmd);
-		var fpath = DBot.WebRoot + '/ratedby/' + sha + '.png';
-		var fpathU = DBot.URLRoot + '/ratedby/' + sha + '.png';
+		let ageLen = ageArg.toString().length;
+		let sha = DBot.HashString(msg.author.id + ' ' + cmd);
+		let fpath = DBot.WebRoot + '/ratedby/' + sha + '.png';
+		let fpathU = DBot.URLRoot + '/ratedby/' + sha + '.png';
 		
 		msg.channel.startTyping();
 		
@@ -43,7 +43,7 @@ module.exports = {
 				msg.channel.stopTyping();
 				msg.reply(fpathU);
 			} else {
-				var magikArgs = [
+				let magikArgs = [
 					'-size', '640x350', 'canvas:black', '-background', 'black', '-fill', 'white',
 					'-draw', 'rectangle 3,3 637,6',
 					'-draw', 'rectangle 3,3 6,347',
@@ -68,7 +68,7 @@ module.exports = {
 				
 				magikArgs.push(fpath);
 				
-				var magik = spawn('convert', magikArgs);
+				let magik = spawn('convert', magikArgs);
 				
 				Util.Redirect(magik);
 				

@@ -1,5 +1,5 @@
 
-var unirest = DBot.js.unirest;
+const unirest = DBot.js.unirest;
 
 module.exports = {
 	name: 'urban',
@@ -16,28 +16,28 @@ module.exports = {
 			if (err)
 				return;
 			
-			var curr = UnixStamp();
+			let curr = UnixStamp();
 			
 			if (!data[0] || data[0].USTAMP < curr) {
 				unirest.get("https://mashape-community-urban-dictionary.p.mashape.com/define?term=" + encodeURIComponent(cmd))
 				.header("X-Mashape-Key", "EBS2SokObUmshIhkhF080NPpTw4Zp10mx1QjsnSQwZbLG1jWJ9")
 				.header("Accept", "text/plain")
 				.end(function (result) {
-					var first = result.body.list[0];
+					let first = result.body.list[0];
 					
 					if (!first) {
 						msg.reply('None found');
 						return;
 					}
 					
-					var tags = 'Tags: ' + DBot.ConcatArray(result.body.tags, ', ');
-					var link = first.permalink;
-					var def = first.definition;
-					var example = first.example;
+					let tags = 'Tags: ' + DBot.ConcatArray(result.body.tags, ', ');
+					let link = first.permalink;
+					let def = first.definition;
+					let example = first.example;
 					
 					msg.reply(tags + '\nDefinition: ' + def + '\nExample: ```' + example + '```');
 					
-					var q = 'INSERT INTO urbancache ("WORD", "DEFINITION", "TAGS", "ULINK", "DEXAMPLE", "USTAMP") VALUES ('
+					let q = 'INSERT INTO urbancache ("WORD", "DEFINITION", "TAGS", "ULINK", "DEXAMPLE", "USTAMP") VALUES ('
 						+ Util.escape(cmd) + ', '
 						+ Util.escape(def) + ', '
 						+ Util.escape(tags) + ', '
@@ -54,11 +54,11 @@ module.exports = {
 					MySQL.query(q);
 				});
 			} else {
-				var first = data[0];
-				var tags = '(cached result)\nTags: ' + first.TAGS;
-				var link = first.ULINK;
-				var def = first.DEFINITION;
-				var example = first.DEXAMPLE;
+				let first = data[0];
+				let tags = '(cached result)\nTags: ' + first.TAGS;
+				let link = first.ULINK;
+				let def = first.DEFINITION;
+				let example = first.DEXAMPLE;
 				
 				msg.reply(tags + '\nDefinition: ' + def + '\nExample: ```' + example + '```');
 			}

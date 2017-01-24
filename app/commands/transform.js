@@ -3,8 +3,8 @@ const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
 const fs = DBot.js.fs;
 
-var font = 'Hack-Regular';
-var size = 48;
+const font = 'Hack-Regular';
+const size = 48;
 
 Util.mkdir(DBot.WebRoot + '/text');
 
@@ -25,7 +25,7 @@ module.exports = {
 		if (args[0].length > 400)
 			return 'Ugh, too big!';
 		
-		var cont;
+		let cont;
 		
 		for (let i = 1; i < args.length; i++) {
 			if (cont)
@@ -37,11 +37,11 @@ module.exports = {
 		if (cont.length > 400)
 			return 'Ugh, too big!';
 		
-		var compareI = Math.min(args[0].length, cont.length);
-		var sameUntil = 0;
+		let compareI = Math.min(args[0].length, cont.length);
+		let sameUntil = 0;
 		
-		var comp1 = args[0].toLowerCase();
-		var comp2 = cont.toLowerCase();
+		let comp1 = args[0].toLowerCase();
+		let comp2 = cont.toLowerCase();
 		
 		for (let i = 0; i < compareI; i++) {
 			if (comp1[i] == comp2[i])
@@ -54,7 +54,7 @@ module.exports = {
 			return 'Strings must be equal at least in the start';
 		}
 		
-		var build = args[0];
+		let build = args[0];
 		
 		for (let i = args[0].length + 1; i >= sameUntil; i--) {
 			let sub = args[0].substr(0, i)
@@ -100,7 +100,7 @@ DBot.RegisterCommand({
 		if (args[0].length > 400)
 			return 'Ugh, too big!';
 		
-		var cont;
+		let cont;
 		
 		for (let i = 1; i < args.length; i++) {
 			if (cont)
@@ -112,11 +112,11 @@ DBot.RegisterCommand({
 		if (cont.length > 400)
 			return 'Ugh, too big!';
 		
-		var compareI = Math.min(args[0].length, cont.length);
-		var sameUntil = 0;
+		let compareI = Math.min(args[0].length, cont.length);
+		let sameUntil = 0;
 		
-		var comp1 = args[0].toLowerCase();
-		var comp2 = cont.toLowerCase();
+		let comp1 = args[0].toLowerCase();
+		let comp2 = cont.toLowerCase();
 		
 		for (let i = 0; i < compareI; i++) {
 			if (comp1[i] == comp2[i])
@@ -129,7 +129,7 @@ DBot.RegisterCommand({
 			return 'Strings must be equal at least in the start';
 		}
 		
-		var build = args[0];
+		let build = args[0];
 		
 		for (let i = args[0].length + 1; i >= sameUntil; i--) {
 			if (args[0].substr(0, i) == build)
@@ -147,27 +147,27 @@ DBot.RegisterCommand({
 			build += '\n' + sub;
 		}
 		
-		var splitLines = build.split('\n');
+		let splitLines = build.split('\n');
 		
-		var max = 0;
+		let max = 0;
 		
-		for (var i in splitLines) {
+		for (let i in splitLines) {
 			if (splitLines[i].length > max)
 				max = splitLines[i].length;
 		}
 		
-		var sha = DBot.HashString(build);
-		var fpath = DBot.WebRoot + '/text/' + sha + '.png';
-		var fpathU = DBot.URLRoot + '/text/' + sha + '.png';
+		let sha = DBot.HashString(build);
+		let fpath = DBot.WebRoot + '/text/' + sha + '.png';
+		let fpathU = DBot.URLRoot + '/text/' + sha + '.png';
 		
 		fs.stat(fpath, function(err, stat) {
 			if (stat) {
 				msg.reply(fpathU);
 			} else {
-				var calcHeight = splitLines.length * size * 1.5;
-				var calcWidth = max * size * .6 + 40;
+				let calcHeight = splitLines.length * size * 1.5;
+				let calcWidth = max * size * .6 + 40;
 				
-				var magikArgs = [
+				let magikArgs = [
 					'-size', calcWidth + 'x' + calcHeight,
 					'canvas:none',
 					'-pointsize', size,
@@ -176,15 +176,15 @@ DBot.RegisterCommand({
 					'-fill', 'black',
 				];
 				
-				for (var i in splitLines) {
-					var line = splitLines[i];
+				for (let i in splitLines) {
+					let line = splitLines[i];
 					
 					magikArgs.push('-draw', 'text 0,' + (i * size * 1.5) + ' "' + line.replace(/"/g, "'") + '"');
 				}
 				
 				magikArgs.push(fpath);
 				
-				var magik = spawn('convert', magikArgs);
+				let magik = spawn('convert', magikArgs);
 				
 				Util.Redirect(magik);
 				

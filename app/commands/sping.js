@@ -20,15 +20,15 @@ module.exports = {
 	desc: 'Pings Source server',
 	
 	func: function(args, cmd, msg) {
-		var port = 27015;
-		var split = cmd.split(':');
+		let port = 27015;
+		let split = cmd.split(':');
 		
 		if (!split[0]) {
 			return DBot.CommandError('Invalid IP', 'sping', args, 1);
 		}
 		
-		var ip = split[0];
-		var matchIP = ip.match(/([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/);
+		let ip = split[0];
+		let matchIP = ip.match(/([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/);
 		
 		if (split[1]) {
 			let portNum = Util.ToNumber(split[1]);
@@ -40,63 +40,63 @@ module.exports = {
 			}
 		}
 		
-		var continueFunc = function() {
-			var randPort = Util.Random(50000, 55000);
-			var Closed = false;
-			var sendStamp;
+		let continueFunc = function() {
+			let randPort = Util.Random(50000, 55000);
+			let Closed = false;
+			let sendStamp;
 			
-			var socket = dgram.createSocket('udp4');
+			let socket = dgram.createSocket('udp4');
 			
 			socket.on('message', function(buf, rinfo) {
 				msg.channel.stopTyping();
 				try {
-					var pingLatency = Math.floor((CurTime() - sendStamp) * 1000);
-					var offset = 6;
-					var readName = Util.ReadString(buf, offset);
-					var name = readName[0];
+					let pingLatency = Math.floor((CurTime() - sendStamp) * 1000);
+					let offset = 6;
+					let readName = Util.ReadString(buf, offset);
+					let name = readName[0];
 					offset += readName[1];
 					
-					var readMap = Util.ReadString(buf, offset);
-					var map = readMap[0];
+					let readMap = Util.ReadString(buf, offset);
+					let map = readMap[0];
 					offset += readMap[1];
 					
-					var readFolder = Util.ReadString(buf, offset);
-					var folder = readFolder[0];
+					let readFolder = Util.ReadString(buf, offset);
+					let folder = readFolder[0];
 					offset += readFolder[1];
 					
-					var readGame = Util.ReadString(buf, offset);
-					var game = readGame[0];
+					let readGame = Util.ReadString(buf, offset);
+					let game = readGame[0];
 					offset += readGame[1];
 					
-					var readID = buf.readUInt16LE(offset);
+					let readID = buf.readUInt16LE(offset);
 					offset += 2;
 					
-					var Players = buf.readUInt8(offset);
+					let Players = buf.readUInt8(offset);
 					offset += 1;
 					
-					var MPlayers = buf.readUInt8(offset);
+					let MPlayers = buf.readUInt8(offset);
 					offset += 1;
 					
-					var Bots = buf.readUInt8(offset);
+					let Bots = buf.readUInt8(offset);
 					offset += 1;
 					
-					var Type = String.fromCharCode(buf.readUInt8(offset));
+					let Type = String.fromCharCode(buf.readUInt8(offset));
 					offset += 1;
 					
-					var OS = String.fromCharCode(buf.readUInt8(offset));
+					let OS = String.fromCharCode(buf.readUInt8(offset));
 					offset += 1;
 					
-					var Visibility = buf.readUInt8(offset);
+					let Visibility = buf.readUInt8(offset);
 					offset += 1;
 					
-					var VAC = buf.readUInt8(offset);
+					let VAC = buf.readUInt8(offset);
 					offset += 1;
 					
-					var readVersion = Util.ReadString(buf, offset);
-					var Version = readVersion[0];
+					let readVersion = Util.ReadString(buf, offset);
+					let Version = readVersion[0];
 					offset += readVersion[1];
 					
-					var output = '\n```';
+					let output = '\n```';
 					
 					output += 'Ping to the server:      ' + Math.floor(pingLatency) + 'ms\n';
 					output += 'Server IP:               ' + ip + '\n';

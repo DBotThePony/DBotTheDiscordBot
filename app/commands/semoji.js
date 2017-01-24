@@ -37,7 +37,7 @@ module.exports = {
 					msg.channel.stopTyping();
 					msg.reply('Invalid emoji: ' + str);
 				} else {
-					var fpath = DBot.WebRoot + '/steam_emoji/' + str + '.png';
+					let fpath = DBot.WebRoot + '/steam_emoji/' + str + '.png';
 					
 					fs.stat(fpath, function(err, stat) {
 						if (STOP)
@@ -111,7 +111,7 @@ DBot.RegisterCommand({
 		if (args.length > 5)
 			return 'Fokk you, too many of them!';
 		
-		var STOP = false;
+		let STOP = false;
 		
 		msg.channel.startTyping();
 		
@@ -126,7 +126,7 @@ DBot.RegisterCommand({
 					msg.channel.stopTyping();
 					msg.reply('Invalid emoji: ' + str);
 				} else {
-					var fpath = DBot.WebRoot + '/steam_emoji_large/' + str + '.png';
+					let fpath = DBot.WebRoot + '/steam_emoji_large/' + str + '.png';
 					
 					fs.stat(fpath, function(err, stat) {
 						if (STOP)

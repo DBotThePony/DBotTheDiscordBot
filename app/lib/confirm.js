@@ -1,8 +1,8 @@
 
 // Confirm or Decline actions
 
-var fs = require('fs');
-var Pending = {};
+const fs = DBot.js.fs;
+let Pending = {};
 
 class Confirm {
 	constructor(user, channel) {
@@ -18,7 +18,7 @@ class Confirm {
 	}
 	
 	echo() {
-		var ME = this;
+		let ME = this;
 		
 		ME.channel.sendMessage('Confirm action? Y/N\n' + (this.title || '') + '\n' + (this.desc || ''))
 		.then(function(msg) {
@@ -100,8 +100,8 @@ class Confirm {
 }
 
 hook.Add('CanExecuteCommand', 'Confirm', function(user, command, msg) {
-	var uid = user.id;
-	var cuid = msg.channel.id;
+	let uid = user.id;
+	let cuid = msg.channel.id;
 	
 	if (!Pending[uid])
 		return;
@@ -125,8 +125,8 @@ DBot.RegisterCommand({
 	desc: 'YES',
 	
 	func: function(args, cmd, msg) {
-		var uid = msg.author.id;
-		var cuid = msg.channel.id;
+		let uid = msg.author.id;
+		let cuid = msg.channel.id;
 		
 		if (!Pending[uid])
 			return 'No command to confirm at all';
@@ -147,8 +147,8 @@ DBot.RegisterCommand({
 	desc: 'Nope.avi',
 	
 	func: function(args, cmd, msg) {
-		var uid = msg.author.id;
-		var cuid = msg.channel.id;
+		let uid = msg.author.id;
+		let cuid = msg.channel.id;
 		
 		if (!Pending[uid])
 			return 'No command to cancel at all';

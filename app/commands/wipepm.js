@@ -9,7 +9,7 @@ module.exports = {
 		if (!DBot.IsPM(msg))
 			return 'Must execute in PM channel ;n;';
 		
-		var conf = new DBot.Confirm(msg.author, msg.channel);
+		let conf = new DBot.Confirm(msg.author, msg.channel);
 		
 		conf.setTitle('Wipe of PM messages');
 		conf.setDesc('');
@@ -17,9 +17,9 @@ module.exports = {
 		conf.confirm(function() {
 			msg.channel.fetchMessages({limit: 100})
 			.then(function(messages) {
-				var arr = messages.array();
+				let arr = messages.array();
 				
-				for (var i in arr) {
+				for (let i in arr) {
 					if (arr[i].author.id == DBot.bot.user.id) {
 						arr[i].delete(0);
 					}

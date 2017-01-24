@@ -7,20 +7,20 @@ module.exports = {
 	delay: -0.1,
 	
 	func: function(args, cmd, msg) {
-		var cid = msg.channel.id;
-		var uid = msg.author.id;
+		let cid = msg.channel.id;
+		let uid = msg.author.id;
 		if (!DBot.__LastRetryCommand[cid])
 			DBot.__LastRetryCommand[cid] = {};
 		
 		if (!DBot.__LastRetryCommand[cid][uid])
 			return 'There was no command before! ;w;';
 		
-		var data = DBot.__LastRetryCommand[cid][uid];
-		var cCommand = data[0];
-		var parsedArgs = data[1];
-		var rawcmd = data[2];
-		var moreArgs = data[3];
-		var parsedHandlers = data[4];
+		let data = DBot.__LastRetryCommand[cid][uid];
+		let cCommand = data[0];
+		let parsedArgs = data[1];
+		let rawcmd = data[2];
+		let moreArgs = data[3];
+		let parsedHandlers = data[4];
 		
 		DBot.ExecuteCommand(cCommand, msg, parsedArgs, rawcmd, cCommand.id, moreArgs, parsedHandlers);
 	},

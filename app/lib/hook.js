@@ -30,9 +30,9 @@ hook.Call = function(event, A, B, C, D, E, F, G) {
 		return;
 	}
 	
-	for (var k in hook.Table[event]) {
-		var func = hook.Table[event][k];
-		var reply = func(A, B, C, D, E, F, G);
+	for (let k in hook.Table[event]) {
+		let func = hook.Table[event][k];
+		let reply = func(A, B, C, D, E, F, G);
 		
 		if (reply !== undefined)
 			return reply;
@@ -45,7 +45,7 @@ hook.GetTable = function() {
 	return hook.Table;
 }
 
-var botHooks = [
+const botHooks = [
 	['guildCreate', 'OnJoinedServer'],
 	['guildDelete', 'OnLeftServer'],
 	['guildEmojiCreate', 'EmojiCreated'],
@@ -225,7 +225,7 @@ hook.Add('OnMessageEdit', 'LastURLInChannel', function(omsg, nmsg) {
 });
 
 hook.Add('ChannelDeleted', 'LastURLInChannel', function(channel) {
-	var cid = channel.id;
+	let cid = channel.id;
 	URLMessages[cid] = undefined;
 });
 
@@ -235,18 +235,18 @@ hook.Add('UserInitialized', 'UpdateUserVars', function(user) {
 	usersCache.push(user);
 });
 
-var UpdateUserVars = function() {
+let UpdateUserVars = function() {
 	if (!IsOnline())
 		return;
 	
 	if (!hook.Table['UpdateMemberVars'] && !hook.Table['UpdateUserVars'])
 		return;
 	
-	var total = usersCache.length;
+	let total = usersCache.length;
 	if (total == 0)
 		return;
 	
-	var timered = Math.floor(20000 / total);
+	let timered = Math.floor(20000 / total);
 	
 	for (let i = 0; i < total; i++) {
 		let user = usersCache[i];

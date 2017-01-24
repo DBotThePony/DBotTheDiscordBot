@@ -1,5 +1,5 @@
 
-var Statuses = [
+const Statuses = [
 	'in Equestria',
 	'with you',
 	'Team Fortress 2',
@@ -63,11 +63,11 @@ var Statuses = [
 	'Crashday IS THE BEST FORGOTTEN GAEM',
 ];
 
-var changeStatus = function() {
+let changeStatus = function() {
 	DBot.bot.user.setGame(DBot.RandomArray(Statuses));
 }
 
-var INITIALIZED = false;
+let INITIALIZED = false;
 
 hook.Add('BotOnline', 'BotStatus', function() {
 	if (INITIALIZED)

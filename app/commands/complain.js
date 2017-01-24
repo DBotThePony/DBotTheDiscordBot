@@ -14,16 +14,16 @@ module.exports = {
 	desc: 'Complain\nComplains are visible to public',
 	
 	func: function(args, cmd, msg) {
-		var uid = DBot.GetUserID(msg.author);
-		var cid = -1;
-		var sid = -1;
+		let uid = DBot.GetUserID(msg.author);
+		let cid = -1;
+		let sid = -1;
 		
 		if (!DBot.IsPM(msg)) {
 			cid = DBot.GetChannelID(msg.channel);
 			sid = DBot.GetServerID(msg.channel.guild);
 		}
 		
-		var stuff = [Util.escape(sid), Util.escape(cid), Util.escape(uid), Util.escape(Math.floor(CurTime())), Util.escape(cmd)];
+		let stuff = [Util.escape(sid), Util.escape(cid), Util.escape(uid), Util.escape(Math.floor(CurTime())), Util.escape(cmd)];
 		
 		MySQL.query('INSERT INTO complains ("SERVER", "CHANNEL", "USER", "STAMP", "CONTENT") VALUES (' + stuff.join(',') + ')');
 		
@@ -39,7 +39,7 @@ DBot.RegisterCommand({
 	
 	func: function(args, cmd, msg) {
 		MySQL.query(queryToList, function(err, data) {
-			var output = '';
+			let output = '';
 			
 			for (let i in data) {
 				let row = data[i];

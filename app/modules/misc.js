@@ -5,7 +5,7 @@ hook.Add('BotJoinsServer', 'HelloMessage', function(member, server) {
 	if (!cvars.Server(server).getVar('bot_hello').getBool())
 		return;
 	
-	var channel = DBot.GetNotificationChannel(server);
+	let channel = DBot.GetNotificationChannel(server);
 	
 	if (!channel)
 		return;
@@ -17,7 +17,7 @@ hook.Add('BotLeftServer', 'HelloMessage', function(member, server) {
 	if (!cvars.Server(server).getVar('bot_hello').getBool())
 		return;
 	
-	var channel = DBot.GetNotificationChannel(server);
+	let channel = DBot.GetNotificationChannel(server);
 	
 	if (!channel)
 		return;

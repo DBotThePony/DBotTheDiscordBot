@@ -14,7 +14,7 @@ module.exports = {
 			return 'Must be a valid user ;n;' + Util.HighlightHelp(['user'], 2, args);
 		}
 		
-		var output = '\n```';
+		let output = '\n```';
 		
 		output += 'User ID:          ' + args[0].id + '\n';
 		output += 'User Avatar:      ' + (args[0].avatarURL || '<no avatar>') + '\n';

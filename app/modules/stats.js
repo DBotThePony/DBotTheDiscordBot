@@ -39,7 +39,7 @@ hook.Add('OnValidMessage', 'Statistics', function(msg) {
 	let rWords = [];
 	let length = msg.content.length;
 	
-	var Images;
+	let Images;
 	
 	if (msg.attachments) {
 		Images = msg.attachments.array().length;
@@ -546,16 +546,16 @@ DBot.RegisterCommand({
 			
 			for (let i in Servers) {
 				servers++;
-				var Channels = Servers[i].channels.array();
-				var Users = Servers[i].members.array();
+				let Channels = Servers[i].channels.array();
+				let Users = Servers[i].members.array();
 				
-				for (var chann in Channels) {
+				for (let chann in Channels) {
 					channels++;
 				}
 				
-				for (var us in Users) {
-					var user = Users[us].user;
-					var uid = user.id;
+				for (let us in Users) {
+					let user = Users[us].user;
+					let uid = user.id;
 					
 					if (!USERS_MEM[uid]) {
 						users++;
@@ -1091,13 +1091,13 @@ DBot.RegisterCommand({
 	func: ctop10fn('uctop10', 'TOTAL_UNIQUE_WORDS'),
 });
 
-var SPACES = function(len) {
+let SPACES = function(len) {
 	if (len <= 0)
 		return '';
 	
-	var output = '';
+	let output = '';
 	
-	for (var i = 1; i <= len; i++) {
+	for (let i = 1; i <= len; i++) {
 		output += ' ';
 	}
 	
@@ -1121,18 +1121,18 @@ DBot.RegisterCommand({
 				Postgres.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_client WHERE "COMMAND" != \'more\' AND "COMMAND" != \'retry\' AND "UID" = \'' + DBot.GetUserID(msg.author) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
 					msg.channel.stopTyping();
 					try {
-						var output = 'Global command usage statistics\nCommand                   Used times\n```';
+						let output = 'Global command usage statistics\nCommand                   Used times\n```';
 						
-						for (var i in data) {
-							var row = data[i];
+						for (let i in data) {
+							let row = data[i];
 							
 							output += row.COMMAND + SPACES(20 - row.COMMAND.length) + numeral(row.CALLED_TIMES).format('0,0') + '\n';
 						}
 						
 						output += '```\nYour command usage statistics\nCommand                        Used times\n```';
 						
-						for (var i in data2) {
-							var row = data2[i];
+						for (let i in data2) {
+							let row = data2[i];
 							
 							output += row.COMMAND + SPACES(20 - row.COMMAND.length) + numeral(row.CALLED_TIMES).format('0,0') + '\n';
 						}
@@ -1151,10 +1151,10 @@ DBot.RegisterCommand({
 				msg.channel.stopTyping();
 				
 				try {
-					var output = '@' + args[0].username + ' command usage statistics\nCommand                        Used times\n```';
+					let output = '@' + args[0].username + ' command usage statistics\nCommand                        Used times\n```';
 					
-					for (var i in data2) {
-						var row = data2[i];
+					for (let i in data2) {
+						let row = data2[i];
 						
 						output += row.COMMAND + SPACES(20 - row.COMMAND.length) + numeral(row.CALLED_TIMES).format('0,0') + '\n';
 					}
@@ -1192,19 +1192,15 @@ DBot.RegisterCommand({
 					msg.channel.stopTyping();
 					
 					try {
-						var output = 'This server command usage statistics\nCommand                    Used times\n```';
+						let output = 'This server command usage statistics\nCommand                    Used times\n```';
 						
-						for (var i in data) {
-							var row = data[i];
-							
+						for (let row of data) {
 							output += row.COMMAND + SPACES(20 - row.COMMAND.length) + numeral(row.CALLED_TIMES).format('0,0') + '\n';
 						}
 						
 						output += '```\nYour command usage statistics on this server\nCommand                    Used times\n```';
 						
-						for (var i in data2) {
-							var row = data2[i];
-							
+						for (let row of data2) {
 							output += row.COMMAND + SPACES(20 - row.COMMAND.length) + numeral(row.CALLED_TIMES).format('0,0') + '\n';
 						}
 						
@@ -1222,11 +1218,9 @@ DBot.RegisterCommand({
 				msg.channel.stopTyping();
 				
 				try {
-					var output = '@' + args[0].username + ' command usage statistics on this server\nCommand                    Used times\n```';
+					let output = '@' + args[0].username + ' command usage statistics on this server\nCommand                    Used times\n```';
 					
-					for (var i in data2) {
-						var row = data2[i];
-						
+					for (let row of data2) {
 						output += row.COMMAND + SPACES(20 - row.COMMAND.length) + numeral(row.CALLED_TIMES).format('0,0') + '\n';
 					}
 					
@@ -1262,19 +1256,15 @@ DBot.RegisterCommand({
 				Postgres.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_uchannel WHERE "COMMAND" != \'more\' AND "COMMAND" != \'retry\' AND "UID" = \'' + DBot.GetUserID(msg.author) + '\' AND "CHANNEL" = \'' + DBot.GetChannelID(msg.channel) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
 					msg.channel.stopTyping();
 					try {
-						var output = 'This channel command usage statistics\nCommand                    Used times\n```';
+						let output = 'This channel command usage statistics\nCommand                    Used times\n```';
 						
-						for (var i in data) {
-							var row = data[i];
-							
+						for (let row of data) {
 							output += row.COMMAND + SPACES(20 - row.COMMAND.length) + numeral(row.CALLED_TIMES).format('0,0') + '\n';
 						}
 						
 						output += '```\nYour command usage statistics on this channel\nCommand                    Used times\n```';
 						
-						for (var i in data2) {
-							var row = data2[i];
-							
+						for (let row of data2) {
 							output += row.COMMAND + SPACES(20 - row.COMMAND.length) + numeral(row.CALLED_TIMES).format('0,0') + '\n';
 						}
 						
@@ -1291,11 +1281,9 @@ DBot.RegisterCommand({
 			Postgres.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_uchannel WHERE "COMMAND" != \'more\' AND "COMMAND" != \'retry\' AND "UID" = \'' + DBot.GetUserID(args[0]) + '\' AND "CHANNEL" = \'' + DBot.GetChannelID(msg.channel) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
 				msg.channel.stopTyping();
 				try {
-					var output =  '@' + args[0].username + ' command usage statistics on this channel\nCommand                    Used times\n```';
+					let output =  '@' + args[0].username + ' command usage statistics on this channel\nCommand                    Used times\n```';
 					
-					for (var i in data2) {
-						var row = data2[i];
-						
+					for (let row of data2) {
 						output += row.COMMAND + SPACES(20 - row.COMMAND.length) + numeral(row.CALLED_TIMES).format('0,0') + '\n';
 					}
 					

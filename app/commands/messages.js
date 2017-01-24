@@ -2,10 +2,10 @@
 Util.SafeCopy('./resource/files/messages.css', DBot.WebRoot + '/messages.css');
 Util.mkdir(DBot.WebRoot + '/messages');
 
-var crypto = DBot.js.crypto;
-var fs = DBot.js.fs;
+const crypto = DBot.js.crypto;
+const fs = DBot.js.fs;
 
-var stuff1 = "<!DOCTYPE HTML>\
+const stuff1 = "<!DOCTYPE HTML>\
 <html>\
 <head>\
 <link rel='stylesheet' href='../messages.css' type='text/css' />\
@@ -14,8 +14,8 @@ var stuff1 = "<!DOCTYPE HTML>\
 <body>\
 <span id='wrapper'>";
 
-var replaceUserNamesFunc = function(matched, p1) {
-	var find = DBot.TryFindUser(p1);
+let replaceUserNamesFunc = function(matched, p1) {
+	let find = DBot.TryFindUser(p1);
 	
 	if (find)
 		return '@' + find.username;
@@ -23,8 +23,8 @@ var replaceUserNamesFunc = function(matched, p1) {
 		return '@' + p1;
 }
 
-var replaceChannelsNamesFunc = function(matched, p1) {
-	var find = DBot.FindChannel(p1);
+let replaceChannelsNamesFunc = function(matched, p1) {
+	let find = DBot.FindChannel(p1);
 	
 	if (find)
 		return '#' + find.name;
@@ -49,11 +49,11 @@ module.exports = {
 			return 'There must be user or text ;w;' + Util.HighlightHelp(['messages'], 2, args);
 		}
 		
-		var messages = msg.channel.messages.array();
+		let messages = msg.channel.messages.array();
 		
-		var continueFunc = function() {
+		let continueFunc = function() {
 			messages = msg.channel.messages.array();
-			var valid = [];
+			let valid = [];
 			
 			if (typeof args[0] == 'object') {
 				// Search by user
@@ -66,7 +66,7 @@ module.exports = {
 				}
 			} else {
 				try {
-					var regExp = new RegExp(args[0]);
+					let regExp = new RegExp(args[0]);
 				} catch(err) {
 					msg.reply('Invalid regular expression:\n```' + err + '```');
 					return;
@@ -85,7 +85,7 @@ module.exports = {
 				return;
 			}
 			
-			var hash = crypto.createHash('sha256');
+			let hash = crypto.createHash('sha256');
 			
 			hash.update(msg.channel.guild.id);
 			hash.update(msg.channel.id);
@@ -96,15 +96,15 @@ module.exports = {
 				hash.update(message.id);
 			}
 			
-			var sha = hash.digest('hex');
+			let sha = hash.digest('hex');
 			
-			var fpath = DBot.WebRoot + '/messages/' + sha + '.html';
+			let fpath = DBot.WebRoot + '/messages/' + sha + '.html';
 			
 			fs.stat(fpath, function(err, stat) {
 				if (stat) {
 					msg.reply(DBot.URLRoot + '/messages/' + sha + '.html');
 				} else {
-					var stream = fs.createWriteStream(fpath);
+					let stream = fs.createWriteStream(fpath);
 					stream.write(stuff1);
 					stream.write("<span id='total'>Total messages: " + valid.length + '</span>');
 					
@@ -145,7 +145,7 @@ module.exports = {
 			let Target = 500;
 			let LastTarget = 0;
 			
-			var loop = function(lim) {
+			let loop = function(lim) {
 				msg.channel.fetchMessages({limit: Math.min(100, Target - messages.length), before: messages[messages.length - 1].id})
 				.then(function(list) {
 					messages = msg.channel.messages.array();

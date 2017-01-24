@@ -1,5 +1,5 @@
 
-var Boards = [
+const Boards = [
 	["/a/", "Anime & Manga"],
 	["/c/", "Anime/Cute"],
 	["/w/", "Anime/Wallpapers"],
@@ -53,7 +53,7 @@ var Boards = [
 	["/vip/", "Very Important Posts"],
 ];
 
-var nsfwBoard = [
+const nsfwBoard = [
 	["/b/", "Random"],
 	["/r9k/", "ROBOT9001"],
 	["/pol/", "Politically Incorrect"],
@@ -74,42 +74,37 @@ var nsfwBoard = [
 	["/r/", "Adult Requests"],
 ];
 
-var validBoards = [];
-var defBans = [];
-var fs = DBot.js.fs;
-var JSON3 = DBot.js.json3;
-var unirest = DBot.js.unirest;
+let validBoards = [];
+let defBans = [];
+const fs = DBot.js.fs;
+const JSON3 = DBot.js.json3;
+const unirest = DBot.js.unirest;
 
-for (var i in Boards) {
-	var brd = Boards[i][0];
-	
+for (let data of Boards) {
+	let brd = data[0];
 	validBoards.push(brd.substr(1, brd.length - 2));
 }
 
-for (var i in nsfwBoard) {
-	var brd = nsfwBoard[i][0];
-	
+for (let data of nsfwBoard) {
+	let brd = data[0];
 	validBoards.push(brd.substr(1, brd.length - 2));
 	defBans.push(brd.substr(1, brd.length - 2));
 }
 
 DBot.CreateTagsSpace('4chan', defBans);
+Util.mkdir(DBot.WebRoot + '/4chan');
 
-fs.stat(DBot.WebRoot + '/4chan', function(err, stat) {
-	if (!stat)
-		fs.mkdirSync(DBot.WebRoot + '/4chan');
-});
+let ClearPostCharsExp = new RegExp('<br>', 'g');
+let ClearPostCharsExp2 = new RegExp('<[^>]*>', 'g');
+let ClearPostCharsExp3 = new RegExp('&gt;', 'g');
+let ClearPostCharsExp4 = new RegExp('&#039;', 'g');
 
-var ClearPostChars = function(str) {
-	var exp = new RegExp('<br>', 'g');
-	var exp2 = new RegExp('<[^>]*>', 'g');
-	
-	str = str.replace(exp, '\n');
-	str = str.replace(exp2, '');
-	str = str.replace(new RegExp('&gt;', 'g'), '>');
-	str = str.replace(new RegExp('&#039;', 'g'), '\'');
-	
-	return str;
+let ClearPostChars = function(str) {
+	return str
+		.replace(ClearPostCharsExp, '\n')
+		.replace(ClearPostCharsExp2, '')
+		.replace(ClearPostCharsExp3, '>')
+		.replace(ClearPostCharsExp4, '\'');
 }
 
 module.exports = {
@@ -123,7 +118,7 @@ module.exports = {
 	
 	func: function(args, cmd, msg, previousStuff) {
 		args[0] = args[0] || DBot.RandomArray(Boards)[0];
-		var board = args[0];
+		let board = args[0];
 		board = board.toLowerCase();
 		
 		if (board.substr(0, 1) == '/') {
@@ -134,9 +129,9 @@ module.exports = {
 			board = board.substr(0, board.length - 1);
 		}
 		
-		var hit = false;
+		let hit = false;
 		
-		for (var i in validBoards) {
+		for (let i in validBoards) {
 			if (board == validBoards[i]) {
 				hit = true;
 				break;
@@ -146,9 +141,9 @@ module.exports = {
 		if (!hit)
 			return 'Invalid board! 6.9';
 		
-		var ServerTags;
-		var ClientTags = DBot.UserTags(msg.author, '4chan');
-		var ChannelTags;
+		let ServerTags;
+		let ClientTags = DBot.UserTags(msg.author, '4chan');
+		let ChannelTags;
 		
 		if (!DBot.IsPM(msg)) {
 			ChannelTags = DBot.ChannelTags(msg.channel, '4chan');
@@ -160,11 +155,11 @@ module.exports = {
 		
 		msg.channel.startTyping();
 		
-		var ContinueLoad = function(data) {
+		let ContinueLoad = function(data) {
 			msg.channel.stopTyping();
 			
 			try {
-				var validReplies = [];
+				let validReplies = [];
 				
 				for (let i in data.threads) {
 					let thread = data.threads[i];
@@ -187,8 +182,10 @@ module.exports = {
 					}
 				}
 				
+				let rand;
+				
 				if (previousStuff) {
-					var rand = Util.RandomArray(validReplies.filter(function(item) {
+					rand = Util.RandomArray(validReplies.filter(function(item) {
 						return !Util.HasValue(previousStuff, item[1]);
 					}));
 					
@@ -199,7 +196,7 @@ module.exports = {
 					
 					previousStuff.push(rand[1]);
 				} else {
-					var rand = DBot.RandomArray(validReplies);
+					rand = DBot.RandomArray(validReplies);
 				}
 				
 				if (!rand) {
@@ -207,8 +204,8 @@ module.exports = {
 					return;
 				}
 				
-				var text = ClearPostChars(rand[0]);
-				var reply = 'Board: /' + board + '/';
+				let text = ClearPostChars(rand[0]);
+				let reply = 'Board: /' + board + '/';
 				
 				reply += '\nRelated image: https://i.4cdn.org/' + board + '/' + rand[2] + rand[3] + '\n';
 				
@@ -227,7 +224,7 @@ module.exports = {
 			}
 		}
 		
-		var path = DBot.WebRoot + '/4chan/' + board + '.json';
+		let path = DBot.WebRoot + '/4chan/' + board + '.json';
 		
 		fs.stat(path, function(err, stat) {
 			if (stat && ((stat.ctime.getTime() / 1000) > (UnixStamp() - 3600))) {
@@ -253,9 +250,9 @@ DBot.RegisterCommand({
 	desc: 'Lists valid boards',
 	
 	func: function(args, cmd, msg) {
-		var build = '';
+		let build = '';
 		
-		for (var i in Boards) {
+		for (let i in Boards) {
 			build += Boards[i][0] + ' - ' + Boards[i][1] + '\n';
 		}
 		

@@ -9,7 +9,7 @@ module.exports = {
 		if (DBot.IsPM(msg))
 			return 'Must execute in server channel ;n;';
 		
-		var me = DBot.FindMeInChannel(msg.channel);
+		let me = DBot.FindMeInChannel(msg.channel);
 		
 		if (!me)
 			return '<internal pony error>';
@@ -17,9 +17,9 @@ module.exports = {
 		if (!me.hasPermission('MANAGE_MESSAGES'))
 			return 'I must have MANAGE_MESSAGES permission ;n;';
 		
-		var filterID = msg.author.id;
+		let filterID = msg.author.id;
 		
-		var conf = new DBot.Confirm(msg.author, msg.channel);
+		let conf = new DBot.Confirm(msg.author, msg.channel);
 		
 		conf.setTitle('Wipe of messages written by you');
 		conf.setDesc('');
@@ -29,16 +29,16 @@ module.exports = {
 			
 			msg.channel.fetchMessages({limit: 100})
 			.then(function() {
-				var messages = msg.channel.messages;
-				var arr = messages.array();
+				let messages = msg.channel.messages;
+				let arr = messages.array();
 				if (!arr[0]) {
 					msg.channel.sendMessage('No messages to remove? WTF');
 					return;
 				}
 				
-				var filtered = [];
+				let filtered = [];
 				
-				for (var i in arr) {
+				for (let i in arr) {
 					if (arr[i].author.id != filterID)
 						continue;
 					
@@ -56,8 +56,8 @@ module.exports = {
 					return;
 				}
 				
-				var continueDelete = function() {
-					for (var i in filtered) {
+				let continueDelete = function() {
+					for (let i in filtered) {
 						if (i == 0)
 							continue;
 						
@@ -98,9 +98,9 @@ DBot.RegisterCommand({
 		if (!msg.member.hasPermission('MANAGE_MESSAGES') && msg.author.id != DBot.DBot)
 			return 'You must have MANAGE_MESSAGES permission to command me that ;n;';
 		
-		var filterID = DBot.bot.user.id;
+		let filterID = DBot.bot.user.id;
 		
-		var conf = new DBot.Confirm(msg.author, msg.channel);
+		let conf = new DBot.Confirm(msg.author, msg.channel);
 		
 		conf.setTitle('Wipe of messages written by me');
 		conf.setDesc('');
@@ -110,16 +110,16 @@ DBot.RegisterCommand({
 			
 			msg.channel.fetchMessages({limit: 100})
 			.then(function() {
-				var messages = msg.channel.messages;
-				var arr = messages.array();
+				let messages = msg.channel.messages;
+				let arr = messages.array();
 				if (!arr[0]) {
 					msg.channel.sendMessage('No messages to remove? WTF');
 					return;
 				}
 				
-				var filtered = [];
+				let filtered = [];
 				
-				for (var i in arr) {
+				for (let i in arr) {
 					if (arr[i].author.id != filterID)
 						continue;
 					
@@ -137,8 +137,8 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				var continueDelete = function() {
-					for (var i in filtered) {
+				let continueDelete = function() {
+					for (let i in filtered) {
 						if (i == 0)
 							continue;
 						

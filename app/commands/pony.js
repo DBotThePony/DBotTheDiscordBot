@@ -1,7 +1,7 @@
 
-var fs = DBot.js.fs;
-var AvaliablePonies = [];
-var AvaliablePoniesPNG = [];
+const fs = DBot.js.fs;
+let AvaliablePonies = [];
+let AvaliablePoniesPNG = [];
 
 fs.readdir('./resource/poni_txt/', function(err, files) {
 	files.forEach(function(file) {
@@ -31,7 +31,7 @@ module.exports = {
 	delay: 10,
 	
 	func: function(args, cmd, msg) {
-		var ponePNG = Util.RandomArray(AvaliablePoniesPNG);
+		let ponePNG = Util.RandomArray(AvaliablePoniesPNG);
 		
 		fs.readFile('./resource/poni/' + ponePNG, {encoding: null}, function(err, data) {
 			msg.channel.sendFile(data, ponePNG)

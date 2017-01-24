@@ -39,7 +39,7 @@ require('./commands.js');
 require('./lib/confirm.js');
 
 DBot.fs.readdirSync('./app/modules/').forEach(function(file) {
-	var sp = file.split('.');
+	let sp = file.split('.');
 	if (!sp[1] || sp[1] != 'js')
 		return;
 	

@@ -13,13 +13,13 @@ module.exports = {
 			return 'There must be variable name' + Util.HighlightHelp(['svar'], 2, args);
 		}
 		
-		var cvar = cvars.Server(msg.channel.guild).getVar(args[0]);
+		let clet = cvars.Server(msg.channel.guild).getVar(args[0]);
 		
 		if (!cvar) {
 			return 'No such variable' + Util.HighlightHelp(['svar'], 2, args);
 		}
 		
-		var isPrivate = cvar.haveFlag(FCVAR_PROTECTED);
+		let isPrivate = cvar.haveFlag(FCVAR_PROTECTED);
 		
 		if (isPrivate && !msg.member.hasPermission('MANAGE_GUILD'))
 			return 'Variable have "FCVAR_PROTECTED" flag and you don\'t have "MANAGE_GUILD" permissions! Uh oh! ;n;';
@@ -69,8 +69,8 @@ DBot.RegisterCommand({
 		if (DBot.IsPM(msg))
 			return 'Onoh! It is PM ;n;';
 		
-		var obj = cvars.Server(msg.channel.guild);
-		var get = obj.cvarlist();
+		let obj = cvars.Server(msg.channel.guild);
+		let get = obj.cvarlist();
 		
 		if (get == '') {
 			msg.channel.sendMessage('No variables to list');
@@ -92,8 +92,8 @@ DBot.RegisterCommand({
 		if (DBot.IsPM(msg))
 			return 'Onoh! It is PM ;n;';
 		
-		var obj = cvars.Channel(msg.channel);
-		var get = obj.cvarlist();
+		let obj = cvars.Channel(msg.channel);
+		let get = obj.cvarlist();
 		
 		if (get == '') {
 			msg.channel.sendMessage('No variables to list');
@@ -112,8 +112,8 @@ DBot.RegisterCommand({
 	desc: 'Prints user variables into your PM.',
 	
 	func: function(args, cmd, msg) {
-		var obj = cvars.Client(msg.author);
-		var get = obj.cvarlist();
+		let obj = cvars.Client(msg.author);
+		let get = obj.cvarlist();
 		
 		if (get == '') {
 			msg.author.sendMessage('No variables to list');
@@ -138,13 +138,13 @@ DBot.RegisterCommand({
 			return 'There must be variable name' + Util.HighlightHelp(['cvar'], 2, args);
 		}
 		
-		var cvar = cvars.Channel(msg.channel).getVar(args[0]);
+		let clet = cvars.Channel(msg.channel).getVar(args[0]);
 		
 		if (!cvar) {
 			return 'No such variable' + Util.HighlightHelp(['cvar'], 2, args);
 		}
 		
-		var isPrivate = cvar.haveFlag(FCVAR_PROTECTED);
+		let isPrivate = cvar.haveFlag(FCVAR_PROTECTED);
 		
 		if (isPrivate && !msg.member.hasPermission('MANAGE_GUILD'))
 			return 'Variable have "FCVAR_PROTECTED" flag and you don\'t have "MANAGE_GUILD" permissions! Uh oh! ;n;';
@@ -210,7 +210,7 @@ DBot.RegisterCommand({
 			return DBot.CommandError('Invalid variable', 'mcvar', args, 2);
 		}
 		
-		let cvar = cvars.Channel(channel).getVar(args[1]);
+		let clet = cvars.Channel(channel).getVar(args[1]);
 		
 		if (!cvar) {
 			return DBot.CommandError('No such variable', 'mcvar', args, 2);
@@ -266,7 +266,7 @@ DBot.RegisterCommand({
 			return 'There must be variable name' + Util.HighlightHelp(['uvar'], 2, args);
 		}
 		
-		var cvar = cvars.Client(msg.author).getVar(args[0]);
+		let clet = cvars.Client(msg.author).getVar(args[0]);
 		
 		if (!cvar) {
 			return 'No such variable' + Util.HighlightHelp(['uvar'], 2, args);

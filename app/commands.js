@@ -1,5 +1,5 @@
 
-var fs = require('fs');
+const fs = DBot.js.fs;
 
 DBot.Commands = {};
 DBot.CommandsPipes = {};
@@ -11,7 +11,7 @@ DBot.RegisterCommand = function(command) {
 		}
 	}
 	
-	var id = command.id || command.name;
+	let id = command.id || command.name;
 	command.id = id;
 	DBot.Commands[id] = command;
 	
@@ -25,7 +25,7 @@ DBot.RegisterPipe = function(pipe) {
 		}
 	}
 	
-	var id = pipe.id || pipe.name;
+	let id = pipe.id || pipe.name;
 	pipe.id = id;
 	DBot.CommandsPipes[id] = pipe;
 	
@@ -39,13 +39,13 @@ DBot.RegisterCommandPipe = function(command) {
 }
 
 DBot.fs.readdirSync('./app/commands/').forEach(function(file) {
-	var sp = file.split('.');
+	let sp = file.split('.');
 	if (!sp[1])
 		return;
 	
-	var id = sp[0];
+	let id = sp[0];
 	
-	var command = require('./commands/' + file);
+	let command = require('./commands/' + file);
 	
 	if (!command)
 		return;
@@ -59,13 +59,13 @@ DBot.fs.readdirSync('./app/commands/').forEach(function(file) {
 
 try {
 	DBot.fs.readdirSync('./app/pipes/').forEach(function(file) {
-		var sp = file.split('.');
+		let sp = file.split('.');
 		if (!sp[1])
 			return;
 		
-		var id = sp[0];
+		let id = sp[0];
 		
-		var pipe = require('./pipes/' + file);
+		let pipe = require('./pipes/' + file);
 		
 		if (!pipe)
 			return;
@@ -80,21 +80,21 @@ try {
 	
 }
 
-var BuildHelp = [];
+let BuildHelp = [];
 
-var ParseMarkdown = Util.ParseMarkdown;
+let ParseMarkdown = Util.ParseMarkdown;
 
 Util.SafeCopy('./resource/help.css', DBot.WebRoot + '/help.css');
 
-var BuildCommands = function() {
+let BuildCommands = function() {
 	// Build help pages
 	
-	var III = 0;
-	var cPage = 1;
-	var totalPages = 1;
-	var III2 = 0;
+	let III = 0;
+	let cPage = 1;
+	let totalPages = 1;
+	let III2 = 0;
 	
-	for (var k in DBot.Commands) {
+	for (let k in DBot.Commands) {
 		if (k != DBot.Commands[k].id && k != DBot.Commands[k].name)
 			continue;
 		
@@ -109,10 +109,10 @@ var BuildCommands = function() {
 		}
 	}
 	
-	var output = 'Help page: ' + cPage + '/' + totalPages + '\n```';
+	let output = 'Help page: ' + cPage + '/' + totalPages + '\n```';
 	
-	for (var k in DBot.Commands) {
-		var item = DBot.Commands[k];
+	for (let k in DBot.Commands) {
+		let item = DBot.Commands[k];
 		if (k != item.id && k != item.name)
 			continue;
 		
@@ -148,7 +148,7 @@ var BuildCommands = function() {
 	
 	// Building HTML helps
 	
-	var stream = fs.createWriteStream(DBot.WebRoot + '/help.html');
+	let stream = fs.createWriteStream(DBot.WebRoot + '/help.html');
 	
 	stream.write("<!DOCTYPE HTML>\
 <html>\
@@ -162,8 +162,8 @@ var BuildCommands = function() {
 <span id='commlist_header'>Command List</span>\
 <span id='commlist_start'>");
 	
-	for (var k in DBot.Commands) {
-		var item = DBot.Commands[k];
+	for (let k in DBot.Commands) {
+		let item = DBot.Commands[k];
 		if (k != item.id && k != item.name)
 			continue;
 		
@@ -177,8 +177,8 @@ var BuildCommands = function() {
 <span id='pipelist_header'>Pipes List</span>\
 <span id='pipelist_start'>");
 	
-	for (var k in DBot.CommandsPipes) {
-		var item = DBot.CommandsPipes[k];
+	for (let k in DBot.CommandsPipes) {
+		let item = DBot.CommandsPipes[k];
 		if (k != item.id && k != item.name)
 			continue;
 		
@@ -190,19 +190,19 @@ var BuildCommands = function() {
 	
 	stream.write("</span></span><span id='commands'>");
 	
-	for (var k in DBot.Commands) {
-		var item = DBot.Commands[k];
+	for (let k in DBot.Commands) {
+		let item = DBot.Commands[k];
 		if (k != item.id && k != item.name)
 			continue;
 		
 		if (item.help_hide)
 			continue;
 		
-		var str = k;
+		let str = k;
 		
 		stream.write("</a><span class='command' id='command_" + k + "'><span class='command_header' name='command_" + k + "'>" + str + "</span>");
 		
-		var help = 'Usage: ' + item.id;
+		let help = 'Usage: ' + item.id;
 		
 		if (item.alias) {
 			help = '(aliases: ' + Util.Concat(item.alias, ', ') + ')\n' + help;
@@ -225,19 +225,19 @@ var BuildCommands = function() {
 	stream.write('</span>');
 	stream.write("<span id='pipelist_header2'>Pipes</span><span id='pipes'>");
 	
-	for (var k in DBot.CommandsPipes) {
-		var item = DBot.CommandsPipes[k];
+	for (let k in DBot.CommandsPipes) {
+		let item = DBot.CommandsPipes[k];
 		if (k != item.id && k != item.name)
 			continue;
 		
 		if (item.help_hide)
 			continue;
 		
-		var str = k;
+		let str = k;
 		
 		stream.write("</a><span class='command' id='pipe_" + k + "'><span class='command_header' name='pipe_" + k + "'>" + str + "</span>");
 		
-		var help = 'Usage: ' + item.id;
+		let help = 'Usage: ' + item.id;
 		
 		if (item.alias) {
 			help = '(aliases: ' + Util.Concat(item.alias, ', ') + ')\n' + help;
@@ -275,8 +275,8 @@ DBot.BuildHelpStringForCommand = function(command) {
 	if (!DBot.Commands[command])
 		return 'Unknown command';
 	
-	var output = '';
-	var data = DBot.Commands[command];
+	let output = '';
+	let data = DBot.Commands[command];
 	
 	if (data.id == command)
 		output = 'Usage: ' + command;
@@ -316,20 +316,7 @@ DBot.RegisterCommand({
 	desc: 'Displays help',
 	
 	func: function(args, cmd, msg) {
-		var num;
-		
-		if (args[0]) {
-			if (args[0].match(/^[0-9]+$/)) {
-				var tryNum = Number(args[0]);
-			
-				if (tryNum == tryNum) { // NaN ???
-					if (tryNum <= 0)
-						tryNum = 1;
-					
-					num = tryNum;
-				}
-			}
-		}
+		let num = Util.ToNumber(args[0]);
 		
 		if (!args[0]) {
 			msg.author.sendMessage(DBot.BuildHelpString());

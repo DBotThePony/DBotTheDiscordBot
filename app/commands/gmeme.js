@@ -1,13 +1,14 @@
 
-var toGet = 'https://api.imgflip.com/get_memes';
-var unirest = DBot.js.unirest;
-var fs = DBot.js.fs;
+const toGet = 'https://api.imgflip.com/get_memes';
+const unirest = DBot.js.unirest;
+const fs = DBot.js.fs;
+let INITIALIZED = false;
 
 // Memed
-var UpdateMemes = function() {
+let UpdateMemes = function() {
 	unirest.get(toGet)
 	.end(function(response) {
-		var data = response.body;
+		let data = response.body;
 		
 		if (!data)
 			return;
@@ -15,20 +16,18 @@ var UpdateMemes = function() {
 		if (!data.success)
 			return;
 		
-		var memes = data.data.memes;
+		let memes = data.data.memes;
 		
 		if (!memes)
 			return;
 		
-		for (var i in memes) {
-			var val = memes[i];
+		for (let i in memes) {
+			let val = memes[i];
 			
 			MySQL.query('INSERT INTO meme_cache ("ID", "URL", "NAME") VALUES (' + Util.escape(val.id) + ', ' + Util.escape(val.url) + ', ' + Util.escape(val.name) + ') ON CONFLICT ("ID") DO UPDATE SET "URL" = ' + Util.escape(val.url) + ', "NAME" = ' + Util.escape(val.name));
 		}
 	});
 }
-
-var INITIALIZED = false;
 
 hook.Add('BotOnline', 'UpdateMemes', function() {
 	if (INITIALIZED)

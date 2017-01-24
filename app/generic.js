@@ -1,6 +1,6 @@
 
-var crypto = require('crypto');
-var fs = require('fs');
+const crypto = DBot.js.crypto;
+const fs = DBot.js.fs;
 
 UnixStamp = function() {
 	return (new Date()).getTime() / 1000;
@@ -49,7 +49,7 @@ DBot.MessageByServerOwner = function(msg) {
 	return msg.author.id == msg.channel.guild.ownerID;
 }
 
-var ASSOCIATED_PERMS_TABLE = [
+const ASSOCIATED_PERMS_TABLE = [
 	['KICK_MEMBERS', 					'manipulate_kick'],
 	['KICK_MEMBERS',					'manipulate'],
 	
@@ -84,10 +84,10 @@ DBot.Access = function(msg, toCheck) {
 	if (msg.author.id == msg.channel.guild.ownerID)
 		return true;
 	
-	var usr = msg.member;
+	let usr = msg.member;
 	
-	for (var i in ASSOCIATED_PERMS_TABLE) {
-		var data = ASSOCIATED_PERMS_TABLE[i];
+	for (let i in ASSOCIATED_PERMS_TABLE) {
+		let data = ASSOCIATED_PERMS_TABLE[i];
 		
 		if (data[1] == toCheck) {
 			if (usr.hasPermission(data[0])) {
@@ -105,8 +105,8 @@ DBot.MessageByDBot = function(msg) {
 
 DBot.ConcatArray = function(arr, sep) {
 	sep = sep || '';
-	var first = true;
-	var out = '';
+	let first = true;
+	let out = '';
 	
 	arr.forEach(function(item) {
 		if (first) {
@@ -137,12 +137,12 @@ DBot.InitVars = function() {
 cvars.ServerVar('notify_channel', '', [FCVAR_CHANNELONLY], 'Channel to threat as notifications channel');
 
 DBot.GetNotificationChannel = function(server) {
-	var get = cvars.Server(server).getVar('notify_channel').getChannel();
+	let get = cvars.Server(server).getVar('notify_channel').getChannel();
 	
 	if (get)
 		return get;
 	
-	var channels = server.channels.array();
+	let channels = server.channels.array();
 	
 	for (let channel of channels) {
 		if (channel.name.match('shitposting') || channel.name == 'notifications' || channel.name == 'notification') {
@@ -170,7 +170,7 @@ DBot.FormatAsk = function(user) {
 }
 
 DBot.UserIsGarbage = function(userID) {
-	var users = DBot.client.users.array();
+	let users = DBot.client.users.array();
 	
 	for (let k in users) {
 		if (users[k].id == userID)
@@ -249,7 +249,7 @@ DBot.RefreshData = function() {
 }
 
 DBot.TryFindUser = function(uid) {
-	var users = DBot.client.users.array();
+	let users = DBot.client.users.array();
 	
 	for (let k of users) {
 		if (k.id == uid)
@@ -260,7 +260,7 @@ DBot.TryFindUser = function(uid) {
 }
 
 DBot.IdentifyUser = function(str) {
-	var len = str.length;
+	let len = str.length;
 	
 	if (str.substr(0, 2) != '<@')
 		return false;
@@ -274,7 +274,7 @@ DBot.IdentifyUser = function(str) {
 		return DBot.TryFindUser(str.substr(3, len - 4));
 }
 
-var WorkingMessages = [
+const WorkingMessages = [
 	'jumping',
 	'spinning around',
 	'jumping on your table',
@@ -285,7 +285,7 @@ var WorkingMessages = [
 	'nomming your nose',
 ];
 
-var PrefixMessages = [
+const PrefixMessages = [
 	'Please wait, i am ',
 	'Stay here and wait, i am ',
 	'Hold on, i am ',
@@ -422,11 +422,11 @@ DBot.LoadImageURL = function(url, callback, callbackError) {
 	});
 }
 
-const child_process = require('child_process');
+const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
 
 DBot.EasySpan = function(process, arguments, callback) {
-	var cpu = spawn(process, arguments);
+	let cpu = spawn(process, arguments);
 	
 	cpu.stderr.on('data', function(data) {
 		console.error(data.toString());
@@ -442,11 +442,11 @@ DBot.EasySpan = function(process, arguments, callback) {
 }
 
 DBot.FindMeInChannel = function(channel) {
-	var id = DBot.bot.user.id;
-	var memb = channel.members.array();
+	let id = DBot.bot.user.id;
+	let memb = channel.members.array();
 	
-	for (var i in memb) {
-		var Member = memb[i];
+	for (let i in memb) {
+		let Member = memb[i];
 		
 		if (Member.user.id == id)
 			return Member;
@@ -456,7 +456,7 @@ DBot.FindMeInChannel = function(channel) {
 }
 
 DBot.FindChannel = function(id) {
-	var channels = DBot.bot.channels.array();
+	let channels = DBot.bot.channels.array();
 	
 	for (let i in channels) {
 		if (channels[i].id == id)

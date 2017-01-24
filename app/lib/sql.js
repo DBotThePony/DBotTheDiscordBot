@@ -105,7 +105,7 @@ DBot.ServersIDs_R = {};
 DBot.UsersIDs_R = {};
 
 hook.Add('ValidClientLeftServer', 'MySQL.Handlers', function(user, server) {
-	var id = user.id;
+	let id = user.id;
 	if (!DBot.UserIsGarbage(id))
 		return;
 	
@@ -143,7 +143,7 @@ hook.Add('ValidClientAvaliable', 'MySQL.Handlers', function(user, server, member
 	DBot.DefineMember(member);
 });
 
-var ChannelDeleted = function(channel) {
+let ChannelDeleted = function(channel) {
 	hook.Run('PreDeleteChannel', channel);
 	DBot.ChannelIDs_R[DBot.ChannelIDs[channel.id]] = undefined;
 	DBot.ChannelIDs[channel.id] = undefined;
@@ -162,7 +162,7 @@ hook.Add('OnLeftServer', 'MySQL.Handlers', function(server) {
 });
 
 DBot.GetMemberID = function(obj) {
-	var id = obj.uid;
+	let id = obj.uid;
 	
 	if (!id) {
 		DBot.DefineMember(obj);
@@ -173,7 +173,7 @@ DBot.GetMemberID = function(obj) {
 }
 
 DBot.GetUserID = function(obj) {
-	var id = obj.id;
+	let id = obj.id;
 	
 	if (!DBot.UsersIDs[id]) {
 		DBot.DefineUser(obj);
@@ -185,7 +185,7 @@ DBot.GetUserID = function(obj) {
 }
 
 DBot.GetChannelID = function(obj) {
-	var id = obj.id;
+	let id = obj.id;
 	
 	if (!DBot.ChannelIDs[id]) {
 		DBot.DefineChannel(obj);
@@ -197,7 +197,7 @@ DBot.GetChannelID = function(obj) {
 }
 
 DBot.GetServerID = function(obj) {
-	var id = obj.id;
+	let id = obj.id;
 	
 	if (!DBot.ServersIDs[id]) {
 		DBot.DefineServer(obj);
@@ -209,7 +209,7 @@ DBot.GetServerID = function(obj) {
 }
 
 DBot.GetMemberIDSoft = function(obj) {
-	var id = obj.uid;
+	let id = obj.uid;
 	
 	if (!id) {
 		DBot.DefineMember(obj);
@@ -220,7 +220,7 @@ DBot.GetMemberIDSoft = function(obj) {
 }
 
 DBot.GetUserIDSoft = function(obj) {
-	var id = obj.id;
+	let id = obj.id;
 	
 	if (!DBot.UsersIDs[id]) {
 		DBot.DefineUser(obj);
@@ -232,7 +232,7 @@ DBot.GetUserIDSoft = function(obj) {
 }
 
 DBot.GetChannelIDSoft = function(obj) {
-	var id = obj.id;
+	let id = obj.id;
 	
 	if (!DBot.ChannelIDs[id]) {
 		DBot.DefineChannel(obj);
@@ -244,7 +244,7 @@ DBot.GetChannelIDSoft = function(obj) {
 }
 
 DBot.GetServerIDSoft = function(obj) {
-	var id = obj.id;
+	let id = obj.id;
 	
 	if (!DBot.ServersIDs[id]) {
 		DBot.DefineServer(obj);
