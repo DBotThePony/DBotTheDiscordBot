@@ -48,7 +48,7 @@ setInterval(function() {
 	}
 }, 1000);
 
-var crypto = require('crypto');
+var crypto = DBot.js.crypto;
 var fs = DBot.js.fs;
 var moment = DBot.js.moment;
 

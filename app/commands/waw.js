@@ -3,7 +3,7 @@ const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
 const unirest = DBot.js.unirest;
 const fs = DBot.js.fs;
-const URL = require('url');
+const URL = DBot.js.url;
 
 Util.mkdir(DBot.WebRoot + '/waw');
 Util.mkdir(DBot.WebRoot + '/wave');

@@ -9,7 +9,7 @@ const customEmoji = DBot.customEmojiExp;
 const map = DBot.emojiMap;
 
 const emojiBase = 'https://cdn.discordapp.com/emojis/';
-const crypto = require('crypto');
+const crypto = DBot.js.crypto;
 const fs = DBot.js.fs;
 const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;

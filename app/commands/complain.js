@@ -1,5 +1,4 @@
 
-const utf8 = require('utf8');
 const moment = DBot.js.moment;
 const humanizeDuration = DBot.js.hDuration;
 
@@ -24,7 +23,7 @@ module.exports = {
 			sid = DBot.GetServerID(msg.channel.guild);
 		}
 		
-		var stuff = [Util.escape(sid), Util.escape(cid), Util.escape(uid), Util.escape(Math.floor(CurTime())), Util.escape(utf8.encode(cmd))];
+		var stuff = [Util.escape(sid), Util.escape(cid), Util.escape(uid), Util.escape(Math.floor(CurTime())), Util.escape(cmd)];
 		
 		MySQL.query('INSERT INTO complains ("SERVER", "CHANNEL", "USER", "STAMP", "CONTENT") VALUES (' + stuff.join(',') + ')');
 		
@@ -58,7 +57,7 @@ DBot.RegisterCommand({
 					output += '\nChannel: ' + row.CHANNELNAME + ' <#' + row.CHANNELID.trim() + '>';
 				}
 				
-				output += '\nMessage: \n\t' + utf8.decode(row.CONTENT).replace(/\n/gi, '\n\t') + '\n\n';
+				output += '\nMessage: \n\t' + row.CONTENT.replace(/\n/gi, '\n\t') + '\n\n';
 			}
 			
 			DrawText(output, function(err, fpath, fpathU) {

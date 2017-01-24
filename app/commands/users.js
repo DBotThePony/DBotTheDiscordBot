@@ -5,7 +5,7 @@ Util.SafeCopy('./resource/files/jquery-3.0.0.min.js', DBot.WebRoot + '/jquery-3.
 Util.SafeCopy('./resource/files/noavatar.jpg', DBot.WebRoot + '/no_avatar.jpg');
 Util.mkdir(DBot.WebRoot + '/users');
 
-let crypto = require('crypto');
+let crypto = DBot.js.crypto;
 let fs = DBot.js.fs;
 
 let PERM_ENUMS = [

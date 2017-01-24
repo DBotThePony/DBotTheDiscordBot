@@ -1,7 +1,7 @@
 
 const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
-const URL = require('url');
+const URL = DBot.js.url;
 var unirest = DBot.js.unirest;
 var fs = DBot.fs;
 

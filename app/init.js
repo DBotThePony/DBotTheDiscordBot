@@ -15,6 +15,8 @@ DBot.js.fs = require('fs');
 DBot.js.json3 = require('json3');
 DBot.js.moment = require('moment');
 DBot.js.numeral = require('numeral');
+DBot.js.url = require('url');
+DBot.js.crypto = require('crypto');
 DBot.js.hDuration = require('humanize-duration');
 
 DBot.fs = DBot.js.fs;
