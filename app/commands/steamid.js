@@ -10,8 +10,8 @@ let SteamIDTo64 = function(id) {
 	
 	let split = id.split(':');
 	
-	let server = Util.ToNumber(split[1]);
-	let AuthID = Util.ToNumber(split[2]);
+	server = Util.ToNumber(split[1]);
+	AuthID = Util.ToNumber(split[2]);
 	
 	let Mult = AuthID * 2;
 	
@@ -38,8 +38,8 @@ let SteamIDTo3 = function(id) {
 	
 	let split = id.split(':');
 	
-	let server = Util.ToNumber(split[1]);
-	let AuthID = Util.ToNumber(split[2]);
+	server = Util.ToNumber(split[1]);
+	AuthID = Util.ToNumber(split[2]);
 	
 	return '[U:1:' + (AuthID * 2 + server) + ']';
 }
