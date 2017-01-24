@@ -1,5 +1,6 @@
 
 // This is a config file for this bot
+// Copy this file into config.js
 
 module.exports = {
 	// Bot login token
