@@ -149,6 +149,9 @@ hook.Add('UsersInitialized', 'MemberNameLogs', function() {
 	let finalQuery;
 	
 	for (let user of DBot.GetUsers()) {
+		let uid = DBot.GetUserIDSoft(user);
+		if (!uid) return;
+		
 		let name = Util.escape(user.username);
 		user.oldUName = user.username;
 		
@@ -157,7 +160,7 @@ hook.Add('UsersInitialized', 'MemberNameLogs', function() {
 		else
 			finalQuery = '';
 		
-		finalQuery += '(' + DBot.GetUserID(user) + ', ' + name + ')';
+		finalQuery += '(' + uid + ', ' + name + ')';
 	}
 	
 	Postgres.query('INSERT INTO user_names ("ID", "USERNAME") VALUES ' + finalQuery + ' ON CONFLICT ("ID") DO UPDATE SET "USERNAME" = excluded."USERNAME"');
