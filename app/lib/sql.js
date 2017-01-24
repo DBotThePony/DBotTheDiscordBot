@@ -703,7 +703,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 		let roleQuery = '';
 		
 		for (let serverid in role_map) {
-			roleQuery += 'SELECT get_roles_id(' + serverid + ',' + sql.Array(role_map[serverid][0]) + ');';
+			roleQuery += 'SELECT get_roles_id(' + serverid + ',' + sql.Array(role_map[serverid][0]) + '::VARCHAR(64)[]);';
 		}
 		
 		Postgre.query(roleQuery, function(err, data) {
