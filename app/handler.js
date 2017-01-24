@@ -1,4 +1,100 @@
 
+let msgFuncs = [
+	function(str) {
+		if (this.wasDeleted)
+			return {then: function() {}, catch: function() {}};
+		
+		let promise = this.___reply(str);
+		let self = this;
+		
+		promise.then(function(nmsg) {
+			self.replies.push(nmsg);
+			
+			if (self.wasDeleted)
+				nmsg.delete(0);
+		});
+		
+		return promise;
+	},
+	
+	function(str) {
+		if (this.wasDeleted)
+			return {then: function() {}, catch: function() {}};
+		
+		let promise = this.channel.sendMessage(str);
+		let self = this;
+		
+		promise.then(function(nmsg) {
+			self.replies.push(nmsg);
+			
+			if (self.wasDeleted)
+				nmsg.delete(0);
+		});
+		
+		return promise;
+	}
+];
+
+DBot.bot.on('message', function(msg) {
+	msg.replies = msg.replies || [];
+	
+	msg.promiseReply = msgFuncs[0];
+	msg.promiseSend = msgFuncs[1];
+	msg.___reply = msg.___reply || msg.reply; // There is also oldReply, but oldReply is used when command was actually executed.
+	msg.reply = msg.promiseReply;
+	
+	if (!DBot.SQLReady)
+		return;
+	
+	try {
+		msg.internalCreateTime = CurTime();
+		hook.Run('OnMessage', msg);
+		
+		if (DBot.IsMyMessage(msg)) return;
+		if (hook.Run('CheckValidMessage', msg) === true) return;
+		if (hook.Run('PreOnValidMessage', msg) === true) return;
+		
+		hook.Run('OnValidMessage', msg);
+		
+		if (!msg.author.bot) {
+			var supp = hook.Run('OnHumanMessage', msg);
+			
+			if (supp === true) return;
+		}
+		
+		if (msg.channel.type == 'dm') {
+			try {
+				DBot.HandleMessage(msg, true)
+				return;
+			} catch(err) {
+				console.error(err);
+				return;
+			}
+		}
+		
+		if (!DBot.IsAskingMe(msg)) return;
+		
+		if (DBot.IsAskingMe(msg) && !DBot.IsAskingMe_Command(msg)) {
+			let myPrefix = DBot.MessagePrefix(msg);
+			
+			if (myPrefix)
+				msg.reply('Hi? x3 @NotDBot help or ' + myPrefix + 'help');
+			else
+				msg.reply('Hi? x3 @NotDBot help');
+			
+			return;
+		}
+		
+		try {
+			DBot.HandleMessage(msg);
+		} catch(err) {
+			console.error(err);
+		}
+	} catch(err) {
+		console.error(err);
+	}
+});
+
 DBot.CommandsAntiSpam = {};
 
 DBot.ParseString = function(str, ignoreHandlers) {

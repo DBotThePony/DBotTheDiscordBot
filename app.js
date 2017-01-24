@@ -1,10 +1,10 @@
 
 process.env['PATH'] = './bin;' + process.env['PATH'];
-var stamp = (new Date()).getTime();
+const stamp = (new Date()).getTime();
 
 const Discord = require('discord.js');
 const bot = new Discord.Client();
-var token = "MjQ4NzU2MjM1ODg3ODM3MTk0.Cw8Xzg.wAxaM4qN6docKitkQe-PDud_IM0";
+const token = "MjQ4NzU2MjM1ODg3ODM3MTk0.Cw8Xzg.wAxaM4qN6docKitkQe-PDud_IM0";
 
 let stdin = process.openStdin();
 
@@ -23,115 +23,14 @@ stdin.addListener('data', function(data) {
 	}
 });
 
-require('./app/init.js');
+DBot = {};
 DBot.bot = bot;
 DBot.client = bot;
+
+require('./app/init.js');
+
 hook.RegisterEvents();
 DBot.Discord = Discord;
-
-let msgFuncs = [
-	function(str) {
-		if (this.wasDeleted)
-			return {then: function() {}, catch: function() {}};
-		
-		let promise = this.___reply(str);
-		let self = this;
-		
-		promise.then(function(nmsg) {
-			self.replies.push(nmsg);
-			
-			if (self.wasDeleted)
-				nmsg.delete(0);
-		});
-		
-		return promise;
-	},
-	
-	function(str) {
-		if (this.wasDeleted)
-			return {then: function() {}, catch: function() {}};
-		
-		let promise = this.channel.sendMessage(str);
-		let self = this;
-		
-		promise.then(function(nmsg) {
-			self.replies.push(nmsg);
-			
-			if (self.wasDeleted)
-				nmsg.delete(0);
-		});
-		
-		return promise;
-	}
-];
-
-bot.on('message', function(msg) {
-	msg.replies = msg.replies || [];
-	
-	msg.promiseReply = msgFuncs[0];
-	msg.promiseSend = msgFuncs[1];
-	msg.___reply = msg.___reply || msg.reply; // There is also oldReply, but oldReply is used when command was actually executed.
-	msg.reply = msg.promiseReply;
-	
-	if (!DBot.SQLReady)
-		return;
-	
-	try {
-		msg.internalCreateTime = CurTime();
-		hook.Run('OnMessage', msg);
-		
-		if (DBot.IsMyMessage(msg))
-			return;
-		
-		if (hook.Run('CheckValidMessage', msg) === true)
-			return;
-		
-		if (hook.Run('PreOnValidMessage', msg) === true)
-			return;
-		
-		hook.Run('OnValidMessage', msg);
-		
-		if (!msg.author.bot) {
-			var supp = hook.Run('OnHumanMessage', msg);
-			
-			if (supp === true)
-				return;
-		}
-		
-		if (msg.channel.type == 'dm') {
-			try {
-				DBot.HandleMessage(msg, true)
-				return;
-			} catch(err) {
-				console.error(err);
-				return;
-			}
-		}
-		
-		if (!DBot.IsAskingMe(msg))
-			return;
-		
-		if (DBot.IsAskingMe(msg) && !DBot.IsAskingMe_Command(msg)) {
-			let myPrefix = DBot.MessagePrefix(msg);
-			
-			if (myPrefix)
-				msg.reply('Hi? x3 @NotDBot help or ' + myPrefix + 'help');
-			else
-				msg.reply('Hi? x3 @NotDBot help');
-			
-			
-			return;
-		}
-		
-		try {
-			DBot.HandleMessage(msg);
-		} catch(err) {
-			console.error(err);
-		}
-	} catch(err) {
-		console.error(err);
-	}
-});
 
 let IS_INITIALIZED = false;
 let LEVEL_OF_CONNECTION = 0;
@@ -144,18 +43,12 @@ DBot.IsOnline = function() {
 IsOnline = DBot.IsOnline;
 
 let loginFunc = function() {
-	if (LEVEL_OF_CONNECTION > 0)
-		return;
+	if (LEVEL_OF_CONNECTION > 0) return;
 	
 	if (LEVEL_OF_CONNECTION < 0)
 		LEVEL_OF_CONNECTION = 0;
 	
-	if (!IS_INITIALIZED)
-		return;
-	
-	if (ALREADY_CONNECTING)
-		return;
-	
+	if (!IS_INITIALIZED || ALREADY_CONNECTING) return;
 	ALREADY_CONNECTING = true;
 	
 	bot.login(token)
@@ -173,35 +66,18 @@ let TimeoutID = null;
 bot.on('disconnect', function() {
 	LEVEL_OF_CONNECTION--;
 	
-	if (LEVEL_OF_CONNECTION > 0)
-		return;
+	if (LEVEL_OF_CONNECTION > 0) return;
 	
 	if (LEVEL_OF_CONNECTION < 0)
 		LEVEL_OF_CONNECTION = 0;
 	
-	if (!IS_INITIALIZED)
-		return;
-	
-	DBot.SQL_START = false;
-	
-	if (TimeoutID)
-		clearTimeout(TimeoutID);
-	
+	if (!IS_INITIALIZED) return;
+	if (TimeoutID) clearTimeout(TimeoutID);
 	TimeoutID = null;
 	
+	DBot.SQL_START = false;
 	console.log('Disconnected from servers!');
-	
 	hook.Run('OnDisconnected');
-});
-
-ALREADY_CONNECTING = true;
-
-bot.login(token)
-.then(function() {
-	IS_INITIALIZED = true;
-	ALREADY_CONNECTING = false;
-}).catch(function() {
-	ALREADY_CONNECTING = false;
 });
 
 bot.on('ready', function() {
@@ -209,6 +85,7 @@ bot.on('ready', function() {
 	
 	console.log('Connection established');
 	DBot.InitVars();
+	hook.Run('BotConnected', DBot.bot);
 	
 	DBot.SQL_START = false;
 	
@@ -216,19 +93,27 @@ bot.on('ready', function() {
 		clearTimeout(TimeoutID);
 	
 	TimeoutID = setTimeout(function() {
-		if (ALREADY_CONNECTING)
-			return;
-		
-		if (LEVEL_OF_CONNECTION == 0)
-			return;
-		
+		if (ALREADY_CONNECTING || LEVEL_OF_CONNECTION == 0) return;
 		console.log('Initializing stuff');
 		hook.Run('BotOnline', DBot.bot);
-	}, 4000); // Wait before all loads
+	}, 4000);
 });
 
 setInterval(loginFunc, 10000);
 
-var nStamp = (new Date()).getTime();
-
+let nStamp = (new Date()).getTime();
 console.log('Initialization complete in ' + (Math.floor((nStamp - stamp) * 100) / 100) + ' ms');
+
+ALREADY_CONNECTING = true;
+
+bot.login(token)
+.then(function() {
+	IS_INITIALIZED = true;
+	ALREADY_CONNECTING = false;
+	console.log('Bot ID: ' + bot.user.id);
+})
+.catch(function(err) {
+	ALREADY_CONNECTING = false;
+	console.error('Unable to login.');
+	console.error(err);
+});

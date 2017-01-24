@@ -122,7 +122,6 @@ DBot.ConcatArray = function(arr, sep) {
 
 DBot.InitVars = function() {
 	DBot.id = DBot.bot.user.id;
-	console.log('Bot ID: ' + DBot.id);
 	DBot.askId = '<@' + DBot.bot.user.id + '>';
 	DBot.askIdC = '<@' + DBot.bot.user.id + '> ';
 	DBot.askId2 = '<@!' + DBot.bot.user.id + '>';
