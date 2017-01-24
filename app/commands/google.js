@@ -1,7 +1,7 @@
 
-const unirest = require('unirest');
-const JSON3 = require('json3');
-const fs = require('fs');
+const unirest = DBot.js.unirest;
+const JSON3 = DBot.js.json3;
+const fs = DBot.js.fs;
 
 Util.mkdir(DBot.WebRoot + '/google');
 

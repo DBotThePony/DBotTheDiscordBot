@@ -6,7 +6,7 @@ Util.SafeCopy('./resource/files/noavatar.jpg', DBot.WebRoot + '/no_avatar.jpg');
 Util.mkdir(DBot.WebRoot + '/users');
 
 let crypto = require('crypto');
-let fs = require('fs');
+let fs = DBot.js.fs;
 
 let PERM_ENUMS = [
 	"CREATE_INSTANT_INVITE",

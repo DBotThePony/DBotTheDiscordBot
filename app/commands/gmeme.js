@@ -1,7 +1,7 @@
 
 var toGet = 'https://api.imgflip.com/get_memes';
-var unirest = require('unirest');
-var fs = require('fs');
+var unirest = DBot.js.unirest;
+var fs = DBot.js.fs;
 
 // Memed
 var UpdateMemes = function() {

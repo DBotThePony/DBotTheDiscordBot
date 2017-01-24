@@ -3,7 +3,7 @@ Util.SafeCopy('./resource/files/messages.css', DBot.WebRoot + '/messages.css');
 Util.mkdir(DBot.WebRoot + '/messages');
 
 var crypto = require('crypto');
-var fs = require('fs');
+var fs = DBot.js.fs;
 
 var stuff1 = "<!DOCTYPE HTML>\
 <html>\

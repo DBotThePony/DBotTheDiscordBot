@@ -1,5 +1,5 @@
 
-const fs = require('fs');
+const fs = DBot.js.fs;
 
 let categories = [];
 let categoriesVulgar = [];

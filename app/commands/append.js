@@ -1,9 +1,9 @@
 
-const child_process = require('child_process');
+const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
 const URL = require('url');
-const unirest = require('unirest');
-const fs = require('fs');
+const unirest = DBot.js.unirest;
+const fs = DBot.js.fs;
 
 Util.mkdir(DBot.WebRoot + '/append');
 

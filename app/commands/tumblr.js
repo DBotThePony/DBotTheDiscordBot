@@ -1,7 +1,7 @@
 
-const unirest = require('unirest');
-const fs = require('fs');
-const JSON3 = require('json3');
+const unirest = DBot.js.unirest;
+const fs = DBot.js.fs;
+const JSON3 = DBot.js.json3;
 var token = '6RO3cAAWTFlIyOCsUVvuZkdNq8PpLAGR5fXaxIKbzUxs7PbWul';
 var urlBase = 'https://api.tumblr.com/v2/blog/';
 

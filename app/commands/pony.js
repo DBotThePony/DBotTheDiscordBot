@@ -1,5 +1,5 @@
 
-var fs = require('fs');
+var fs = DBot.js.fs;
 var AvaliablePonies = [];
 var AvaliablePoniesPNG = [];
 

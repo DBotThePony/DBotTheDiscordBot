@@ -1,8 +1,8 @@
 
-const child_process = require('child_process');
+const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
 const URL = require('url');
-let unirest = require('unirest');
+let unirest = DBot.js.unirest;
 let fs = DBot.fs;
 
 Util.mkdir(DBot.WebRoot + '/vintage');

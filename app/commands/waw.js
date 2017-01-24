@@ -1,8 +1,8 @@
 
-const child_process = require('child_process');
+const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
-const unirest = require('unirest');
-const fs = require('fs');
+const unirest = DBot.js.unirest;
+const fs = DBot.js.fs;
 const URL = require('url');
 
 Util.mkdir(DBot.WebRoot + '/waw');

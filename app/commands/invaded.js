@@ -1,8 +1,8 @@
 
-const child_process = require('child_process');
+const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
 const URL = require('url');
-var unirest = require('unirest');
+var unirest = DBot.js.unirest;
 var fs = DBot.fs;
 
 fs.stat(DBot.WebRoot + '/invaded', function(err, stat) {

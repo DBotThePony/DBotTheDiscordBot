@@ -1,6 +1,6 @@
 
-const fs = require('fs');
-const unirest = require('unirest');
+const fs = DBot.js.fs;
+const unirest = DBot.js.unirest;
 const grabber = new RegExp('style="display: none">([^<]+)</span>', 'gi');
 const base = 'http://www.twitchquotes.com/copypastas?page=';
 let page = 1;

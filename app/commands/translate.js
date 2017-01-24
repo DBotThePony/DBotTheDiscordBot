@@ -1,7 +1,7 @@
 
-const unirest = require('unirest');
-const fs = require('fs');
-const JSON3 = require('json3');
+const unirest = DBot.js.unirest;
+const fs = DBot.js.fs;
+const JSON3 = DBot.js.json3;
 var apiKey = 'trnsl.1.1.20161127T134540Z.02165681560fc8c8.fa36e3a21cf74adf636c739e24b2c78e17b66425';
 
 var validLangs = [];

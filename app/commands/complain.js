@@ -1,7 +1,7 @@
 
 const utf8 = require('utf8');
-const moment = require('moment');
-const humanizeDuration = require('humanize-duration');
+const moment = DBot.js.moment;
+const humanizeDuration = DBot.js.hDuration;
 
 const queryToList = 'SELECT *, (SELECT "NAME" FROM server_names WHERE server_names."ID" = complains."SERVER") as "SERVERNAME", (SELECT "NAME" FROM channel_names WHERE channel_names."ID" = complains."CHANNEL") as "CHANNELNAME", (SELECT "USERNAME" FROM user_names WHERE user_names."ID" = complains."USER") as "USERNAME", (SELECT "UID" FROM server_id WHERE server_id."ID" = complains."SERVER") as "SERVERID", (SELECT "UID" FROM channel_id WHERE channel_id."ID" = complains."CHANNEL") as "CHANNELID", (SELECT "UID" FROM user_id WHERE user_id."ID" = complains."USER") as "USERID" FROM complains ORDER BY "ID" DESC LIMIT 5';
 

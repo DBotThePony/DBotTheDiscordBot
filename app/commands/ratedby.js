@@ -1,7 +1,7 @@
 
-const child_process = require('child_process');
+const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
-const fs = require('fs');
+const fs = DBot.js.fs;
 
 Util.mkdir(DBot.WebRoot + '/ratedby');
 

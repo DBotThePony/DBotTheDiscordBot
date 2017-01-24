@@ -1,5 +1,5 @@
 
-var unirest = require('unirest');
+var unirest = DBot.js.unirest;
 
 module.exports = {
 	name: 'urban',

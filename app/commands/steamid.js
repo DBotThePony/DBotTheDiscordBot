@@ -1,7 +1,7 @@
 
 var apiBase = 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=A6705637E4E80BD04C8471C143C91DBE&steamids=';
 var resolveBase = 'http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=A6705637E4E80BD04C8471C143C91DBE&vanityurl=';
-var unirest = require('unirest');
+var unirest = DBot.js.unirest;
 var BigNumber = require('bignumber.js');
 
 var SteamIDTo64 = function(id) {

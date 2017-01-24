@@ -76,9 +76,9 @@ var nsfwBoard = [
 
 var validBoards = [];
 var defBans = [];
-var fs = require('fs');
-var JSON3 = require('json3');
-var unirest = require('unirest');
+var fs = DBot.js.fs;
+var JSON3 = DBot.js.json3;
+var unirest = DBot.js.unirest;
 
 for (var i in Boards) {
 	var brd = Boards[i][0];

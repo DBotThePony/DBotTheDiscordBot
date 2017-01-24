@@ -1,6 +1,6 @@
 
-const moment = require('moment');
-const hDuration = require('humanize-duration');
+const moment = DBot.js.moment;
+const hDuration = DBot.js.hDuration;
 const fs = DBot.fs;
 Util.mkdir(DBot.WebRoot + '/blogs');
 

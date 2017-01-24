@@ -1,5 +1,5 @@
 
-const child_process = require('child_process');
+const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
 const fs = DBot.fs;
 

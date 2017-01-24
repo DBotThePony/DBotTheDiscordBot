@@ -1,8 +1,8 @@
 
 var http = require('https');
-var unirest = require('unirest');
-var JSON3 = require('json3');
-var fs = require('fs');
+var unirest = DBot.js.unirest;
+var JSON3 = DBot.js.json3;
+var fs = DBot.js.fs;
 
 DBot.CreateTagsSpace('derpibooru', [
 	'anthro',

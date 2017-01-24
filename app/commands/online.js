@@ -1,6 +1,6 @@
 
-const hDuration = require('humanize-duration');
-const moment = require('moment');
+const hDuration = DBot.js.hDuration;
+const moment = DBot.js.moment;
 
 // TOTAL_OFFLINE because we must count offline time when bot is online.
 
