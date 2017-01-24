@@ -25,7 +25,17 @@ stdin.addListener('data', function(data) {
 DBot = {};
 DBot.bot = bot;
 DBot.client = bot;
-DBot.cfg = require('./config.js');
+
+try {
+	DBot.cfg = require('./config.js');
+} catch(err) {
+	console.error('---------------------------------------');
+	console.error('FATAL: Unable to open config file. Is it there? Is it valid?');
+	console.error('---------------------------------------');
+	
+	throw err;
+}
+
 require('./app/init.js');
 
 hook.RegisterEvents();
