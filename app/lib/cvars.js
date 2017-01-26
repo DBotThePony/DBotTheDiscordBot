@@ -409,7 +409,7 @@ class ConVar {
 }
 
 class UserVarSession {
-	constructor(obj) {
+	constructor(obj, noFetch) {
 		this.obj = obj;
 		this.user = obj;
 		this.id = obj.id;
@@ -430,7 +430,7 @@ class UserVarSession {
 			this.cvars[i].session = this;
 		}
 		
-		if (!sqlString) return;
+		if (noFetch || !sqlString) return;
 		
 		let self = this;
 		
@@ -482,7 +482,7 @@ class UserVarSession {
 }
 
 class ServerVarSession {
-	constructor(obj) {
+	constructor(obj, noFetch) {
 		this.obj = obj;
 		this.server = obj;
 		this.guild = obj;
@@ -504,7 +504,7 @@ class ServerVarSession {
 			this.cvars[i].session = this;
 		}
 		
-		if (!sqlString) return;
+		if (noFetch || !sqlString) return;
 		
 		let self = this;
 		
@@ -556,7 +556,7 @@ class ServerVarSession {
 }
 
 class ChannelVarSession {
-	constructor(obj) {
+	constructor(obj, noFetch) {
 		this.obj = obj;
 		this.channel = obj;
 		this.id = obj.id;
@@ -577,7 +577,7 @@ class ChannelVarSession {
 			this.cvars[i].session = this;
 		}
 		
-		if (!sqlString) return;
+		if (noFetch || !sqlString) return;
 		
 		let self = this;
 		
@@ -629,6 +629,8 @@ class ChannelVarSession {
 }
 
 hook.Add('UserInitialized', 'CVars', function(obj) {
+	if (!DBot.SQLReady()) return;
+	
 	if (cvars.CLIENTS[DBot.GetUserID(obj)])
 		return;
 	
@@ -636,6 +638,8 @@ hook.Add('UserInitialized', 'CVars', function(obj) {
 });
 
 hook.Add('ChannelInitialized', 'CVars', function(obj) {
+	if (!DBot.SQLReady()) return;
+	
 	if (cvars.CHANNELS[DBot.GetChannelID(obj)])
 		return;
 	
@@ -643,10 +647,93 @@ hook.Add('ChannelInitialized', 'CVars', function(obj) {
 });
 
 hook.Add('ServerInitialized', 'CVars', function(obj) {
+	if (!DBot.SQLReady()) return;
+	
 	if (cvars.SERVERS[DBot.GetServerID(obj)])
 		return;
 	
 	cvars.SERVERS[DBot.GetServerID(obj)] = new ServerVarSession(obj);
+});
+
+hook.Add('UsersInitialized', 'CVars', function(users) {
+	let cVarsArray;
+	
+	for (let i in cvars.CONVARS_USER) {
+		if (!cVarsArray)
+			cVarsArray = Util.escape(i);
+		else
+			cVarsArray += ',' + Util.escape(i);
+	}
+	
+	if (!cVarsArray) return;
+	
+	Postgres.query('SELECT cvar_client."ID", cvar_client."CVAR", cvar_client."VALUE" FROM cvar_client, last_seen WHERE last_seen."TIME" > currtime() - 120 AND last_seen."ID" = cvar_client."ID" AND "CVAR" IN (' + cVarsArray + ')', function(err, data) {
+		for (let row of data) {
+			let obj = DBot.GetUser(row.ID);
+			
+			if (!obj) continue;
+			if (!cvars.CLIENTS[row.ID])
+				cvars.CLIENTS[row.ID] = new UserVarSession(obj, true);
+			
+			let cv = cvars.CLIENTS[row.ID].getVar(row.CVAR);
+			if (!cv) continue;
+			cv.setValueRaw(row.VALUE);
+		}
+	});
+});
+
+hook.Add('ChannelsInitialized', 'CVars', function(channels) {
+	let cVarsArray;
+	
+	for (let i in cvars.CONVARS_CHANNEL) {
+		if (!cVarsArray)
+			cVarsArray = Util.escape(i);
+		else
+			cVarsArray += ',' + Util.escape(i);
+	}
+	
+	if (!cVarsArray) return;
+	
+	Postgres.query('SELECT cvar_channel."ID", cvar_channel."CVAR", cvar_channel."VALUE" FROM cvar_channel, last_seen_channels WHERE last_seen_channels."TIME" > currtime() - 120 AND last_seen_channels."ID" = cvar_channel."ID" AND "CVAR" IN (' + cVarsArray + ')', function(err, data) {
+		for (let row of data) {
+			let obj = DBot.GetChannel(row.ID);
+			
+			if (!obj) continue;
+			if (!cvars.CHANNELS[row.ID])
+				cvars.CHANNELS[row.ID] = new ChannelVarSession(obj, true);
+			
+			let cv = cvars.CHANNELS[row.ID].getVar(row.CVAR);
+			if (!cv) continue;
+			cv.setValueRaw(row.VALUE);
+		}
+	});
+});
+
+hook.Add('ServersInitialized', 'CVars', function(servers) {
+	let cVarsArray;
+	
+	for (let i in cvars.CONVARS_SERVER) {
+		if (!cVarsArray)
+			cVarsArray = Util.escape(i);
+		else
+			cVarsArray += ',' + Util.escape(i);
+	}
+	
+	if (!cVarsArray) return;
+	
+	Postgres.query('SELECT cvar_server."ID", cvar_server."CVAR", cvar_server."VALUE" FROM cvar_server, last_seen_servers WHERE last_seen_servers."TIME" > currtime() - 120 AND last_seen_servers."ID" = cvar_server."ID" AND "CVAR" IN (' + cVarsArray + ')', function(err, data) {
+		for (let row of data) {
+			let obj = DBot.GetServer(row.ID);
+			
+			if (!obj) continue;
+			if (!cvars.SERVERS[row.ID])
+				cvars.SERVERS[row.ID] = new ServerVarSession(obj, true);
+			
+			let cv = cvars.SERVERS[row.ID].getVar(row.CVAR);
+			if (!cv) continue;
+			cv.setValueRaw(row.VALUE);
+		}
+	});
 });
 
 cvars.Server = function(server) {
