@@ -33,13 +33,21 @@ pgConnection.query = function(query, callback) {
 	let oldStack = new Error().stack;
 	
 	pgConnection.oldQuery(query, function(err, data) {
+		let newErrorMessage;
+		
 		if (err) {
-			if (!callback) {
-				let newErr = new Error(err.message + '\n' + query);
-				newErr.stack = 'PostgreSQL ERROR: ' + err.message + '\n' + query + '\n' + oldStack;
-				
-				throw newErr;
-			}
+			newErrorMessage = 'QUERY: ' + (err.internalQuery || query) + '\nERROR: ' + err.message;
+			
+			if (err.hint)
+				newErrorMessage += '\nHINT: ' + err.hint;
+			
+			if (err.detail)
+				newErrorMessage += '\n' + err.hint;
+			
+			newErrorMessage += '\n' + oldStack;
+			err.stack = newErrorMessage;
+			
+			if (!callback) throw err;
 		}
 		
 		if (callback) {
@@ -68,10 +76,6 @@ pgConnection.query = function(query, callback) {
 					for (let i = 0; i < amountOfRows; i++) {
 						yield data.rows[i];
 					}
-				}
-				
-				if (err && err.internalQuery) {
-					err.stack = err.internalQuery + '\n' + err.stack;
 				}
 				
 				callback(err, obj, data);
