@@ -32,6 +32,8 @@ pgConnection.oldQuery = pgConnection.query;
 pgConnection.query = function(query, callback) {
 	let oldStack = new Error().stack;
 	
+	// if (query.length < 100) console.log(query); // To trackdown small queries on startup
+	
 	pgConnection.oldQuery(query, function(err, data) {
 		let newErrorMessage;
 		
@@ -699,7 +701,6 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 	Postgre.query('SELECT get_servers_id(' + sql.Array(build) + '::CHAR(64)[]);', function(err, data) {
 		if (err) throw err;
 		
-		LoadingLevel--;
 		let channels1 = [];
 		let channels2 = [];
 		let channel_map = [];
@@ -745,6 +746,8 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			}
 		}
 		
+		LoadingLevel--;
+		
 		hook.Run('ServersInitialized', serverArrayToPass);
 		
 		let roleQuery = '';
@@ -758,8 +761,6 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				console.log(roleQuery);
 				throw err;
 			}
-			
-			LoadingLevel--;
 			
 			let roleHashMap = {};
 			let role_array_uids = [];
@@ -787,6 +788,8 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 					hook.Run('RoleInitialized', role, role.uid);
 			}
 			
+			LoadingLevel--;
+			
 			updateRoles(role_array);
 			hook.Run('RolesInitialized', role_map, role_array, role_array_ids, roleHashMap, role_array_uids);
 		});
@@ -797,8 +800,6 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				console.log(q);
 				throw err;
 			}
-			
-			LoadingLevel--;
 			
 			let channelArrayToPass = [];
 			
@@ -820,13 +821,13 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				}
 			}
 			
+			LoadingLevel--;
+			
 			hook.Run('ChannelsInitialized', channelArrayToPass);
 		});
 		
 		Postgre.query('SELECT get_users_id(' + sql.Array(users) + '::CHAR(64)[]);', function(err, data) {
 			if (err) throw err;
-			
-			LoadingLevel--;
 			
 			let ctime = Math.floor(CurTime());
 			
@@ -856,6 +857,8 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 					hook.Run('ClientInitialized', user, id);
 				}
 			}
+			
+			LoadingLevel--;
 			
 			let memberInit = false;
 			let updateInit = false;
@@ -894,8 +897,6 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 					throw err;
 				}
 				
-				LoadingLevel--;
-				
 				for (let row of data) {
 					let exp = row.get_members_id.split(',');
 					let id = Number(exp[0].substr(1));
@@ -918,6 +919,8 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 					if (shouldCall)
 						hook.Run('MemberInitialized', member, member.uid);
 				}
+				
+				LoadingLevel--;
 				
 				memberInit = true;
 				
