@@ -32,6 +32,9 @@ const AvaliableCustomFonts = [
 	['Roboto-Slab-Regular', 'RobotoSlab'],
 	['Courier-New', 'Courier'],
 	['Time-Normal', 'Time'],
+	['Segoe-Print', 'Segoe'],
+	['Segoe-Script', 'SegoeScript'],
+	['Segoe-UI', 'SegoeUI'],
 	
 	// Google custom fonts
 	
