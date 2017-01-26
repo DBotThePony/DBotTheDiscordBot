@@ -1505,7 +1505,7 @@ BEGIN
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION get_servers_id(sID CHAR(64)[])
-RETURNS TABLE ("ID" INTEGER, "UID" VARCHAR(64)) AS $$
+RETURNS TABLE ("SERID" INTEGER, "UID" VARCHAR(64)) AS $$
 BEGIN
 	WITH missing_tab AS (
 		WITH missing AS (
@@ -1528,6 +1528,8 @@ BEGIN
 	)
 	
 	INSERT INTO "server_id" ("UID") SELECT * FROM missing_tab WHERE missing_tab."MISSING" IS NOT NULL;
+	
+	INSERT INTO last_seen_servers ("ID", "TIME") (SELECT server_id."ID", currtime() FROM server_id WHERE server_id."UID" = ANY (sID)) ON CONFLICT ("ID") DO UPDATE SET "TIME" = excluded."TIME";
 	
 	RETURN QUERY SELECT server_id."ID", TRIM(server_id."UID")::VARCHAR(64) FROM server_id WHERE server_id."UID" = ANY (sID);
 END; $$ LANGUAGE plpgsql;
@@ -1561,7 +1563,7 @@ BEGIN
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION get_channels_id(sID CHAR(64)[], sID2 INTEGER[])
-RETURNS TABLE ("ID" INTEGER, "UID" VARCHAR(64)) AS $$
+RETURNS TABLE ("CHANID" INTEGER, "UID" VARCHAR(64)) AS $$
 BEGIN
 	WITH missing_tab AS (
 		WITH missing AS (
@@ -1588,6 +1590,8 @@ BEGIN
 	)
 	
 	INSERT INTO "channel_id" ("UID", "SID") SELECT * FROM missing_tab WHERE missing_tab."MISSING_CHANNEL" IS NOT NULL;
+	
+	INSERT INTO last_seen_channels ("ID", "TIME") (SELECT channel_id."ID" AS "CHANNEL_ID", currtime() FROM channel_id WHERE channel_id."UID" = ANY (sID)) ON CONFLICT ("ID") DO UPDATE SET "TIME" = excluded."TIME";
 	
 	RETURN QUERY SELECT channel_id."ID", TRIM(channel_id."UID")::VARCHAR(64) FROM channel_id WHERE channel_id."UID" = ANY (sID);
 END; $$ LANGUAGE plpgsql;

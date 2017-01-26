@@ -417,21 +417,6 @@ DBot.DefineChannel = function(channel) {
 	});
 }
 
-hook.Add('ChannelInitialized', 'MySQL.Saves', function(channel, id) {
-	if (!channel.name)
-		return;
-	
-	Postgre.query('INSERT INTO last_seen_channels VALUES (' + id + ', ' + Math.floor(CurTime()) + ') ON CONFLICT ("ID") DO UPDATE SET "TIME" = ' + Math.floor(CurTime()));
-	
-	MySQL.query('INSERT INTO channel_names ("ID", "NAME") VALUES (' + id + ', ' + Util.escape(channel.name) + ') ON CONFLICT ("ID") DO UPDATE SET "NAME" = ' + Util.escape(channel.name), function(err) {
-		if (!err)
-			return;
-		
-		console.error('Failed to save channel name ' + id + ' (' + channel.name + ')!');
-		console.error(err);
-	});
-});
-
 let updateRole = function(role) {
 	let perms = role.serialize();
 	let arr = [];
@@ -584,8 +569,8 @@ DBot.DefineGuild = function(guild) {
 }
 
 hook.Add('ServerInitialized', 'MySQL.Saves', function(server, id) {
-	if (!server.name)
-		return;
+	if (!DBot.SQLReady()) return;
+	if (!server.name) return;
 	
 	Postgre.query('INSERT INTO last_seen_servers VALUES (' + id + ', ' + Math.floor(CurTime()) + ') ON CONFLICT ("ID") DO UPDATE SET "TIME" = ' + Math.floor(CurTime()));
 	
@@ -595,6 +580,63 @@ hook.Add('ServerInitialized', 'MySQL.Saves', function(server, id) {
 		
 		console.error('Failed to save server name ' + id + ' (' + server.name + ')!');
 		console.error(err);
+	});
+});
+
+hook.Add('ServersInitialized', 'MySQL.Saves', function(servers) {
+	let finalQuery;
+	
+	for (let server of servers) {
+		if (!server.name) continue;
+		
+		if (finalQuery)
+			finalQuery += ',';
+		else
+			finalQuery = '';
+		
+		finalQuery += '(' + server.uid + ', ' + Util.escape(server.name) + ')';
+	}
+	
+	if (!finalQuery) return;
+	
+	MySQL.query('INSERT INTO server_names ("ID", "NAME") VALUES ' + finalQuery + ' ON CONFLICT ("ID") DO UPDATE SET "NAME" = excluded."NAME"', function(err) {
+		if (err) console.error(err);
+	});
+});
+
+hook.Add('ChannelInitialized', 'MySQL.Saves', function(channel, id) {
+	if (!DBot.SQLReady()) return;
+	if (!channel.name) return;
+	
+	Postgre.query('INSERT INTO last_seen_channels VALUES (' + id + ', ' + Math.floor(CurTime()) + ') ON CONFLICT ("ID") DO UPDATE SET "TIME" = ' + Math.floor(CurTime()));
+	
+	MySQL.query('INSERT INTO channel_names ("ID", "NAME") VALUES (' + id + ', ' + Util.escape(channel.name) + ') ON CONFLICT ("ID") DO UPDATE SET "NAME" = ' + Util.escape(channel.name), function(err) {
+		if (!err)
+			return;
+		
+		console.error('Failed to save channel name ' + id + ' (' + channel.name + ')!');
+		console.error(err);
+	});
+});
+
+hook.Add('ChannelsInitialized', 'MySQL.Saves', function(channels) {
+	let finalQuery;
+	
+	for (let channel of channels) {
+		if (!channel.name) continue;
+		
+		if (finalQuery)
+			finalQuery += ',';
+		else
+			finalQuery = '';
+		
+		finalQuery += '(' + channel.uid + ', ' + Util.escape(channel.name) + ')';
+	}
+	
+	if (!finalQuery) return;
+	
+	MySQL.query('INSERT INTO channel_names ("ID", "NAME") VALUES ' + finalQuery + ' ON CONFLICT ("ID") DO UPDATE SET "NAME" = excluded."NAME"', function(err) {
+		if (err) console.error(err);
 	});
 });
 
@@ -651,7 +693,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 	LoadingLevel = 6;
 	
 	Postgre.query('SELECT get_servers_id(' + sql.Array(build) + '::CHAR(64)[]);', function(err, data) {
-		if (err) throw err;
+		if (err) { console.error(err); throw err };
 		
 		LoadingLevel--;
 		let channels1 = [];
@@ -660,6 +702,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 		let role_map = {};
 		let role_array = [];
 		let role_array_ids = [];
+		let serverArrayToPass = [];
 		
 		for (let row of data) {
 			let exp = row.get_servers_id.split(',');
@@ -677,6 +720,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			if (shouldCall) {
 				hook.Run('GuildInitialized', srv, id);
 				hook.Run('ServerInitialized', srv, id);
+				serverArrayToPass.push(srv);
 			}
 			
 			let roleMap = [[], {}];
@@ -696,6 +740,8 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				channel_map[channel.id] = channel;
 			}
 		}
+		
+		hook.Run('ServersInitialized', serverArrayToPass);
 		
 		let roleQuery = '';
 		
@@ -750,6 +796,8 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			
 			LoadingLevel--;
 			
+			let channelArrayToPass = [];
+			
 			for (let row of data) {
 				let exp = row.get_channels_id.split(',');
 				let id = Number(exp[0].substr(1));
@@ -762,8 +810,13 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				DBot.ChannelIDs[uid] = id;
 				DBot.ChannelIDs_R[id] = channel;
 				
-				hook.Run('ChannelInitialized', channel, id);
+				if (shouldCall) {
+					hook.Run('ChannelInitialized', channel, id);
+					channelArrayToPass.push(channel);
+				}
 			}
+			
+			hook.Run('ChannelsInitialized', channelArrayToPass);
 		});
 		
 		Postgre.query('SELECT get_users_id(' + sql.Array(users) + '::CHAR(64)[]);', function(err, data) {
