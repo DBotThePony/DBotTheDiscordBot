@@ -72,7 +72,7 @@ cvars.CHANNELS = {};
 cvars.CLIENTS = {};
 
 class ConVar {
-	constructor(data, object) {
+	constructor(data, object, noLoad) {
 		this.data = data;
 		this.idFunc = data.idFunc;
 		this.realm = data.realm;
@@ -93,13 +93,14 @@ class ConVar {
 		
 		this.value = this.defValue;
 		
-		MySQL.query('SELECT "VALUE" FROM cvar_' + this.realm + ' WHERE "ID" = ' + this.id + ' AND "CVAR" = ' + Util.escape(this.name), function(err, data) {
-			if (!data || !data[0]) {
-				MySQL.query('INSERT INTO cvar_' + me.realm + ' ("ID", "CVAR", "VALUE") VALUES (' + me.id + ', ' + Util.escape(me.name) + ', ' + Util.escape(me.defValue) + ')');
-			} else {
-				me.value = data[0].VALUE;
-			}
-		});
+		if (!noLoad)
+			MySQL.query('SELECT "VALUE" FROM cvar_' + this.realm + ' WHERE "ID" = ' + this.id + ' AND "CVAR" = ' + Util.escape(this.name), function(err, data) {
+				if (!data || !data[0]) {
+					MySQL.query('INSERT INTO cvar_' + me.realm + ' ("ID", "CVAR", "VALUE") VALUES (' + me.id + ', ' + Util.escape(me.name) + ', ' + Util.escape(me.defValue) + ')');
+				} else {
+					me.value = data[0].VALUE;
+				}
+			});
 	}
 	
 	haveFlag(flag) {
@@ -117,6 +118,16 @@ class ConVar {
 	
 	getSession() {
 		return this.session;
+	}
+	
+	setValueRaw(val) {
+		let oldVal = this.value;
+		this.value = val;
+		
+		this.session.onValueChanged(this, oldVal, val);
+		this.onValueChanged(oldVal, val);
+		
+		return [true];
 	}
 	
 	setValue(val, msg) {
@@ -407,10 +418,31 @@ class UserVarSession {
 		this.cvars = {};
 		this.callbacks = {};
 		
+		let sqlString;
+		
 		for (let i in cvars.CONVARS_USER) {
-			this.cvars[i] = new ConVar(cvars.CONVARS_USER[i], obj);
+			if (sqlString)
+				sqlString = Util.escape(i);
+			else
+				sqlString += ',' + Util.escape(i);
+			
+			this.cvars[i] = new ConVar(cvars.CONVARS_USER[i], obj, true);
 			this.cvars[i].session = this;
 		}
+		
+		if (!sqlString) return;
+		
+		let self = this;
+		
+		Postgres.query('SELECT "CVAR", "VALUE" FROM cvar_client WHERE "ID" = ' + this.uid + ' AND "CVAR" IN (' + sqlString + ')', function(err, data) {
+			if (err) throw err;
+			
+			for (let row of data) {
+				if (self.cvars[row.CVAR]) {
+					self.cvars[row.CVAR].setValueRaw(row.VALUE);
+				}
+			}
+		});
 	}
 	
 	getVar(id) {
@@ -460,10 +492,31 @@ class ServerVarSession {
 		this.cvars = {};
 		this.callbacks = {};
 		
+		let sqlString;
+		
 		for (let i in cvars.CONVARS_SERVER) {
-			this.cvars[i] = new ConVar(cvars.CONVARS_SERVER[i], obj);
+			if (sqlString)
+				sqlString = Util.escape(i);
+			else
+				sqlString += ',' + Util.escape(i);
+			
+			this.cvars[i] = new ConVar(cvars.CONVARS_SERVER[i], obj, true);
 			this.cvars[i].session = this;
 		}
+		
+		if (!sqlString) return;
+		
+		let self = this;
+		
+		Postgres.query('SELECT "CVAR", "VALUE" FROM cvar_server WHERE "ID" = ' + this.uid + ' AND "CVAR" IN (' + sqlString + ')', function(err, data) {
+			if (err) throw err;
+			
+			for (let row of data) {
+				if (self.cvars[row.CVAR]) {
+					self.cvars[row.CVAR].setValueRaw(row.VALUE);
+				}
+			}
+		});
 	}
 	
 	getVar(id) {
@@ -512,10 +565,31 @@ class ChannelVarSession {
 		this.cvars = {};
 		this.callbacks = {};
 		
+		let sqlString;
+		
 		for (let i in cvars.CONVARS_CHANNEL) {
-			this.cvars[i] = new ConVar(cvars.CONVARS_CHANNEL[i], obj);
+			if (sqlString)
+				sqlString = Util.escape(i);
+			else
+				sqlString += ',' + Util.escape(i);
+			
+			this.cvars[i] = new ConVar(cvars.CONVARS_CHANNEL[i], obj, true);
 			this.cvars[i].session = this;
 		}
+		
+		if (!sqlString) return;
+		
+		let self = this;
+		
+		Postgres.query('SELECT "CVAR", "VALUE" FROM cvar_channel WHERE "ID" = ' + this.uid + ' AND "CVAR" IN (' + sqlString + ')', function(err, data) {
+			if (err) throw err;
+			
+			for (let row of data) {
+				if (self.cvars[row.CVAR]) {
+					self.cvars[row.CVAR].setValueRaw(row.VALUE);
+				}
+			}
+		});
 	}
 	
 	getVar(id) {
