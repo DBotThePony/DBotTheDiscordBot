@@ -232,6 +232,9 @@ hook.Add('ChannelDeleted', 'LastURLInChannel', function(channel) {
 let usersCache = [];
 
 hook.Add('UserInitialized', 'UpdateUserVars', function(user) {
+	for (let u of usersCache)
+		if (u.id == user.id) return;
+	
 	usersCache.push(user);
 });
 

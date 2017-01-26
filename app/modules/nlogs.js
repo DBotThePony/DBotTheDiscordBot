@@ -7,7 +7,7 @@ const hDuration = require('humanize-duration');
 cvars.ServerVar('name_notify', '0', [FCVAR_BOOLONLY], 'Enable nickname changes notifications');
 
 setInterval(function() {
-	if (!DBot.IsOnline())
+	if (!DBot.SQLReady())
 		return;
 	
 	let finalQuery = '';
@@ -97,7 +97,7 @@ setInterval(function() {
 }, 10000);
 
 hook.Add('MemberInitialized', 'MemberNameLogs', function(member) {
-	if (!DBot.SQLReady)
+	if (!DBot.SQLReady())
 		return;
 	
 	let name = Util.escape(member.nickname || member.user.username);
@@ -126,11 +126,13 @@ hook.Add('MembersInitialized', 'MemberNameLogs', function(members) {
 		finalQuery += '(' + Util.escape(member.uid) + ', ' + name + ')';
 	}
 	
+	if (!finalQuery) return;
+	
 	Postgres.query('INSERT INTO member_names VALUES ' + finalQuery + ' ON CONFLICT ("ID") DO UPDATE SET "NAME" = excluded."NAME"');
 });
 
 hook.Add('UserInitialized', 'MemberNameLogs', function(user, id) {
-	if (!DBot.SQLReady)
+	if (!DBot.SQLReady())
 		return;
 	
 	let name = Util.escape(user.username);
@@ -162,6 +164,8 @@ hook.Add('UsersInitialized', 'MemberNameLogs', function() {
 		
 		finalQuery += '(' + uid + ', ' + name + ')';
 	}
+	
+	if (!finalQuery) return;
 	
 	Postgres.query('INSERT INTO user_names ("ID", "USERNAME") VALUES ' + finalQuery + ' ON CONFLICT ("ID") DO UPDATE SET "USERNAME" = excluded."USERNAME"');
 });

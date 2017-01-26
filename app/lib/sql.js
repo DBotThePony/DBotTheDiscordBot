@@ -99,10 +99,12 @@ pgConnection.connect(function(err) {
 DBot.ChannelIDs = {};
 DBot.ServersIDs = {};
 DBot.UsersIDs = {};
+DBot.MemberIDs = {};
 
 DBot.ChannelIDs_R = {};
 DBot.ServersIDs_R = {};
 DBot.UsersIDs_R = {};
+DBot.MemberIDs_R = {};
 
 hook.Add('ValidClientLeftServer', 'MySQL.Handlers', function(user, server) {
 	let id = user.id;
@@ -165,8 +167,13 @@ DBot.GetMemberID = function(obj) {
 	let id = obj.uid;
 	
 	if (!id) {
-		DBot.DefineMember(obj);
-		throw new Error('Initialize member first (' + (obj && (obj.nickname || obj.user.username) || 'null') + ')');
+		if (!DBot.MemberIDs[obj.user.id] || !DBot.MemberIDs[obj.user.id][obj.guild.id]) {
+			DBot.DefineMember(obj);
+			throw new Error('Initialize member first (' + (obj && (obj.nickname || obj.user.username) || 'null') + ')');
+		}
+		
+		obj.uid = DBot.MemberIDs[obj.user.id][obj.guild.id];
+		return DBot.MemberIDs[obj.user.id][obj.guild.id];
 	}
 	
 	return id;
@@ -212,8 +219,13 @@ DBot.GetMemberIDSoft = function(obj) {
 	let id = obj.uid;
 	
 	if (!id) {
-		DBot.DefineMember(obj);
-		return false;
+		if (!DBot.MemberIDs[obj.user.id] || !DBot.MemberIDs[obj.user.id][obj.guild.id]) {
+			DBot.DefineMember(obj);
+			return false;
+		}
+		
+		obj.uid = DBot.MemberIDs[obj.user.id][obj.guild.id];
+		return DBot.MemberIDs[obj.user.id][obj.guild.id];
 	}
 	
 	return id;
@@ -529,35 +541,35 @@ DBot.GetMember = function(ID) {
 	return MembersTable[ID] || null;
 }
 
-DBot.DefineMember = function(member) {
+DBot.DefineMember = function(obj) {
 	if (!DBot.IsReady()) return;
+	if (obj.uid) return;
 	
-	if (member.uid)
+	if (DBot.MemberIDs[obj.user.id] && DBot.MemberIDs[obj.user.id][obj.guild.id]) {
+		obj.uid = DBot.MemberIDs[obj.user.id][obj.guild.id];
 		return;
+	}
 	
-	let id = member.user.id;
-	let uid = member.guild.id;
-	
-	MySQL.query('SELECT ' + sql.Member(member) + ' AS "ID"', function(err, data) {
+	MySQL.query('SELECT ' + sql.Member(obj) + ' AS "ID"', function(err, data) {
 		if (err) throw err;
-		member.uid = data[0].ID;
-		hook.Run('MemberInitialized', member, member.uid);
+		obj.uid = data[0].ID;
+		hook.Run('MemberInitialized', obj, obj.uid);
 		
 		let hit = false;
 		
 		for (let i in memberCache) {
 			let oldMem = memberCache[i];
 			
-			if (oldMem.id == member.id && oldMem.guild.id == member.guild.id) {
-				memberCache[i] = member;
+			if (oldMem.id == obj.id && oldMem.guild.id == obj.guild.id) {
+				memberCache[i] = obj;
 				break;
 			}
 		}
 		
-		MembersTable[member.uid] = member;
+		MembersTable[obj.uid] = obj;
 		
 		if (!hit)
-			memberCache.push(member);
+			memberCache.push(obj);
 	});
 }
 
@@ -674,13 +686,17 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			let uid = exp[1].substr(0, exp[1].length - 1);
 			
 			let srv = servers2.get(uid)
+			let shouldCall = srv.uid === undefined && DBot.ServersIDs[srv.id] === undefined;
+			
 			DBot.ServersIDs[uid] = id;
 			DBot.ServersIDs_R[id] = srv;
 			
 			srv.uid = id;
 			
-			hook.Run('GuildInitialized', srv, id);
-			hook.Run('ServerInitialized', srv, id);
+			if (shouldCall) {
+				hook.Run('GuildInitialized', srv, id);
+				hook.Run('ServerInitialized', srv, id);
+			}
 			
 			let roleMap = [[], {}];
 			role_map[id] = roleMap;
@@ -729,12 +745,15 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				let mapped = role_map[serverid];
 				let role = mapped[1][uid];
 				
+				let shouldCall = role.uid === undefined;
+				
 				role.uid = id;
 				
 				roleHashMap[id] = role;
 				role_array_uids.push(id);
 				
-				hook.Run('RoleInitialized', role, role.uid);
+				if (shouldCall)
+					hook.Run('RoleInitialized', role, role.uid);
 			}
 			
 			updateRoles(role_array);
@@ -756,6 +775,8 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				let uid = exp[1].substr(0, exp[1].length - 1);
 				
 				let channel = channel_map[uid];
+				let shouldCall = channel.uid === undefined && DBot.ChannelIDs[channel.id] === undefined;
+				
 				channel.uid = id;
 				DBot.ChannelIDs[uid] = id;
 				DBot.ChannelIDs_R[id] = channel;
@@ -780,7 +801,11 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				let uid = exp[1].substr(0, exp[1].length - 1);
 				
 				let user = users1[uid];
-				usersArrayToPass.push(user);
+				let shouldCall = user.uid === undefined && DBot.UsersIDs[user.id] === undefined;
+				
+				if (shouldCall)
+					usersArrayToPass.push(user);
+				
 				user.uid = id;
 				
 				DBot.UsersIDs[uid] = id;
@@ -788,8 +813,10 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				
 				LoadingUser[uid] = undefined;
 				
-				hook.Run('UserInitialized', user, id);
-				hook.Run('ClientInitialized', user, id);
+				if (shouldCall) {
+					hook.Run('UserInitialized', user, id);
+					hook.Run('ClientInitialized', user, id);
+				}
 			}
 			
 			let memberInit = false;
@@ -842,11 +869,16 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 					if (!member)
 						continue; // WTF?
 					
-					membersArrayToPass.push(member);
+					let shouldCall = member.uid === undefined && (!DBot.MemberIDs[member.user.id] || DBot.MemberIDs[member.user.id][member.guild.id] === undefined);
+					
+					if (shouldCall)
+						membersArrayToPass.push(member);
 					
 					member.uid = id;
 					MembersTable[member.uid] = member;
-					hook.Run('MemberInitialized', member, member.uid);
+					
+					if (shouldCall)
+						hook.Run('MemberInitialized', member, member.uid);
 					
 					let hit = false;
 					

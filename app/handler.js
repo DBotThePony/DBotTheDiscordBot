@@ -43,7 +43,7 @@ DBot.bot.on('message', function(msg) {
 	msg.___reply = msg.___reply || msg.reply; // There is also oldReply, but oldReply is used when command was actually executed.
 	msg.reply = msg.promiseReply;
 	
-	if (!DBot.SQLReady)
+	if (!DBot.SQLReady())
 		return;
 	
 	try {
