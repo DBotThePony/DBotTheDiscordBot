@@ -7,7 +7,7 @@ let Actions = {
 		if (!args[1]) {
 			let total = 0;
 			
-			for (let server of DBot.bot.guilds.array()) {
+			for (let server of DBot.GetServers()) {
 				total += server.roles.array().length;
 			}
 			
@@ -74,7 +74,7 @@ let Actions = {
 	
 	servers: function(args, cmd, msg) {
 		if (!args[1]) {
-			return 'Totally running on **' + DBot.bot.guilds.array().length + '** servers!';
+			return 'Totally running on **' + DBot.GetServers().length + '** servers!';
 		} else if (args[1] == 'total' || args[1] == 'all') {
 			Postgres.query('SELECT COUNT(*) AS "COUNT" FROM server_id', function(err, data) {
 				if (err) {
@@ -87,7 +87,7 @@ let Actions = {
 		} else if (args[1] == 'top' || args[1] == 'top10') {
 			let servers = [];
 			
-			for (let server of DBot.bot.guilds.array()) {
+			for (let server of DBot.GetServers()) {
 				let users = server.members.array().length;
 				servers.push(['<' + server.id + '> ' + server.name, users, DBot.GetServerID(server), server.large]);
 			}
@@ -121,7 +121,7 @@ let Actions = {
 		if (!args[1]) {
 			let num = 0;
 			
-			for (let server of DBot.bot.guilds.array()) {
+			for (let server of DBot.GetServers()) {
 				num += server.channels.array().length;
 			}
 			
@@ -146,7 +146,7 @@ let Actions = {
 		if (!args[1]) {
 			let num = 0;
 			
-			for (let server of DBot.bot.guilds.array()) {
+			for (let server of DBot.GetServers()) {
 				num += server.members.array().length;
 			}
 			

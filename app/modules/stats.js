@@ -542,7 +542,7 @@ DBot.RegisterCommand({
 			let USERS_MEM = {};
 			let ID = DBot.GetUserID(msg.author);
 			
-			let Servers = DBot.bot.guilds.array();
+			let Servers = DBot.GetServers();
 			
 			for (let i in Servers) {
 				servers++;
@@ -1344,7 +1344,7 @@ DBot.RegisterCommand({
 		
 		let validIDs = [];
 		
-		for (let server of DBot.bot.guilds.array()) {
+		for (let server of DBot.GetServers()) {
 			validIDs.push(server.uid);
 		}
 		

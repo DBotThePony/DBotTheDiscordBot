@@ -361,7 +361,7 @@ let updateLastSeenFunc = function(callback) {
 	let buildServers = [];
 	let buildChannels = [];
 	
-	for (let server of DBot.bot.guilds.array()) {
+	for (let server of DBot.GetServers()) {
 		let uid = DBot.GetServerIDSoft(server);
 		
 		if (!uid)
@@ -534,7 +534,6 @@ hook.Add('RoleChanged', 'MySQL.Handlers', function(oldRole, newRole) {
 	updateRole(newRole);
 });
 
-let memberCache = [];
 let MembersTable = {};
 
 DBot.GetMember = function(ID) {
@@ -555,26 +554,8 @@ DBot.DefineMember = function(obj) {
 		obj.uid = data[0].ID;
 		hook.Run('MemberInitialized', obj, obj.uid);
 		
-		let hit = false;
-		
-		for (let i in memberCache) {
-			let oldMem = memberCache[i];
-			
-			if (oldMem.id == obj.id && oldMem.guild.id == obj.guild.id) {
-				memberCache[i] = obj;
-				break;
-			}
-		}
-		
 		MembersTable[obj.uid] = obj;
-		
-		if (!hit)
-			memberCache.push(obj);
 	});
-}
-
-DBot.GetMembers = function() {
-	return memberCache;
 }
 
 DBot.DefineGuild = function(guild) {
@@ -641,7 +622,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 	let users1 = {};
 	let members = [];
 	
-	let servers = bot.guilds.array();
+	let servers = DBot.GetServers();
 	let servers2 = bot.guilds;
 	
 	for (let server of servers) {
@@ -740,7 +721,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				let serverid = Number(exp[2].substr(0, exp[2].length - 1));
 				
 				if (!serverid || !role_map[serverid])
-					throw new Error('Invalid server in result: ' + serverid);
+					throw new Error('Invalid server in role result: ' + serverid + ' ' + row.get_roles_id);
 				
 				let mapped = role_map[serverid];
 				let role = mapped[1][uid];
@@ -879,20 +860,6 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 					
 					if (shouldCall)
 						hook.Run('MemberInitialized', member, member.uid);
-					
-					let hit = false;
-					
-					for (let i in memberCache) {
-						let oldMem = memberCache[i];
-						
-						if (oldMem.id == member.id && oldMem.guild.id == member.guild.id) {
-							memberCache[i] = member;
-							break;
-						}
-					}
-					
-					if (!hit)
-						memberCache.push(member);
 				}
 				
 				memberInit = true;

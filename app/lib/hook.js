@@ -264,7 +264,7 @@ let UpdateUserVars = function() {
 		}, timered * i);
 	}
 	
-	let servers = DBot.bot.guilds.array();
+	let servers = DBot.GetServers();
 	let Members = [];
 	
 	for (let sid in servers) {

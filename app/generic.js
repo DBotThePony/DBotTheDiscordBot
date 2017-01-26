@@ -221,7 +221,7 @@ DBot.GetUsers = function() {
 DBot.GetUserServers = function(user) {
 	let servers = [];
 	
-	for (let server of DBot.bot.guilds.array()) {
+	for (let server of DBot.GetServers()) {
 		for (let member of server.members.array()) {
 			if (user.id == member.user.id) {
 				servers.push(server);
@@ -232,10 +232,23 @@ DBot.GetUserServers = function(user) {
 	return servers;
 }
 
+DBot.GetServers = function() {
+	let dups = {};
+	let reply = [];
+	
+	for (let server of DBot.bot.guilds.array()) {
+		if (dups[server.id]) continue; // WHAT THE FUCK?!
+		dups[server.id] = true;
+		reply.push(server);
+	}
+	
+	return reply;
+}
+
 DBot.GetMembers = function() {
 	let members = [];
 	
-	for (let server of DBot.bot.guilds.array()) {
+	for (let server of DBot.GetServers()) {
 		for (let member of server.members.array()) {
 			members.push(member);
 		}
