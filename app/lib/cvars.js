@@ -421,7 +421,7 @@ class UserVarSession {
 		let sqlString;
 		
 		for (let i in cvars.CONVARS_USER) {
-			if (sqlString)
+			if (!sqlString)
 				sqlString = Util.escape(i);
 			else
 				sqlString += ',' + Util.escape(i);
@@ -495,7 +495,7 @@ class ServerVarSession {
 		let sqlString;
 		
 		for (let i in cvars.CONVARS_SERVER) {
-			if (sqlString)
+			if (!sqlString)
 				sqlString = Util.escape(i);
 			else
 				sqlString += ',' + Util.escape(i);
@@ -568,7 +568,7 @@ class ChannelVarSession {
 		let sqlString;
 		
 		for (let i in cvars.CONVARS_CHANNEL) {
-			if (sqlString)
+			if (!sqlString)
 				sqlString = Util.escape(i);
 			else
 				sqlString += ',' + Util.escape(i);
