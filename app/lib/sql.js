@@ -693,7 +693,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 	LoadingLevel = 6;
 	
 	Postgre.query('SELECT get_servers_id(' + sql.Array(build) + '::CHAR(64)[]);', function(err, data) {
-		if (err) { console.error(err); throw err };
+		if (err) throw err;
 		
 		LoadingLevel--;
 		let channels1 = [];
