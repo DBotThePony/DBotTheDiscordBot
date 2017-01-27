@@ -399,28 +399,31 @@ let updateLastSeenFunc = function(callback) {
 	
 	let buildServers = [];
 	let buildChannels = [];
+	let buildMembers = [];
 	
 	for (let server of DBot.GetServers()) {
 		let uid = DBot.GetServerIDSoft(server);
 		
-		if (!uid)
-			continue;
+		if (!uid) continue;
 		
 		buildServers.push(uid);
 		
 		for (let channel of server.channels.array()) {
 			let uid = DBot.GetChannelIDSoft(channel);
-			
-			if (!uid)
-				continue;
-			
+			if (!uid) continue;
 			buildChannels.push(uid);
+		}
+		
+		for (let member of server.members.array()) {
+			let uid = DBot.GetMemberIDSoft(member);
+			if (!uid) continue;
+			buildMembers.push(uid);
 		}
 	}
 	
 	let cTime = Math.floor(CurTime());
 	
-	Postgre.query('UPDATE users SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + build.join(',') + ');UPDATE servers SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + buildServers.join(',') + ');UPDATE channels SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + buildChannels.join(',') + ');', callback);
+	Postgre.query('UPDATE users SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + build.join(',') + ');UPDATE servers SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + buildServers.join(',') + ');UPDATE channels SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + buildChannels.join(',') + ');UPDATE members SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + buildMembers.join(',') + ');', callback);
 }
 
 setInterval(updateLastSeenFunc, 60000);
