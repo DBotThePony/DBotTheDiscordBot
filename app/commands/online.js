@@ -72,7 +72,7 @@ hook.Add('UsersInitialized', 'LastSeen', function() {
 	let statusStr;
 	
 	for (let user of users) {
-		if (updateStr)
+		if (!updateStr)
 			updateStr = '(' + (user.uid || sql.User(user)) + ',currtime())';
 		else
 			updateStr += ',(' + (user.uid || sql.User(user)) + ',currtime())';
@@ -80,7 +80,7 @@ hook.Add('UsersInitialized', 'LastSeen', function() {
 		try {
 			user.lastStatus = user.presence.status;
 			
-			if (statusStr)
+			if (!statusStr)
 				statusStr = '(' + (user.uid || sql.User(user)) + ',' + Util.escape(user.lastStatus) + '::discord_user_status)';
 			else
 				statusStr += ',(' + (user.uid || sql.User(user)) + ',' + Util.escape(user.lastStatus) + '::discord_user_status)';

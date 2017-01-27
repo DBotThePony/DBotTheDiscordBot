@@ -391,7 +391,8 @@ DBot.DefineUser = function(user) {
 	});
 }
 
-let updateLastSeenFunc = function(callback) {
+let updateLastSeenFunc = function(callback, force) {
+	if (!DBot.SQLReady() && !force) return;
 	let build = [];
 	
 	for (let uid in DBot.UsersIDs_R)
@@ -423,7 +424,18 @@ let updateLastSeenFunc = function(callback) {
 	
 	let cTime = Math.floor(CurTime());
 	
-	Postgre.query('UPDATE users SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + build.join(',') + ');UPDATE servers SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + buildServers.join(',') + ');UPDATE channels SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + buildChannels.join(',') + ');UPDATE members SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + buildMembers.join(',') + ');', callback);
+	let finalQuery = 'UPDATE users SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + build.join(',') + ');';
+	
+	if (buildServers)
+		finalQuery += 'UPDATE servers SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + buildServers.join(',') + ');';
+	
+	if (buildChannels)
+		finalQuery += 'UPDATE channels SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + buildChannels.join(',') + ');';
+	
+	if (buildMembers)
+		finalQuery += 'UPDATE members SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + buildMembers.join(',') + ');';
+	
+	Postgre.query(finalQuery, callback);
 }
 
 setInterval(updateLastSeenFunc, 60000);
@@ -874,18 +886,6 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			
 			LoadingLevel--;
 			
-			let memberInit = false;
-			let updateInit = false;
-			
-			updateLastSeenFunc(function() {
-				LoadingLevel--;
-				hook.Run('UsersInitialized', usersArrayToPass);
-				updateInit = true;
-				
-				if (memberInit)
-					hook.Run('MembersInitialized', membersArrayToPass);
-			});
-			
 			let members1 = [];
 			let members2 = [];
 			let members_map = [];
@@ -936,10 +936,11 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				
 				LoadingLevel--;
 				
-				memberInit = true;
-				
-				if (updateInit)
+				updateLastSeenFunc(function() {
+					LoadingLevel--;
+					hook.Run('UsersInitialized', usersArrayToPass);
 					hook.Run('MembersInitialized', membersArrayToPass);
+				}, true);
 			});
 		});
 	});
