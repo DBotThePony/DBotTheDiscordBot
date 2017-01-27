@@ -115,6 +115,7 @@ bot.on('ready', function() {
 	hook.Run('BotConnected', DBot.bot);
 	
 	DBot.SQL_START = false;
+	DBot.Status('Initializing');
 	
 	if (TimeoutID)
 		clearTimeout(TimeoutID);

@@ -685,6 +685,13 @@ DBot.IsReady = function() {
 	return DBot.IsOnline() && LoadingLevel <= 0 && DBot.SQL_START;
 }
 
+let updateLoadingStatus = function(num) {
+	if (num > 0)
+		DBot.Status('Loading, left [' + LoadingLevel + '/6] stages');
+	else
+		DBot.Status('Finishing up...');
+}
+
 hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 	if (LoadingLevel > 0)
 		return;
@@ -723,6 +730,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 	}
 	
 	LoadingLevel = 6;
+	updateLoadingStatus(LoadingLevel);
 	
 	Postgre.query('SELECT get_servers_id(' + sql.Array(build) + '::VARCHAR(64)[]);', function(err, data) {
 		if (err) throw err;
@@ -773,6 +781,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 		}
 		
 		LoadingLevel--;
+		updateLoadingStatus(LoadingLevel);
 		
 		hook.Run('ServersInitialized', serverArrayToPass);
 		
@@ -815,6 +824,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			}
 			
 			LoadingLevel--;
+			updateLoadingStatus(LoadingLevel);
 			
 			updateRoles(role_array);
 			hook.Run('RolesInitialized', role_map, role_array, role_array_ids, roleHashMap, role_array_uids);
@@ -848,6 +858,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			}
 			
 			LoadingLevel--;
+			updateLoadingStatus(LoadingLevel);
 			
 			hook.Run('ChannelsInitialized', channelArrayToPass);
 		});
@@ -885,6 +896,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			}
 			
 			LoadingLevel--;
+			updateLoadingStatus(LoadingLevel);
 			
 			let members1 = [];
 			let members2 = [];
@@ -935,9 +947,11 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				}
 				
 				LoadingLevel--;
+				updateLoadingStatus(LoadingLevel);
 				
 				updateLastSeenFunc(function() {
 					LoadingLevel--;
+					updateLoadingStatus(LoadingLevel);
 					hook.Run('UsersInitialized', usersArrayToPass);
 					hook.Run('MembersInitialized', membersArrayToPass);
 				}, true);

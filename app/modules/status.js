@@ -64,6 +64,7 @@ const Statuses = [
 ];
 
 let changeStatus = function() {
+	if (!DBot.SQLReady()) return;
 	DBot.bot.user.setGame(DBot.RandomArray(Statuses));
 }
 
@@ -73,7 +74,7 @@ hook.Add('BotOnline', 'BotStatus', function() {
 	if (INITIALIZED)
 		return;
 	
-	changeStatus();
+	// changeStatus();
 	setInterval(changeStatus, 120000);
 	
 	INITIALIZED = true;

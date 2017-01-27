@@ -10,6 +10,24 @@ CurTime = UnixStamp;
 Systime = UnixStamp;
 RealTime = UnixStamp;
 
+let cooldown = 0;
+let statusTimerID;
+
+DBot.Status = function(newStatus) {
+	if (cooldown > CurTime()) {
+		if (statusTimerID) clearTimeout(statusTimerID);
+		
+		statusTimerID = setTimeout(function() {
+			DBot.bot.user.setGame(newStatus);
+		}, 10000);
+		return;
+	}
+	
+	cooldown = CurTime() + 10;
+	
+	DBot.bot.user.setGame(newStatus);
+}
+
 DBot.Random = function(min, max) {
 	return Math.floor(Math.random() * (max - min)) + min;
 }
