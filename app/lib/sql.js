@@ -91,14 +91,48 @@ pgConnection.query = function(query, callback) {
 }
 
 pgConnection.connect(function(err) {
-	if (err)
-		throw err;
+	if (err) throw err;
 	
 	pgConnection.query(sqlPg, function(err) {
-		if (err)
-			throw err;
+		if (err) throw err;
 		
-		hook.Run('SQLInitialize');
+		let db_rev = 0;
+		let last_rev = DBot.fs.readdirSync('./app/dbrevisions/').length;
+		
+		pgConnection.query('SELECT "VALUE" FROM db_info WHERE "KEY" = \'version\'', function(err, data) {
+			if (err) throw err;
+			if (data[0])
+				db_rev = Number(data[0].VALUE);
+			else
+				pgConnection.query('INSERT INTO db_info VALUES (\'version\', \'' + last_rev + '\')');
+			
+			if (db_rev >= last_rev)
+				hook.Run('SQLInitialize');
+			else {
+				console.log('Upgrading database, please wait...');
+				let finalQuery = '';
+				
+				for (let i = db_rev + 1; i <= last_rev; i++) {
+					console.log((i - 1) + '->' + i);
+					let contents = DBot.fs.readFileSync('./app/dbrevisions/' + i + '.sql');
+					
+					finalQuery += '\n' + contents;
+				}
+				
+				finalQuery += '\nUPDATE db_info SET "VALUE" = \'' + last_rev + '\' WHERE "KEY" = \'version\';';
+				
+				pgConnection.query(finalQuery, function(err) {
+					if (err) {
+						console.error('An fatal error occured while database was upgraded to latest revision');
+						throw err;
+					}
+					
+					console.log('Upgrade complete.');
+					
+					hook.Run('SQLInitialize');
+				});
+			}
+		});
 	});
 });
 
@@ -354,7 +388,6 @@ DBot.DefineUser = function(user) {
 		user.uid = data[0].ID;
 		hook.Run('UserInitialized', user, data[0].ID);
 		hook.Run('ClientInitialized', user, data[0].ID);
-		Postgre.query('INSERT INTO last_seen VALUES (' + data[0].ID + ', ' + Math.floor(CurTime()) + ') ON CONFLICT ("ID") DO UPDATE SET "TIME" = ' + Math.floor(CurTime()));
 	});
 }
 
@@ -387,7 +420,7 @@ let updateLastSeenFunc = function(callback) {
 	
 	let cTime = Math.floor(CurTime());
 	
-	Postgre.query('UPDATE last_seen SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + build.join(',') + ');UPDATE last_seen_servers SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + buildServers.join(',') + ');UPDATE last_seen_channels SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + buildChannels.join(',') + ');', callback);
+	Postgre.query('UPDATE users SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + build.join(',') + ');UPDATE servers SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + buildServers.join(',') + ');UPDATE channels SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + buildChannels.join(',') + ');', callback);
 }
 
 setInterval(updateLastSeenFunc, 60000);
@@ -437,11 +470,7 @@ let updateRole = function(role) {
 	let col = Util.parseHexColor(role.hexColor);
 	let colStr = '(' + col[0] + ',' + col[1] + ',' + col[2] + ')';
 	
-	let finalQuery = 'INSERT INTO roles_names VALUES (' + Util.escape(role.uid) + ', ' + Util.escape(role.name) + ') ON CONFLICT ("ROLEID") DO UPDATE SET "NAME" = ' + Util.escape(role.name) + ';';
-	finalQuery += 'INSERT INTO roles_perms VALUES (' + role.uid + ', ' + arr2 + ') ON CONFLICT ("ID") DO UPDATE SET "PERMS" = ' + arr2 + ';';
-	finalQuery += 'INSERT INTO roles_options VALUES (' + sql.UConcat(Util.escape(role.uid), colStr, Util.escape(role.hoist), Util.escape(role.position), Util.escape(role.mentionable)) + ') ON CONFLICT ("ID") DO UPDATE SET "COLOR_R" = ' + colStr + ', "HOIST" = ' + Util.escape(role.hoist) + ', "POSITION" = ' + Util.escape(role.position) + ', "MENTION" = ' + Util.escape(role.mentionable) + ';';
-	
-	Postgres.query(finalQuery)
+	Postgres.query('UPDATE roles SET "NAME" = ' + Util.escape(role.name) + ', "PERMS" = ' + arr2 + ', "COLOR_R" = ' + colStr + ', "HOIST" = ' + Util.escape(role.hoist) + ', "POSITION" = ' + Util.escape(role.position) + ', "MENTION" = ' + Util.escape(role.mentionable) + ' WHERE "ID" = ' + role.uid + ';');
 }
 
 let updateRoles = function(roles) {
@@ -450,6 +479,8 @@ let updateRoles = function(roles) {
 	let permsQuery;
 	
 	let rolesDup = {};
+	
+	let finalQuery = '';
 	
 	for (let role of roles) {
 		if (rolesDup[role.uid])
@@ -470,31 +501,15 @@ let updateRoles = function(roles) {
 		let col = Util.parseHexColor(role.hexColor);
 		let colStr = '(' + col[0] + ',' + col[1] + ',' + col[2] + ')';
 		
-		if (namesQuery)
-			namesQuery += ',';
+		if (finalQuery)
+			finalQuery += ',';
 		else
-			namesQuery = '';
+			finalQuery = '';
 		
-		if (optionsQuery)
-			optionsQuery += ',';
-		else
-			optionsQuery = '';
-		
-		if (permsQuery)
-			permsQuery += ',';
-		else
-			permsQuery = '';
-		
-		namesQuery += '(' + Util.escape(role.uid) + ', ' + Util.escape(role.name) + ')';
-		optionsQuery += '(' + sql.UConcat(Util.escape(role.uid), colStr, Util.escape(role.hoist), Util.escape(role.position), Util.escape(role.mentionable)) + ')';
-		permsQuery += '(' + role.uid + ', ' + arr2 + ')';
+		finalQuery += '(' + role.uid + ',' + Util.escape(role.name) + ',' + colStr + '::rgb_color,' + Util.escape(role.hoist) + ',' + Util.escape(role.position) + ',' + Util.escape(role.mentionable) + ',' + arr2 + ')';
 	}
 	
-	let finalQuery = 'INSERT INTO roles_names ("ROLEID", "NAME") VALUES ' + namesQuery + ' ON CONFLICT ("ROLEID") DO UPDATE SET "NAME" = excluded."NAME";'
-		+ 'INSERT INTO roles_perms VALUES ' + permsQuery + ' ON CONFLICT ("ID") DO UPDATE SET "PERMS" = excluded."PERMS";'
-		+ 'INSERT INTO roles_options VALUES ' + optionsQuery + ' ON CONFLICT ("ID") DO UPDATE SET "COLOR_R" = excluded."COLOR_R", "HOIST" = excluded."HOIST", "POSITION" = excluded."POSITION", "MENTION" = excluded."MENTION";';
-	
-	Postgres.query(finalQuery);
+	Postgres.query('UPDATE roles SET "NAME" = m."NAME", "PERMS" = m."PERMS", "COLOR_R" = m."COLOR_R", "HOIST" = m."HOIST", "POSITION" = m."POSITION", "MENTION" = m."MENTION" FROM (VALUES ' + finalQuery + ') AS m ("ID", "NAME", "COLOR_R", "HOIST", "POSITION", "MENTION", "PERMS") WHERE roles."ID" = m."ID";');
 }
 
 DBot.DefineRole = function(role, callback) {
@@ -578,9 +593,7 @@ hook.Add('ServerInitialized', 'MySQL.Saves', function(server, id) {
 	if (!DBot.SQLReady()) return;
 	if (!server.name) return;
 	
-	Postgre.query('INSERT INTO last_seen_servers VALUES (' + id + ', ' + Math.floor(CurTime()) + ') ON CONFLICT ("ID") DO UPDATE SET "TIME" = ' + Math.floor(CurTime()));
-	
-	MySQL.query('INSERT INTO server_names ("ID", "NAME") VALUES (' + id + ', ' + Util.escape(server.name) + ') ON CONFLICT ("ID") DO UPDATE SET "NAME" = ' + Util.escape(server.name), function(err) {
+	MySQL.query('UPDATE servers SET "NAME" = ' + Util.escape(server.name) + ' WHERE "ID" = ' + id, function(err) {
 		if (!err)
 			return;
 		
@@ -605,7 +618,7 @@ hook.Add('ServersInitialized', 'MySQL.Saves', function(servers) {
 	
 	if (!finalQuery) return;
 	
-	MySQL.query('INSERT INTO server_names ("ID", "NAME") VALUES ' + finalQuery + ' ON CONFLICT ("ID") DO UPDATE SET "NAME" = excluded."NAME"', function(err) {
+	MySQL.query('UPDATE servers SET "NAME" = m."NAME" FROM (VALUES ' + finalQuery + ') AS m ("ID", "NAME") WHERE servers."ID" = m."ID"', function(err) {
 		if (err) console.error(err);
 	});
 });
@@ -614,9 +627,7 @@ hook.Add('ChannelInitialized', 'MySQL.Saves', function(channel, id) {
 	if (!DBot.SQLReady()) return;
 	if (!channel.name) return;
 	
-	Postgre.query('INSERT INTO last_seen_channels VALUES (' + id + ', ' + Math.floor(CurTime()) + ') ON CONFLICT ("ID") DO UPDATE SET "TIME" = ' + Math.floor(CurTime()));
-	
-	MySQL.query('INSERT INTO channel_names ("ID", "NAME") VALUES (' + id + ', ' + Util.escape(channel.name) + ') ON CONFLICT ("ID") DO UPDATE SET "NAME" = ' + Util.escape(channel.name), function(err) {
+	MySQL.query('UPDATE channels SET "NAME" = ' + Util.escape(channel.name) + ' WHERE "ID" = ' + id, function(err) {
 		if (!err)
 			return;
 		
@@ -641,7 +652,7 @@ hook.Add('ChannelsInitialized', 'MySQL.Saves', function(channels) {
 	
 	if (!finalQuery) return;
 	
-	MySQL.query('INSERT INTO channel_names ("ID", "NAME") VALUES ' + finalQuery + ' ON CONFLICT ("ID") DO UPDATE SET "NAME" = excluded."NAME"', function(err) {
+	MySQL.query('UPDATE channels SET "NAME" = m."NAME" FROM (VALUES ' + finalQuery + ') AS m ("ID", "NAME") WHERE channels."ID" = m."ID"', function(err) {
 		if (err) console.error(err);
 	});
 });
@@ -698,7 +709,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 	
 	LoadingLevel = 6;
 	
-	Postgre.query('SELECT get_servers_id(' + sql.Array(build) + '::CHAR(64)[]);', function(err, data) {
+	Postgre.query('SELECT get_servers_id(' + sql.Array(build) + '::VARCHAR(64)[]);', function(err, data) {
 		if (err) throw err;
 		
 		let channels1 = [];
@@ -794,7 +805,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			hook.Run('RolesInitialized', role_map, role_array, role_array_ids, roleHashMap, role_array_uids);
 		});
 		
-		let q = 'SELECT get_channels_id(' + sql.Array(channels1) + '::CHAR(64)[],' + sql.Array(channels2) + '::INTEGER[])';
+		let q = 'SELECT get_channels_id(' + sql.Array(channels1) + '::VARCHAR(64)[],' + sql.Array(channels2) + '::INTEGER[])';
 		Postgre.query(q, function(err, data) {
 			if (err) {
 				console.log(q);
@@ -826,7 +837,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			hook.Run('ChannelsInitialized', channelArrayToPass);
 		});
 		
-		Postgre.query('SELECT get_users_id(' + sql.Array(users) + '::CHAR(64)[]);', function(err, data) {
+		Postgre.query('SELECT get_users_id(' + sql.Array(users) + '::VARCHAR(64)[]);', function(err, data) {
 			if (err) throw err;
 			
 			let ctime = Math.floor(CurTime());

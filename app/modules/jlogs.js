@@ -26,7 +26,7 @@ DBot.RegisterCommand({
 		
 		msg.channel.startTyping();
 		
-		MySQL.query('SELECT joinleft_log."STAMP", joinleft_log."STATUS", user_names."USERNAME" as "USERNAME" FROM joinleft_log, user_names WHERE joinleft_log."SERVER" = ' + DBot.GetServerID(msg.channel.guild) + ' AND user_names."ID" = joinleft_log."USER" ORDER BY joinleft_log."ID" DESC LIMIT 10', function(err, data) {
+		MySQL.query('SELECT joinleft_log."STAMP", joinleft_log."STATUS", users."NAME" as "USERNAME" FROM joinleft_log, users WHERE joinleft_log."SERVER" = ' + DBot.GetServerID(msg.channel.guild) + ' AND users."ID" = joinleft_log."USER" ORDER BY joinleft_log."ID" DESC LIMIT 10', function(err, data) {
 			if (err) {
 				msg.reply('WTF');
 				msg.channel.stopTyping();
@@ -70,7 +70,7 @@ DBot.RegisterCommand({
 		
 		msg.channel.startTyping();
 		
-		MySQL.query('SELECT joinleft_log."STAMP", joinleft_log."STATUS", user_names."USERNAME" as "USERNAME" FROM joinleft_log, user_names WHERE joinleft_log."SERVER" = ' + DBot.GetServerID(msg.channel.guild) + ' AND user_names."ID" = joinleft_log."USER" ORDER BY joinleft_log."ID" DESC LIMIT 400', function(err, data) {
+		MySQL.query('SELECT joinleft_log."STAMP", joinleft_log."STATUS", users."NAME" as "USERNAME" FROM joinleft_log, users WHERE joinleft_log."SERVER" = ' + DBot.GetServerID(msg.channel.guild) + ' AND users."ID" = joinleft_log."USER" ORDER BY joinleft_log."ID" DESC LIMIT 400', function(err, data) {
 			if (err) {
 				msg.reply('WTF');
 				msg.channel.stopTyping();

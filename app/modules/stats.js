@@ -5,28 +5,20 @@ const hDuration = require('humanize-duration');
 
 let never_talk_sql = `
 SELECT
-	TRIM(user_id."UID") AS "USERID",
-	user_names."USERNAME" AS "USERNAME",
-	member_names."NAME" AS "MEMBERNAME"
+	users."UID" AS "USERID",
+	users."NAME" AS "USERNAME",
+	members."NAME" AS "MEMBERNAME"
 FROM
-	user_id,
-	user_names,
-	member_id,
-	member_names,
-	last_seen
+	users,
+	members
 WHERE
-	last_seen."TIME" > currtime() - 120 AND
-	user_id."ID" = last_seen."ID" AND
-	user_id."UID" != '%s' AND
-	member_id."SERVER" = %i AND
-	member_id."USER" = user_id."ID" AND
-	member_names."ID" = member_id."ID" AND
-	user_names."ID" = user_id."ID" AND
-    member_id."USER" NOT IN (
+	users."TIME" > currtime() - 120 AND
+	users."UID" != '%s' AND
+	members."SERVER" = %i AND
+	members."USER" = users."ID" AND
+    members."USER" NOT IN (
     	SELECT stats__uphrases_server."UID" FROM stats__uphrases_server WHERE stats__uphrases_server."USERVER" = %i
     )
-GROUP BY
-	"USERID", "USERNAME", "MEMBERNAME"
 `;
 
 
@@ -754,30 +746,27 @@ let top10fn = function(name, order) {
 		
 		let query = `
 			SELECT
-				user_id."UID" as "USERID",
-				user_id."ID" as "ID",
-				member_names."NAME" as "USERNAME",
+				users."UID" as "USERID",
+				users."ID" as "ID",
+				members."NAME" as "USERNAME",
 				stats__uphrases_server."COUNT" as "COUNT",
 				SUM(stats__uwords_server."COUNT") AS "TOTAL_WORDS",
 				COUNT(DISTINCT stats__uwords_server."WORD") AS "TOTAL_UNIQUE_WORDS"
 			FROM
-				user_id,
-				member_id,
-				member_names,
+				users,
+				members,
 				stats__uphrases_server,
 				stats__uwords_server
 			WHERE
 				stats__uphrases_server."USERVER" = ${ID} AND
 				stats__uwords_server."USERVER" = ${ID} AND
-				member_id."SERVER" = stats__uphrases_server."USERVER" AND
-				member_id."USER" = user_id."ID" AND
-				stats__uphrases_server."UID" = user_id."ID" AND
-				stats__uwords_server."UID" = user_id."ID" AND
-				member_names."ID" = member_id."ID"
+				members."SERVER" = stats__uphrases_server."USERVER" AND
+				members."USER" = users."ID" AND
+				stats__uphrases_server."UID" = users."ID" AND
+				stats__uwords_server."UID" = users."ID"
 			GROUP BY
-				user_id."UID",
-				user_id."ID",
-				member_names."NAME",
+				users."UID",
+				users."ID",
 				stats__uphrases_server."COUNT"
 			ORDER BY "${order}" DESC
 			OFFSET ${offset} LIMIT 20`;
@@ -869,28 +858,24 @@ let gtop10fn = function(name, order) {
 		
 		let query = `
 			SELECT
-				user_id."UID" as "USERID",
-				user_id."ID" as "ID",
-				user_names."USERNAME" as "USERNAME",
+				users."UID" as "USERID",
+				users."ID" as "ID",
+				users."NAME" as "USERNAME",
 				stats__phrases_client."COUNT" as "COUNT",
 				SUM(stats__words_client."COUNT") AS "TOTAL_WORDS",
 				COUNT(DISTINCT stats__words_client."WORD") AS "TOTAL_UNIQUE_WORDS"
 			FROM
-				user_id,
-				user_names,
-				last_seen,
+				users,
 				stats__phrases_client,
 				stats__words_client
 			WHERE
-				last_seen."TIME" > currtime() - 120 AND
-				user_id."ID" = last_seen."ID" AND
-				stats__phrases_client."UID" = user_id."ID" AND
-				stats__words_client."UID" = user_id."ID" AND
-				user_names."ID" = user_id."ID"
+				users."TIME" > currtime() - 120 AND
+				stats__phrases_client."UID" = users."ID" AND
+				stats__words_client."UID" = users."ID"
 			GROUP BY
-				user_id."UID",
-				user_id."ID",
-				user_names."USERNAME",
+				users."UID",
+				users."ID",
+				users."NAME",
 				stats__phrases_client."COUNT"
 			ORDER BY "${order}" DESC
 			OFFSET ${offset} LIMIT 20`;
@@ -985,32 +970,30 @@ let ctop10fn = function(name, order) {
 		
 		let query = `
 			SELECT
-				user_id."UID" as "USERID",
-				user_id."ID" as "ID",
-				member_names."NAME" as "USERNAME",
+				users."UID" as "USERID",
+				users."ID" as "ID",
+				members."NAME" as "USERNAME",
 				stats__uphrases_channel."COUNT" as "COUNT",
 				SUM(stats__uwords_channel."COUNT") AS "TOTAL_WORDS",
 				COUNT(DISTINCT stats__uwords_channel."WORD") AS "TOTAL_UNIQUE_WORDS"
 			FROM
-				user_id,
-				member_id,
-				member_names,
-				channel_id,
+				users,
+				members,
+				channels,
 				stats__uphrases_channel,
 				stats__uwords_channel
 			WHERE
 				stats__uphrases_channel."CHANNEL" = ${ID} AND
 				stats__uwords_channel."CHANNEL" = ${ID} AND
-				channel_id."ID" = ${ID} AND
-				member_id."SERVER" = channel_id."SID" AND
-				member_id."USER" = user_id."ID" AND
-				stats__uphrases_channel."UID" = user_id."ID" AND
-				stats__uwords_channel."UID" = user_id."ID" AND
-				member_names."ID" = member_id."ID"
+				channels."ID" = ${ID} AND
+				members."SERVER" = channels."SID" AND
+				members."USER" = users."ID" AND
+				stats__uphrases_channel."UID" = users."ID" AND
+				stats__uwords_channel."UID" = users."ID"
 			GROUP BY
-				user_id."UID",
-				user_id."ID",
-				member_names."NAME",
+				users."UID",
+				users."ID",
+				members."NAME",
 				stats__uphrases_channel."COUNT"
 			ORDER BY "COUNT" DESC
 			OFFSET ${offset} LIMIT 20`;
@@ -1301,28 +1284,25 @@ DBot.RegisterCommand({
 
 let serversQuery = `
 SELECT
-	server_id."UID" AS "UID",
-	server_names."NAME" AS "NAME",
+	servers."UID" AS "UID",
+	servers."NAME" AS "NAME",
 	stats__chars_server."COUNT" AS "TOTAL_CHARS",
 	stats__phrases_server."COUNT" AS "TOTAL_PHRASES",
 	SUM(stats__command_server."COUNT") AS "TOTAL_COMMANDS"
 FROM
-	server_names,
-	server_id,
+	servers,
 	stats__chars_server,
 	stats__phrases_server,
 	stats__command_server
 WHERE
-	server_id."ID" IN (SELECT "ID" FROM last_seen_servers WHERE "TIME" > currtime() - 120) AND
-	server_id."ID" = server_names."ID" AND
-	stats__chars_server."UID" = server_id."ID" AND
-	stats__phrases_server."UID" = server_id."ID" AND
-	stats__command_server."UID" = server_id."ID"
+	servers."TIME" > currtime() - 120 AND
+	stats__chars_server."UID" = servers."ID" AND
+	stats__phrases_server."UID" = servers."ID" AND
+	stats__command_server."UID" = servers."ID"
 GROUP BY
-	server_id."UID",
-	server_id."ID",
-	server_names."ID",
-	server_names."NAME",
+	servers."UID",
+	servers."ID",
+	servers."NAME",
 	stats__chars_server."UID",
 	stats__phrases_server."UID",
 	stats__command_server."UID",
@@ -1380,18 +1360,15 @@ let getsfn = function(name, num) {
 		if (mode == 'server') {
 			let fuckingQuery = `
 			SELECT
-				member_names."NAME" AS "NAME",
+				members."NAME" AS "NAME",
 				stats__server_get."NUMBER" AS "NUMBER",
 				stats__server_get."STAMP" AS "STAMP"
 			FROM
-				member_names,
-				member_id,
+				members,
 				stats__server_get
 			WHERE
 				stats__server_get."NUMBER" % ${num} = 0 AND
-				member_names."ID" = stats__server_get."MEMBER" AND
-				member_id."ID" = stats__server_get."MEMBER" AND
-				member_id."SERVER" = ${msg.channel.guild.uid}
+				members."ID" = stats__server_get."MEMBER"
 			ORDER BY
 				stats__server_get."ENTRY" DESC
 			LIMIT 10
@@ -1421,18 +1398,15 @@ let getsfn = function(name, num) {
 		} else if (mode == 'image' || mode == 'images' || mode == 'server' && (mode1 == 'image' || mode1 == 'images')) {
 			let fuckingQuery = `
 			SELECT
-				member_names."NAME" AS "NAME",
+				members."NAME" AS "NAME",
 				stats__server_get_image."NUMBER" AS "NUMBER",
 				stats__server_get_image."STAMP" AS "STAMP"
 			FROM
-				member_names,
-				member_id,
+				members,
 				stats__server_get_image
 			WHERE
 				stats__server_get_image."NUMBER" % ${num} = 0 AND
-				member_names."ID" = stats__server_get_image."MEMBER" AND
-				member_id."ID" = stats__server_get_image."MEMBER" AND
-				member_id."SERVER" = ${msg.channel.guild.uid}
+				members."ID" = stats__server_get_image."MEMBER"
 			ORDER BY
 				stats__server_get_image."ENTRY" DESC
 			LIMIT 10
@@ -1462,19 +1436,16 @@ let getsfn = function(name, num) {
 		} else if (mode == 'channel') {
 			let fuckingQuery = `
 			SELECT
-				member_names."NAME" AS "NAME",
+				members."NAME" AS "NAME",
 				stats__channel_get."NUMBER" AS "NUMBER",
 				stats__channel_get."STAMP" AS "STAMP"
 			FROM
-				member_names,
-				member_id,
+				members,
 				stats__channel_get
 			WHERE
 				stats__channel_get."NUMBER" % ${num} = 0 AND
 				stats__channel_get."CHANNEL" = ${msg.channel.uid} AND
-				member_names."ID" = stats__channel_get."MEMBER" AND
-				member_id."ID" = stats__channel_get."MEMBER" AND
-				member_id."SERVER" = ${msg.channel.guild.uid}
+				members."ID" = stats__channel_get."MEMBER"
 			ORDER BY
 				stats__server_get_image."ENTRY" DESC
 			LIMIT 10
@@ -1504,19 +1475,16 @@ let getsfn = function(name, num) {
 		} else if (mode == 'channel' && (mode1 == 'image' || mode1 == 'images')) {
 			let fuckingQuery = `
 			SELECT
-				member_names."NAME" AS "NAME",
+				members."NAME" AS "NAME",
 				stats__channel_get_image."NUMBER" AS "NUMBER",
 				stats__channel_get_image."STAMP" AS "STAMP"
 			FROM
-				member_names,
-				member_id,
+				members,
 				stats__channel_get_image
 			WHERE
 				stats__channel_get_image."NUMBER" % ${num} = 0 AND
 				stats__channel_get_image."CHANNEL" = ${msg.channel.uid} AND
-				member_names."ID" = stats__channel_get_image."MEMBER" AND
-				member_id."ID" = stats__channel_get_image."MEMBER" AND
-				member_id."SERVER" = ${msg.channel.guild.uid}
+				members."ID" = stats__channel_get_image."MEMBER"
 			ORDER BY
 				stats__server_get_image."ENTRY" DESC
 			LIMIT 10

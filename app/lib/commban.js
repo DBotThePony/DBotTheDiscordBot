@@ -229,7 +229,7 @@ hook.Add('MemberInitialized', 'MemberCommandBans', function(obj) {
 });
 
 hook.Add('MembersInitialized', 'MemberCommandBans', function() {
-	Postgres.query('SELECT "UID", "CHANNEL" FROM command_banned_cmember, last_seen WHERE last_seen."TIME" > floor(extract(epoch from now())) - 120 AND "UID" = last_seen."ID"', function(err, data) {
+	Postgres.query('SELECT command_banned_cmember."UID", command_banned_cmember."CHANNEL" FROM command_banned_cmember, users WHERE users."TIME" > currtime() - 120 AND command_banned_cmember."UID" = users."ID"', function(err, data) {
 		if (err) throw err;
 		
 		for (let row of data) {
@@ -245,7 +245,7 @@ hook.Add('MembersInitialized', 'MemberCommandBans', function() {
 		init = initCount == 0;
 	});
 	
-	Postgres.query('SELECT "UID" FROM command_banned_member, last_seen WHERE last_seen."TIME" > floor(extract(epoch from now())) - 120 AND "UID" = last_seen."ID"', function(err, data) {
+	Postgres.query('SELECT command_banned_member."UID" FROM command_banned_member, users WHERE users."TIME" > currtime() - 120 AND command_banned_member."UID" = users."ID"', function(err, data) {
 		if (err) throw err;
 		
 		for (let row of data) {
@@ -261,7 +261,7 @@ hook.Add('MembersInitialized', 'MemberCommandBans', function() {
 		init = initCount == 0;
 	});
 	
-	Postgres.query('SELECT "UID", "COMMAND" FROM command_bans_member, last_seen WHERE last_seen."TIME" > floor(extract(epoch from now())) - 120 AND "UID" = last_seen."ID"', function(err, data) {
+	Postgres.query('SELECT command_bans_member."UID", command_bans_member."COMMAND" FROM command_bans_member, users WHERE users."TIME" > currtime() - 120 AND command_bans_member."UID" = users."ID"', function(err, data) {
 		if (err) throw err;
 		
 		for (let row of data) {

@@ -26,7 +26,7 @@ setInterval(function() {
 			let ostatus = user.lastStatus;
 			
 			if (status != ostatus) {
-				finalQuery += 'UPDATE user_status SET "STATUS" = \'' + status + '\' WHERE "ID" = ' + DBot.GetUserID(user) + ';';
+				finalQuery += 'UPDATE users SET "STATUS" = \'' + status + '\' WHERE "ID" = ' + DBot.GetUserID(user) + ';';
 				user.lastStatus = status;
 			}
 		} catch(err) {
@@ -34,7 +34,7 @@ setInterval(function() {
 		}
 	}
 	
-	finalQuery += 'SELECT user_status_heartbeat(' + Math.floor(CurTime()) + ');COMMIT;';
+	finalQuery += 'UPDATE lastonline SET "LASTONLINE" = currtime() FROM users WHERE users."STATUS" != \'offline\' AND users."ID" = lastonline."ID" AND users."TIME" > currtime() - 120;';
 	Postgre.query(finalQuery);
 }, 5000);
 
@@ -57,16 +57,13 @@ hook.Add('UserInitialized', 'LastSeen', function(user) {
 			console.error('Failed to create lastonline entry: ' + err);
 	});
 	
-	try {
-		Postgre.query('INSERT INTO user_status ("ID", "STATUS") VALUES (' + user.uid + ', ' + Util.escape(user.presence.status) + ') ON CONFLICT ("ID") DO UPDATE SET "STATUS" = ' + Util.escape(user.presence.status));
-		
-		user.lastStatus = user.presence.status;
-	} catch(err) {
-		
-	}
+	Postgre.query('UPDATE users SET "STATUS" = \'' + user.presence.status + '\' WHERE "ID" = ' + user.uid, function(err, data) {
+		if (err)
+			console.error('Failed to create lastonline entry: ' + err);
+	});
 });
 
-hook.Add('MembersInitialized', 'LastSeen', function() {
+hook.Add('UsersInitialized', 'LastSeen', function() {
 	INIT = true;
 	
 	let users = DBot.GetUsers();
@@ -84,9 +81,9 @@ hook.Add('MembersInitialized', 'LastSeen', function() {
 			user.lastStatus = user.presence.status;
 			
 			if (statusStr)
-				statusStr = '(' + (user.uid || sql.User(user)) + ',' + Util.escape(user.lastStatus) + ')';
+				statusStr = '(' + (user.uid || sql.User(user)) + ',' + Util.escape(user.lastStatus) + '::discord_user_status)';
 			else
-				statusStr += ',(' + (user.uid || sql.User(user)) + ',' + Util.escape(user.lastStatus) + ')';
+				statusStr += ',(' + (user.uid || sql.User(user)) + ',' + Util.escape(user.lastStatus) + '::discord_user_status)';
 		} catch(err) {
 			
 		}
@@ -103,7 +100,7 @@ hook.Add('MembersInitialized', 'LastSeen', function() {
 			console.error('Failed to create lastonline entry ON STARTUP: ' + err);
 	});
 	
-	Postgre.query('INSERT INTO user_status ("ID", "STATUS") VALUES ' + statusStr + ' ON CONFLICT ("ID") DO UPDATE SET "STATUS" = EXCLUDED."STATUS"', function(err, data) {
+	Postgre.query('UPDATE users SET "STATUS" = "m"."STATUS" FROM (VALUES ' + statusStr + ') AS "m"("ID", "STATUS") WHERE users."ID" = "m"."ID"', function(err, data) {
 		if (err)
 			console.error('Failed to create user_status entry ON STARTUP: ' + err);
 	});

@@ -22,7 +22,7 @@ let Actions = {
 				
 				return '```' + names.join(', ') + '```';
 			} else if (args[1] == 'total' || args[1] == 'all') {
-				Postgres.query('SELECT COUNT(*) AS "COUNT" FROM roles_id', function(err, data) {
+				Postgres.query('SELECT COUNT(*) AS "COUNT" FROM roles', function(err, data) {
 					if (err) {
 						msg.reply('Something went wrong ;n;');
 						return;
@@ -31,7 +31,7 @@ let Actions = {
 					msg.reply('I totally remember **' + data[0].COUNT + '** unqiue roles!');
 				});
 			} else if (args[1] == 'server' && args[2] && (args[2] == 'total' || args[2] == 'all')) {
-				Postgres.query('SELECT COUNT(*) AS "COUNT" FROM roles_id WHERE "SERVER" = ' + sql.Server(msg.channel.guild), function(err, data) {
+				Postgres.query('SELECT COUNT(*) AS "COUNT" FROM roles WHERE "SERVER" = ' + sql.Server(msg.channel.guild), function(err, data) {
 					if (err) {
 						msg.reply('Something went wrong ;n;');
 						return;
@@ -76,7 +76,7 @@ let Actions = {
 		if (!args[1]) {
 			return 'Totally running on **' + DBot.GetServers().length + '** servers!';
 		} else if (args[1] == 'total' || args[1] == 'all') {
-			Postgres.query('SELECT COUNT(*) AS "COUNT" FROM server_id', function(err, data) {
+			Postgres.query('SELECT COUNT(*) AS "COUNT" FROM servers', function(err, data) {
 				if (err) {
 					msg.reply('Something went wrong ;n;');
 					return;
@@ -127,7 +127,7 @@ let Actions = {
 			
 			return 'Totally running on **' + num + '** channels!';
 		} else if (args[1] == 'total' || args[1] == 'all') {
-			Postgres.query('SELECT COUNT(*) AS "COUNT" FROM channel_id', function(err, data) {
+			Postgres.query('SELECT COUNT(*) AS "COUNT" FROM channels', function(err, data) {
 				if (err) {
 					msg.reply('Something went wrong ;n;');
 					return;
@@ -155,7 +155,7 @@ let Actions = {
 			if (args[1] == 'unique') {
 				return 'Serving **' + DBot.GetUsers().length + '** unique members!';
 			} else if (args[1] == 'all' || args[1] == 'total') {
-				Postgres.query('SELECT COUNT(*) AS "COUNT" FROM user_id', function(err, data) {
+				Postgres.query('SELECT COUNT(*) AS "COUNT" FROM users', function(err, data) {
 					if (err) {
 						msg.reply('Something went wrong ;n;');
 						return;
@@ -164,7 +164,7 @@ let Actions = {
 					msg.reply('I totally remember **' + data[0].COUNT + '** users!');
 				});
 			} else if (args[1] == 'members' && args[2] && (args[2] == 'all' || args[2] == 'total')) {
-				Postgres.query('SELECT COUNT(*) AS "COUNT" FROM member_id', function(err, data) {
+				Postgres.query('SELECT COUNT(*) AS "COUNT" FROM members', function(err, data) {
 					if (err) {
 						msg.reply('Something went wrong ;n;');
 						return;

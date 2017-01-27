@@ -55,12 +55,12 @@ let updateRoleRules = function(role) {
 		}
 	}
 	
-	let q = 'SELECT "member_roles"."MEMBER", TRIM("user_id"."UID") as "USER" FROM "member_roles", "user_id", "member_id" WHERE "member_roles"."ROLE" = ' + sRole + ' AND "member_id"."ID" = "member_roles"."MEMBER" AND "user_id"."ID" = "member_id"."USER"';
+	let q = 'SELECT "member_roles"."MEMBER", "users"."UID" as "USER" FROM "member_roles", "users", "members" WHERE "member_roles"."ROLE" = ' + sRole + ' AND "members"."ID" = "member_roles"."MEMBER" AND "users"."ID" = "members"."USER"';
 	
 	if (!sRole)
 		return DBot.DefineRole(role, function(role, newuid) {
 			sRole = newuid;
-			q = 'SELECT "member_roles"."MEMBER", TRIM("user_id"."UID") as "USER" FROM "member_roles", "user_id", "member_id" WHERE "member_roles"."ROLE" = ' + sRole + ' AND "member_id"."ID" = "member_roles"."MEMBER" AND "user_id"."ID" = "member_id"."USER"';
+			q = 'SELECT "member_roles"."MEMBER", "users"."UID" as "USER" FROM "member_roles", "users", "members" WHERE "member_roles"."ROLE" = ' + sRole + ' AND "members"."ID" = "member_roles"."MEMBER" AND "users"."ID" = "members"."USER"';
 			MySQL.query(q, continueFunc);
 		});
 	else
@@ -74,15 +74,15 @@ hook.Add('RolesInitialized', 'RoleLogs', function(role_map, role_array, role_arr
 	let q = 'SELECT\
 				"member_roles"."ROLE",\
 				array_to_string(array_agg("member_roles"."MEMBER"), \',\') AS "MEMBER",\
-				array_to_string(array_agg(TRIM("user_id"."UID")), \',\') AS "USER"\
+				array_to_string(array_agg("users"."UID"), \',\') AS "USER"\
 			FROM\
 				"member_roles",\
-				"user_id",\
-				"member_id"\
+				"users",\
+				"members"\
 			WHERE\
 				"member_roles"."ROLE" = ANY (' + sql.Array(role_array_uids) + '::INTEGER[]) AND\
-				"member_id"."ID" = "member_roles"."MEMBER" AND\
-				"user_id"."ID" = "member_id"."USER"\
+				"members"."ID" = "member_roles"."MEMBER" AND\
+				"users"."ID" = "members"."USER"\
 			GROUP BY\
 				"member_roles"."ROLE"';
 	
@@ -151,33 +151,6 @@ hook.Add('MemberChanges', 'RoleLogs', function(oldM, newM) {
 	}
 });
 
-/*
-SELECT
-	roles_log."ID" AS "ENTRY",
-	roles_log."MEMBER",
-	roles_log."ROLE",
-	roles_log."TYPE",
-	roles_log."STAMP",
-	roles_names."NAME" AS "ROLENAME",
-	member_id."USER" AS "USERID",
-	member_names."NAME" AS "MEMBERNAME"
-FROM
-	roles_log,
-	roles_names,
-	member_id,
-	server_id,
-	member_names
-WHERE
-	server_id."ID" = 6 AND
-	roles_log."MEMBER" = member_id."ID" AND
-	member_id."SERVER" = server_id."ID" AND
-	roles_names."ROLEID" = roles_log."ROLE" AND
-	member_names."ID" = member_id."ID"
-GROUP BY
-	"ENTRY"
-ORDER BY
-	"ENTRY" DESC
-*/
 
 let fullDesc = `
 Sub commands are:
@@ -234,24 +207,22 @@ DBot.RegisterCommand({
 				roles_log."ROLE",\
 				roles_log."TYPE",\
 				roles_log."STAMP",\
-				roles_names."NAME" AS "ROLENAME",\
-				member_names."NAME" AS "MEMBERNAME"\
+				roles."NAME" AS "ROLENAME",\
+				members."NAME" AS "MEMBERNAME"\
 			FROM\
 				roles_log,\
-				roles_names,\
-				member_id,\
-				server_id,\
-				member_names\
+				roles,\
+				members,\
+				servers\
 			WHERE\
-				server_id."ID" = get_server_id(\'' + msg.channel.guild.id + '\') AND\
-				roles_log."MEMBER" = member_id."ID" AND\
-				member_id."SERVER" = server_id."ID" AND\
-				roles_names."ROLEID" = roles_log."ROLE" AND\
-				member_names."ID" = member_id."ID"\
+				servers."ID" = get_server_id(\'' + msg.channel.guild.id + '\') AND\
+				roles_log."MEMBER" = members."ID" AND\
+				members."SERVER" = servers."ID" AND\
+				roles."ID" = roles_log."ROLE"\
 			GROUP BY\
 				"ENTRY",\
-				roles_names."NAME",\
-				member_names."NAME"\
+				roles."NAME",\
+				members."NAME"\
 			ORDER BY\
 				"ENTRY" DESC\
 			LIMIT ' + limitStr;
@@ -312,24 +283,21 @@ DBot.RegisterCommand({
 				roles_log."ROLE",\
 				roles_log."TYPE",\
 				roles_log."STAMP",\
-				roles_names."NAME" AS "ROLENAME"\
+				roles."NAME" AS "ROLENAME"\
 			FROM\
 				roles_log,\
-				roles_names,\
-				member_id,\
-				server_id,\
-				member_names\
+				roles,\
+				members,\
+				servers\
 			WHERE\
-				member_id."ID" = ' + getUser.uid + ' AND\
-				server_id."ID" = ' + msg.channel.guild.uid + ' AND\
-				roles_log."MEMBER" = member_id."ID" AND\
-				member_id."SERVER" = server_id."ID" AND\
-				roles_names."ROLEID" = roles_log."ROLE" AND\
-				member_names."ID" = member_id."ID"\
+				members."ID" = ' + getUser.uid + ' AND\
+				servers."ID" = ' + msg.channel.guild.uid + ' AND\
+				roles_log."MEMBER" = members."ID" AND\
+				members."SERVER" = servers."ID" AND\
+				roles."ID" = roles_log."ROLE"\
 			GROUP BY\
 				"ENTRY",\
-				roles_names."NAME",\
-				member_names."NAME"\
+				roles."NAME"\
 			ORDER BY\
 				"ENTRY" DESC\
 			LIMIT ' + limitStr;
@@ -379,20 +347,18 @@ DBot.RegisterCommand({
 				roles_changes_perms."PERM",\
 				roles_changes_perms."TYPE",\
 				roles_changes_perms."STAMP",\
-				roles_names."NAME" AS "ROLENAME"\
+				roles."NAME" AS "ROLENAME"\
 			FROM\
 				roles_changes_perms,\
-				roles_names,\
-				roles_id,\
-				server_id\
+				roles,\
+				servers\
 			WHERE\
-				server_id."ID" = get_server_id(\'' + msg.channel.guild.id + '\') AND\
-				roles_id."SERVER" = server_id."ID" AND\
-				roles_id."ID" = roles_changes_perms."ROLEID" AND\
-				roles_changes_perms."ROLEID" = roles_names."ROLEID"\
+				servers."ID" = get_server_id(\'' + msg.channel.guild.id + '\') AND\
+				roles."SERVER" = servers."ID" AND\
+				roles."ID" = roles_changes_perms."ROLEID"\
 			GROUP BY\
 				"ENTRY",\
-				roles_names."NAME"\
+				roles."NAME"\
 			ORDER BY\
 				"ENTRY" DESC\
 			LIMIT ' + limitStr;
@@ -442,20 +408,19 @@ DBot.RegisterCommand({
 				roles_changes_hoist."OLD",\
 				roles_changes_hoist."NEW",\
 				roles_changes_hoist."STAMP",\
-				roles_names."NAME" AS "ROLENAME"\
+				roles."NAME" AS "ROLENAME"\
 			FROM\
 				roles_changes_hoist,\
-				roles_names,\
-				roles_id,\
-				server_id\
+				roles,\
+				servers\
 			WHERE\
-				server_id."ID" = get_server_id(\'' + msg.channel.guild.id + '\') AND\
-				roles_id."SERVER" = server_id."ID" AND\
-				roles_id."ID" = roles_changes_hoist."ROLEID" AND\
-				roles_changes_hoist."ROLEID" = roles_names."ROLEID"\
+				servers."ID" = get_server_id(\'' + msg.channel.guild.id + '\') AND\
+				roles."SERVER" = servers."ID" AND\
+				roles."ID" = roles_changes_hoist."ROLEID" AND\
+				roles_changes_hoist."ROLEID" = roles."ROLEID"\
 			GROUP BY\
 				"ENTRY",\
-				roles_names."NAME"\
+				roles."NAME"\
 			ORDER BY\
 				"ENTRY" DESC\
 			LIMIT ' + limitStr;
@@ -506,20 +471,18 @@ DBot.RegisterCommand({
 				roles_changes_position."OLD",\
 				roles_changes_position."NEW",\
 				roles_changes_position."STAMP",\
-				roles_names."NAME" AS "ROLENAME"\
+				roles."NAME" AS "ROLENAME"\
 			FROM\
 				roles_changes_position,\
-				roles_names,\
-				roles_id,\
-				server_id\
+				roles,\
+				servers\
 			WHERE\
-				server_id."ID" = get_server_id(\'' + msg.channel.guild.id + '\') AND\
-				roles_id."SERVER" = server_id."ID" AND\
-				roles_id."ID" = roles_changes_position."ROLEID" AND\
-				roles_changes_position."ROLEID" = roles_names."ROLEID"\
+				servers."ID" = get_server_id(\'' + msg.channel.guild.id + '\') AND\
+				roles."SERVER" = servers."ID" AND\
+				roles."ID" = roles_changes_position."ROLEID"\
 			GROUP BY\
 				"ENTRY",\
-				roles_names."NAME"\
+				roles."NAME"\
 			ORDER BY\
 				"ENTRY" DESC\
 			LIMIT ' + limitStr;
@@ -570,20 +533,18 @@ DBot.RegisterCommand({
 				roles_changes_mention."OLD",\
 				roles_changes_mention."NEW",\
 				roles_changes_mention."STAMP",\
-				roles_names."NAME" AS "ROLENAME"\
+				roles."NAME" AS "ROLENAME"\
 			FROM\
 				roles_changes_mention,\
-				roles_names,\
-				roles_id,\
-				server_id\
+				roles,\
+				servers\
 			WHERE\
-				server_id."ID" = get_server_id(\'' + msg.channel.guild.id + '\') AND\
-				roles_id."SERVER" = server_id."ID" AND\
-				roles_id."ID" = roles_changes_mention."ROLEID" AND\
-				roles_changes_mention."ROLEID" = roles_names."ROLEID"\
+				servers."ID" = get_server_id(\'' + msg.channel.guild.id + '\') AND\
+				roles."SERVER" = servers."ID" AND\
+				roles."ID" = roles_changes_mention."ROLEID"\
 			GROUP BY\
 				"ENTRY",\
-				roles_names."NAME"\
+				roles."NAME"\
 			ORDER BY\
 				"ENTRY" DESC\
 			LIMIT ' + limitStr;
@@ -634,20 +595,18 @@ DBot.RegisterCommand({
 				roles_changes_color."OLD",\
 				roles_changes_color."NEW",\
 				roles_changes_color."STAMP",\
-				roles_names."NAME" AS "ROLENAME"\
+				roles."NAME" AS "ROLENAME"\
 			FROM\
 				roles_changes_color,\
-				roles_names,\
-				roles_id,\
-				server_id\
+				roles,\
+				servers\
 			WHERE\
-				server_id."ID" = get_server_id(\'' + msg.channel.guild.id + '\') AND\
-				roles_id."SERVER" = server_id."ID" AND\
-				roles_id."ID" = roles_changes_color."ROLEID" AND\
-				roles_changes_color."ROLEID" = roles_names."ROLEID"\
+				servers."ID" = get_server_id(\'' + msg.channel.guild.id + '\') AND\
+				roles."SERVER" = servers."ID" AND\
+				roles."ID" = roles_changes_color."ROLEID"\
 			GROUP BY\
 				"ENTRY",\
-				roles_names."NAME"\
+				roles."NAME"\
 			ORDER BY\
 				"ENTRY" DESC\
 			LIMIT ' + limitStr;

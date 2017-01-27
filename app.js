@@ -90,6 +90,23 @@ bot.on('disconnect', function() {
 	hook.Run('OnDisconnected');
 });
 
+let sqlRun = false;
+let shouldRunAfterSQL = false;
+
+let timerOnlineFunc = function() {
+	if (!sqlRun) return;
+	if (ALREADY_CONNECTING || LEVEL_OF_CONNECTION == 0) return;
+	console.log('Initializing stuff');
+	hook.Run('BotOnline', DBot.bot);
+}
+
+hook.Add('SQLInitialize', 'Core', function() {
+	sqlRun = true;
+	
+	if (shouldRunAfterSQL)
+		timerOnlineFunc();
+});
+
 bot.on('ready', function() {
 	LEVEL_OF_CONNECTION++;
 	
@@ -103,9 +120,12 @@ bot.on('ready', function() {
 		clearTimeout(TimeoutID);
 	
 	TimeoutID = setTimeout(function() {
-		if (ALREADY_CONNECTING || LEVEL_OF_CONNECTION == 0) return;
-		console.log('Initializing stuff');
-		hook.Run('BotOnline', DBot.bot);
+		if (!sqlRun) {
+			shouldRunAfterSQL = true;
+			return;
+		}
+		
+		timerOnlineFunc();
 	}, 4000);
 });
 

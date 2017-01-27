@@ -41,7 +41,7 @@ setInterval(function() {
 					}
 				}
 				
-				finalQuery += 'UPDATE member_names SET "NAME" = ' + Util.escape(name) + ' WHERE "ID" = ' + UiD + ';';
+				finalQuery += 'UPDATE members SET "NAME" = ' + Util.escape(name) + ' WHERE "ID" = ' + UiD + ';';
 			}
 			
 			member.oldNickname = name;
@@ -77,7 +77,7 @@ setInterval(function() {
 					}
 				}
 				
-				finalQuery += 'UPDATE user_names SET "USERNAME" = ' + Util.escape(name) + ' WHERE "ID" = ' + uid + ';';
+				finalQuery += 'UPDATE users SET "NAME" = ' + Util.escape(name) + ' WHERE "ID" = ' + uid + ';';
 			}
 			
 			user.oldUName = name;
@@ -102,7 +102,7 @@ hook.Add('MemberInitialized', 'MemberNameLogs', function(member) {
 	
 	let name = Util.escape(member.nickname || member.user.username);
 	member.oldNickname = member.nickname || member.user.username;
-	MySQL.query('INSERT INTO member_names VALUES (' + Util.escape(member.uid) + ', ' + name + ') ON CONFLICT ("ID") DO UPDATE SET "NAME" = ' + name, function(err) {
+	MySQL.query('UPDATE members SET "NAME" = ' + name + ' WHERE "ID" = ' + member.uid, function(err) {
 		if (!err)
 			return;
 		
@@ -128,7 +128,7 @@ hook.Add('MembersInitialized', 'MemberNameLogs', function(members) {
 	
 	if (!finalQuery) return;
 	
-	Postgres.query('INSERT INTO member_names VALUES ' + finalQuery + ' ON CONFLICT ("ID") DO UPDATE SET "NAME" = excluded."NAME"');
+	Postgres.query('UPDATE members SET "NAME" = m."NAME" FROM (VALUES ' + finalQuery + ') AS m ("ID", "NAME") WHERE members."ID" = m."ID"');
 });
 
 hook.Add('UserInitialized', 'MemberNameLogs', function(user, id) {
@@ -138,7 +138,7 @@ hook.Add('UserInitialized', 'MemberNameLogs', function(user, id) {
 	let name = Util.escape(user.username);
 	user.oldUName = user.username;
 	
-	MySQL.query('INSERT INTO user_names ("ID", "USERNAME") VALUES (' + id + ', ' + name + ') ON CONFLICT ("ID") DO UPDATE SET "USERNAME" = ' + name, function(err) {
+	MySQL.query('UPDATE users SET "NAME" = ' + name + ' WHERE "ID" = ' + id, function(err) {
 		if (!err)
 			return;
 		
@@ -167,7 +167,7 @@ hook.Add('UsersInitialized', 'MemberNameLogs', function() {
 	
 	if (!finalQuery) return;
 	
-	Postgres.query('INSERT INTO user_names ("ID", "USERNAME") VALUES ' + finalQuery + ' ON CONFLICT ("ID") DO UPDATE SET "USERNAME" = excluded."USERNAME"');
+	Postgres.query('UPDATE users SET "NAME" = "VALUES"."NAME" FROM (VALUES ' + finalQuery + ') AS "VALUES" ("ID", "NAME") WHERE users."ID" = "VALUES"."ID";');
 });
 
 Util.mkdir(DBot.WebRoot + '/namelog');
@@ -228,10 +228,10 @@ DBot.RegisterCommand({
 					name_logs_list."STAMP"
 				FROM
 					name_logs_list,
-					member_id
+					members
 				WHERE
-					member_id."SERVER" = ${msg.channel.guild.uid} AND
-					name_logs_list."MEMBER" = member_id."ID"
+					members."SERVER" = ${msg.channel.guild.uid} AND
+					name_logs_list."MEMBER" = members."ID"
 				ORDER BY name_logs_list."STAMP" DESC
 				LIMIT 10`;
 			
@@ -325,10 +325,10 @@ DBot.RegisterCommand({
 					name_logs_list."STAMP"
 				FROM
 					name_logs_list,
-					member_id
+					members
 				WHERE
-					member_id."SERVER" = ${msg.channel.guild.uid} AND
-					name_logs_list."MEMBER" = member_id."ID"
+					members."SERVER" = ${msg.channel.guild.uid} AND
+					name_logs_list."MEMBER" = members."ID"
 				ORDER BY name_logs_list."STAMP" DESC
 				LIMIT 200`;
 			

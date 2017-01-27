@@ -52,6 +52,12 @@ BEGIN
 	return floor(extract(epoch from now()));
 END; $$ LANGUAGE plpgsql;
 
+CREATE TABLE IF NOT EXISTS db_info (
+	"KEY" VARCHAR(64) NOT NULL,
+	"VALUE" VARCHAR(64) NOT NULL,
+	PRIMARY KEY ("KEY")
+);
+
 CREATE TABLE IF NOT EXISTS font_ids (
 	"ID" SERIAL PRIMARY KEY,
 	"FONT" VARCHAR(256) NOT NULL
@@ -74,18 +80,44 @@ CREATE TABLE IF NOT EXISTS font_height (
 	"HEIGHT" SMALLINT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS channel_id (
+CREATE TABLE IF NOT EXISTS servers (
 	"ID" SERIAL PRIMARY KEY,
-	"UID" char(64) NOT NULL,
-	"SID" INTEGER NOT NULL
+	"UID" VARCHAR(64) NOT NULL,
+	"NAME" VARCHAR(200) NOT NULL DEFAULT '[ERRORNAME]',
+	"TIME" INTEGER NOT NULL DEFAULT currtime()
 );
 
-CREATE INDEX IF NOT EXISTS "channel_id_UID"
-	ON channel_id USING btree ("UID");
+CREATE TABLE IF NOT EXISTS channels (
+	"ID" SERIAL PRIMARY KEY,
+	"UID" VARCHAR(64) NOT NULL,
+	"SID" INTEGER NOT NULL REFERENCES servers ("ID"),
+	"NAME" VARCHAR(200) NOT NULL DEFAULT '[ERRORNAME]',
+	"TIME" INTEGER NOT NULL DEFAULT currtime()
+);
 
-CREATE TABLE IF NOT EXISTS channel_names (
-	"ID" INTEGER NOT NULL PRIMARY KEY,
-	"NAME" VARCHAR(64) NOT NULL
+CREATE TABLE IF NOT EXISTS users (
+	"ID" SERIAL PRIMARY KEY,
+	"UID" VARCHAR(64) NOT NULL,
+	"NAME" VARCHAR(200) NOT NULL DEFAULT '[ERRORNAME]',
+	"TIME" INTEGER NOT NULL DEFAULT currtime(),
+	"STATUS" discord_user_status NOT NULL DEFAULT 'offline'
+);
+
+CREATE INDEX IF NOT EXISTS "users_UID"
+	ON users USING btree ("UID");
+
+CREATE INDEX IF NOT EXISTS "channels_UID"
+	ON channels USING btree ("UID");
+
+CREATE INDEX IF NOT EXISTS "servers_UID"
+	ON servers USING btree ("UID");
+
+CREATE TABLE IF NOT EXISTS members (
+	"ID" SERIAL PRIMARY KEY,
+	"USER" INTEGER NOT NULL REFERENCES users ("ID"),
+	"SERVER" INTEGER NOT NULL REFERENCES servers ("ID"),
+	"NAME" VARCHAR(200) NOT NULL DEFAULT '[ERRORNAME]',
+	"TIME" INTEGER NOT NULL DEFAULT currtime()
 );
 
 CREATE TABLE IF NOT EXISTS command_bans_channel (
@@ -185,19 +217,6 @@ CREATE TABLE IF NOT EXISTS uname_logs (
 	"LASTUSE" INTEGER NOT NULL,
 	"TIME" double precision NOT NULL,
 	PRIMARY KEY ("USER", "NAME")
-);
-
-CREATE TABLE IF NOT EXISTS server_id (
-	"ID" SERIAL PRIMARY KEY,
-	"UID" char(64) NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS "server_id_UID"
-	ON server_id USING btree ("UID");
-
-CREATE TABLE IF NOT EXISTS server_names (
-	"ID" INTEGER NOT NULL PRIMARY KEY,
-	"NAME" VARCHAR(64) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS stats__chars_channel (
@@ -688,7 +707,7 @@ CREATE TABLE IF NOT EXISTS steam_emoji_fail (
 );
 
 CREATE TABLE IF NOT EXISTS steamid (
-	"STEAMID64" char(64) NOT NULL,
+	"STEAMID64" VARCHAR(64) NOT NULL,
 	"STEAMID" char(32) NOT NULL,
 	"STEAMID3" char(32) NOT NULL,
 	"CUSTOMID" VARCHAR(128) NOT NULL,
@@ -696,7 +715,7 @@ CREATE TABLE IF NOT EXISTS steamid (
 );
 
 CREATE TABLE IF NOT EXISTS steamid_fail (
-	"STEAMID64" char(64) DEFAULT NULL,
+	"STEAMID64" VARCHAR(64) DEFAULT NULL,
 	"STEAMID" char(32) DEFAULT NULL,
 	"STEAMID3" char(32) DEFAULT NULL,
 	"CUSTOMID" VARCHAR(128) DEFAULT NULL
@@ -727,12 +746,6 @@ CREATE TABLE IF NOT EXISTS uptime (
 	PRIMARY KEY ("ID")
 );
 
-CREATE TABLE IF NOT EXISTS user_status (
-	"ID" INTEGER NOT NULL,
-	"STATUS" discord_user_status NOT NULL,
-	PRIMARY KEY ("ID")
-);
-
 CREATE TABLE IF NOT EXISTS uptime_bot (
 	"START" INTEGER NOT NULL,
 	"AMOUNT" INTEGER NOT NULL
@@ -746,41 +759,6 @@ CREATE TABLE IF NOT EXISTS urbancache (
 	"DEXAMPLE" text NOT NULL,
 	"USTAMP" INTEGER NOT NULL,
 	PRIMARY KEY ("WORD")
-);
-
-CREATE TABLE IF NOT EXISTS user_id (
-	"ID" SERIAL PRIMARY KEY,
-	"UID" char(64) NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS "user_id_UID"
-	ON user_id USING btree ("UID");
-
-CREATE TABLE IF NOT EXISTS last_seen (
-	"ID" INTEGER PRIMARY KEY,
-	"TIME" INTEGER NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS last_seen_servers (
-	"ID" INTEGER PRIMARY KEY,
-	"TIME" INTEGER NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS last_seen_channels (
-	"ID" INTEGER PRIMARY KEY,
-	"TIME" INTEGER NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS user_names (
-	"ID" INTEGER NOT NULL,
-	"USERNAME" VARCHAR(64) NOT NULL,
-	PRIMARY KEY ("ID")
-);
-
-CREATE TABLE IF NOT EXISTS users_roles (
-	"USERID" INTEGER NOT NULL,
-	"ROLEID" INTEGER NOT NULL,
-	PRIMARY KEY ("USERID", "ROLEID")
 );
 
 CREATE TABLE IF NOT EXISTS votes_choices (
@@ -813,17 +791,6 @@ CREATE TABLE IF NOT EXISTS votes_votes (
 	PRIMARY KEY ("VOTE", "USER")
 );
 
-CREATE TABLE IF NOT EXISTS roles_names (
-	"ROLEID" INTEGER NOT NULL PRIMARY KEY,
-	"NAME" VARCHAR(64) NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS member_id (
-	"ID" SERIAL PRIMARY KEY,
-	"USER" INTEGER NOT NULL,
-	"SERVER" INTEGER NOT NULL
-);
-
 CREATE TABLE IF NOT EXISTS member_softban (
 	"ID" INTEGER PRIMARY KEY,
 	"STAMP" INTEGER DEFAULT currtime(),
@@ -831,14 +798,9 @@ CREATE TABLE IF NOT EXISTS member_softban (
 );
 
 CREATE TABLE IF NOT EXISTS member_roles (
-	"MEMBER" INTEGER NOT NULL,
-	"ROLE" INTEGER NOT NULL,
+	"MEMBER" INTEGER NOT NULL REFERENCES members ("ID"),
+	"ROLE" INTEGER NOT NULL REFERENCES roles ("ID"),
 	PRIMARY KEY ("MEMBER", "ROLE")
-);
-
-CREATE TABLE IF NOT EXISTS member_names (
-	"ID" INTEGER PRIMARY KEY,
-	"NAME" VARCHAR(64) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS name_logs (
@@ -860,7 +822,7 @@ CREATE TABLE IF NOT EXISTS name_logs_list (
 CREATE OR REPLACE FUNCTION member_name_trigger()
 RETURNS TRIGGER as $$
 BEGIN
-	INSERT INTO name_logs VALUES(NEW."ID", NEW."NAME", floor(extract(epoch from now())), 0) ON CONFLICT DO NOTHING;
+	INSERT INTO name_logs VALUES(NEW."ID", NEW."NAME", currtime(), 0) ON CONFLICT DO NOTHING;
 	
 	IF (OLD."NAME" != NEW."NAME") THEN
 		INSERT INTO name_logs_list ("MEMBER", "OLD", "NEW") VALUES (NEW."ID", OLD."NAME", NEW."NAME");
@@ -872,20 +834,20 @@ END; $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION member_name_trigger2()
 RETURNS TRIGGER as $$
 BEGIN
-	INSERT INTO name_logs VALUES(NEW."ID", NEW."NAME", floor(extract(epoch from now())), 0) ON CONFLICT DO NOTHING;
+	INSERT INTO name_logs VALUES(NEW."ID", NEW."NAME", currtime(), 0) ON CONFLICT DO NOTHING;
 	INSERT INTO name_logs_list ("MEMBER", "OLD", "NEW") VALUES (NEW."ID", NEW."NAME", NEW."NAME");
 	RETURN NEW;
 END; $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS member_name_log ON member_names;
-DROP TRIGGER IF EXISTS member_name_log2 ON member_names;
+DROP TRIGGER IF EXISTS member_name_log ON members;
+DROP TRIGGER IF EXISTS member_name_log2 ON members;
 
 CREATE TRIGGER member_name_log
-	AFTER UPDATE ON member_names FOR EACH ROW 
+	AFTER UPDATE ON members FOR EACH ROW 
 	EXECUTE PROCEDURE member_name_trigger();
 
 CREATE TRIGGER member_name_log2
-	AFTER INSERT ON member_names FOR EACH ROW 
+	AFTER INSERT ON members FOR EACH ROW 
 	EXECUTE PROCEDURE member_name_trigger2();
 	
 -- Roles
@@ -898,23 +860,17 @@ CREATE TABLE IF NOT EXISTS roles_log (
 	"STAMP" INTEGER NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS roles_id (
+CREATE TABLE IF NOT EXISTS roles (
 	"ID" SERIAL PRIMARY KEY,
-	"SERVER" INTEGER NOT NULL,
-	"UID" char(64) NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS roles_perms (
-	"ID" INTEGER PRIMARY KEY,
-	"PERMS" discord_permission[]
-);
-
-CREATE TABLE IF NOT EXISTS roles_options (
-	"ID" INTEGER PRIMARY KEY,
-	"COLOR_R" rgb_color NOT NULL,
-	"HOIST" BOOLEAN NOT NULL,
-	"POSITION" SMALLINT NOT NULL,
-	"MENTION" BOOLEAN NOT NULL
+	"SERVER" INTEGER NOT NULL REFERENCES servers ("ID"),
+	"UID" VARCHAR(64) NOT NULL,
+	"NAME" VARCHAR(200) NOT NULL DEFAULT '[ERRORROLE]',
+	"PERMS" discord_permission[] NOT NULL DEFAULT ARRAY []::discord_permission[],
+	"COLOR_R" rgb_color NOT NULL DEFAULT (255,255,255),
+	"HOIST" BOOLEAN NOT NULL DEFAULT false,
+	"POSITION" SMALLINT NOT NULL DEFAULT 0,
+	"MENTION" BOOLEAN NOT NULL DEFAULT false,
+	"TIME" INTEGER NOT NULL DEFAULT currtime()
 );
 
 CREATE TABLE IF NOT EXISTS roles_changes_perms (
@@ -983,11 +939,11 @@ RETURNS void AS $$
 BEGIN
 	WITH valid AS (
 		SELECT
-			last_seen."ID"
+			users."ID"
 		FROM
-			last_seen
+			users
 		WHERE
-			last_seen."TIME" > currtime() - 120
+			users."TIME" > currtime() - 120
 	)
 	
 	INSERT INTO
@@ -1013,11 +969,11 @@ BEGIN
 	
 	WITH valid AS (
 		SELECT
-			last_seen."ID"
+			users."ID"
 		FROM
-			last_seen
+			users
 		WHERE
-			last_seen."TIME" > currtime() - 120
+			users."TIME" > currtime() - 120
 	)
 	
 	INSERT INTO
@@ -1049,7 +1005,7 @@ CREATE OR REPLACE FUNCTION roles_logger_trigger()
 RETURNS TRIGGER AS $$
 DECLARE curr_time INTEGER;
 BEGIN
-	curr_time := floor(extract(epoch from now()));
+	curr_time := currtime();
 	
 	IF (OLD."COLOR_R" != NEW."COLOR_R") THEN
 		INSERT INTO roles_changes_color ("ROLEID", "OLD", "NEW", "STAMP") VALUES (NEW."ID", OLD."COLOR_R", NEW."COLOR_R", curr_time);
@@ -1077,7 +1033,7 @@ DECLARE hit BOOLEAN;
 DECLARE perm discord_permission;
 DECLARE perm2 discord_permission;
 BEGIN
-	curr_time := floor(extract(epoch from now()));
+	curr_time := currtime();
 	hit := false;
 	
 	FOREACH perm IN ARRAY OLD."PERMS" LOOP
@@ -1113,16 +1069,16 @@ BEGIN
 	RETURN NEW;
 END; $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS roles_logging ON roles_options;
+DROP TRIGGER IF EXISTS roles_logging ON roles;
 
 CREATE TRIGGER roles_logging
-	AFTER UPDATE ON roles_options FOR EACH ROW 
+	AFTER UPDATE ON roles FOR EACH ROW 
 	EXECUTE PROCEDURE roles_logger_trigger();
 
-DROP TRIGGER IF EXISTS roles_logging ON roles_perms;
+DROP TRIGGER IF EXISTS roles_logging ON roles;
 
 CREATE TRIGGER roles_logging
-	AFTER UPDATE ON roles_perms FOR EACH ROW 
+	AFTER UPDATE ON roles FOR EACH ROW 
 	EXECUTE PROCEDURE roles_logger_trigger2();
 
 
@@ -1138,7 +1094,7 @@ CREATE TABLE IF NOT EXISTS killicons (
 CREATE OR REPLACE FUNCTION uptdate_last_seen(user_ids INTEGER[], cTime INTEGER)
 RETURNS void AS $$
 BEGIN
-	UPDATE last_seen SET "TIME" = cTime WHERE "ID" = ANY(user_ids);
+	UPDATE users SET "TIME" = cTime WHERE "ID" = ANY (user_ids);
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION stats_hit(user_id_raw VARCHAR(64), message_length INTEGER, words VARCHAR(64)[], images_seneded INTEGER)
@@ -1379,16 +1335,16 @@ BEGIN
 	INSERT INTO stats__chars_client_d ("UID", "COUNT") VALUES (user_id, message_length) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_client_d."COUNT" + message_length;
 END; $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION user_status_heartbeat(cTime INTEGER)
+CREATE OR REPLACE FUNCTION users_heartbeat(cTime INTEGER)
 RETURNS void AS $$
 BEGIN
-	UPDATE lastonline SET "LASTONLINE" = cTime FROM user_status, last_seen WHERE user_status."ID" = lastonline."ID" AND user_status."STATUS" != 'offline' AND last_seen."ID" = lastonline."ID" AND last_seen."TIME" > cTime - 120;
+	UPDATE lastonline SET "LASTONLINE" = cTime FROM users WHERE users."ID" = lastonline."ID" AND users."STATUS" != 'offline' AND users."ID" = lastonline."ID" AND users."TIME" > cTime - 120;
 	
-	UPDATE uptime SET "TOTAL_ONLINE" = "TOTAL_ONLINE" + 5 FROM user_status, last_seen WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" != 'offline' AND last_seen."ID" = uptime."ID" AND last_seen."TIME" > cTime - 120;
-	UPDATE uptime SET "ONLINE" = "ONLINE" + 5 FROM user_status, last_seen WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'online' AND last_seen."ID" = uptime."ID" AND last_seen."TIME" > cTime - 120;
-	UPDATE uptime SET "AWAY" = "AWAY" + 5 FROM user_status, last_seen WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'idle' AND last_seen."ID" = uptime."ID" AND last_seen."TIME" > cTime - 120;
-	UPDATE uptime SET "DNT" = "DNT" + 5 FROM user_status, last_seen WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'dnd' AND last_seen."ID" = uptime."ID" AND last_seen."TIME" > cTime - 120;
-	UPDATE uptime SET "TOTAL_OFFLINE" = "TOTAL_OFFLINE" + 5 FROM user_status, last_seen WHERE user_status."ID" = uptime."ID" AND user_status."STATUS" = 'offline' AND last_seen."ID" = uptime."ID" AND last_seen."TIME" > cTime - 120;
+	UPDATE uptime SET "TOTAL_ONLINE" = "TOTAL_ONLINE" + 5 FROM users WHERE users."ID" = uptime."ID" AND users."STATUS" != 'offline' AND users."ID" = uptime."ID" AND users."TIME" > cTime - 120;
+	UPDATE uptime SET "ONLINE" = "ONLINE" + 5 FROM users WHERE users."ID" = uptime."ID" AND users."STATUS" = 'online' AND users."ID" = uptime."ID" AND users."TIME" > cTime - 120;
+	UPDATE uptime SET "AWAY" = "AWAY" + 5 FROM users WHERE users."ID" = uptime."ID" AND users."STATUS" = 'idle' AND users."ID" = uptime."ID" AND users."TIME" > cTime - 120;
+	UPDATE uptime SET "DNT" = "DNT" + 5 FROM users WHERE users."ID" = uptime."ID" AND users."STATUS" = 'dnd' AND users."ID" = uptime."ID" AND users."TIME" > cTime - 120;
+	UPDATE uptime SET "TOTAL_OFFLINE" = "TOTAL_OFFLINE" + 5 FROM users WHERE users."ID" = uptime."ID" AND users."STATUS" = 'offline' AND users."ID" = uptime."ID" AND users."TIME" > cTime - 120;
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION update_nicknames_stats(cTime INTEGER)
@@ -1402,15 +1358,13 @@ BEGIN
 		"LASTUSE" = cTime,
 		"TIME" = name_logs."TIME" + 10
 	FROM
-		member_names,
-		last_seen,
-		member_id
+		members,
+		users
 	WHERE
-		member_names."ID" = member_id."ID" AND
-		member_id."USER" = last_seen."ID" AND
-		last_seen."TIME" > cTime - 120 AND
-		name_logs."MEMBER" = member_id."ID" AND
-		name_logs."NAME" = member_names."NAME";
+		members."USER" = users."ID" AND
+		users."TIME" > cTime - 120 AND
+		name_logs."MEMBER" = members."ID" AND
+		name_logs."NAME" = members."NAME";
 	
 	UPDATE
 		uname_logs
@@ -1418,13 +1372,11 @@ BEGIN
 		"LASTUSE" = cTime,
 		"TIME" = uname_logs."TIME" + 10
 	FROM
-		user_names,
-		last_seen
+		users
 	WHERE
-		user_names."ID" = last_seen."ID" AND
-		last_seen."TIME" > cTime - 120 AND
-		uname_logs."USER" = user_names."ID" AND
-		uname_logs."NAME" = user_names."USERNAME";
+		users."TIME" > cTime - 120 AND
+		uname_logs."USER" = users."ID" AND
+		uname_logs."NAME" = users."NAME";
 		
 END; $$ LANGUAGE plpgsql;
 
@@ -1435,10 +1387,10 @@ DECLARE fSERVER INTEGER;
 BEGIN
 	fSERVER := get_server_id(fSERVER2);
 	
-	SELECT "roles_id"."ID" INTO last_id FROM "roles_id" WHERE "roles_id"."UID" = fUID AND "roles_id"."SERVER" = fSERVER;
+	SELECT "roles"."ID" INTO last_id FROM "roles" WHERE "roles"."UID" = fUID AND "roles"."SERVER" = fSERVER;
 	
 	IF (last_id IS NULL) THEN
-		INSERT INTO "roles_id" ("SERVER", "UID") VALUES (fSERVER, fUID) RETURNING "ID" INTO last_id;
+		INSERT INTO "roles" ("SERVER", "UID") VALUES (fSERVER, fUID) RETURNING "ID" INTO last_id;
 	END IF;
 	
 	RETURN last_id;
@@ -1448,10 +1400,10 @@ CREATE OR REPLACE FUNCTION get_role_id(fUID VARCHAR(64), fSERVER INTEGER)
 RETURNS INTEGER AS $$
 DECLARE last_id INTEGER;
 BEGIN
-	SELECT "roles_id"."ID" INTO last_id FROM "roles_id" WHERE "roles_id"."UID" = fUID AND "roles_id"."SERVER" = fSERVER;
+	SELECT "roles"."ID" INTO last_id FROM "roles" WHERE "roles"."UID" = fUID AND "roles"."SERVER" = fSERVER;
 	
 	IF (last_id IS NULL) THEN
-		INSERT INTO "roles_id" ("SERVER", "UID") VALUES (fSERVER, fUID) RETURNING "ID" INTO last_id;
+		INSERT INTO "roles" ("SERVER", "UID") VALUES (fSERVER, fUID) RETURNING "ID" INTO last_id;
 	END IF;
 	
 	RETURN last_id;
@@ -1474,10 +1426,10 @@ CREATE OR REPLACE FUNCTION get_channel_id(fUID VARCHAR(64), sID INTEGER)
 RETURNS INTEGER AS $$
 DECLARE last_id INTEGER;
 BEGIN
-	SELECT "channel_id"."ID" INTO last_id FROM "channel_id" WHERE "channel_id"."UID" = fUID;
+	SELECT "channels"."ID" INTO last_id FROM "channels" WHERE "channels"."UID" = fUID;
 	
 	IF (last_id IS NULL) THEN
-		INSERT INTO "channel_id" ("UID", "SID") VALUES (fUID, sID) RETURNING "ID" INTO last_id;
+		INSERT INTO "channels" ("UID", "SID") VALUES (fUID, sID) RETURNING "ID" INTO last_id;
 	END IF;
 	
 	RETURN last_id;
@@ -1487,7 +1439,7 @@ CREATE OR REPLACE FUNCTION get_server_from_channel(sID INTEGER)
 RETURNS INTEGER AS $$
 DECLARE last_id INTEGER;
 BEGIN
-	SELECT "channel_id"."SID" INTO last_id FROM "channel_id" WHERE "channel_id"."ID" = sID;
+	SELECT "channels"."SID" INTO last_id FROM "channels" WHERE "channels"."ID" = sID;
 	RETURN last_id;
 END; $$ LANGUAGE plpgsql;
 
@@ -1495,16 +1447,16 @@ CREATE OR REPLACE FUNCTION get_server_id(sID VARCHAR(64))
 RETURNS INTEGER AS $$
 DECLARE last_id INTEGER;
 BEGIN
-	SELECT "server_id"."ID" INTO last_id FROM "server_id" WHERE "server_id"."UID" = sID;
+	SELECT "servers"."ID" INTO last_id FROM "servers" WHERE "servers"."UID" = sID;
 	
 	IF (last_id IS NULL) THEN
-		INSERT INTO "server_id" ("UID") VALUES (sID) RETURNING "ID" INTO last_id;
+		INSERT INTO "servers" ("UID") VALUES (sID) RETURNING "ID" INTO last_id;
 	END IF;
 	
 	RETURN last_id;
 END; $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION get_servers_id(sID CHAR(64)[])
+CREATE OR REPLACE FUNCTION get_servers_id(sID VARCHAR(64)[])
 RETURNS TABLE ("SERID" INTEGER, "UID" VARCHAR(64)) AS $$
 BEGIN
 	WITH missing_tab AS (
@@ -1521,48 +1473,29 @@ BEGIN
 			SELECT
 				missing."MISSING"
 			FROM
-				server_id
+				servers
 			WHERE
-				missing."MISSING" = server_id."UID"
+				missing."MISSING" = servers."UID"
 		)
 	)
 	
-	INSERT INTO "server_id" ("UID") SELECT * FROM missing_tab WHERE missing_tab."MISSING" IS NOT NULL;
+	INSERT INTO "servers" ("UID") SELECT * FROM missing_tab WHERE missing_tab."MISSING" IS NOT NULL;
+	UPDATE "servers" SET "TIME" = currtime() WHERE servers."UID" = ANY (sID);
 	
-	INSERT INTO last_seen_servers ("ID", "TIME") (SELECT server_id."ID", currtime() FROM server_id WHERE server_id."UID" = ANY (sID)) ON CONFLICT ("ID") DO UPDATE SET "TIME" = excluded."TIME";
-	
-	RETURN QUERY SELECT server_id."ID", TRIM(server_id."UID")::VARCHAR(64) FROM server_id WHERE server_id."UID" = ANY (sID);
+	RETURN QUERY SELECT servers."ID", servers."UID" FROM servers WHERE servers."UID" = ANY (sID);
 END; $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION get_users_id(sID CHAR(64)[])
+CREATE OR REPLACE FUNCTION get_users_id(sID VARCHAR(64)[])
 RETURNS TABLE ("ID" INTEGER, "UID" VARCHAR(64)) AS $$
 BEGIN
-	WITH missing_tab AS (
-		WITH missing AS (
-			SELECT
-				UNNEST(sID) AS "MISSING"
-		)
-		
-		SELECT
-			missing."MISSING"
-		FROM
-			missing
-		WHERE NOT EXISTS (
-			SELECT
-				missing."MISSING"
-			FROM
-				user_id
-			WHERE
-				missing."MISSING" = user_id."UID"
-		)
-	)
+	WITH temp_arr AS (SELECT UNNEST(sID) AS "MISS")
+	INSERT INTO "users" ("UID") (SELECT temp_arr."MISS" AS "UID" FROM temp_arr WHERE temp_arr."MISS" NOT IN (SELECT users."UID" FROM users));
+	UPDATE "users" SET "TIME" = currtime() WHERE users."UID" = ANY (sID);
 	
-	INSERT INTO "user_id" ("UID") SELECT * FROM missing_tab WHERE missing_tab."MISSING" IS NOT NULL;
-	
-	RETURN QUERY SELECT user_id."ID", TRIM(user_id."UID")::VARCHAR(64) FROM user_id WHERE user_id."UID" = ANY (sID);
+	RETURN QUERY SELECT users."ID", users."UID" FROM users WHERE users."UID" = ANY (sID);
 END; $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION get_channels_id(sID CHAR(64)[], sID2 INTEGER[])
+CREATE OR REPLACE FUNCTION get_channels_id(sID VARCHAR(64)[], sID2 INTEGER[])
 RETURNS TABLE ("CHANID" INTEGER, "UID" VARCHAR(64)) AS $$
 BEGIN
 	WITH missing_tab AS (
@@ -1582,18 +1515,17 @@ BEGIN
 				missing."MISSING_CHANNEL",
 				missing."MISSING_SERVER"
 			FROM
-				channel_id
+				channels
 			WHERE
-				missing."MISSING_CHANNEL" = channel_id."UID" AND
-				missing."MISSING_SERVER" = channel_id."SID"
+				missing."MISSING_CHANNEL" = channels."UID" AND
+				missing."MISSING_SERVER" = channels."SID"
 		)
 	)
 	
-	INSERT INTO "channel_id" ("UID", "SID") SELECT * FROM missing_tab WHERE missing_tab."MISSING_CHANNEL" IS NOT NULL;
+	INSERT INTO "channels" ("UID", "SID") SELECT * FROM missing_tab WHERE missing_tab."MISSING_CHANNEL" IS NOT NULL;
+	UPDATE channels SET "TIME" = currtime() WHERE channels."UID" = ANY (sID);
 	
-	INSERT INTO last_seen_channels ("ID", "TIME") (SELECT channel_id."ID" AS "CHANNEL_ID", currtime() FROM channel_id WHERE channel_id."UID" = ANY (sID)) ON CONFLICT ("ID") DO UPDATE SET "TIME" = excluded."TIME";
-	
-	RETURN QUERY SELECT channel_id."ID", TRIM(channel_id."UID")::VARCHAR(64) FROM channel_id WHERE channel_id."UID" = ANY (sID);
+	RETURN QUERY SELECT channels."ID", channels."UID" FROM channels WHERE channels."UID" = ANY (sID);
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION get_roles_id(serverid INTEGER, rolesids VARCHAR(64)[])
@@ -1616,16 +1548,16 @@ BEGIN
 				missing."MISSING_ROLE",
 				missing."MISSING_SERVER"
 			FROM
-				roles_id
+				roles
 			WHERE
-				missing."MISSING_ROLE" = roles_id."UID" AND
-				missing."MISSING_SERVER" = roles_id."SERVER"
+				missing."MISSING_ROLE" = roles."UID" AND
+				missing."MISSING_SERVER" = roles."SERVER"
 		)
 	)
 	
-	INSERT INTO "roles_id" ("UID", "SERVER") SELECT * FROM missing_tab WHERE missing_tab."MISSING_ROLE" IS NOT NULL;
+	INSERT INTO "roles" ("UID", "SERVER") SELECT * FROM missing_tab WHERE missing_tab."MISSING_ROLE" IS NOT NULL;
 	
-	RETURN QUERY SELECT roles_id."ID", TRIM(roles_id."UID")::VARCHAR(64), roles_id."SERVER" FROM roles_id WHERE roles_id."UID" = ANY (rolesids);
+	RETURN QUERY SELECT roles."ID", roles."UID", roles."SERVER" FROM roles WHERE roles."UID" = ANY (rolesids);
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION get_members_id(sID INTEGER[], sID2 INTEGER[])
@@ -1648,26 +1580,26 @@ BEGIN
 				missing."MISSING_USER",
 				missing."MISSING_SERVER"
 			FROM
-				member_id
+				members
 			WHERE
-				missing."MISSING_USER" = member_id."USER" AND
-				missing."MISSING_SERVER" = member_id."SERVER"
+				missing."MISSING_USER" = members."USER" AND
+				missing."MISSING_SERVER" = members."SERVER"
 		)
 	)
 	
-	INSERT INTO "member_id" ("USER", "SERVER") SELECT * FROM missing_tab WHERE missing_tab."MISSING_USER" IS NOT NULL AND missing_tab."MISSING_SERVER" IS NOT NULL;
+	INSERT INTO "members" ("USER", "SERVER") SELECT * FROM missing_tab WHERE missing_tab."MISSING_USER" IS NOT NULL AND missing_tab."MISSING_SERVER" IS NOT NULL;
 	
-	RETURN QUERY SELECT member_id."ID", member_id."USER", member_id."SERVER" FROM member_id WHERE member_id."USER" = ANY (sID) AND member_id."SERVER" = ANY (sID2);
+	RETURN QUERY SELECT members."ID", members."USER", members."SERVER" FROM members WHERE members."USER" = ANY (sID) AND members."SERVER" = ANY (sID2);
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION get_user_id(sID VARCHAR(64))
 RETURNS INTEGER AS $$
 DECLARE last_id INTEGER;
 BEGIN
-	SELECT "user_id"."ID" INTO last_id FROM "user_id" WHERE "user_id"."UID" = sID;
+	SELECT "users"."ID" INTO last_id FROM "users" WHERE "users"."UID" = sID;
 	
 	IF (last_id IS NULL) THEN
-		INSERT INTO "user_id" ("UID") VALUES (sID) RETURNING "ID" INTO last_id;
+		INSERT INTO "users" ("UID") VALUES (sID) RETURNING "ID" INTO last_id;
 	END IF;
 	
 	RETURN last_id;
@@ -1682,10 +1614,10 @@ BEGIN
 	usr_internal_id := get_user_id(userid);
 	ser_internal_id := get_server_id(server);
 	
-	SELECT "member_id"."ID" INTO last_id FROM "member_id" WHERE "member_id"."USER" = usr_internal_id AND "member_id"."SERVER" = ser_internal_id;
+	SELECT "members"."ID" INTO last_id FROM "members" WHERE "members"."USER" = usr_internal_id AND "members"."SERVER" = ser_internal_id;
 	
 	IF (last_id IS NULL) THEN
-		INSERT INTO "member_id" ("USER", "SERVER") VALUES (usr_internal_id, ser_internal_id) RETURNING "ID" INTO last_id;
+		INSERT INTO "members" ("USER", "SERVER") VALUES (usr_internal_id, ser_internal_id) RETURNING "ID" INTO last_id;
 	END IF;
 	
 	RETURN last_id;
@@ -1695,10 +1627,10 @@ CREATE OR REPLACE FUNCTION get_member_id_soft(usr_internal_id INTEGER, ser_inter
 RETURNS INTEGER AS $$
 DECLARE last_id INTEGER;
 BEGIN
-	SELECT "member_id"."ID" INTO last_id FROM "member_id" WHERE "member_id"."USER" = usr_internal_id AND "member_id"."SERVER" = ser_internal_id;
+	SELECT "members"."ID" INTO last_id FROM "members" WHERE "members"."USER" = usr_internal_id AND "members"."SERVER" = ser_internal_id;
 	
 	IF (last_id IS NULL) THEN
-		INSERT INTO "member_id" ("USER", "SERVER") VALUES (usr_internal_id, ser_internal_id) RETURNING "ID" INTO last_id;
+		INSERT INTO "members" ("USER", "SERVER") VALUES (usr_internal_id, ser_internal_id) RETURNING "ID" INTO last_id;
 	END IF;
 	
 	RETURN last_id;
@@ -1708,7 +1640,7 @@ CREATE OR REPLACE FUNCTION restore_member_id(memberid INTEGER)
 RETURNS INTEGER AS $$
 DECLARE to_return INTEGER;
 BEGIN
-	SELECT "member_id"."USER" INTO to_return FROM "member_id" WHERE "member_id"."ID" = memberid;
+	SELECT "members"."USER" INTO to_return FROM "members" WHERE "members"."ID" = memberid;
 	RETURN to_return;
 END $$ LANGUAGE plpgsql;
 
@@ -1716,7 +1648,7 @@ CREATE OR REPLACE FUNCTION restore_member(memberid INTEGER)
 RETURNS VARCHAR(64) as $$
 DECLARE iuid INTEGER;
 BEGIN
-	RETURN (SELECT "user_id"."UID" FROM "user_id", "member_id" WHERE "member_id"."ID" = memberid AND "user_id"."ID" = "member_id"."USER");
+	RETURN (SELECT "users"."UID" FROM "users", "members" WHERE "members"."ID" = memberid AND "users"."ID" = "members"."USER");
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION stats_get_rank(userid INTEGER)

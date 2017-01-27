@@ -250,10 +250,10 @@ Util.HaveValue = function(arr, val) {
 
 Util.escape = function(str) {
 	if (typeof str == 'boolean')
-		return str && "'true'" || "'false'";
+		return str && "true" || "false";
 	
 	if (typeof str == 'number')
-		return "'" + str + "'";
+		return "" + str + "";
 	
 	let strObj = str.toString()
 	.replace(/'/gi, '\'\'')

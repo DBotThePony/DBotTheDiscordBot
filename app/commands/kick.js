@@ -499,20 +499,16 @@ DBot.RegisterCommand({
 			member_softban."ID",\
 			member_softban."STAMP",\
 			member_softban."ADMIN",\
-			member_names."NAME" AS "ADMIN_NAME",\
-			user_names."USERNAME" AS "ADMIN_NAME_REAL",\
-			(SELECT member_names."NAME" FROM member_names WHERE member_names."ID" = member_softban."ID") AS "VICTIM_THAT_GOT_BANNED",\
-			(SELECT user_names."USERNAME" FROM user_names, member_id WHERE member_id."ID" = member_softban."ID" AND user_names."ID" = member_id."USER") AS "BANNED_USERNAME"\
+			members."NAME" AS "ADMIN_NAME",\
+			users."NAME" AS "ADMIN_NAME_REAL",\
+			(SELECT members."NAME" FROM members WHERE members."ID" = member_softban."ID") AS "VICTIM_THAT_GOT_BANNED",\
+			(SELECT users."NAME" FROM users, members WHERE members."ID" = member_softban."ID" AND users."ID" = members."USER") AS "BANNED_USERNAME"\
 		FROM\
 			member_softban,\
-			member_names,\
-			member_id,\
-			user_names\
+			members\
 		WHERE\
-			member_id."SERVER" = ' + msg.channel.guild.uid + ' AND\
-			member_names."ID" = member_softban."ADMIN" AND\
-			member_id."ID" = member_names."ID" AND\
-			user_names."ID" = member_id."USER"\
+			members."SERVER" = ' + msg.channel.guild.uid + ' AND\
+			members."ID" = member_softban."ADMIN"\
 		ORDER BY "STAMP" DESC';
 		
 		Postgres.query(fuckingQuery, function(err, data) {
@@ -740,7 +736,7 @@ hook.Add('ValidClientJoinsServer', 'ModerationCommands', function(user, server, 
 	
 	member.checkingSoftBan = true;
 	
-	Postgres.query('SELECT member_softban."STAMP", member_softban."ADMIN", member_names."NAME" AS "ADMIN_NAME", user_names."USERNAME" AS "ADMIN_NAME_REAL" FROM member_softban, member_names, member_id, user_names WHERE member_softban."ID" = ' + sql.Member(member) + ' AND member_names."ID" = member_softban."ADMIN" AND member_id."ID" = member_names."ID" AND user_names."ID" = member_id."USER"', function(err, data) {
+	Postgres.query('SELECT member_softban."STAMP", member_softban."ADMIN", members."NAME" AS "ADMIN_NAME", users."NAME" AS "ADMIN_NAME_REAL" FROM member_softban, members, users WHERE member_softban."ID" = ' + sql.Member(member) + ' AND members."ID" = member_softban."ADMIN" AND users."ID" = members."USER"', function(err, data) {
 		member.checkingSoftBan = undefined;
 		if (err) throw err;
 		
@@ -765,7 +761,7 @@ hook.Add('ValidClientAvaliable', 'ModerationCommands', function(user, server, me
 	
 	member.checkingSoftBan = true;
 	
-	Postgres.query('SELECT member_softban."STAMP", member_softban."ADMIN", member_names."NAME" AS "ADMIN_NAME", user_names."USERNAME" AS "ADMIN_NAME_REAL" FROM member_softban, member_names, member_id, user_names WHERE member_softban."ID" = ' + sql.Member(member) + ' AND member_names."ID" = member_softban."ADMIN" AND member_id."ID" = member_names."ID" AND user_names."ID" = member_id."USER"', function(err, data) {
+	Postgres.query('SELECT member_softban."STAMP", member_softban."ADMIN", members."NAME" AS "ADMIN_NAME", users."NAME" AS "ADMIN_NAME_REAL" FROM member_softban, members, users WHERE member_softban."ID" = ' + sql.Member(member) + ' AND members."ID" = member_softban."ADMIN" AND users."ID" = members."USER"', function(err, data) {
 		member.checkingSoftBan = undefined;
 		if (err) throw err;
 		
@@ -795,7 +791,7 @@ hook.Add('MemberInitialized', 'ModerationCommands', function(member) {
 		member.kickedBySoftban = undefined;
 		member.checkingSoftBan = true;
 		
-		Postgres.query('SELECT member_softban."STAMP", member_softban."ADMIN", member_names."NAME" AS "ADMIN_NAME", user_names."USERNAME" AS "ADMIN_NAME_REAL" FROM member_softban, member_names, member_id, user_names WHERE member_softban."ID" = ' + sql.Member(member) + ' AND member_names."ID" = member_softban."ADMIN" AND member_id."ID" = member_names."ID" AND user_names."ID" = member_id."USER"', function(err, data) {
+		Postgres.query('SELECT member_softban."STAMP", member_softban."ADMIN", members."NAME" AS "ADMIN_NAME", users."NAME" AS "ADMIN_NAME_REAL" FROM member_softban, members, users WHERE member_softban."ID" = ' + sql.Member(member) + ' AND members."ID" = member_softban."ADMIN" AND users."ID" = members."USER"', function(err, data) {
 			member.checkingSoftBan = undefined;
 			if (err) throw err;
 			
@@ -821,7 +817,7 @@ hook.Add('MembersInitialized', 'ModerationCommands', function() {
 			validMap.push(member.uid);
 	}
 	
-	Postgres.query('SELECT * FROM off_users, last_seen WHERE last_seen."ID" = off_users."ID" AND last_seen."TIME" > currtime() - 120', function(err, data) {
+	Postgres.query('SELECT off_users.* FROM off_users, users WHERE users."ID" = off_users."ID" AND users."TIME" > currtime() - 120', function(err, data) {
 		for (let row of data) {
 			let member = memberMap[row.ID];
 			
@@ -833,7 +829,7 @@ hook.Add('MembersInitialized', 'ModerationCommands', function() {
 		}
 	});
 	
-	Postgres.query('SELECT member_softban."ID", member_softban."STAMP", member_softban."ADMIN", member_names."NAME" AS "ADMIN_NAME", user_names."USERNAME" AS "ADMIN_NAME_REAL" FROM member_softban, member_names, member_id, user_names WHERE member_softban."ID" = ANY(' + sql.Array(validMap) + '::INTEGER[]) AND member_names."ID" = member_softban."ADMIN" AND member_id."ID" = member_names."ID" AND user_names."ID" = member_id."USER"', function(err, data) {
+	Postgres.query('SELECT member_softban."ID", member_softban."STAMP", member_softban."ADMIN", members."NAME" AS "ADMIN_NAME", users."NAME" AS "ADMIN_NAME_REAL" FROM member_softban, members, users WHERE member_softban."ID" = ANY(' + sql.Array(validMap) + '::INTEGER[]) AND members."ID" = member_softban."ADMIN" AND users."ID" = members."USER"', function(err, data) {
 		if (err) throw err;
 		
 		for (let row of data) {

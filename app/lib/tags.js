@@ -272,7 +272,7 @@ hook.Add('UsersInitialized', 'UserTags', function() {
 			mapping[user.uid] = user;
 		}
 		
-		let q = 'SELECT "UID", "SPACE", UNNEST("TAG") AS "TAG" FROM tags_list, last_seen WHERE last_seen."TIME" > currtime() - 120 AND last_seen."ID" = tags_list."UID"';
+		let q = 'SELECT tags_list."UID", tags_list."SPACE", UNNEST("TAG") AS "TAG" FROM tags_list, users WHERE users."TIME" > currtime() - 120 AND users."ID" = tags_list."UID"';
 		
 		Postgre.query(q, function(err, data) {
 			if (err) throw err;
