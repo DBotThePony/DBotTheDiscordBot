@@ -219,487 +219,354 @@ CREATE TABLE IF NOT EXISTS uname_logs (
 	PRIMARY KEY ("USER", "NAME")
 );
 
-CREATE TABLE IF NOT EXISTS stats__chars_channel (
-	"UID" INTEGER NOT NULL,
-	"COUNT" bigint NOT NULL,
-	PRIMARY KEY ("UID")
-);
-
-CREATE TABLE IF NOT EXISTS stats__chars_channel_d (
-	"UID" INTEGER NOT NULL,
-	"COUNT" bigint NOT NULL,
-	PRIMARY KEY ("UID")
-);
-
-CREATE TABLE IF NOT EXISTS stats__chars_client (
-	"UID" INTEGER NOT NULL,
-	"COUNT" bigint NOT NULL,
-	PRIMARY KEY ("UID")
-);
-
-CREATE TABLE IF NOT EXISTS stats__chars_client_d (
-	"UID" INTEGER NOT NULL,
-	"COUNT" bigint NOT NULL,
-	PRIMARY KEY ("UID")
-);
-
-CREATE TABLE IF NOT EXISTS stats__chars_server (
-	"UID" INTEGER NOT NULL,
-	"COUNT" bigint NOT NULL,
-	PRIMARY KEY ("UID")
-);
-
-CREATE TABLE IF NOT EXISTS stats__chars_server_d (
-	"UID" INTEGER NOT NULL,
-	"COUNT" bigint NOT NULL,
-	PRIMARY KEY ("UID")
-);
-
-CREATE TABLE IF NOT EXISTS stats__command_channel (
-	"UID" INTEGER NOT NULL,
-	"COMMAND" VARCHAR(64) NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "COMMAND")
-);
-
-CREATE TABLE IF NOT EXISTS stats__command_client (
-	"UID" INTEGER NOT NULL,
-	"COMMAND" VARCHAR(64) NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "COMMAND")
-);
-
-CREATE TABLE IF NOT EXISTS stats__command_server (
-	"UID" INTEGER NOT NULL,
-	"COMMAND" VARCHAR(64) NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "COMMAND")
-);
-
-CREATE TABLE IF NOT EXISTS stats__command_uchannel (
-	"UID" INTEGER NOT NULL,
-	"CHANNEL" INTEGER NOT NULL,
-	"COMMAND" VARCHAR(64) NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "CHANNEL", "COMMAND")
-);
-
-CREATE TABLE IF NOT EXISTS stats__command_userver (
-	"UID" INTEGER NOT NULL,
-	"USERVER" INTEGER NOT NULL,
-	"COMMAND" VARCHAR(64) NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "USERVER", "COMMAND")
-);
-
 CREATE TABLE IF NOT EXISTS off_users (
 	"ID" INTEGER NOT NULL,
 	"CHANNEL" INTEGER NOT NULL,
 	PRIMARY KEY ("ID", "CHANNEL")
 );
 
-CREATE TABLE IF NOT EXISTS stats__images_channel (
-	"UID" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID")
+CREATE TABLE IF NOT EXISTS stats__generic_users (
+	"ID" INTEGER NOT NULL REFERENCES users ("ID"),
+	"CHARS" bigint NOT NULL DEFAULT 0,
+	"CHARS_D" bigint NOT NULL DEFAULT 0,
+	"MESSAGES" INTEGER NOT NULL DEFAULT 0,
+	"MESSAGES_E" INTEGER NOT NULL DEFAULT 0,
+	"MESSAGES_D" INTEGER NOT NULL DEFAULT 0,
+	"IMAGES" INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY ("ID")
 );
 
-CREATE TABLE IF NOT EXISTS stats__images_client (
-	"UID" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID")
+CREATE OR REPLACE FUNCTION stats_user_registered()
+RETURNS TRIGGER as $$
+BEGIN
+	INSERT INTO stats__generic_users ("ID") VALUES (NEW."ID") ON CONFLICT ("ID") DO NOTHING;
+	RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS stats ON users;
+CREATE TRIGGER stats
+	AFTER INSERT ON users FOR EACH ROW 
+	EXECUTE PROCEDURE stats_user_registered();
+
+CREATE TABLE IF NOT EXISTS stats__generic_servers (
+	"ID" INTEGER NOT NULL REFERENCES servers ("ID"),
+	"CHARS" bigint NOT NULL DEFAULT 0,
+	"CHARS_D" bigint NOT NULL DEFAULT 0,
+	"MESSAGES" INTEGER NOT NULL DEFAULT 0,
+	"MESSAGES_E" INTEGER NOT NULL DEFAULT 0,
+	"MESSAGES_D" INTEGER NOT NULL DEFAULT 0,
+	"IMAGES" INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY ("ID")
 );
 
-CREATE TABLE IF NOT EXISTS stats__images_server (
-	"UID" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID")
+CREATE OR REPLACE FUNCTION stats_server_registered()
+RETURNS TRIGGER as $$
+BEGIN
+	INSERT INTO stats__generic_servers ("ID") VALUES (NEW."ID") ON CONFLICT ("ID") DO NOTHING;
+	RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS stats ON servers;
+CREATE TRIGGER stats
+	AFTER INSERT ON servers FOR EACH ROW 
+	EXECUTE PROCEDURE stats_server_registered();
+
+CREATE TABLE IF NOT EXISTS stats__peruser_servers (
+	"ID" INTEGER NOT NULL REFERENCES servers ("ID"),
+	"USER" INTEGER NOT NULL REFERENCES users ("ID"),
+	"CHARS" bigint NOT NULL DEFAULT 0,
+	"CHARS_D" bigint NOT NULL DEFAULT 0,
+	"MESSAGES" INTEGER NOT NULL DEFAULT 0,
+	"MESSAGES_E" INTEGER NOT NULL DEFAULT 0,
+	"MESSAGES_D" INTEGER NOT NULL DEFAULT 0,
+	"IMAGES" INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY ("ID", "USER")
 );
 
-CREATE TABLE IF NOT EXISTS stats__phrases_channel (
-	"UID" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID")
+CREATE TABLE IF NOT EXISTS stats__generic_channels (
+	"ID" INTEGER NOT NULL REFERENCES channels ("ID"),
+	"CHARS" bigint NOT NULL DEFAULT 0,
+	"CHARS_D" bigint NOT NULL DEFAULT 0,
+	"MESSAGES" INTEGER NOT NULL DEFAULT 0,
+	"MESSAGES_E" INTEGER NOT NULL DEFAULT 0,
+	"MESSAGES_D" INTEGER NOT NULL DEFAULT 0,
+	"IMAGES" INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY ("ID")
 );
 
-CREATE TABLE IF NOT EXISTS stats__phrases_channel_d (
-	"UID" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID")
+CREATE OR REPLACE FUNCTION stats_channel_registered()
+RETURNS TRIGGER as $$
+BEGIN
+	INSERT INTO stats__generic_channels ("ID") VALUES (NEW."ID") ON CONFLICT ("ID") DO NOTHING;
+	RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS stats ON channels;
+CREATE TRIGGER stats
+	AFTER INSERT ON channels FOR EACH ROW 
+	EXECUTE PROCEDURE stats_channel_registered();
+
+CREATE TABLE IF NOT EXISTS stats__peruser_channels (
+	"ID" INTEGER NOT NULL REFERENCES channels ("ID"),
+	"USER" INTEGER NOT NULL REFERENCES users ("ID"),
+	"CHARS" bigint NOT NULL DEFAULT 0,
+	"CHARS_D" bigint NOT NULL DEFAULT 0,
+	"MESSAGES" INTEGER NOT NULL DEFAULT 0,
+	"MESSAGES_E" INTEGER NOT NULL DEFAULT 0,
+	"MESSAGES_D" INTEGER NOT NULL DEFAULT 0,
+	"IMAGES" INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY ("ID", "USER")
 );
 
-CREATE TABLE IF NOT EXISTS stats__phrases_channel_e (
-	"UID" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID")
+CREATE TABLE IF NOT EXISTS stats__command_channels (
+	"ID" INTEGER NOT NULL REFERENCES channels ("ID"),
+	"COMMAND" VARCHAR(64) NOT NULL,
+	"COUNT" INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY ("ID", "COMMAND")
 );
 
-CREATE TABLE IF NOT EXISTS stats__phrases_client (
-	"UID" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID")
+CREATE TABLE IF NOT EXISTS stats__command_clients (
+	"ID" INTEGER NOT NULL REFERENCES users ("ID"),
+	"COMMAND" VARCHAR(64) NOT NULL,
+	"COUNT" INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY ("ID", "COMMAND")
 );
 
-CREATE TABLE IF NOT EXISTS stats__phrases_client_d (
-	"UID" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID")
+CREATE TABLE IF NOT EXISTS stats__command_servers (
+	"ID" INTEGER NOT NULL REFERENCES servers ("ID"),
+	"COMMAND" VARCHAR(64) NOT NULL,
+	"COUNT" INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY ("ID", "COMMAND")
 );
 
-CREATE TABLE IF NOT EXISTS stats__phrases_client_e (
-	"UID" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID")
+CREATE TABLE IF NOT EXISTS stats__ucommand_channels (
+	"ID" INTEGER NOT NULL REFERENCES channels ("ID"),
+	"USER" INTEGER NOT NULL REFERENCES users ("ID"),
+	"COMMAND" VARCHAR(64) NOT NULL,
+	"COUNT" INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY ("ID", "USER", "COMMAND")
 );
 
-CREATE TABLE IF NOT EXISTS stats__phrases_server (
-	"UID" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID")
-);
-
-CREATE TABLE IF NOT EXISTS stats__phrases_server_d (
-	"UID" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID")
-);
-
-CREATE TABLE IF NOT EXISTS stats__phrases_server_e (
-	"UID" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID")
-);
-
-CREATE TABLE IF NOT EXISTS stats__uchars_channel (
-	"UID" INTEGER NOT NULL,
-	"CHANNEL" INTEGER NOT NULL,
-	"COUNT" bigint NOT NULL,
-	PRIMARY KEY ("UID", "CHANNEL")
-);
-
-CREATE TABLE IF NOT EXISTS stats__uchars_channel_d (
-	"UID" INTEGER NOT NULL,
-	"CHANNEL" INTEGER NOT NULL,
-	"COUNT" bigint NOT NULL,
-	PRIMARY KEY ("UID", "CHANNEL")
-);
-
-CREATE TABLE IF NOT EXISTS stats__uchars_server (
-	"UID" INTEGER NOT NULL,
-	"USERVER" INTEGER NOT NULL,
-	"COUNT" bigint NOT NULL,
-	PRIMARY KEY ("UID", "USERVER")
-);
-
-CREATE TABLE IF NOT EXISTS stats__uchars_server_d (
-	"UID" INTEGER NOT NULL,
-	"USERVER" INTEGER NOT NULL,
-	"COUNT" bigint NOT NULL,
-	PRIMARY KEY ("UID", "USERVER")
-);
-
-CREATE TABLE IF NOT EXISTS stats__uimages_channel (
-	"UID" INTEGER NOT NULL,
-	"CHANNEL" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "CHANNEL")
+CREATE TABLE IF NOT EXISTS stats__ucommand_servers (
+	"ID" INTEGER NOT NULL REFERENCES servers ("ID"),
+	"USER" INTEGER NOT NULL REFERENCES users ("ID"),
+	"COMMAND" VARCHAR(64) NOT NULL,
+	"COUNT" INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY ("ID", "USER", "COMMAND")
 );
 
 -- NUMBER is 1000 multipler
 CREATE TABLE IF NOT EXISTS stats__channel_get_image (
 	"ENTRY" SERIAL PRIMARY KEY,
-	"MEMBER" INTEGER NOT NULL,
-	"CHANNEL" INTEGER NOT NULL,
-	"NUMBER" INTEGER NOT NULL,
+	"MEMBER" INTEGER NOT NULL REFERENCES members ("ID"),
+	"CHANNEL" INTEGER NOT NULL REFERENCES channels ("ID"),
+	"NUMBER" INTEGER NOT NULL DEFAULT 0,
 	"STAMP" INTEGER NOT NULL DEFAULT currtime()
 );
 
-CREATE OR REPLACE FUNCTION stats_trigger_get_channel_image()
+CREATE TABLE IF NOT EXISTS stats__server_get_image (
+	"ENTRY" SERIAL PRIMARY KEY,
+	"MEMBER" INTEGER NOT NULL REFERENCES members ("ID"),
+	"NUMBER" INTEGER NOT NULL DEFAULT 0,
+	"STAMP" INTEGER NOT NULL DEFAULT currtime()
+);
+
+CREATE TABLE IF NOT EXISTS stats__channel_get (
+	"ENTRY" SERIAL PRIMARY KEY,
+	"MEMBER" INTEGER NOT NULL REFERENCES members ("ID"),
+	"CHANNEL" INTEGER NOT NULL REFERENCES channels ("ID"),
+	"NUMBER" INTEGER NOT NULL DEFAULT 0,
+	"STAMP" INTEGER NOT NULL DEFAULT currtime()
+);
+
+CREATE TABLE IF NOT EXISTS stats__server_get (
+	"ENTRY" SERIAL PRIMARY KEY,
+	"MEMBER" INTEGER NOT NULL REFERENCES members ("ID"),
+	"NUMBER" INTEGER NOT NULL DEFAULT 0,
+	"STAMP" INTEGER NOT NULL DEFAULT currtime()
+);
+
+CREATE OR REPLACE FUNCTION stats_gets_server_trigger_update()
 RETURNS TRIGGER as $$
-DECLARE curr INTEGER;
+DECLARE current_images INTEGER;
+DECLARE current_messages INTEGER;
 BEGIN
-	SELECT stats__images_channel."COUNT" INTO curr FROM stats__images_channel WHERE stats__images_channel."UID" = NEW."CHANNEL";
+	SELECT stats__generic_servers."IMAGES" INTO current_images FROM stats__generic_servers WHERE stats__generic_servers."ID" = NEW."ID";
+	SELECT stats__generic_servers."MESSAGES" INTO current_messages FROM stats__generic_servers WHERE stats__generic_servers."ID" = NEW."ID";
 	
-	IF (curr % 100 = 0 AND curr > 0) THEN
+	IF (OLD."IMAGES" != NEW."IMAGES") THEN
+		IF (current_images % 100 = 0 AND current_images > 0) THEN
+			INSERT INTO
+				stats__server_get_image
+				("MEMBER", "NUMBER")
+			VALUES
+				(get_member_id_soft(NEW."USER", NEW."ID"), floor(current_images / 100));
+		END IF;
+	END IF;
+	
+	IF (OLD."MESSAGES" != NEW."MESSAGES") THEN
+		IF (current_messages % 100 = 0 AND current_messages > 0) THEN
+			INSERT INTO
+				stats__server_get_image
+				("MEMBER", "NUMBER")
+			VALUES
+				(get_member_id_soft(NEW."USER", NEW."ID"), floor(current_messages / 100));
+		END IF;
+	END IF;
+	
+	RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION stats_gets_server_trigger_insert()
+RETURNS TRIGGER as $$
+DECLARE current_images INTEGER;
+DECLARE current_messages INTEGER;
+BEGIN
+	SELECT stats__generic_servers."IMAGES" INTO current_images FROM stats__generic_servers WHERE stats__generic_servers."ID" = NEW."ID";
+	SELECT stats__generic_servers."MESSAGES" INTO current_messages FROM stats__generic_servers WHERE stats__generic_servers."ID" = NEW."ID";
+	
+	IF (current_images % 100 = 0 AND current_images > 0) THEN
+		INSERT INTO
+			stats__server_get_image
+			("MEMBER", "NUMBER")
+		VALUES
+			(get_member_id_soft(NEW."USER", NEW."ID"), floor(current_images / 100));
+	END IF;
+
+	IF (current_messages % 100 = 0 AND current_messages > 0) THEN
+		INSERT INTO
+			stats__server_get_image
+			("MEMBER", "NUMBER")
+		VALUES
+			(get_member_id_soft(NEW."USER", NEW."ID"), floor(current_messages / 100));
+	END IF;
+	
+	RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION stats_gets_channel_trigger_update()
+RETURNS TRIGGER as $$
+DECLARE current_images INTEGER;
+DECLARE current_messages INTEGER;
+BEGIN
+	SELECT stats__generic_channels."IMAGES" INTO current_images FROM stats__generic_channels WHERE stats__generic_channels."ID" = NEW."ID";
+	SELECT stats__generic_channels."MESSAGES" INTO current_messages FROM stats__generic_channels WHERE stats__generic_channels."ID" = NEW."ID";
+	
+	IF (OLD."IMAGES" != NEW."IMAGES") THEN
+		IF (current_images % 100 = 0 AND current_images > 0) THEN
+			INSERT INTO
+				stats__channel_get_image
+				("MEMBER", "CHANNEL", "NUMBER")
+			VALUES
+				(get_member_id_soft(NEW."USER", get_server_from_channel(NEW."ID")), NEW."ID", floor(current_images / 100));
+		END IF;
+	END IF;
+	
+	IF (OLD."MESSAGES" != NEW."MESSAGES") THEN
+		IF (current_messages % 100 = 0 AND current_messages > 0) THEN
+			INSERT INTO
+				stats__channel_get_image
+				("MEMBER", "CHANNEL", "NUMBER")
+			VALUES
+				(get_member_id_soft(NEW."USER", get_server_from_channel(NEW."ID")), NEW."ID", floor(current_messages / 100));
+		END IF;
+	END IF;
+	
+	RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION stats_gets_channel_trigger_insert()
+RETURNS TRIGGER as $$
+DECLARE current_images INTEGER;
+DECLARE current_messages INTEGER;
+BEGIN
+	SELECT stats__generic_channels."IMAGES" INTO current_images FROM stats__generic_channels WHERE stats__generic_channels."ID" = NEW."ID";
+	SELECT stats__generic_channels."MESSAGES" INTO current_messages FROM stats__generic_channels WHERE stats__generic_channels."ID" = NEW."ID";
+
+	IF (current_images % 100 = 0 AND current_images > 0) THEN
 		INSERT INTO
 			stats__channel_get_image
 			("MEMBER", "CHANNEL", "NUMBER")
 		VALUES
-			(get_member_id_soft(NEW."UID", get_server_from_channel(NEW."CHANNEL")), NEW."CHANNEL", floor(curr / 100));
+			(get_member_id_soft(NEW."USER", get_server_from_channel(NEW."ID")), NEW."ID", floor(current_images / 100));
 	END IF;
-	
-	RETURN NEW;
-END; $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS get_log ON stats__uimages_channel;
-DROP TRIGGER IF EXISTS get_log_insert ON stats__uimages_channel;
-
-CREATE TRIGGER get_log
-	AFTER UPDATE ON stats__uimages_channel FOR EACH ROW 
-	EXECUTE PROCEDURE stats_trigger_get_channel_image();
-
-CREATE TRIGGER get_log_insert
-	AFTER INSERT ON stats__uimages_channel FOR EACH ROW 
-	EXECUTE PROCEDURE stats_trigger_get_channel_image();
-
-
-CREATE TABLE IF NOT EXISTS stats__uimages_server (
-	"UID" INTEGER NOT NULL,
-	"USERVER" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "USERVER")
-);
-
--- NUMBER is 1000 multipler
-CREATE TABLE IF NOT EXISTS stats__server_get_image (
-	"ENTRY" SERIAL PRIMARY KEY,
-	"MEMBER" INTEGER NOT NULL,
-	"NUMBER" INTEGER NOT NULL,
-	"STAMP" INTEGER NOT NULL DEFAULT currtime()
-);
-
-CREATE OR REPLACE FUNCTION stats_trigger_get_image()
-RETURNS TRIGGER as $$
-DECLARE curr INTEGER;
-BEGIN
-	SELECT stats__images_server."COUNT" INTO curr FROM stats__images_server WHERE stats__images_server."UID" = NEW."USERVER";
-	
-	IF (curr % 100 = 0 AND curr > 0) THEN
-		INSERT INTO stats__server_get_image ("MEMBER", "NUMBER") VALUES (get_member_id_soft(NEW."UID", NEW."USERVER"), floor(curr / 100));
-	END IF;
-	
-	RETURN NEW;
-END; $$ LANGUAGE plpgsql;
-
-DROP TRIGGER IF EXISTS get_log ON stats__uimages_server;
-DROP TRIGGER IF EXISTS get_log_insert ON stats__uimages_server;
-
-CREATE TRIGGER get_log
-	AFTER UPDATE ON stats__uimages_server FOR EACH ROW 
-	EXECUTE PROCEDURE stats_trigger_get_image();
-
-CREATE TRIGGER get_log_insert
-	AFTER INSERT ON stats__uimages_server FOR EACH ROW 
-	EXECUTE PROCEDURE stats_trigger_get_image();
-
-
-CREATE TABLE IF NOT EXISTS stats__uphrases_channel (
-	"UID" INTEGER NOT NULL,
-	"CHANNEL" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "CHANNEL")
-);
-
--- NUMBER is 1000 multipler
-CREATE TABLE IF NOT EXISTS stats__channel_get (
-	"ENTRY" SERIAL PRIMARY KEY,
-	"MEMBER" INTEGER NOT NULL,
-	"CHANNEL" INTEGER NOT NULL,
-	"NUMBER" INTEGER NOT NULL,
-	"STAMP" INTEGER NOT NULL DEFAULT currtime()
-);
-
-CREATE OR REPLACE FUNCTION stats_trigger_get_channel()
-RETURNS TRIGGER as $$
-DECLARE curr INTEGER;
-BEGIN
-	SELECT stats__phrases_channel."COUNT" INTO curr FROM stats__phrases_channel WHERE stats__phrases_channel."UID" = NEW."CHANNEL";
-	
-	IF (curr % 1000 = 0 AND curr > 0) THEN
+	IF (current_messages % 100 = 0 AND current_messages > 0) THEN
 		INSERT INTO
-			stats__channel_get
+			stats__channel_get_image
 			("MEMBER", "CHANNEL", "NUMBER")
 		VALUES
-			(get_member_id_soft(NEW."UID", get_server_from_channel(NEW."CHANNEL")), NEW."CHANNEL", floor(curr / 1000));
+			(get_member_id_soft(NEW."USER", get_server_from_channel(NEW."ID")), NEW."ID", floor(current_messages / 100));
 	END IF;
 	
 	RETURN NEW;
 END; $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS get_log ON stats__uphrases_channel;
-DROP TRIGGER IF EXISTS get_log_insert ON stats__uphrases_channel;
+DROP TRIGGER IF EXISTS get_log ON stats__peruser_servers;
+DROP TRIGGER IF EXISTS get_log_insert ON stats__peruser_servers;
+
+DROP TRIGGER IF EXISTS get_log ON stats__peruser_channels;
+DROP TRIGGER IF EXISTS get_log_insert ON stats__peruser_channels;
 
 CREATE TRIGGER get_log
-	AFTER UPDATE ON stats__uphrases_channel FOR EACH ROW 
-	EXECUTE PROCEDURE stats_trigger_get_channel();
+	AFTER UPDATE ON stats__peruser_servers FOR EACH ROW 
+	EXECUTE PROCEDURE stats_gets_server_trigger_update();
 
 CREATE TRIGGER get_log_insert
-	AFTER INSERT ON stats__uphrases_channel FOR EACH ROW 
-	EXECUTE PROCEDURE stats_trigger_get_channel();
-
-
-CREATE TABLE IF NOT EXISTS stats__uphrases_channel_d (
-	"UID" INTEGER NOT NULL,
-	"CHANNEL" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "CHANNEL")
-);
-
-CREATE TABLE IF NOT EXISTS stats__uphrases_channel_e (
-	"UID" INTEGER NOT NULL,
-	"CHANNEL" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "CHANNEL")
-);
-
-CREATE TABLE IF NOT EXISTS stats__uphrases_server (
-	"UID" INTEGER NOT NULL,
-	"USERVER" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "USERVER")
-);
-
--- NUMBER is 1000 multipler
-CREATE TABLE IF NOT EXISTS stats__server_get (
-	"ENTRY" SERIAL PRIMARY KEY,
-	"MEMBER" INTEGER NOT NULL,
-	"NUMBER" INTEGER NOT NULL,
-	"STAMP" INTEGER NOT NULL DEFAULT currtime()
-);
-
-CREATE OR REPLACE FUNCTION stats_trigger_get()
-RETURNS TRIGGER as $$
-DECLARE curr INTEGER;
-BEGIN
-	SELECT stats__phrases_server."COUNT" INTO curr FROM stats__phrases_server WHERE stats__phrases_server."UID" = NEW."USERVER";
-	
-	IF (curr % 1000 = 0 AND curr > 0) THEN
-		INSERT INTO stats__server_get ("MEMBER", "NUMBER") VALUES (get_member_id_soft(NEW."UID", NEW."USERVER"), floor(curr / 1000));
-	END IF;
-	
-	RETURN NEW;
-END; $$ LANGUAGE plpgsql;
-
-DROP TRIGGER IF EXISTS get_log ON stats__uphrases_server;
-DROP TRIGGER IF EXISTS get_log_insert ON stats__uphrases_server;
+	AFTER INSERT ON stats__peruser_servers FOR EACH ROW 
+	EXECUTE PROCEDURE stats_gets_server_trigger_insert();
 
 CREATE TRIGGER get_log
-	AFTER UPDATE ON stats__uphrases_server FOR EACH ROW 
-	EXECUTE PROCEDURE stats_trigger_get();
+	AFTER UPDATE ON stats__peruser_channels FOR EACH ROW 
+	EXECUTE PROCEDURE stats_gets_channel_trigger_update();
 
 CREATE TRIGGER get_log_insert
-	AFTER INSERT ON stats__uphrases_server FOR EACH ROW 
-	EXECUTE PROCEDURE stats_trigger_get();
+	AFTER INSERT ON stats__peruser_channels FOR EACH ROW 
+	EXECUTE PROCEDURE stats_gets_channel_trigger_insert();
 
-CREATE TABLE IF NOT EXISTS stats__uphrases_server_d (
-	"UID" INTEGER NOT NULL,
-	"USERVER" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "USERVER")
-);
-
-CREATE TABLE IF NOT EXISTS stats__uphrases_server_e (
-	"UID" INTEGER NOT NULL,
-	"USERVER" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "USERVER")
-);
-
-/*
--- Upgrading word stats from old tables to new
-
-DROP TABLE IF EXISTS stats__words;
-
-CREATE TABLE IF NOT EXISTS stats__words (
-	"ID" SERIAL PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS stats__words_db (
+	"ID" SERIAL,
 	"WORD" VARCHAR(64) NOT NULL,
-	"COUNT" INTEGER NOT NULL
+	"COUNT" INTEGER NOT NULL DEFAULT 0,
+	UNIQUE ("ID"),
+	PRIMARY KEY ("WORD")
 );
 
-INSERT INTO stats__words ("WORD", "COUNT") SELECT "WORD", SUM("COUNT") FROM stats__words_client GROUP BY "WORD";
-
-ALTER TABLE stats__words_client RENAME TO stats__words_client_old;
-ALTER TABLE stats__words_server RENAME TO stats__words_server_old;
-ALTER TABLE stats__words_channel RENAME TO stats__words_channel_old;
-ALTER TABLE stats__uwords_channel RENAME TO stats__uwords_channel_old;
-ALTER TABLE stats__uwords_server RENAME TO stats__uwords_server_old;
-
-CREATE TABLE IF NOT EXISTS stats__uwords_channel (
-	"UID" INTEGER NOT NULL,
-	"CHANNEL" INTEGER NOT NULL,
-	"WORD" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "WORD", "CHANNEL")
+CREATE TABLE IF NOT EXISTS stats__uwords_channels (
+	"ID" INTEGER NOT NULL REFERENCES channels ("ID"),
+	"USER" INTEGER NOT NULL REFERENCES users ("ID"),
+	"WORD" INTEGER NOT NULL REFERENCES stats__words_db ("ID"),
+	"COUNT" INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY ("ID", "WORD", "USER")
 );
 
-CREATE TABLE IF NOT EXISTS stats__uwords_server (
-	"UID" INTEGER NOT NULL,
-	"USERVER" INTEGER NOT NULL,
-	"WORD" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "WORD", "USERVER")
+CREATE TABLE IF NOT EXISTS stats__uwords_servers (
+	"ID" INTEGER NOT NULL REFERENCES servers ("ID"),
+	"USER" INTEGER NOT NULL REFERENCES users ("ID"),
+	"WORD" INTEGER NOT NULL REFERENCES stats__words_db ("ID"),
+	"COUNT" INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY ("ID", "WORD", "USER")
 );
 
-CREATE TABLE IF NOT EXISTS stats__words_channel (
-	"UID" INTEGER NOT NULL,
-	"WORD" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "WORD")
+CREATE TABLE IF NOT EXISTS stats__words_channels (
+	"ID" INTEGER NOT NULL REFERENCES channels ("ID"),
+	"WORD" INTEGER NOT NULL REFERENCES stats__words_db ("ID"),
+	"COUNT" INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY ("ID", "WORD")
 );
 
-CREATE TABLE IF NOT EXISTS stats__words_client (
-	"UID" INTEGER NOT NULL,
-	"WORD" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "WORD")
+CREATE TABLE IF NOT EXISTS stats__words_users (
+	"ID" INTEGER NOT NULL REFERENCES users ("ID"),
+	"WORD" INTEGER NOT NULL REFERENCES stats__words_db ("ID"),
+	"COUNT" INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY ("ID", "WORD")
 );
 
-CREATE TABLE IF NOT EXISTS stats__words_server (
-	"UID" INTEGER NOT NULL,
-	"WORD" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "WORD")
-);
-
-INSERT INTO stats__words_client SELECT stats__words_client_old."UID", stats__words."ID", stats__words_client_old."COUNT" FROM stats__words_client_old, stats__words WHERE stats__words."WORD" = stats__words_client_old."WORD" ON CONFLICT ("UID", "WORD") DO NOTHING;
-INSERT INTO stats__words_server SELECT stats__words_server_old."UID", stats__words."ID", stats__words_server_old."COUNT" FROM stats__words_server_old, stats__words WHERE stats__words."WORD" = stats__words_server_old."WORD" ON CONFLICT ("UID", "WORD") DO NOTHING;
-INSERT INTO stats__words_channel SELECT stats__words_channel_old."UID", stats__words."ID", stats__words_channel_old."COUNT" FROM stats__words_channel_old, stats__words WHERE stats__words."WORD" = stats__words_channel_old."WORD" ON CONFLICT ("UID", "WORD") DO NOTHING;
-
-INSERT INTO stats__uwords_channel SELECT stats__uwords_channel_old."UID", stats__uwords_channel_old."CHANNEL", stats__words."ID", stats__uwords_channel_old."COUNT" FROM stats__uwords_channel_old, stats__words WHERE stats__words."WORD" = stats__uwords_channel_old."WORD" ON CONFLICT ("UID", "WORD", "CHANNEL") DO NOTHING;
-INSERT INTO stats__uwords_server SELECT stats__uwords_server_old."UID", stats__uwords_server_old."USERVER", stats__words."ID", stats__uwords_server_old."COUNT" FROM stats__uwords_server_old, stats__words WHERE stats__words."WORD" = stats__uwords_server_old."WORD" ON CONFLICT ("UID", "WORD", "USERVER") DO NOTHING;
-*/
-
-CREATE TABLE IF NOT EXISTS stats__uwords_channel (
-	"UID" INTEGER NOT NULL,
-	"CHANNEL" INTEGER NOT NULL,
-	"WORD" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "WORD", "CHANNEL")
-);
-
-CREATE TABLE IF NOT EXISTS stats__uwords_server (
-	"UID" INTEGER NOT NULL,
-	"USERVER" INTEGER NOT NULL,
-	"WORD" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "WORD", "USERVER")
-);
-
-CREATE TABLE IF NOT EXISTS stats__words_channel (
-	"UID" INTEGER NOT NULL,
-	"WORD" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "WORD")
-);
-
-CREATE TABLE IF NOT EXISTS stats__words_client (
-	"UID" INTEGER NOT NULL,
-	"WORD" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "WORD")
-);
-
-CREATE TABLE IF NOT EXISTS stats__words_server (
-	"UID" INTEGER NOT NULL,
-	"WORD" INTEGER NOT NULL,
-	"COUNT" INTEGER NOT NULL,
-	PRIMARY KEY ("UID", "WORD")
-);
-
-CREATE TABLE IF NOT EXISTS stats__words (
-	"ID" SERIAL PRIMARY KEY,
-	"WORD" VARCHAR(64) NOT NULL,
-	"COUNT" INTEGER NOT NULL
+CREATE TABLE IF NOT EXISTS stats__words_servers (
+	"ID" INTEGER NOT NULL REFERENCES servers ("ID"),
+	"WORD" INTEGER NOT NULL REFERENCES stats__words_db ("ID"),
+	"COUNT" INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY ("ID", "WORD")
 );
 
 CREATE TABLE IF NOT EXISTS steam_emoji_fail (
@@ -1103,9 +970,7 @@ DECLARE user_id INTEGER;
 DECLARE word VARCHAR(64);
 BEGIN
 	user_id := get_user_id(user_id_raw);
-	
-	INSERT INTO stats__phrases_client ("UID", "COUNT") VALUES (user_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_client."COUNT" + 1;
-	INSERT INTO stats__chars_client ("UID", "COUNT") VALUES (user_id, message_length) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_client."COUNT" + message_length;
+	UPDATE stats__generic_users SET "MESSAGES" = "MESSAGES" + 1, "CHARS" = "CHARS" + message_length WHERE "ID" = user_id;
 	
 	WITH valid_words AS (
 		SELECT
@@ -1117,10 +982,10 @@ BEGIN
 	
 	words_ids AS (
 		INSERT INTO
-			stats__words ("WORD", "COUNT")
+			stats__words_db ("WORD", "COUNT")
 			(SELECT * FROM valid_words)
 		ON CONFLICT ("WORD") DO
-			UPDATE SET "COUNT" = stats__words."COUNT" + excluded."COUNT"
+			UPDATE SET "COUNT" = stats__words_db."COUNT" + excluded."COUNT"
 		RETURNING "ID", "WORD"
 	),
 	
@@ -1134,23 +999,20 @@ BEGIN
 	)
 	
 	INSERT INTO
-		stats__words_client ("UID", "WORD", "COUNT")
+		stats__words_users ("ID", "WORD", "COUNT")
 		(SELECT user_id, words_to_insert."ID", words_to_insert."WORD_COUNT" AS "COUNT" FROM words_to_insert)
-	ON CONFLICT ("UID", "WORD") DO
-		UPDATE SET "COUNT" = stats__words_client."COUNT" + excluded."COUNT";
+	ON CONFLICT ("ID", "WORD") DO
+		UPDATE SET "COUNT" = stats__words_users."COUNT" + excluded."COUNT";
 	
 	IF (images_seneded > 0) THEN
-		INSERT INTO stats__images_client ("UID", "COUNT") VALUES (user_id, images_seneded) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__images_client."COUNT" + images_seneded;
+		UPDATE stats__generic_users SET "IMAGES" = "IMAGES" + images_seneded WHERE "ID" = user_id;
 	END IF;
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION stats_edit(user_id_raw VARCHAR(64))
 RETURNS void AS $$
-DECLARE user_id INTEGER;
 BEGIN
-	user_id := get_user_id(user_id_raw);
-	
-	INSERT INTO stats__phrases_client_e ("UID", "COUNT") VALUES (user_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_client_e."COUNT" + 1;
+	UPDATE stats__generic_users SET "MESSAGES_E" = "MESSAGES_E" + 1 WHERE "ID" = get_user_id(user_id_raw);
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION stats_edit(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64))
@@ -1163,11 +1025,14 @@ BEGIN
 	server_id := get_server_id(server_id_raw);
 	channel_id := get_channel_id(channel_id_raw, server_id);
 	
-	INSERT INTO stats__phrases_client_e ("UID", "COUNT") VALUES (user_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_client_e."COUNT" + 1;
-	INSERT INTO stats__phrases_channel_e ("UID", "COUNT") VALUES (channel_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_channel_e."COUNT" + 1;
-	INSERT INTO stats__uphrases_channel_e ("UID", "CHANNEL", "COUNT") VALUES (user_id, channel_id, 1) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uphrases_channel_e."COUNT" + 1;
-	INSERT INTO stats__phrases_server_e ("UID", "COUNT") VALUES (server_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_server_e."COUNT" + 1;
-	INSERT INTO stats__uphrases_server_e ("UID", "USERVER", "COUNT") VALUES (user_id, server_id, 1) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uphrases_server_e."COUNT" + 1;
+	UPDATE stats__generic_users SET "MESSAGES_E" = "MESSAGES_E" + 1 WHERE "ID" = user_id;
+	UPDATE stats__generic_channels SET "MESSAGES_E" = "MESSAGES_E" + 1 WHERE "ID" = channel_id;
+	UPDATE stats__generic_servers SET "MESSAGES_E" = "MESSAGES_E" + 1 WHERE "ID" = server_id;
+	
+	INSERT INTO stats__peruser_channels ("ID", "USER", "MESSAGES_E") VALUES (channel_id, user_id, 1)
+		ON CONFLICT ("ID", "USER") DO UPDATE SET "MESSAGES_E" = stats__peruser_channels."MESSAGES_E" + 1;
+	INSERT INTO stats__peruser_servers ("ID", "USER", "MESSAGES_E") VALUES (server_id, user_id, 1)
+		ON CONFLICT ("ID", "USER") DO UPDATE SET "MESSAGES_E" = stats__peruser_servers."MESSAGES_E" + 1;
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION stats_hit(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), message_length INTEGER, words VARCHAR(64)[], images_seneded INTEGER)
@@ -1186,18 +1051,23 @@ BEGIN
 	server_id := get_server_id(server_id_raw);
 	channel_id := get_channel_id(channel_id_raw, server_id);
 	
-	INSERT INTO stats__phrases_client ("UID", "COUNT") VALUES (user_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_client."COUNT" + 1;
-	INSERT INTO stats__chars_client ("UID", "COUNT") VALUES (user_id, message_length) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_client."COUNT" + message_length;
+	UPDATE stats__generic_users SET "MESSAGES" = "MESSAGES" + 1, "CHARS" = "CHARS" + message_length WHERE "ID" = user_id;
+	UPDATE stats__generic_channels SET "MESSAGES" = "MESSAGES" + 1, "CHARS" = "CHARS" + message_length WHERE "ID" = channel_id;
+	UPDATE stats__generic_servers SET "MESSAGES" = "MESSAGES" + 1, "CHARS" = "CHARS" + message_length WHERE "ID" = server_id;
 	
-	INSERT INTO stats__phrases_channel ("UID", "COUNT") VALUES (channel_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_channel."COUNT" + 1;
-	INSERT INTO stats__uphrases_channel ("UID", "CHANNEL", "COUNT") VALUES (user_id, channel_id, 1) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uphrases_channel."COUNT" + 1;
-	INSERT INTO stats__phrases_server ("UID", "COUNT") VALUES (server_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_server."COUNT" + 1;
-	INSERT INTO stats__uphrases_server ("UID", "USERVER", "COUNT") VALUES (user_id, server_id, 1) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uphrases_server."COUNT" + 1;
+	INSERT INTO stats__peruser_channels("ID", "USER", "CHARS", "MESSAGES", "IMAGES")
+		VALUES (channel_id, user_id, message_length, 1, images_seneded)
+		ON CONFLICT ("ID", "USER") DO UPDATE SET
+			"CHARS" = stats__peruser_channels."CHARS" + excluded."CHARS",
+			"MESSAGES" = stats__peruser_channels."MESSAGES" + excluded."MESSAGES",
+			"IMAGES" = stats__peruser_channels."IMAGES" + excluded."IMAGES";
 	
-	INSERT INTO stats__chars_channel ("UID", "COUNT") VALUES (channel_id, message_length) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_channel."COUNT" + message_length;
-	INSERT INTO stats__uchars_channel ("UID", "CHANNEL", "COUNT") VALUES (user_id, channel_id, message_length) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uchars_channel."COUNT" + message_length;
-	INSERT INTO stats__chars_server ("UID", "COUNT") VALUES (server_id, message_length) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_server."COUNT" + message_length;
-	INSERT INTO stats__uchars_server ("UID", "USERVER", "COUNT") VALUES (user_id, server_id, message_length) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uchars_server."COUNT" + message_length;
+	INSERT INTO stats__peruser_servers("ID", "USER", "CHARS", "MESSAGES", "IMAGES")
+		VALUES (server_id, user_id, message_length, 1, images_seneded)
+		ON CONFLICT ("ID", "USER") DO UPDATE SET
+			"CHARS" = stats__peruser_servers."CHARS" + excluded."CHARS",
+			"MESSAGES" = stats__peruser_servers."MESSAGES" + excluded."MESSAGES",
+			"IMAGES" = stats__peruser_servers."IMAGES" + excluded."IMAGES";
 	
 	WITH valid_words AS (
 		SELECT
@@ -1209,10 +1079,10 @@ BEGIN
 	
 	words_ids AS (
 		INSERT INTO
-			stats__words ("WORD", "COUNT")
+			stats__words_db ("WORD", "COUNT")
 			(SELECT * FROM valid_words)
 		ON CONFLICT ("WORD") DO
-			UPDATE SET "COUNT" = stats__words."COUNT" + excluded."COUNT"
+			UPDATE SET "COUNT" = stats__words_db."COUNT" + excluded."COUNT"
 		RETURNING "ID", "WORD"
 	),
 	
@@ -1227,50 +1097,41 @@ BEGIN
 	
 	fake_words_channel AS (
 		INSERT INTO
-			stats__words_channel ("UID", "WORD", "COUNT")
+			stats__words_channels ("ID", "WORD", "COUNT")
 			(SELECT channel_id, words_to_insert."ID", words_to_insert."WORD_COUNT" AS "COUNT" FROM words_to_insert)
-		ON CONFLICT ("UID", "WORD") DO
-			UPDATE SET "COUNT" = stats__words_channel."COUNT" + excluded."COUNT"
+		ON CONFLICT ("ID", "WORD") DO
+			UPDATE SET "COUNT" = stats__words_channels."COUNT" + excluded."COUNT"
 	),
 	
 	fake_words_server AS (
 		INSERT INTO
-			stats__words_server ("UID", "WORD", "COUNT")
+			stats__words_servers ("ID", "WORD", "COUNT")
 			(SELECT server_id, words_to_insert."ID", words_to_insert."WORD_COUNT" AS "COUNT" FROM words_to_insert)
-		ON CONFLICT ("UID", "WORD") DO
-			UPDATE SET "COUNT" = stats__words_server."COUNT" + excluded."COUNT"
+		ON CONFLICT ("ID", "WORD") DO
+			UPDATE SET "COUNT" = stats__words_servers."COUNT" + excluded."COUNT"
 	),
 	
 	fake_uwords_channel AS (
 		INSERT INTO
-			stats__uwords_channel ("UID", "CHANNEL", "WORD", "COUNT")
-			(SELECT user_id, channel_id, words_to_insert."ID", words_to_insert."WORD_COUNT" AS "COUNT" FROM words_to_insert)
-		ON CONFLICT ("UID", "CHANNEL", "WORD") DO
-			UPDATE SET "COUNT" = stats__uwords_channel."COUNT" + excluded."COUNT"
+			stats__uwords_channels ("ID", "USER", "WORD", "COUNT")
+			(SELECT channel_id, user_id, words_to_insert."ID", words_to_insert."WORD_COUNT" AS "COUNT" FROM words_to_insert)
+		ON CONFLICT ("ID", "USER", "WORD") DO
+			UPDATE SET "COUNT" = stats__uwords_channels."COUNT" + excluded."COUNT"
 	),
 	
 	fake_uwords_server AS (
 		INSERT INTO
-			stats__uwords_server ("UID", "USERVER", "WORD", "COUNT")
-			(SELECT user_id, server_id, words_to_insert."ID", words_to_insert."WORD_COUNT" AS "COUNT" FROM words_to_insert)
-		ON CONFLICT ("UID", "USERVER", "WORD") DO
-			UPDATE SET "COUNT" = stats__uwords_server."COUNT" + excluded."COUNT"
+			stats__uwords_servers ("ID", "USER", "WORD", "COUNT")
+			(SELECT server_id, user_id, words_to_insert."ID", words_to_insert."WORD_COUNT" AS "COUNT" FROM words_to_insert)
+		ON CONFLICT ("ID", "USER", "WORD") DO
+			UPDATE SET "COUNT" = stats__uwords_servers."COUNT" + excluded."COUNT"
 	)
 	
 	INSERT INTO
-		stats__words_client ("UID", "WORD", "COUNT")
+		stats__words_users ("ID", "WORD", "COUNT")
 		(SELECT user_id, words_to_insert."ID", words_to_insert."WORD_COUNT" AS "COUNT" FROM words_to_insert)
-	ON CONFLICT ("UID", "WORD") DO
-		UPDATE SET "COUNT" = stats__words_client."COUNT" + excluded."COUNT";
-	
-	IF (images_seneded > 0) THEN
-		INSERT INTO stats__images_client ("UID", "COUNT") VALUES (user_id, images_seneded) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__images_client."COUNT" + images_seneded;
-		
-		INSERT INTO stats__images_channel ("UID", "COUNT") VALUES (channel_id, images_seneded) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__images_channel."COUNT" + images_seneded;
-		INSERT INTO stats__uimages_channel ("UID", "CHANNEL", "COUNT") VALUES (user_id, channel_id, images_seneded) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uimages_channel."COUNT" + images_seneded;
-		INSERT INTO stats__images_server ("UID", "COUNT") VALUES (server_id, images_seneded) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__images_server."COUNT" + images_seneded;
-		INSERT INTO stats__uimages_server ("UID", "USERVER", "COUNT") VALUES (user_id, server_id, images_seneded) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uimages_server."COUNT" + images_seneded;
-	END IF;
+	ON CONFLICT ("ID", "WORD") DO
+		UPDATE SET "COUNT" = stats__words_users."COUNT" + excluded."COUNT";
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION stats_delete(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), message_length INTEGER)
@@ -1283,18 +1144,21 @@ BEGIN
 	server_id := get_server_id(server_id_raw);
 	channel_id := get_channel_id(channel_id_raw, server_id);
 	
-	INSERT INTO stats__phrases_client_d ("UID", "COUNT") VALUES (user_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_client_d."COUNT" + 1;
-	INSERT INTO stats__chars_client_d ("UID", "COUNT") VALUES (user_id, message_length) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_client_d."COUNT" + message_length;
-
-	INSERT INTO stats__phrases_channel_d ("UID", "COUNT") VALUES (channel_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_channel_d."COUNT" + 1;
-	INSERT INTO stats__uphrases_channel_d ("UID", "CHANNEL", "COUNT") VALUES (user_id, channel_id, 1) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uphrases_channel_d."COUNT" + 1;
-	INSERT INTO stats__phrases_server_d ("UID", "COUNT") VALUES (server_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_server_d."COUNT" + 1;
-	INSERT INTO stats__uphrases_server_d ("UID", "USERVER", "COUNT") VALUES (user_id, server_id, 1) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uphrases_server_d."COUNT" + 1;
+	UPDATE stats__generic_users SET "MESSAGES_D" = "MESSAGES_D" + 1, "CHARS_D" = "CHARS_D" + message_length WHERE "ID" = user_id;
+	UPDATE stats__generic_channels SET "MESSAGES" = "MESSAGES_D" + 1, "CHARS_D" = "CHARS_D" + message_length WHERE "ID" = channel_id;
+	UPDATE stats__generic_servers SET "MESSAGES_D" = "MESSAGES_D" + 1, "CHARS_D" = "CHARS_D" + message_length WHERE "ID" = server_id;
 	
-	INSERT INTO stats__chars_channel_d ("UID", "COUNT") VALUES (channel_id, message_length) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_channel_d."COUNT" + message_length;
-	INSERT INTO stats__uchars_channel_d ("UID", "CHANNEL", "COUNT") VALUES (user_id, channel_id, message_length) ON CONFLICT ("UID", "CHANNEL") DO UPDATE SET "COUNT" = stats__uchars_channel_d."COUNT" + message_length;
-	INSERT INTO stats__chars_server_d ("UID", "COUNT") VALUES (server_id, message_length) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_server_d."COUNT" + message_length;
-	INSERT INTO stats__uchars_server_d ("UID", "USERVER", "COUNT") VALUES (user_id, server_id, message_length) ON CONFLICT ("UID", "USERVER") DO UPDATE SET "COUNT" = stats__uchars_server_d."COUNT" + message_length;
+	INSERT INTO stats__peruser_channels ("ID", "USER", "CHARS_D", "MESSAGES_D")
+		VALUES (channel_id, user_id, message_length, 1)
+		ON CONFLICT ("ID", "USER") DO UPDATE SET
+			"CHARS_D" = stats__peruser_channels."CHARS_D" + excluded."CHARS_D",
+			"MESSAGES_D" = stats__peruser_channels."MESSAGES" + excluded."MESSAGES_D";
+	
+	INSERT INTO stats__peruser_servers ("ID", "USER", "CHARS_D", "MESSAGES_D")
+		VALUES (server_id, user_id, message_length, 1)
+		ON CONFLICT ("ID", "USER") DO UPDATE SET
+			"CHARS_D" = stats__peruser_servers."CHARS_D" + excluded."CHARS_D",
+			"MESSAGES_D" = stats__peruser_servers."MESSAGES_D" + excluded."MESSAGES_D";
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION stats_command(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), command VARCHAR(64))
@@ -1307,22 +1171,28 @@ BEGIN
 	server_id := get_server_id(server_id_raw);
 	channel_id := get_channel_id(channel_id_raw, server_id);
 	
-	INSERT INTO stats__command_client ("UID", "COMMAND", "COUNT") VALUES (user_id, command, 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = stats__command_client."COUNT" + 1;
-
-	INSERT INTO stats__command_channel ("UID", "COMMAND", "COUNT") VALUES (channel_id, command, 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = stats__command_channel."COUNT" + 1;
-	INSERT INTO stats__command_server ("UID", "COMMAND", "COUNT") VALUES (server_id, command, 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = stats__command_server."COUNT" + 1;
+	INSERT INTO stats__command_users ("ID", "COMMAND", "COUNT") VALUES (user_id, command, 1)
+		ON CONFLICT ("ID", "COMMAND") DO UPDATE SET "COUNT" = stats__command_users."COUNT" + 1;
 	
-	INSERT INTO stats__command_uchannel ("UID", "CHANNEL", "COMMAND", "COUNT") VALUES (user_id, channel_id, command, 1) ON CONFLICT ("UID", "COMMAND", "CHANNEL") DO UPDATE SET "COUNT" = stats__command_uchannel."COUNT" + 1;
-	INSERT INTO stats__command_userver ("UID", "USERVER", "COMMAND", "COUNT") VALUES (user_id, server_id, command, 1) ON CONFLICT ("UID", "COMMAND", "USERVER") DO UPDATE SET "COUNT" = stats__command_userver."COUNT" + 1;
+	INSERT INTO stats__command_servers ("ID", "COMMAND", "COUNT") VALUES (server_id, command, 1)
+		ON CONFLICT ("ID", "COMMAND") DO UPDATE SET "COUNT" = stats__command_servers."COUNT" + 1;
+	
+	INSERT INTO stats__command_channels ("ID", "COMMAND", "COUNT") VALUES (channel_id, command, 1)
+		ON CONFLICT ("ID", "COMMAND") DO UPDATE SET "COUNT" = stats__command_channels."COUNT" + 1;
+	
+	INSERT INTO stats__ucommand_servers ("ID", "USER", "COMMAND", "COUNT") VALUES (server_id, user_id, command, 1)
+		ON CONFLICT ("ID", "USER", "COMMAND") DO UPDATE SET "COUNT" = stats__ucommand_servers."COUNT" + 1;
+	
+	INSERT INTO stats__ucommand_channels ("ID", "USER", "COMMAND", "COUNT") VALUES (channel_id, user_id, command, 1)
+		ON CONFLICT ("ID", "USER", "COMMAND") DO UPDATE SET "COUNT" = stats__ucommand_channels."COUNT" + 1;
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION stats_command(user_id_raw VARCHAR(64), command VARCHAR(64))
 RETURNS void AS $$
 DECLARE user_id INTEGER;
 BEGIN
-	user_id := get_user_id(user_id_raw);
-	
-	INSERT INTO stats__command_client ("UID", "COMMAND", "COUNT") VALUES (user_id, command, 1) ON CONFLICT ("UID", "COMMAND") DO UPDATE SET "COUNT" = stats__command_client."COUNT" + 1;
+	INSERT INTO stats__command_users ("ID", "COMMAND", "COUNT") VALUES (get_user_id(user_id_raw), command, 1)
+		ON CONFLICT ("ID", "COMMAND") DO UPDATE SET "COUNT" = stats__command_users."COUNT" + 1;
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION stats_delete(user_id_raw VARCHAR(64), message_length INTEGER)
@@ -1330,9 +1200,7 @@ RETURNS void AS $$
 DECLARE user_id INTEGER;
 BEGIN
 	user_id := get_user_id(user_id_raw);
-	
-	INSERT INTO stats__phrases_client_d ("UID", "COUNT") VALUES (user_id, 1) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__phrases_client_d."COUNT" + 1;
-	INSERT INTO stats__chars_client_d ("UID", "COUNT") VALUES (user_id, message_length) ON CONFLICT ("UID") DO UPDATE SET "COUNT" = stats__chars_client_d."COUNT" + message_length;
+	UPDATE stats__generic_users SET "MESSAGES_D" = "MESSAGES_D" + 1, "CHARS_D" = "CHARS_D" + message_length WHERE "ID" = user_id;
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION users_heartbeat(cTime INTEGER)
@@ -1656,14 +1524,14 @@ RETURNS INTEGER as $$
 DECLARE urank INTEGER;
 DECLARE psaid INTEGER;
 BEGIN
-	SELECT "COUNT" INTO psaid FROM stats__phrases_client WHERE "UID" = userid;
+	SELECT "MESSAGES" INTO psaid FROM stats__generic_users WHERE "ID" = userid;
 	
 	SELECT
 		COUNT(*) INTO urank
 	FROM
-		stats__phrases_client
+		stats__generic_users
 	WHERE
-		stats__phrases_client."COUNT" > psaid;
+		stats__generic_users."MESSAGES" > psaid;
 	
 	urank = urank + 1;
 	RETURN urank;
@@ -1674,15 +1542,15 @@ RETURNS INTEGER as $$
 DECLARE urank INTEGER;
 DECLARE psaid INTEGER;
 BEGIN
-	SELECT "COUNT" INTO psaid FROM stats__uphrases_server WHERE "UID" = userid AND "USERVER" = serverid;
+	SELECT "MESSAGES" INTO psaid FROM stats__peruser_servers WHERE "USER" = userid AND "ID" = serverid;
 	
 	SELECT
 		COUNT(*) INTO urank
 	FROM
-		stats__uphrases_server
+		stats__peruser_servers
 	WHERE
-		stats__uphrases_server."COUNT" > psaid AND
-		"USERVER" = serverid;
+		stats__peruser_servers."MESSAGES" > psaid AND
+		"ID" = serverid;
 	
 	urank = urank + 1;
 	RETURN urank;
@@ -1693,15 +1561,15 @@ RETURNS INTEGER as $$
 DECLARE urank INTEGER;
 DECLARE psaid INTEGER;
 BEGIN
-	SELECT "COUNT" INTO psaid FROM stats__uphrases_channel WHERE "UID" = userid AND "CHANNEL" = channel;
+	SELECT "MESSAGES" INTO psaid FROM stats__peruser_channels WHERE "USER" = userid AND "ID" = channel;
 	
 	SELECT
 		COUNT(*) INTO urank
 	FROM
-		stats__uphrases_channel
+		stats__peruser_channels
 	WHERE
-		stats__uphrases_channel."COUNT" > psaid AND
-		"CHANNEL" = channel;
+		stats__peruser_channels."MESSAGES" > psaid AND
+		"ID" = channel;
 	
 	urank = urank + 1;
 	RETURN urank;

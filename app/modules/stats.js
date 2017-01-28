@@ -17,7 +17,7 @@ WHERE
 	members."SERVER" = %i AND
 	members."USER" = users."ID" AND
     members."USER" NOT IN (
-    	SELECT stats__uphrases_server."UID" FROM stats__uphrases_server WHERE stats__uphrases_server."USERVER" = %i
+    	SELECT stats__peruser_servers."USER" FROM stats__peruser_servers WHERE stats__peruser_servers."ID" = %i
     )
 `;
 
