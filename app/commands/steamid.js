@@ -1,4 +1,6 @@
 
+/* global DBot */
+
 if (!DBot.cfg.steam_enable) return;
 
 let apiBase = 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=' + DBot.cfg.steam + '&steamids=';

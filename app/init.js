@@ -1,6 +1,8 @@
 
 sprintf = require("sprintf-js").sprintf;
 
+/* global DBot */
+
 DBot.fs = require('fs');
 DBot.WebRoot = 'D:/www/derpco/bot';
 DBot.URLRootBare = 'dbot.serealia.ca/bot';

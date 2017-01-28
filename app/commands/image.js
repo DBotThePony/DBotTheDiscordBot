@@ -1,4 +1,6 @@
 
+/* global DBot */
+
 if (!DBot.cfg.google_enable) return;
 
 const unirest = DBot.js.unirest;

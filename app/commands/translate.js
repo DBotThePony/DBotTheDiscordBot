@@ -1,4 +1,6 @@
 
+/* global DBot */
+
 if (!DBot.cfg.yandex_tr_enable) return;
 
 const unirest = DBot.js.unirest;
