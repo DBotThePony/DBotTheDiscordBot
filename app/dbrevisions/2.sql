@@ -1,5 +1,6 @@
 
 -- Stats redo
+-- This should work, but i just deleted the old stats database because of massive problems with it
 
 INSERT INTO stats__generic_users (
 	SELECT

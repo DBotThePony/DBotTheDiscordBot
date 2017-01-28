@@ -18,7 +18,7 @@ setInterval(function() {
 	if (!DBot.IsOnline())
 		return;
 	
-	let finalQuery = 'BEGIN;';
+	let finalQuery = '';
 	
 	for (let user of usersCache) {
 		try {
