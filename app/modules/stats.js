@@ -161,6 +161,124 @@ DBot.RegisterCommand({
 	}
 });
 
+let top10fn = function(name, order) {
+	return function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'Oh! This is PM x3';
+		
+		let page = Util.ToNumber(args[0]) || 1;
+		
+		if (page <= 0)
+			return DBot.CommandError('what', name, args, 1);
+		
+		let offset = (page - 1) * 20;
+		
+		msg.channel.startTyping();
+		
+		let ID = DBot.GetServerID(msg.channel.guild);
+		
+		let query = `
+			SELECT
+				users."UID" as "USERID",
+				users."ID" as "ID",
+				members."NAME" as "USERNAME",
+				stats__peruser_servers."MESSAGES" as "COUNT",
+				SUM(stats__uwords_servers."COUNT") AS "TOTAL_WORDS",
+				COUNT(DISTINCT stats__uwords_servers."WORD") AS "TOTAL_UNIQUE_WORDS"
+			FROM
+				users,
+				members,
+				stats__peruser_servers,
+				stats__uwords_servers
+			WHERE
+				stats__peruser_servers."ID" = ${ID} AND
+				stats__uwords_servers."ID" = ${ID} AND
+				members."SERVER" = stats__peruser_servers."ID" AND
+				members."USER" = users."ID" AND
+				stats__peruser_servers."USER" = users."ID" AND
+				stats__uwords_servers."USER" = users."ID"
+			GROUP BY
+				users."UID",
+				users."ID",
+				members."NAME",
+				stats__peruser_servers."MESSAGES"
+			ORDER BY "${order}" DESC
+			OFFSET ${offset} LIMIT 20`;
+		
+		Postgres.query(query, function(err, data) {
+			if (err) {
+				console.error(err);
+				msg.reply('<internal pony error>');
+				msg.channel.stopTyping();
+				return;
+			}
+			
+			try {
+				if (!data[0]) {
+					msg.channel.stopTyping();
+					msg.reply('No data was returned in query');
+					return;
+				}
+				
+				msg.channel.stopTyping();
+				
+				let output = '\nRank. Username. Total Phrases Said.\n```';
+				
+				let i = 0;
+				for (let row of data) {
+					output += Util.AppendSpaces(Number(i) + 1 + (page - 1) * 20, 4)
+						+ Util.AppendSpaces(row.USERNAME, 20) + ' --- '
+						+ Util.AppendSpaces(numeral(row.COUNT).format('0,0')
+						+ ' phrases', 15) + ' (' + numeral(row.TOTAL_WORDS).format('0,0')
+						+ ' total words said; ' + numeral(row.TOTAL_UNIQUE_WORDS).format('0,0')
+						+ ' unique words)\n';
+					
+					i++;
+				}
+				
+				msg.reply(output + '```');
+			} catch(err) {
+				msg.channel.stopTyping();
+				console.error(err);
+				msg.reply('<internal pony error>');
+			}
+		});
+	}
+}
+
+DBot.RegisterCommand({
+	name: 'top10',
+	alias: ['top', 'top20'],
+	
+	help_args: '[page]',
+	desc: 'Displays TOP10 of talkable persons on this server',
+	delay: 5,
+	
+	func: top10fn('top10', 'COUNT'),
+});
+
+DBot.RegisterCommand({
+	name: 'wtop10',
+	alias: ['wtop', 'wtop20'],
+	
+	help_args: '[page]',
+	desc: 'Displays TOP10 of talkable persons on this server\nUses "Total Words said" as ranking',
+	delay: 5,
+	
+	func: top10fn('wtop10', 'TOTAL_WORDS'),
+});
+
+DBot.RegisterCommand({
+	name: 'utop10',
+	alias: ['utop', 'utop20'],
+	
+	help_args: '[page]',
+	desc: 'Displays TOP10 of talkable persons on this server\nUses "Total Unique Words said" as ranking',
+	delay: 5,
+	
+	func: top10fn('utop10', 'TOTAL_UNIQUE_WORDS'),
+});
+
 
 /*
 DBot.RegisterCommand({
@@ -671,123 +789,6 @@ DBot.RegisterCommand({
 			
 		}
 	},
-});
-
-let top10fn = function(name, order) {
-	return function(args, cmd, msg) {
-		if (DBot.IsPM(msg))
-			return 'Oh! This is PM x3';
-		
-		let page = Util.ToNumber(args[0]) || 1;
-		
-		if (page <= 0)
-			return DBot.CommandError('what', name, args, 1);
-		
-		let offset = (page - 1) * 20;
-		
-		msg.channel.startTyping();
-		
-		let ID = DBot.GetServerID(msg.channel.guild);
-		
-		let query = `
-			SELECT
-				users."UID" as "USERID",
-				users."ID" as "ID",
-				members."NAME" as "USERNAME",
-				stats__uphrases_server."COUNT" as "COUNT",
-				SUM(stats__uwords_server."COUNT") AS "TOTAL_WORDS",
-				COUNT(DISTINCT stats__uwords_server."WORD") AS "TOTAL_UNIQUE_WORDS"
-			FROM
-				users,
-				members,
-				stats__uphrases_server,
-				stats__uwords_server
-			WHERE
-				stats__uphrases_server."USERVER" = ${ID} AND
-				stats__uwords_server."USERVER" = ${ID} AND
-				members."SERVER" = stats__uphrases_server."USERVER" AND
-				members."USER" = users."ID" AND
-				stats__uphrases_server."UID" = users."ID" AND
-				stats__uwords_server."UID" = users."ID"
-			GROUP BY
-				users."UID",
-				users."ID",
-				stats__uphrases_server."COUNT"
-			ORDER BY "${order}" DESC
-			OFFSET ${offset} LIMIT 20`;
-		
-		Postgres.query(query, function(err, data) {
-			if (err) {
-				console.error(err);
-				msg.reply('<internal pony error>');
-				msg.channel.stopTyping();
-				return;
-			}
-			
-			try {
-				if (!data[0]) {
-					msg.channel.stopTyping();
-					msg.reply('No data was returned in query');
-					return;
-				}
-				
-				msg.channel.stopTyping();
-				
-				let output = '\nRank. Username. Total Phrases Said.\n```';
-				
-				let i = 0;
-				for (let row of data) {
-					output += Util.AppendSpaces(Number(i) + 1 + (page - 1) * 20, 4)
-						+ Util.AppendSpaces(row.USERNAME, 20) + ' --- '
-						+ Util.AppendSpaces(numeral(row.COUNT).format('0,0')
-						+ ' phrases', 15) + ' (' + numeral(row.TOTAL_WORDS).format('0,0')
-						+ ' total words said; ' + numeral(row.TOTAL_UNIQUE_WORDS).format('0,0')
-						+ ' unique words)\n';
-					
-					i++;
-				}
-				
-				msg.reply(output + '```');
-			} catch(err) {
-				msg.channel.stopTyping();
-				console.error(err);
-				msg.reply('<internal pony error>');
-			}
-		});
-	}
-}
-
-DBot.RegisterCommand({
-	name: 'top10',
-	alias: ['top', 'top20'],
-	
-	help_args: '[page]',
-	desc: 'Displays TOP10 of talkable persons on this server',
-	delay: 5,
-	
-	func: top10fn('top10', 'COUNT'),
-});
-
-DBot.RegisterCommand({
-	name: 'wtop10',
-	alias: ['wtop', 'wtop20'],
-	
-	help_args: '[page]',
-	desc: 'Displays TOP10 of talkable persons on this server\nUses "Total Words said" as ranking',
-	delay: 5,
-	
-	func: top10fn('wtop10', 'TOTAL_WORDS'),
-});
-
-DBot.RegisterCommand({
-	name: 'utop10',
-	alias: ['utop', 'utop20'],
-	
-	help_args: '[page]',
-	desc: 'Displays TOP10 of talkable persons on this server\nUses "Total Unique Words said" as ranking',
-	delay: 5,
-	
-	func: top10fn('utop10', 'TOTAL_UNIQUE_WORDS'),
 });
 
 let gtop10fn = function(name, order) {
