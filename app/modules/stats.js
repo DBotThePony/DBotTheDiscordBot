@@ -697,6 +697,206 @@ DBot.RegisterCommand({
 	},
 });
 
+let getsfn = function(name, num) {
+	return function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'Onoh! It is PM! ;n;';
+		
+		msg.channel.startTyping();
+		
+		let mode = (args[0] || 'server').toLowerCase();
+		let mode1 = (args[1] || '').toLowerCase();
+		
+		if (mode == 'server') {
+			let fuckingQuery = `
+			SELECT
+				members."NAME" AS "NAME",
+				stats__server_get."NUMBER" AS "NUMBER",
+				stats__server_get."STAMP" AS "STAMP"
+			FROM
+				members,
+				stats__server_get
+			WHERE
+				stats__server_get."NUMBER" % ${num} = 0 AND
+				members."ID" = stats__server_get."MEMBER"
+			ORDER BY
+				stats__server_get."ENTRY" DESC
+			LIMIT 10
+			`;
+			
+			Postgres.query(fuckingQuery, function(err, data) {
+				msg.channel.stopTyping();
+				
+				if (err) {
+					msg.reply('What the fuck');
+					return;
+				}
+				
+				if (!data || !data[0]) {
+					msg.reply('No gets ;n;');
+					return;
+				}
+				
+				let output = '```' + Util.AppendSpaces('Username', 30) + Util.AppendSpaces('Get', 10) + Util.AppendSpaces('Date', 10) + '\n';
+				
+				for (let row of data) {
+					output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * 1000).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ')', 10) + '\n'
+				}
+				
+				msg.reply(output + '```');
+			});
+		} else if (mode == 'image' || mode == 'images' || mode == 'server' && (mode1 == 'image' || mode1 == 'images')) {
+			let fuckingQuery = `
+			SELECT
+				members."NAME" AS "NAME",
+				stats__server_get_image."NUMBER" AS "NUMBER",
+				stats__server_get_image."STAMP" AS "STAMP"
+			FROM
+				members,
+				stats__server_get_image
+			WHERE
+				stats__server_get_image."NUMBER" % ${num} = 0 AND
+				members."ID" = stats__server_get_image."MEMBER"
+			ORDER BY
+				stats__server_get_image."ENTRY" DESC
+			LIMIT 10
+			`;
+			
+			Postgres.query(fuckingQuery, function(err, data) {
+				msg.channel.stopTyping();
+				
+				if (err) {
+					msg.reply('What the fuck');
+					return;
+				}
+				
+				if (!data || !data[0]) {
+					msg.reply('No gets ;n;');
+					return;
+				}
+				
+				let output = '```' + Util.AppendSpaces('Username', 30) + Util.AppendSpaces('Get', 10) + Util.AppendSpaces('Date', 10) + '\n';
+				
+				for (let row of data) {
+					output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * 100).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 100) + ')', 10) + '\n'
+				}
+				
+				msg.reply(output + '```');
+			});
+		} else if (mode == 'channel') {
+			let fuckingQuery = `
+			SELECT
+				members."NAME" AS "NAME",
+				stats__channel_get."NUMBER" AS "NUMBER",
+				stats__channel_get."STAMP" AS "STAMP"
+			FROM
+				members,
+				stats__channel_get
+			WHERE
+				stats__channel_get."NUMBER" % ${num} = 0 AND
+				stats__channel_get."CHANNEL" = ${msg.channel.uid} AND
+				members."ID" = stats__channel_get."MEMBER"
+			ORDER BY
+				stats__server_get_image."ENTRY" DESC
+			LIMIT 10
+			`;
+			
+			Postgres.query(fuckingQuery, function(err, data) {
+				msg.channel.stopTyping();
+				
+				if (err) {
+					msg.reply('What the fuck');
+					return;
+				}
+				
+				if (!data || !data[0]) {
+					msg.reply('No gets ;n;');
+					return;
+				}
+				
+				let output = '```' + Util.AppendSpaces('Username', 30) + Util.AppendSpaces('Get', 10) + Util.AppendSpaces('Date', 10) + '\n';
+				
+				for (let row of data) {
+					output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * 1000).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ')', 10) + '\n'
+				}
+				
+				msg.reply(output + '```');
+			});
+		} else if (mode == 'channel' && (mode1 == 'image' || mode1 == 'images')) {
+			let fuckingQuery = `
+			SELECT
+				members."NAME" AS "NAME",
+				stats__channel_get_image."NUMBER" AS "NUMBER",
+				stats__channel_get_image."STAMP" AS "STAMP"
+			FROM
+				members,
+				stats__channel_get_image
+			WHERE
+				stats__channel_get_image."NUMBER" % ${num} = 0 AND
+				stats__channel_get_image."CHANNEL" = ${msg.channel.uid} AND
+				members."ID" = stats__channel_get_image."MEMBER"
+			ORDER BY
+				stats__server_get_image."ENTRY" DESC
+			LIMIT 10
+			`;
+			
+			Postgres.query(fuckingQuery, function(err, data) {
+				msg.channel.stopTyping();
+				
+				if (err) {
+					msg.reply('What the fuck');
+					return;
+				}
+				
+				if (!data || !data[0]) {
+					msg.reply('No gets ;n;');
+					return;
+				}
+				
+				let output = '```' + Util.AppendSpaces('Username', 30) + Util.AppendSpaces('Get', 10) + Util.AppendSpaces('Date', 10) + '\n';
+				
+				for (let row of data) {
+					output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * num * 100).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * num * 100) + ')', 10) + '\n'
+				}
+				
+				msg.reply(output + '```');
+			});
+		} else {
+			return DBot.CommandError('Unknown subcommand', name, args, 1);
+		}
+	}
+}
+
+let descFullGet = `
+Submodes are:
+server
+image or server images
+channel
+channel images
+`;
+
+DBot.RegisterCommand({
+	name: 'gets',
+	
+	help_args: '',
+	desc: 'Users who GET a round message',
+	delay: 5,
+	desc_full: descFullGet,
+	
+	func: getsfn('gets', 1),
+});
+
+DBot.RegisterCommand({
+	name: 'gets5',
+	
+	help_args: '',
+	desc: 'Users who GET a round message (5k)',
+	delay: 5,
+	desc_full: descFullGet,
+	
+	func: getsfn('gets', 5),
+});
+
 /*
 DBot.RegisterCommand({
 	name: 'stats',
@@ -1414,206 +1614,6 @@ DBot.RegisterCommand({
 			});
 		}
 	},
-});
-
-let getsfn = function(name, num) {
-	return function(args, cmd, msg) {
-		if (DBot.IsPM(msg))
-			return 'Onoh! It is PM! ;n;';
-		
-		msg.channel.startTyping();
-		
-		let mode = (args[0] || 'server').toLowerCase();
-		let mode1 = (args[1] || '').toLowerCase();
-		
-		if (mode == 'server') {
-			let fuckingQuery = `
-			SELECT
-				members."NAME" AS "NAME",
-				stats__server_get."NUMBER" AS "NUMBER",
-				stats__server_get."STAMP" AS "STAMP"
-			FROM
-				members,
-				stats__server_get
-			WHERE
-				stats__server_get."NUMBER" % ${num} = 0 AND
-				members."ID" = stats__server_get."MEMBER"
-			ORDER BY
-				stats__server_get."ENTRY" DESC
-			LIMIT 10
-			`;
-			
-			Postgres.query(fuckingQuery, function(err, data) {
-				msg.channel.stopTyping();
-				
-				if (err) {
-					msg.reply('What the fuck');
-					return;
-				}
-				
-				if (!data || !data[0]) {
-					msg.reply('No gets ;n;');
-					return;
-				}
-				
-				let output = '```' + Util.AppendSpaces('Username', 30) + Util.AppendSpaces('Get', 10) + Util.AppendSpaces('Date', 10) + '\n';
-				
-				for (let row of data) {
-					output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * 1000).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ')', 10) + '\n'
-				}
-				
-				msg.reply(output + '```');
-			});
-		} else if (mode == 'image' || mode == 'images' || mode == 'server' && (mode1 == 'image' || mode1 == 'images')) {
-			let fuckingQuery = `
-			SELECT
-				members."NAME" AS "NAME",
-				stats__server_get_image."NUMBER" AS "NUMBER",
-				stats__server_get_image."STAMP" AS "STAMP"
-			FROM
-				members,
-				stats__server_get_image
-			WHERE
-				stats__server_get_image."NUMBER" % ${num} = 0 AND
-				members."ID" = stats__server_get_image."MEMBER"
-			ORDER BY
-				stats__server_get_image."ENTRY" DESC
-			LIMIT 10
-			`;
-			
-			Postgres.query(fuckingQuery, function(err, data) {
-				msg.channel.stopTyping();
-				
-				if (err) {
-					msg.reply('What the fuck');
-					return;
-				}
-				
-				if (!data || !data[0]) {
-					msg.reply('No gets ;n;');
-					return;
-				}
-				
-				let output = '```' + Util.AppendSpaces('Username', 30) + Util.AppendSpaces('Get', 10) + Util.AppendSpaces('Date', 10) + '\n';
-				
-				for (let row of data) {
-					output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * 100).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 100) + ')', 10) + '\n'
-				}
-				
-				msg.reply(output + '```');
-			});
-		} else if (mode == 'channel') {
-			let fuckingQuery = `
-			SELECT
-				members."NAME" AS "NAME",
-				stats__channel_get."NUMBER" AS "NUMBER",
-				stats__channel_get."STAMP" AS "STAMP"
-			FROM
-				members,
-				stats__channel_get
-			WHERE
-				stats__channel_get."NUMBER" % ${num} = 0 AND
-				stats__channel_get."CHANNEL" = ${msg.channel.uid} AND
-				members."ID" = stats__channel_get."MEMBER"
-			ORDER BY
-				stats__server_get_image."ENTRY" DESC
-			LIMIT 10
-			`;
-			
-			Postgres.query(fuckingQuery, function(err, data) {
-				msg.channel.stopTyping();
-				
-				if (err) {
-					msg.reply('What the fuck');
-					return;
-				}
-				
-				if (!data || !data[0]) {
-					msg.reply('No gets ;n;');
-					return;
-				}
-				
-				let output = '```' + Util.AppendSpaces('Username', 30) + Util.AppendSpaces('Get', 10) + Util.AppendSpaces('Date', 10) + '\n';
-				
-				for (let row of data) {
-					output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * 1000).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ')', 10) + '\n'
-				}
-				
-				msg.reply(output + '```');
-			});
-		} else if (mode == 'channel' && (mode1 == 'image' || mode1 == 'images')) {
-			let fuckingQuery = `
-			SELECT
-				members."NAME" AS "NAME",
-				stats__channel_get_image."NUMBER" AS "NUMBER",
-				stats__channel_get_image."STAMP" AS "STAMP"
-			FROM
-				members,
-				stats__channel_get_image
-			WHERE
-				stats__channel_get_image."NUMBER" % ${num} = 0 AND
-				stats__channel_get_image."CHANNEL" = ${msg.channel.uid} AND
-				members."ID" = stats__channel_get_image."MEMBER"
-			ORDER BY
-				stats__server_get_image."ENTRY" DESC
-			LIMIT 10
-			`;
-			
-			Postgres.query(fuckingQuery, function(err, data) {
-				msg.channel.stopTyping();
-				
-				if (err) {
-					msg.reply('What the fuck');
-					return;
-				}
-				
-				if (!data || !data[0]) {
-					msg.reply('No gets ;n;');
-					return;
-				}
-				
-				let output = '```' + Util.AppendSpaces('Username', 30) + Util.AppendSpaces('Get', 10) + Util.AppendSpaces('Date', 10) + '\n';
-				
-				for (let row of data) {
-					output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * num * 100).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * num * 100) + ')', 10) + '\n'
-				}
-				
-				msg.reply(output + '```');
-			});
-		} else {
-			return DBot.CommandError('Unknown subcommand', name, args, 1);
-		}
-	}
-}
-
-let descFullGet = `
-Submodes are:
-server
-image or server images
-channel
-channel images
-`;
-
-DBot.RegisterCommand({
-	name: 'gets',
-	
-	help_args: '',
-	desc: 'Users who GET a round message',
-	delay: 5,
-	desc_full: descFullGet,
-	
-	func: getsfn('gets', 1),
-});
-
-DBot.RegisterCommand({
-	name: 'gets5',
-	
-	help_args: '',
-	desc: 'Users who GET a round message (5k)',
-	delay: 5,
-	desc_full: descFullGet,
-	
-	func: getsfn('gets', 5),
 });
 
 let word_global_sql = `
