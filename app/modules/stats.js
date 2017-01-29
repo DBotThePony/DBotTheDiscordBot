@@ -388,6 +388,125 @@ DBot.RegisterCommand({
 	func: gtop10fn('gutop10', 'TOTAL_UNIQUE_WORDS'),
 });
 
+let ctop10fn = function(name, order) {
+	return function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'Oh! This is PM x3';
+		
+		let page = Util.ToNumber(args[0]) || 1;
+		
+		if (page <= 0)
+			return DBot.CommandError('what', 'ctop10', args, 1);
+		
+		let offset = (page - 1) * 20;
+		
+		let ID = DBot.GetChannelID(msg.channel);
+		
+		let query = `
+			SELECT
+				users."UID" as "USERID",
+				users."ID" as "ID",
+				members."NAME" as "USERNAME",
+				stats__peruser_channels."MESSAGES" as "COUNT",
+				SUM(stats__uwords_channels."COUNT") AS "TOTAL_WORDS",
+				COUNT(DISTINCT stats__uwords_channels."WORD") AS "TOTAL_UNIQUE_WORDS"
+			FROM
+				users,
+				members,
+				channels,
+				stats__peruser_channels,
+				stats__uwords_channels
+			WHERE
+				stats__peruser_channels."ID" = ${ID} AND
+				stats__uwords_channels."ID" = ${ID} AND
+				channels."ID" = ${ID} AND
+				members."SERVER" = channels."SID" AND
+				members."USER" = users."ID" AND
+				stats__peruser_channels."USER" = users."ID" AND
+				stats__uwords_channels."USER" = users."ID"
+			GROUP BY
+				users."UID",
+				users."ID",
+				members."NAME",
+				stats__peruser_channels."MESSAGES"
+			ORDER BY "COUNT" DESC
+			OFFSET ${offset} LIMIT 20`;
+		
+		msg.channel.startTyping();
+		
+		Postgres.query(query, function(err, data) {
+			if (err) {
+				console.error(err);
+				msg.reply('<internal pony error>');
+				msg.channel.stopTyping();
+				return;
+			}
+			
+			try {
+				if (!data[0]) {
+					msg.channel.stopTyping();
+					msg.reply('No data was returned in query');
+					return;
+				}
+				
+				msg.channel.stopTyping();
+				
+				let output = '\nRank. Username. Total Phrases Said.\n```';
+				
+				let i = 0;
+				for (let row of data) {
+					output += Util.AppendSpaces(Number(i) + 1 + (page - 1) * 20, 4)
+						+ Util.AppendSpaces(row.USERNAME, 20) + ' --- '
+						+ Util.AppendSpaces(numeral(row.COUNT).format('0,0')
+						+ ' phrases', 15) + ' (' + numeral(row.TOTAL_WORDS).format('0,0')
+						+ ' total words said; ' + numeral(row.TOTAL_UNIQUE_WORDS).format('0,0')
+						+ ' unique words)\n';
+					
+					i++;
+				}
+				
+				msg.reply(output + '```');
+			} catch(err) {
+				msg.channel.stopTyping();
+				console.error(err);
+				msg.reply('<internal pony error>');
+			}
+		});
+	};
+}
+
+DBot.RegisterCommand({
+	name: 'ctop10',
+	alias: ['ctop', 'ctop20'],
+	
+	help_args: '[page]',
+	desc: 'Displays TOP10 of talkable persons on this channel',
+	delay: 5,
+	
+	func: ctop10fn('ctop10', 'COUNT'),
+});
+
+DBot.RegisterCommand({
+	name: 'wctop10',
+	alias: ['wctop', 'wctop20', 'cwtop', 'cwtop20'],
+	
+	help_args: '[page]',
+	desc: 'Displays TOP10 of talkable persons on this channel\nUses "Total words said" as ranking',
+	delay: 5,
+	
+	func: ctop10fn('wctop10', 'TOTAL_WORDS'),
+});
+
+DBot.RegisterCommand({
+	name: 'uctop10',
+	alias: ['uctop', 'uctop20', 'cutop', 'cutop20'],
+	
+	help_args: '[page]',
+	desc: 'Displays TOP10 of talkable persons on this channel\nUses "Total unique words said" as ranking',
+	delay: 5,
+	
+	func: ctop10fn('uctop10', 'TOTAL_UNIQUE_WORDS'),
+});
 
 /*
 DBot.RegisterCommand({
@@ -898,126 +1017,6 @@ DBot.RegisterCommand({
 			
 		}
 	},
-});
-
-let ctop10fn = function(name, order) {
-	return function(args, cmd, msg) {
-		if (DBot.IsPM(msg))
-			return 'Oh! This is PM x3';
-		
-		let page = Util.ToNumber(args[0]) || 1;
-		
-		if (page <= 0)
-			return DBot.CommandError('what', 'top10', args, 1);
-		
-		let offset = (page - 1) * 20;
-		
-		let ID = DBot.GetChannelID(msg.channel);
-		
-		let query = `
-			SELECT
-				users."UID" as "USERID",
-				users."ID" as "ID",
-				members."NAME" as "USERNAME",
-				stats__uphrases_channel."COUNT" as "COUNT",
-				SUM(stats__uwords_channel."COUNT") AS "TOTAL_WORDS",
-				COUNT(DISTINCT stats__uwords_channel."WORD") AS "TOTAL_UNIQUE_WORDS"
-			FROM
-				users,
-				members,
-				channels,
-				stats__uphrases_channel,
-				stats__uwords_channel
-			WHERE
-				stats__uphrases_channel."CHANNEL" = ${ID} AND
-				stats__uwords_channel."CHANNEL" = ${ID} AND
-				channels."ID" = ${ID} AND
-				members."SERVER" = channels."SID" AND
-				members."USER" = users."ID" AND
-				stats__uphrases_channel."UID" = users."ID" AND
-				stats__uwords_channel."UID" = users."ID"
-			GROUP BY
-				users."UID",
-				users."ID",
-				members."NAME",
-				stats__uphrases_channel."COUNT"
-			ORDER BY "COUNT" DESC
-			OFFSET ${offset} LIMIT 20`;
-		
-		msg.channel.startTyping();
-		
-		Postgres.query(query, function(err, data) {
-			if (err) {
-				console.error(err);
-				msg.reply('<internal pony error>');
-				msg.channel.stopTyping();
-				return;
-			}
-			
-			try {
-				if (!data[0]) {
-					msg.channel.stopTyping();
-					msg.reply('No data was returned in query');
-					return;
-				}
-				
-				msg.channel.stopTyping();
-				
-				let output = '\nRank. Username. Total Phrases Said.\n```';
-				
-				let i = 0;
-				for (let row of data) {
-					output += Util.AppendSpaces(Number(i) + 1 + (page - 1) * 20, 4)
-						+ Util.AppendSpaces(row.USERNAME, 20) + ' --- '
-						+ Util.AppendSpaces(numeral(row.COUNT).format('0,0')
-						+ ' phrases', 15) + ' (' + numeral(row.TOTAL_WORDS).format('0,0')
-						+ ' total words said; ' + numeral(row.TOTAL_UNIQUE_WORDS).format('0,0')
-						+ ' unique words)\n';
-					
-					i++;
-				}
-				
-				msg.reply(output + '```');
-			} catch(err) {
-				msg.channel.stopTyping();
-				console.error(err);
-				msg.reply('<internal pony error>');
-			}
-		});
-	};
-}
-
-DBot.RegisterCommand({
-	name: 'ctop10',
-	alias: ['ctop', 'ctop20'],
-	
-	help_args: '[page]',
-	desc: 'Displays TOP10 of talkable persons on this channel',
-	delay: 5,
-	
-	func: ctop10fn('ctop10', 'COUNT'),
-});
-
-DBot.RegisterCommand({
-	name: 'wctop10',
-	alias: ['wctop', 'wctop20', 'cwtop', 'cwtop20'],
-	
-	help_args: '[page]',
-	desc: 'Displays TOP10 of talkable persons on this channel\nUses "Total words said" as ranking',
-	delay: 5,
-	
-	func: ctop10fn('wctop10', 'TOTAL_WORDS'),
-});
-
-DBot.RegisterCommand({
-	name: 'uctop10',
-	alias: ['uctop', 'uctop20', 'cutop', 'cutop20'],
-	
-	help_args: '[page]',
-	desc: 'Displays TOP10 of talkable persons on this channel\nUses "Total unique words said" as ranking',
-	delay: 5,
-	
-	func: ctop10fn('uctop10', 'TOTAL_UNIQUE_WORDS'),
 });
 
 let SPACES = function(len) {
