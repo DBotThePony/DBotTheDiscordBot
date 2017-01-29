@@ -279,6 +279,115 @@ DBot.RegisterCommand({
 	func: top10fn('utop10', 'TOTAL_UNIQUE_WORDS'),
 });
 
+let gtop10fn = function(name, order) {
+	return function(args, cmd, msg) {
+		let page = Util.ToNumber(args[0]) || 1;
+		
+		if (page <= 0)
+			return DBot.CommandError('what', name, args, 1);
+		
+		let offset = (page - 1) * 20;
+		
+		msg.channel.startTyping();
+		
+		let query = `
+			SELECT
+				users."UID" as "USERID",
+				users."ID" as "ID",
+				users."NAME" as "USERNAME",
+				stats__generic_users."MESSAGES" as "COUNT",
+				SUM(stats__words_users."COUNT") AS "TOTAL_WORDS",
+				COUNT(DISTINCT stats__words_users."WORD") AS "TOTAL_UNIQUE_WORDS"
+			FROM
+				users,
+				stats__generic_users,
+				stats__words_users
+			WHERE
+				users."TIME" > currtime() - 120 AND
+				stats__generic_users."ID" = users."ID" AND
+				stats__words_users."ID" = users."ID"
+			GROUP BY
+				users."UID",
+				users."ID",
+				users."NAME",
+				stats__generic_users."MESSAGES"
+			ORDER BY "${order}" DESC
+			OFFSET ${offset} LIMIT 20`;
+		
+		Postgres.query(query, function(err, data) {
+			if (err) {
+				console.error(err);
+				msg.reply('<internal pony error>');
+				msg.channel.stopTyping();
+				return;
+			}
+			
+			try {
+				if (!data[0]) {
+					msg.channel.stopTyping();
+					msg.reply('No data was returned in query');
+					return;
+				}
+				
+				msg.channel.stopTyping();
+				
+				let output = '\nRank. Username. Total Phrases Said.\n```';
+				
+				let i = 0;
+				for (let row of data) {
+					output += Util.AppendSpaces(Number(i) + 1 + (page - 1) * 20, 4)
+						+ Util.AppendSpaces(row.USERNAME, 20) + ' --- '
+						+ Util.AppendSpaces(numeral(row.COUNT).format('0,0')
+						+ ' phrases', 15) + ' (' + numeral(row.TOTAL_WORDS).format('0,0')
+						+ ' total words said; ' + numeral(row.TOTAL_UNIQUE_WORDS).format('0,0')
+						+ ' unique words)\n';
+					
+					i++;
+				}
+				
+				msg.reply(output + '```');
+			} catch(err) {
+				msg.channel.stopTyping();
+				console.error(err);
+				msg.reply('<internal pony error>');
+			}
+		});
+	}
+}
+
+DBot.RegisterCommand({
+	name: 'gtop10',
+	alias: ['gtop', 'gtop20'],
+	
+	help_args: '[page]',
+	desc: 'Displays TOP of talkable persons',
+	delay: 5,
+	
+	func: gtop10fn('gtop10', 'COUNT'),
+});
+
+DBot.RegisterCommand({
+	name: 'gwtop10',
+	alias: ['gwtop', 'gwtop20'],
+	
+	help_args: '[page]',
+	desc: 'Displays TOP of talkable persons on this server\nUses "Total Words said" as ranking',
+	delay: 5,
+	
+	func: gtop10fn('gwtop10', 'TOTAL_WORDS'),
+});
+
+DBot.RegisterCommand({
+	name: 'gutop10',
+	alias: ['gutop', 'gutop20'],
+	
+	help_args: '[page]',
+	desc: 'Displays TOP of talkable persons\nUses "Total Unique Words said" as ranking',
+	delay: 5,
+	
+	func: gtop10fn('gutop10', 'TOTAL_UNIQUE_WORDS'),
+});
+
 
 /*
 DBot.RegisterCommand({
@@ -789,115 +898,6 @@ DBot.RegisterCommand({
 			
 		}
 	},
-});
-
-let gtop10fn = function(name, order) {
-	return function(args, cmd, msg) {
-		let page = Util.ToNumber(args[0]) || 1;
-		
-		if (page <= 0)
-			return DBot.CommandError('what', name, args, 1);
-		
-		let offset = (page - 1) * 20;
-		
-		msg.channel.startTyping();
-		
-		let query = `
-			SELECT
-				users."UID" as "USERID",
-				users."ID" as "ID",
-				users."NAME" as "USERNAME",
-				stats__phrases_user."COUNT" as "COUNT",
-				SUM(stats__words_user."COUNT") AS "TOTAL_WORDS",
-				COUNT(DISTINCT stats__words_user."WORD") AS "TOTAL_UNIQUE_WORDS"
-			FROM
-				users,
-				stats__phrases_user,
-				stats__words_user
-			WHERE
-				users."TIME" > currtime() - 120 AND
-				stats__phrases_user."UID" = users."ID" AND
-				stats__words_user."UID" = users."ID"
-			GROUP BY
-				users."UID",
-				users."ID",
-				users."NAME",
-				stats__phrases_user."COUNT"
-			ORDER BY "${order}" DESC
-			OFFSET ${offset} LIMIT 20`;
-		
-		Postgres.query(query, function(err, data) {
-			if (err) {
-				console.error(err);
-				msg.reply('<internal pony error>');
-				msg.channel.stopTyping();
-				return;
-			}
-			
-			try {
-				if (!data[0]) {
-					msg.channel.stopTyping();
-					msg.reply('No data was returned in query');
-					return;
-				}
-				
-				msg.channel.stopTyping();
-				
-				let output = '\nRank. Username. Total Phrases Said.\n```';
-				
-				let i = 0;
-				for (let row of data) {
-					output += Util.AppendSpaces(Number(i) + 1 + (page - 1) * 20, 4)
-						+ Util.AppendSpaces(row.USERNAME, 20) + ' --- '
-						+ Util.AppendSpaces(numeral(row.COUNT).format('0,0')
-						+ ' phrases', 15) + ' (' + numeral(row.TOTAL_WORDS).format('0,0')
-						+ ' total words said; ' + numeral(row.TOTAL_UNIQUE_WORDS).format('0,0')
-						+ ' unique words)\n';
-					
-					i++;
-				}
-				
-				msg.reply(output + '```');
-			} catch(err) {
-				msg.channel.stopTyping();
-				console.error(err);
-				msg.reply('<internal pony error>');
-			}
-		});
-	}
-}
-
-DBot.RegisterCommand({
-	name: 'gtop10',
-	alias: ['gtop', 'gtop20'],
-	
-	help_args: '[page]',
-	desc: 'Displays TOP of talkable persons',
-	delay: 5,
-	
-	func: gtop10fn('gtop10', 'COUNT'),
-});
-
-DBot.RegisterCommand({
-	name: 'gwtop10',
-	alias: ['gwtop', 'gwtop20'],
-	
-	help_args: '[page]',
-	desc: 'Displays TOP of talkable persons on this server\nUses "Total Words said" as ranking',
-	delay: 5,
-	
-	func: gtop10fn('gwtop10', 'TOTAL_WORDS'),
-});
-
-DBot.RegisterCommand({
-	name: 'gutop10',
-	alias: ['gutop', 'gutop20'],
-	
-	help_args: '[page]',
-	desc: 'Displays TOP of talkable persons\nUses "Total Unique Words said" as ranking',
-	delay: 5,
-	
-	func: gtop10fn('gutop10', 'TOTAL_UNIQUE_WORDS'),
 });
 
 let ctop10fn = function(name, order) {
