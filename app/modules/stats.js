@@ -254,7 +254,7 @@ DBot.RegisterCommand({
 	desc: 'Displays TOP10 of talkable persons on this server',
 	delay: 5,
 	
-	func: top10fn('top10', 'COUNT'),
+	func: top10fn('top10', 'COUNT')
 });
 
 DBot.RegisterCommand({
@@ -265,7 +265,7 @@ DBot.RegisterCommand({
 	desc: 'Displays TOP10 of talkable persons on this server\nUses "Total Words said" as ranking',
 	delay: 5,
 	
-	func: top10fn('wtop10', 'TOTAL_WORDS'),
+	func: top10fn('wtop10', 'TOTAL_WORDS')
 });
 
 DBot.RegisterCommand({
@@ -276,7 +276,7 @@ DBot.RegisterCommand({
 	desc: 'Displays TOP10 of talkable persons on this server\nUses "Total Unique Words said" as ranking',
 	delay: 5,
 	
-	func: top10fn('utop10', 'TOTAL_UNIQUE_WORDS'),
+	func: top10fn('utop10', 'TOTAL_UNIQUE_WORDS')
 });
 
 let gtop10fn = function(name, order) {
@@ -363,7 +363,7 @@ DBot.RegisterCommand({
 	desc: 'Displays TOP of talkable persons',
 	delay: 5,
 	
-	func: gtop10fn('gtop10', 'COUNT'),
+	func: gtop10fn('gtop10', 'COUNT')
 });
 
 DBot.RegisterCommand({
@@ -374,7 +374,7 @@ DBot.RegisterCommand({
 	desc: 'Displays TOP of talkable persons on this server\nUses "Total Words said" as ranking',
 	delay: 5,
 	
-	func: gtop10fn('gwtop10', 'TOTAL_WORDS'),
+	func: gtop10fn('gwtop10', 'TOTAL_WORDS')
 });
 
 DBot.RegisterCommand({
@@ -385,7 +385,7 @@ DBot.RegisterCommand({
 	desc: 'Displays TOP of talkable persons\nUses "Total Unique Words said" as ranking',
 	delay: 5,
 	
-	func: gtop10fn('gutop10', 'TOTAL_UNIQUE_WORDS'),
+	func: gtop10fn('gutop10', 'TOTAL_UNIQUE_WORDS')
 });
 
 let ctop10fn = function(name, order) {
@@ -483,7 +483,7 @@ DBot.RegisterCommand({
 	desc: 'Displays TOP10 of talkable persons on this channel',
 	delay: 5,
 	
-	func: ctop10fn('ctop10', 'COUNT'),
+	func: ctop10fn('ctop10', 'COUNT')
 });
 
 DBot.RegisterCommand({
@@ -494,7 +494,7 @@ DBot.RegisterCommand({
 	desc: 'Displays TOP10 of talkable persons on this channel\nUses "Total words said" as ranking',
 	delay: 5,
 	
-	func: ctop10fn('wctop10', 'TOTAL_WORDS'),
+	func: ctop10fn('wctop10', 'TOTAL_WORDS')
 });
 
 DBot.RegisterCommand({
@@ -505,7 +505,7 @@ DBot.RegisterCommand({
 	desc: 'Displays TOP10 of talkable persons on this channel\nUses "Total unique words said" as ranking',
 	delay: 5,
 	
-	func: ctop10fn('uctop10', 'TOTAL_UNIQUE_WORDS'),
+	func: ctop10fn('uctop10', 'TOTAL_UNIQUE_WORDS')
 });
 
 
@@ -883,7 +883,7 @@ DBot.RegisterCommand({
 	delay: 5,
 	desc_full: descFullGet,
 	
-	func: getsfn('gets', 1),
+	func: getsfn('gets', 1)
 });
 
 DBot.RegisterCommand({
@@ -894,7 +894,7 @@ DBot.RegisterCommand({
 	delay: 5,
 	desc_full: descFullGet,
 	
-	func: getsfn('gets', 5),
+	func: getsfn('gets', 5)
 });
 
 
