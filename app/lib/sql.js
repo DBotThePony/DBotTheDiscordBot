@@ -110,27 +110,39 @@ pgConnection.connect(function(err) {
 				hook.Run('SQLInitialize');
 			else {
 				console.log('Upgrading database, please wait...');
-				let finalQuery = '';
 				
-				for (let i = db_rev + 1; i <= last_rev; i++) {
-					console.log((i - 1) + '->' + i);
-					let contents = DBot.fs.readFileSync('./app/dbrevisions/' + i + '.sql');
-					
-					finalQuery += '\n' + contents;
-				}
+				let callbackFuncs = [];
+				let current = 0;
 				
-				finalQuery += '\nUPDATE db_info SET "VALUE" = \'' + last_rev + '\' WHERE "KEY" = \'version\';';
-				
-				pgConnection.query(finalQuery, function(err) {
+				let usualCallback = function(err) {
 					if (err) {
-						console.error('An fatal error occured while database was upgraded to latest revision');
+						console.error('There is a problem with upgrading database');
 						throw err;
 					}
 					
-					console.log('Upgrade complete.');
+					current++;
+					if (!callbackFuncs[current])
+						return;
 					
-					hook.Run('SQLInitialize');
+					callbackFuncs[current]();
+				};
+				
+				for (let i = db_rev + 1; i <= last_rev; i++) {
+					callbackFuncs.push(function(err) {
+						console.log((i - 1) + '->' + i);
+						let contents = DBot.fs.readFileSync('./app/dbrevisions/' + i + '.sql', 'utf8');
+						pgConnection.query(contents, usualCallback);
+					});
+				}
+				
+				callbackFuncs.push(function() {
+					pgConnection.query('UPDATE db_info SET "VALUE" = \'' + last_rev + '\' WHERE "KEY" = \'version\';', function() {
+						console.log('Upgrade complete.');
+						hook.Run('SQLInitialize');
+					});
 				});
+				
+				callbackFuncs[0]();
 			}
 		});
 	});
