@@ -1,24 +1,22 @@
 {
-	"name": "NotDBot",
-	"version": "1.0.0",
-	"private": true,
-	
-	"scripts": {
-		"start": "node app.js"
-	},
-	
-	"dependencies": {
-		"discord.js": "latest",
-		"bignumber.js": "latest",
-		"moment": "latest",
-		"cowsay": "latest",
-		"opusscript": "latest",
-		"numeral": "latest",
-		"utf8": "latest",
-		"json3": "latest",
-		"figlet": "latest",
-		"unirest": "latest",
-		"humanize-duration": "latest",
-		"pg": "latest"
-	}
+  "name": "NotDBot",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "bignumber.js": "latest",
+    "cowsay": "latest",
+    "discord.js": "latest",
+    "figlet": "latest",
+    "humanize-duration": "latest",
+    "json3": "latest",
+    "moment": "latest",
+    "numeral": "latest",
+    "opusscript": "latest",
+    "pg": "latest",
+    "unirest": "latest",
+    "utf8": "latest"
+  }
 }
