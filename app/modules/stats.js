@@ -508,6 +508,195 @@ DBot.RegisterCommand({
 	func: ctop10fn('uctop10', 'TOTAL_UNIQUE_WORDS'),
 });
 
+
+Util.mkdir(DBot.WebRoot + '/ntstats');
+const fs = DBot.js.fs;
+
+DBot.RegisterCommand({
+	name: 'nevertalked',
+	alias: ['nevertalk', 'newbies', 'newbie', 'voicelesses', 'speechlesses', 'silents', 'inactive'],
+	
+	help_args: '[prune]',
+	desc: 'Lists all users that don\'t talk\nIf first argument is "prune", it will kick **all** users',
+	delay: 5,
+	
+	func: function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'pm ;n;';
+		
+		msg.channel.startTyping();
+		
+		if (args[0] != 'prune') {
+			Postgres.query(sprintf(never_talk_sql, DBot.bot.user.id, msg.channel.guild.uid, msg.channel.guild.uid), function(err, data) {
+				msg.channel.stopTyping();
+				
+				if (err) {
+					msg.reply('<internal pony error>');
+					console.error(err);
+					return;
+				}
+				
+				let sha = DBot.HashString(CurTime() + '_' + msg.channel.guild.uid);
+				let stream = fs.createWriteStream(DBot.WebRoot + '/ntstats/' + sha + '.txt');
+				
+				stream.write('Table of users\n');
+				
+				for (let row of data) {
+					stream.write('\t <@' + row.USERID + '> ' + Util.AppendSpaces(row.MEMBERNAME, 60) + '(' + row.USERNAME + ')\n');
+				}
+				
+				stream.write('\n\nArray of users\n\t');
+				
+				let i = 0;
+				
+				for (let row of data) {
+					i++;
+					stream.write('<@' + row.USERID + '> ');
+					
+					if (i >= 40) {
+						i = 0;
+						stream.write('\n\t');
+					}
+				}
+				
+				stream.write('\n\nArray of users (single line)\n');
+				
+				for (let row of data) {
+					stream.write('<@' + row.USERID + '> ');
+				}
+				
+				stream.write('\n\nArray of names\n\t');
+				
+				i = 0;
+				
+				for (let row of data) {
+					stream.write(row.MEMBERNAME + ' ');
+					
+					if (i >= 40) {
+						i = 0;
+						stream.write('\n\t');
+					}
+				}
+				
+				stream.write('\n\nArray of names (single line)\n');
+				
+				for (let row of data) {
+					stream.write(row.MEMBERNAME + ' ');
+				}
+				
+				
+				stream.write('\n\nArrays, but with forward @\n\t');
+				stream.write('\n\nArray of names\n\t');
+				
+				i = 0;
+				
+				for (let row of data) {
+					stream.write('@' + row.MEMBERNAME + ' ');
+					
+					if (i >= 40) {
+						i = 0;
+						stream.write('\n\t');
+					}
+				}
+				
+				stream.write('\n\nArray of names (single line)\n');
+				
+				for (let row of data) {
+					stream.write('@' + row.MEMBERNAME + ' ');
+				}
+				
+				stream.end();
+				
+				stream.on('finish', function() {
+					msg.reply(DBot.URLRoot + '/ntstats/' + sha + '.txt')
+				});
+			});
+		} else {
+			let me = msg.channel.guild.member(DBot.bot.user);
+			
+			if (!me) {
+				msg.reply('<internal pony error>');
+				console.error(err);
+				return;
+			}
+			
+			if (!msg.member.hasPermission('KICK_MEMBERS'))
+				return 'You must have `KICK_MEMBERS` permission ;n;';
+			
+			if (!me.hasPermission('KICK_MEMBERS'))
+				return 'I must have `KICK_MEMBERS` permission ;n;';
+			
+			Postgres.query(sprintf(never_talk_sql, DBot.bot.user.id, msg.channel.guild.uid, msg.channel.guild.uid), function(err, data) {
+				msg.channel.stopTyping();
+				
+				if (err) {
+					msg.reply('<internal pony error>');
+					console.error(err);
+					return;
+				}
+				
+				if (!data[0]) {
+					msg.reply('No users to kick');
+					return;
+				}
+				
+				let found = [];
+				let server = msg.channel.guild;
+				
+				for (let row of data) {
+					let member = server.member(row.USERID);
+					
+					if (member && member.kickable)
+						found.push(member);
+				}
+				
+				if (!found[0]) {
+					msg.reply('No users to kick');
+					return;
+				}
+				
+				let conf = new DBot.Confirm(msg.author, msg.channel);
+				
+				conf.setTitle('Server members prune');
+				conf.setDesc('Kick **' + found.length + '** not talking members');
+				
+				conf.confirm(function() {
+					msg.channel.startTyping();
+					msg.reply('Kicking **' + found.length + '** members ;n; Bye ;n;');
+					
+					let total = found.length;
+					
+					for (let member of found) {
+						member.kick()
+						.then(function() {
+							total--;
+							
+							if (total == 0) {
+								msg.channel.stopTyping();
+								msg.reply('All members are kicked now ;n;');
+							}
+						})
+						.catch(function() {
+							total--;
+							
+							if (total == 0) {
+								msg.channel.stopTyping();
+								msg.reply('All members are kicked now ;n;');
+							}
+						});
+					}
+				});
+				
+				conf.decline(function() {
+					msg.reply('Aborting');
+				});
+				
+				conf.echo();
+			});
+		}
+	},
+});
+
 /*
 DBot.RegisterCommand({
 	name: 'stats',
@@ -1757,191 +1946,4 @@ DBot.RegisterCommand({
 	},
 });
 
-Util.mkdir(DBot.WebRoot + '/ntstats');
-const fs = require('fs');
-
-DBot.RegisterCommand({
-	name: 'nevertalked',
-	alias: ['nevertalk', 'newbies', 'newbie', 'voicelesses', 'speechlesses', 'silents', 'inactive'],
-	
-	help_args: '[prune]',
-	desc: 'Lists all users that don\'t talk\nIf first argument is "prune", it will kick **all** users',
-	delay: 5,
-	
-	func: function(args, cmd, msg) {
-		if (DBot.IsPM(msg))
-			return 'pm ;n;';
-		
-		msg.channel.startTyping();
-		
-		if (args[0] != 'prune') {
-			Postgres.query(sprintf(never_talk_sql, DBot.bot.user.id, msg.channel.guild.uid, msg.channel.guild.uid), function(err, data) {
-				msg.channel.stopTyping();
-				
-				if (err) {
-					msg.reply('<internal pony error>');
-					console.error(err);
-					return;
-				}
-				
-				let sha = DBot.HashString(CurTime() + '_' + msg.channel.guild.uid);
-				let stream = fs.createWriteStream(DBot.WebRoot + '/ntstats/' + sha + '.txt');
-				
-				stream.write('Table of users\n');
-				
-				for (let row of data) {
-					stream.write('\t <@' + row.USERID + '> ' + Util.AppendSpaces(row.MEMBERNAME, 60) + '(' + row.USERNAME + ')\n');
-				}
-				
-				stream.write('\n\nArray of users\n\t');
-				
-				let i = 0;
-				
-				for (let row of data) {
-					i++;
-					stream.write('<@' + row.USERID + '> ');
-					
-					if (i >= 40) {
-						i = 0;
-						stream.write('\n\t');
-					}
-				}
-				
-				stream.write('\n\nArray of users (single line)\n');
-				
-				for (let row of data) {
-					stream.write('<@' + row.USERID + '> ');
-				}
-				
-				stream.write('\n\nArray of names\n\t');
-				
-				i = 0;
-				
-				for (let row of data) {
-					stream.write(row.MEMBERNAME + ' ');
-					
-					if (i >= 40) {
-						i = 0;
-						stream.write('\n\t');
-					}
-				}
-				
-				stream.write('\n\nArray of names (single line)\n');
-				
-				for (let row of data) {
-					stream.write(row.MEMBERNAME + ' ');
-				}
-				
-				
-				stream.write('\n\nArrays, but with forward @\n\t');
-				stream.write('\n\nArray of names\n\t');
-				
-				i = 0;
-				
-				for (let row of data) {
-					stream.write('@' + row.MEMBERNAME + ' ');
-					
-					if (i >= 40) {
-						i = 0;
-						stream.write('\n\t');
-					}
-				}
-				
-				stream.write('\n\nArray of names (single line)\n');
-				
-				for (let row of data) {
-					stream.write('@' + row.MEMBERNAME + ' ');
-				}
-				
-				stream.end();
-				
-				stream.on('finish', function() {
-					msg.reply(DBot.URLRoot + '/ntstats/' + sha + '.txt')
-				});
-			});
-		} else {
-			let me = msg.channel.guild.member(DBot.bot.user);
-			
-			if (!me) {
-				msg.reply('<internal pony error>');
-				console.error(err);
-				return;
-			}
-			
-			if (!msg.member.hasPermission('KICK_MEMBERS'))
-				return 'You must have `KICK_MEMBERS` permission ;n;';
-			
-			if (!me.hasPermission('KICK_MEMBERS'))
-				return 'I must have `KICK_MEMBERS` permission ;n;';
-			
-			Postgres.query(sprintf(never_talk_sql, DBot.bot.user.id, msg.channel.guild.uid, msg.channel.guild.uid), function(err, data) {
-				msg.channel.stopTyping();
-				
-				if (err) {
-					msg.reply('<internal pony error>');
-					console.error(err);
-					return;
-				}
-				
-				if (!data[0]) {
-					msg.reply('No users to kick');
-					return;
-				}
-				
-				let found = [];
-				let server = msg.channel.guild;
-				
-				for (let row of data) {
-					let member = server.member(row.USERID);
-					
-					if (member && member.kickable)
-						found.push(member);
-				}
-				
-				if (!found[0]) {
-					msg.reply('No users to kick');
-					return;
-				}
-				
-				let conf = new DBot.Confirm(msg.author, msg.channel);
-				
-				conf.setTitle('Server members prune');
-				conf.setDesc('Kick **' + found.length + '** not talking members');
-				
-				conf.confirm(function() {
-					msg.channel.startTyping();
-					msg.reply('Kicking **' + found.length + '** members ;n; Bye ;n;');
-					
-					let total = found.length;
-					
-					for (let member of found) {
-						member.kick()
-						.then(function() {
-							total--;
-							
-							if (total == 0) {
-								msg.channel.stopTyping();
-								msg.reply('All members are kicked now ;n;');
-							}
-						})
-						.catch(function() {
-							total--;
-							
-							if (total == 0) {
-								msg.channel.stopTyping();
-								msg.reply('All members are kicked now ;n;');
-							}
-						});
-					}
-				});
-				
-				conf.decline(function() {
-					msg.reply('Aborting');
-				});
-				
-				conf.echo();
-			});
-		}
-	},
-});
 */
