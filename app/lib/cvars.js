@@ -139,7 +139,7 @@ class ConVar {
 		
 		for (let flag of this.flags) {
 			if (flag == FCVAR_PRINTABLEONLY) {
-				if (!val.match(/^([a-zA-Z‡-ˇ¿-ﬂ0-9]+)$/))
+				if (!val.match(/^([a-zA-Z–∞-—è–ê-–Ø0-9]+)$/))
 					return [false, FCVAR_PRINTABLEONLY];
 			} else if (flag == FCVAR_NUMERSONLY) {
 				if (!val.match(/^([0-9]+)$/))
@@ -737,14 +737,29 @@ hook.Add('ServersInitialized', 'CVars', function(servers) {
 });
 
 cvars.Server = function(server) {
+	if (!cvars.SERVERS[DBot.GetServerID(server)] && DBot.SQLReady()) {
+		console.log('CRITICAL: Server ', server.name, 'wasn\'t initialized?');
+		cvars.SERVERS[DBot.GetServerID(server)] = new ServerVarSession(server);
+	}
+	
 	return cvars.SERVERS[DBot.GetServerID(server)];
 }
 
 cvars.Channel = function(channel) {
+	if (!cvars.CHANNELS[DBot.GetChannelID(channel)] && DBot.SQLReady()) {
+		console.log('CRITICAL: Channel ', channel.name, 'wasn\'t initialized?');
+		cvars.CHANNELS[DBot.GetChannelID(channel)] = new ChannelVarSession(channel);
+	}
+	
 	return cvars.CHANNELS[DBot.GetChannelID(channel)];
 }
 
 cvars.Client = function(user) {
+	if (!cvars.SERVERS[DBot.GetChannelID(user)] && DBot.SQLReady()) {
+		console.log('CRITICAL: User ', user.name, 'wasn\'t initialized?');
+		cvars.CLIENTS[DBot.GetUserID(user)] = new UserVarSession(user);
+	}
+	
 	return cvars.CLIENTS[DBot.GetUserID(user)];
 }
 

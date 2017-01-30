@@ -454,7 +454,9 @@ setInterval(updateLastSeenFunc, 60000);
 
 DBot.DefineChannel = function(channel) {
 	if (!DBot.IsReady()) return;
+	
 	let id = channel.id;
+	
 	if (DBot.ChannelIDs[id]) {
 		channel.uid = DBot.ChannelIDs[id];
 		return;
@@ -591,15 +593,25 @@ DBot.DefineMember = function(obj) {
 	});
 }
 
+let alreadyDefining = {};
+
 DBot.DefineGuild = function(guild) {
 	let id = guild.id;
+	
+	if (alreadyDefining[id])
+		return;
+	
 	if (DBot.ServersIDs[id]) {
 		guild.uid = DBot.ServersIDs[id];
 		return;
 	}
 	
+	alreadyDefining[id] = true;
+	
 	MySQL.query('SELECT ' + sql.Server(guild) + ' AS "ID"', function(err, data) {
 		if (err) throw err;
+		
+		alreadyDefining[id] = undefined;
 		DBot.ServersIDs[id] = data[0].ID;
 		DBot.ServersIDs_R[data[0].ID] = guild;
 		guild.uid = data[0].ID;
@@ -755,12 +767,20 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 		let role_array_ids = [];
 		let serverArrayToPass = [];
 		
+		let preventDupes = [];
+		
 		for (let row of data) {
 			let exp = row.get_servers_id.split(',');
 			let id = Number(exp[0].substr(1));
 			let uid = exp[1].substr(0, exp[1].length - 1);
 			
-			let srv = servers2.get(uid)
+			if (preventDupes.includes(uid))
+				continue;
+			
+			preventDupes.push(uid);
+			
+			let srv = servers2.get(uid);
+			
 			let shouldCall = srv.uid === undefined && DBot.ServersIDs[srv.id] === undefined;
 			
 			DBot.ServersIDs[uid] = id;
