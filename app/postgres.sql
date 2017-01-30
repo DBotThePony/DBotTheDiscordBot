@@ -392,10 +392,9 @@ RETURNS TRIGGER as $$
 DECLARE current_images INTEGER;
 DECLARE current_messages INTEGER;
 BEGIN
-	SELECT stats__generic_servers."IMAGES" INTO current_images FROM stats__generic_servers WHERE stats__generic_servers."ID" = NEW."ID";
-	SELECT stats__generic_servers."MESSAGES" INTO current_messages FROM stats__generic_servers WHERE stats__generic_servers."ID" = NEW."ID";
-	
 	IF (OLD."IMAGES" != NEW."IMAGES") THEN
+		SELECT stats__generic_servers."IMAGES" INTO current_images FROM stats__generic_servers WHERE stats__generic_servers."ID" = NEW."ID";
+
 		IF (current_images % 100 = 0 AND current_images > 0) THEN
 			INSERT INTO
 				stats__server_get_image
@@ -406,6 +405,8 @@ BEGIN
 	END IF;
 	
 	IF (OLD."MESSAGES" != NEW."MESSAGES") THEN
+		SELECT stats__generic_servers."MESSAGES" INTO current_messages FROM stats__generic_servers WHERE stats__generic_servers."ID" = NEW."ID";
+
 		IF (current_messages % 100 = 0 AND current_messages > 0) THEN
 			INSERT INTO
 				stats__server_get_image
@@ -450,10 +451,9 @@ RETURNS TRIGGER as $$
 DECLARE current_images INTEGER;
 DECLARE current_messages INTEGER;
 BEGIN
-	SELECT stats__generic_channels."IMAGES" INTO current_images FROM stats__generic_channels WHERE stats__generic_channels."ID" = NEW."ID";
-	SELECT stats__generic_channels."MESSAGES" INTO current_messages FROM stats__generic_channels WHERE stats__generic_channels."ID" = NEW."ID";
-	
 	IF (OLD."IMAGES" != NEW."IMAGES") THEN
+		SELECT stats__generic_channels."IMAGES" INTO current_images FROM stats__generic_channels WHERE stats__generic_channels."ID" = NEW."ID";
+
 		IF (current_images % 100 = 0 AND current_images > 0) THEN
 			INSERT INTO
 				stats__channel_get_image
@@ -464,6 +464,8 @@ BEGIN
 	END IF;
 	
 	IF (OLD."MESSAGES" != NEW."MESSAGES") THEN
+		SELECT stats__generic_channels."MESSAGES" INTO current_messages FROM stats__generic_channels WHERE stats__generic_channels."ID" = NEW."ID";
+
 		IF (current_messages % 100 = 0 AND current_messages > 0) THEN
 			INSERT INTO
 				stats__channel_get_image
@@ -510,7 +512,7 @@ DROP TRIGGER IF EXISTS get_log ON stats__peruser_channels;
 DROP TRIGGER IF EXISTS get_log_insert ON stats__peruser_channels;
 
 CREATE TRIGGER get_log
-	AFTER UPDATE ON stats__peruser_servers FOR EACH ROW 
+	BEFORE UPDATE ON stats__peruser_servers FOR EACH ROW 
 	EXECUTE PROCEDURE stats_gets_server_trigger_update();
 
 CREATE TRIGGER get_log_insert
@@ -518,7 +520,7 @@ CREATE TRIGGER get_log_insert
 	EXECUTE PROCEDURE stats_gets_server_trigger_insert();
 
 CREATE TRIGGER get_log
-	AFTER UPDATE ON stats__peruser_channels FOR EACH ROW 
+	BEFORE UPDATE ON stats__peruser_channels FOR EACH ROW 
 	EXECUTE PROCEDURE stats_gets_channel_trigger_update();
 
 CREATE TRIGGER get_log_insert
