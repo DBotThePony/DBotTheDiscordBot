@@ -56,3 +56,8 @@ td {
 .eddline {
 	display: block;
 }
+
+.avatar img {
+	max-width: 200px;
+	max-height: 200px;
+}

@@ -3,51 +3,54 @@ Util.SafeCopy('./node_modules/moment/moment.js', DBot.WebRoot + '/moment.js');
 Util.SafeCopy('./node_modules/numeral/numeral.js', DBot.WebRoot + '/numeral.js');
 Util.SafeCopy('./resource/files/jquery-3.0.0.min.js', DBot.WebRoot + '/jquery-3.0.0.min.js');
 Util.SafeCopy('./resource/files/noavatar.jpg', DBot.WebRoot + '/no_avatar.jpg');
+Util.SafeCopy('./resource/files/users.css', DBot.WebRoot + '/users.css');
 Util.mkdir(DBot.WebRoot + '/users');
 
 let crypto = DBot.js.crypto;
 let fs = DBot.js.fs;
 
 let PERM_ENUMS = [
-	"CREATE_INSTANT_INVITE",
-	"KICK_MEMBERS",
-	"BAN_MEMBERS",
-	"ADMINISTRATOR",
-	"MANAGE_CHANNELS",
-	"MANAGE_GUILD",
-	"MANAGE_MESSAGES",
-	"EMBED_LINKS",
-	"ATTACH_FILES",
-	"MENTION_EVERYONE",
-	"EXTERNAL_EMOJIS", // use external emojis
-	"SPEAK", // speak on voice
-	"MUTE_MEMBERS", // globally mute members on voice
-	"DEAFEN_MEMBERS", // globally deafen members on voice
-	"MOVE_MEMBERS", // move member's voice channels
-	"USE_VAD", // use voice activity detection
-	"MANAGE_NICKNAMES", // change nicknames of others
-	"MANAGE_ROLES_OR_PERMISSIONS"
+	'CREATE_INSTANT_INVITE',
+	'KICK_MEMBERS',
+	'BAN_MEMBERS',
+	'ADMINISTRATOR',
+	'MANAGE_CHANNELS',
+	'MANAGE_GUILD',
+	'MANAGE_MESSAGES',
+	'EMBED_LINKS',
+	'ATTACH_FILES',
+	'MENTION_EVERYONE',
+	'EXTERNAL_EMOJIS', // use external emojis
+	'SPEAK', // speak on voice
+	'MUTE_MEMBERS', // globally mute members on voice
+	'DEAFEN_MEMBERS', // globally deafen members on voice
+	'MOVE_MEMBERS', // move member's voice channels
+	'USE_VAD', // use voice activity detection
+	'MANAGE_NICKNAMES', // change nicknames of others
+	'MANAGE_ROLES_OR_PERMISSIONS',
+	'ADD_REACTIONS'
 ];
 
 let PERM_ENUMS_TEXT = [
-	"Create instant invite",
-	"Kick members",
-	"Ban members",
-	"Administrator (full rights to everything)",
-	"Manipulate channels",
-	"Manipulate server",
-	"Manipulate messages",
-	"Embed links",
-	"Attach files to messages",
-	"Mention @everyone",
-	"Use external emoji", // use external emojis
-	"SPEAK", // speak on voice
-	"Mute member's voice", // globally mute members on voice
-	"Deafen members", // globally deafen members on voice
-	"Manipulate voice members", // move member's voice channels
-	"Use voice activity detection", // use voice activity detection
-	"Manipulate nicknames", // change nicknames of others
-	"Manipulate roles"
+	'Create instant invite',
+	'Kick members',
+	'Ban members',
+	'Administrator (full rights to everything)',
+	'Manipulate channels',
+	'Manipulate server',
+	'Manipulate messages',
+	'Embed links',
+	'Attach files to messages',
+	'Mention @everyone',
+	'Use external emoji', // use external emojis
+	'SPEAK', // speak on voice
+	'Mute member\'s voice', // globally mute members on voice
+	'Deafen members', // globally deafen members on voice
+	'Manipulate voice members', // move member's voice channels
+	'Use voice activity detection', // use voice activity detection
+	'Manipulate nicknames', // change nicknames of others
+	'Manipulate roles',
+	'React to messages'
 ];
 
 module.exports = {

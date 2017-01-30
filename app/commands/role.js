@@ -1,4 +1,20 @@
 
+const excludeRoles = [
+	'READ_MESSAGES',
+	'SEND_MESSAGES',
+	'EMBED_LINKS',
+	'ATTACH_FILES',
+	'READ_MESSAGE_HISTORY',
+	'USE_VAD',
+	'CHANGE_NICKNAME',
+	'CREATE_INSTANT_INVITE',
+	'MENTION_EVERYONE',
+	'CONNECT',
+	'SPEAK',
+	'ADD_REACTIONS',
+	'SEND_TTS_MESSAGES'
+];
+
 module.exports = {
 	name: 'role',
 	
@@ -38,20 +54,7 @@ module.exports = {
 		let s = role.serialize();
 		
 		for (let i in s) {
-			if (s[i] && 
-				i != 'READ_MESSAGES' && 
-				i != 'SEND_MESSAGES' && 
-				i != 'EMBED_LINKS' && 
-				i != 'ATTACH_FILES' && 
-				i != 'READ_MESSAGE_HISTORY' && 
-				i != 'USE_VAD' && 
-				i != 'CHANGE_NICKNAME' && 
-				i != 'CREATE_INSTANT_INVITE' && 
-				i != 'MENTION_EVERYONE' && 
-				i != 'CONNECT' && 
-				i != 'SPEAK' && 
-				i != 'SEND_TTS_MESSAGES'
-			) {
+			if (s[i] && !excludeRoles.includes(i)) {
 				perms.push(i);
 			}
 		}

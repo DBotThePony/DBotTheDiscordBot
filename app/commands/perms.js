@@ -20,7 +20,8 @@ let Perms = [
 	'USE_VAD', // use voice activity detection
 	'CHANGE_NICKNAME',
 	'MANAGE_NICKNAMES', // change nicknames of others
-	'MANAGE_ROLES_OR_PERMISSIONS'
+	'MANAGE_ROLES_OR_PERMISSIONS',
+	'ADD_REACTIONS'
 ];
 
 let PermsNames = [
@@ -44,7 +45,8 @@ let PermsNames = [
 	'Use Voice Activity Detection', // use voice activity detection
 	'Change Nickname',
 	'Manipulate nicknames', // change nicknames of others
-	'Manipulate roles'
+	'Manipulate roles',
+	'React to messages'
 ];
 
 module.exports = {
