@@ -260,16 +260,11 @@ let CompareStrings = function(Str1, Str2) {
 		
 		let cond = Str1[I1] === Str2[I1];
 		
-		for (let i1 = -2; i1 <= 2; i1++) {
-			for (let i2 = -2; i1 <= 2; i1++) {
-				if (Str1[I1 + i1] !== '' && Str2[I1 + i2] !== '' && Str1[I1 + i1] === Str2[I1 + i2]) {
-					cond = true;
-					break;
-				};
-			};
-			
-			if (cond)
+		for (let i1 = -1; i1 <= 1; i1++) {
+			if (Str2[I1 + i1] !== '' && Str1[I1 + i1] === Str2[I1]) {
+				cond = true;
 				break;
+			};
 		};
 		
 		if (!cond)
