@@ -1,4 +1,6 @@
 
+/* global hook, DBot, sql, Util */
+
 const fs = require('fs');
 const pg = require('pg');
 
@@ -797,7 +799,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			let roleMap = [[], {}];
 			role_map[id] = roleMap;
 			
-			for (role of srv.roles.array()) {
+			for (let role of srv.roles.array()) {
 				roleMap[0].push(role.id);
 				roleMap[1][role.id] = role;
 				
