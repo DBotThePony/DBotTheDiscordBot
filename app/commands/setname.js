@@ -10,7 +10,7 @@ module.exports = {
 		if (DBot.IsPM(msg))
 			return 'It is PM ;n;';
 		
-		if (!(msg.member.hasPermission('MANAGE_NICKNAMES') || msg.member.hasPermission('MANAGE_GUILD')) && msg.author.id != DBot.DBot)
+		if (!(msg.member.hasPermission('MANAGE_NICKNAMES') || msg.member.hasPermission('MANAGE_GUILD')) && !DBot.owners.includes(msg.author.id))
 			return 'Nope.avi';
 		
 		let me = msg.channel.guild.member(DBot.bot.user);

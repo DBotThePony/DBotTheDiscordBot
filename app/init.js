@@ -7,7 +7,7 @@ DBot.fs = require('fs');
 DBot.WebRoot = DBot.cfg.webroot;
 DBot.URLRootBare = DBot.cfg.webpath;
 DBot.URLRoot = DBot.cfg.protocol + '://' + DBot.cfg.webpath;
-DBot.DBot = '141004095145115648';
+DBot.owners = DBot.cfg.owners;
 
 DBot.js = {};
 

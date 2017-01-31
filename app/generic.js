@@ -516,13 +516,13 @@ DBot.GetImmunityLevel = function(member) {
 }
 
 DBot.CanTarget = function(member_user, member_target) {
-	if (member_user.user.id == DBot.DBot)
+	if (DBot.owners.includes(member_user.user.id))
 		return true;
 	
-	if (member_target.user.id == DBot.DBot && member_user.user.id != DBot.bot.user.id)
+	if (DBot.owners.includes(member_target.user.id) && member_user.user.id != DBot.bot.user.id)
 		return false;
 	
-	if (member_target.user.id == DBot.DBot && member_user.user.id == DBot.bot.user.id)
+	if (DBot.owners.includes(member_target.user.id) && member_user.user.id == DBot.bot.user.id)
 		return true;
 	
 	if (member_user.user.id == member_target.user.id)

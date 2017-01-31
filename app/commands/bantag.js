@@ -38,12 +38,12 @@ module.exports = {
 			if (realm == 'client') {
 				Tags = DBot.UserTags(msg.author, space);
 			} else if (realm == 'channel') {
-				if (!msg.member.hasPermission('MANAGE_CHANNELS') && msg.author.id != DBot.DBot)
+				if (!msg.member.hasPermission('MANAGE_CHANNELS') && !DBot.owners.includes(msg.author.id))
 					return 'Onoh! You must have at least MANAGE_CHANNELS permission to command me to do that :s';
 				
 				Tags = DBot.ChannelTags(msg.channel, space);
 			} else if (realm == 'server') {
-				if (!msg.member.hasPermission('MANAGE_GUILD') && msg.author.id != DBot.DBot)
+				if (!msg.member.hasPermission('MANAGE_GUILD') && !DBot.owners.includes(msg.author.id))
 					return 'Onoh! You must have at least MANAGE_GUILD permission to command me to do that :s';
 				
 				Tags = DBot.ServerTags(msg.channel.guild, space);
@@ -140,12 +140,12 @@ DBot.RegisterCommand({
 			if (realm == 'client') {
 				Tags = DBot.UserTags(msg.author, space);
 			} else if (realm == 'channel') {
-				if (!msg.member.hasPermission('MANAGE_CHANNELS') && msg.author.id != DBot.DBot)
+				if (!msg.member.hasPermission('MANAGE_CHANNELS') && !DBot.owners.includes(msg.author.id))
 					return 'Onoh! You must have at least `MANAGE_CHANNELS` permission to command me to do that :s';
 				
 				Tags = DBot.ChannelTags(msg.channel, space);
 			} else if (realm == 'server') {
-				if (!msg.member.hasPermission('MANAGE_GUILD') && msg.author.id != DBot.DBot)
+				if (!msg.member.hasPermission('MANAGE_GUILD') && !DBot.owners.includes(msg.author.id))
 					return 'Onoh! You must have at least `MANAGE_GUILD` permission to command me to do that :s';
 				
 				Tags = DBot.ServerTags(msg.channel.guild, space);
@@ -293,7 +293,7 @@ DBot.RegisterCommand({
 				
 				return 'Tags for space ' + space + ' for you successfully resetted!';
 			} else if (realm == 'channel') {
-				if (!msg.member.hasPermission('MANAGE_CHANNELS') && msg.author.id != DBot.DBot)
+				if (!msg.member.hasPermission('MANAGE_CHANNELS') && !DBot.owners.includes(msg.author.id))
 					return 'Onoh! You must have at least MANAGE_CHANNELS permission to command me to do that :s';
 				
 				let Tags = DBot.ChannelTags(msg.channel, space);
@@ -301,7 +301,7 @@ DBot.RegisterCommand({
 				
 				return 'Tags for space ' + space + ' for this channel successfully resetted!';
 			} else if (realm == 'server') {
-				if (!msg.member.hasPermission('MANAGE_GUILD') && msg.author.id != DBot.DBot)
+				if (!msg.member.hasPermission('MANAGE_GUILD') && !DBot.owners.includes(msg.author.id))
 					return 'Onoh! You must have at least MANAGE_GUILD permission to command me to do that :s';
 				
 				let Tags = DBot.ServerTags(msg.channel.guild, space);

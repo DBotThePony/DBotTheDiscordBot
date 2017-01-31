@@ -31,7 +31,7 @@ module.exports = {
 				msg.channel.sendMessage('```' + cvar.format() + '```');
 			}
 		} else {
-			if (!msg.member.hasPermission('MANAGE_GUILD') && msg.author.id != DBot.DBot)
+			if (!msg.member.hasPermission('MANAGE_GUILD') && !DBot.owners.includes(msg.author.id))
 				return 'You must have "MANAGE_GUILD" rights to set server variables';
 			
 			let build;
@@ -156,7 +156,7 @@ DBot.RegisterCommand({
 				msg.channel.sendMessage('```' + cvar.format() + '```');
 			}
 		} else {
-			if (!msg.member.hasPermission('MANAGE_GUILD') && msg.author.id != DBot.DBot)
+			if (!msg.member.hasPermission('MANAGE_GUILD') && !DBot.owners.includes(msg.author.id))
 				return 'You must have "MANAGE_GUILD" rights to set channel variables';
 			
 			let build;
@@ -228,7 +228,7 @@ DBot.RegisterCommand({
 				msg.channel.sendMessage('```' + cvar.format() + '```');
 			}
 		} else {
-			if (!msg.member.hasPermission('MANAGE_GUILD') && msg.author.id != DBot.DBot)
+			if (!msg.member.hasPermission('MANAGE_GUILD') && !DBot.owners.includes(msg.author.id))
 				return 'You must have "MANAGE_GUILD" rights to set channel variables';
 			
 			let build;

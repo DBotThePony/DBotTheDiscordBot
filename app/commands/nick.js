@@ -22,7 +22,7 @@ module.exports = {
 		if (args[1] === undefined) {
 			msg.reply('Username: `' + args[0].username + '`, ' + (member.nickname && ('nickname: `' + member.nickname + '`') || 'he has no nickname on the server'));
 		} else {
-			if (!(msg.member.hasPermission('MANAGE_NICKNAMES') || msg.member.hasPermission('MANAGE_GUILD')) && msg.author.id != DBot.DBot)
+			if (!(msg.member.hasPermission('MANAGE_NICKNAMES') || msg.member.hasPermission('MANAGE_GUILD')) && !DBot.owners.includes(msg.author.id))
 				return 'Nope.avi';
 			
 			let me = msg.channel.guild.member(DBot.bot.user);

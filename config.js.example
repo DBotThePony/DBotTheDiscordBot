@@ -52,4 +52,11 @@ module.exports = {
 	
 	// The protocol that server uses. It can be http or https
 	protocol: 'https',
+
+	// This is array of owners IDs
+	// Owners has no restriction for executing commands
+	owners: [
+		'141004095145115648', // DBot
+		'130070621034905600', // NotSoSuper
+	],
 }

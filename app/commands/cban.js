@@ -11,7 +11,7 @@ module.exports = {
 		if (DBot.IsPM(msg))
 			return 'Onoh! This is PM channel! ;n;';
 		
-		if (!msg.member.hasPermission('MANAGE_CHANNELS') && msg.author.id != DBot.DBot)
+		if (!msg.member.hasPermission('MANAGE_CHANNELS') && !DBot.owners.includes(msg.author.id))
 			return 'Onoh! You must have at least `MANAGE_CHANNELS` permission to command me to do that :s';
 		
 		let realm = args[0];
@@ -101,7 +101,7 @@ DBot.RegisterCommand({
 		if (DBot.IsPM(msg))
 			return 'Onoh! This is PM channel! ;n;';
 		
-		if (!msg.member.hasPermission('MANAGE_CHANNELS') && msg.author.id != DBot.DBot)
+		if (!msg.member.hasPermission('MANAGE_CHANNELS') && !DBot.owners.includes(msg.author.id))
 			return 'Onoh! You must have at least `MANAGE_CHANNELS` permission to command me to do that :s';
 		
 		let realm = args[0];
@@ -246,7 +246,7 @@ DBot.RegisterCommand({
 		if (DBot.IsPM(msg))
 			return 'Onoh! This is PM channel! ;n;';
 		
-		if (!msg.member.hasPermission('MANAGE_CHANNELS') && msg.author.id != DBot.DBot)
+		if (!msg.member.hasPermission('MANAGE_CHANNELS') && !DBot.owners.includes(msg.author.id))
 			if (msg.member.checkBotMute(msg.channel))
 				return;
 			else
@@ -284,7 +284,7 @@ DBot.RegisterCommand({
 		if (DBot.IsPM(msg))
 			return 'Onoh! This is PM channel! ;n;';
 		
-		if (!msg.member.hasPermission('MANAGE_CHANNELS') && msg.author.id != DBot.DBot)
+		if (!msg.member.hasPermission('MANAGE_CHANNELS') && !DBot.owners.includes(msg.author.id))
 			if (msg.member.checkBotMute(msg.channel))
 				return;
 			else
@@ -320,7 +320,7 @@ DBot.RegisterCommand({
 		if (DBot.IsPM(msg))
 			return 'Onoh! This is PM channel! ;n;';
 		
-		if (!msg.member.hasPermission('MANAGE_CHANNELS') && msg.author.id != DBot.DBot)
+		if (!msg.member.hasPermission('MANAGE_CHANNELS') && !DBot.owners.includes(msg.author.id))
 			if (msg.member.checkBotMute(msg.channel))
 				return;
 			else
@@ -358,7 +358,7 @@ DBot.RegisterCommand({
 		if (DBot.IsPM(msg))
 			return 'Onoh! This is PM channel! ;n;';
 		
-		if (!msg.member.hasPermission('MANAGE_CHANNELS') && msg.author.id != DBot.DBot)
+		if (!msg.member.hasPermission('MANAGE_CHANNELS') && !DBot.owners.includes(msg.author.id))
 			if (msg.member.checkBotMute(msg.channel))
 				return;
 			else

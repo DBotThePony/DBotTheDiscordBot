@@ -22,7 +22,7 @@ module.exports = {
 			return;
 		}
 		
-		if (!msg.member.hasPermission('KICK_MEMBERS') && msg.author.id != DBot.DBot)
+		if (!msg.member.hasPermission('KICK_MEMBERS') && !DBot.owners.includes(msg.author.id))
 			return 'You must have `KICK_MEMBERS` permission ;n;';
 		
 		if (!me.hasPermission('KICK_MEMBERS'))
@@ -46,7 +46,7 @@ module.exports = {
 			if (!member)
 				return DBot.CommandError('Invalid user ;n;', 'kick', args, i + 1);
 			
-			if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot)
+			if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || DBot.owners.includes(member.user.id))
 				return DBot.CommandError('oh', 'kick', args, i + 1);
 			
 			if (!DBot.CanTarget(msg.member, member))
@@ -117,7 +117,7 @@ DBot.RegisterCommand({
 			return;
 		}
 		
-		if (!msg.member.hasPermission('BAN_MEMBERS') && msg.author.id != DBot.DBot)
+		if (!msg.member.hasPermission('BAN_MEMBERS') && !DBot.owners.includes(msg.author.id))
 			return 'You must have `BAN_MEMBERS` permission ;n;';
 		
 		if (!me.hasPermission('KICK_MEMBERS'))
@@ -141,7 +141,7 @@ DBot.RegisterCommand({
 			if (!member)
 				return DBot.CommandError('Invalid user ;n;', 'sban', args, i + 1);
 			
-			if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot)
+			if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || DBot.owners.includes(member.user.id))
 				return DBot.CommandError('oh', 'sban', args, i + 1);
 			
 			if (!DBot.CanTarget(msg.member, member))
@@ -214,7 +214,7 @@ DBot.RegisterCommand({
 			return;
 		}
 		
-		if (!msg.member.hasPermission('BAN_MEMBERS') && msg.author.id != DBot.DBot)
+		if (!msg.member.hasPermission('BAN_MEMBERS') && !DBot.owners.includes(msg.author.id))
 			return 'You must have `BAN_MEMBERS` permission ;n;';
 		
 		if (!args[0])
@@ -257,7 +257,7 @@ DBot.RegisterCommand({
 			return;
 		}
 		
-		if (!msg.member.hasPermission('BAN_MEMBERS') && msg.author.id != DBot.DBot)
+		if (!msg.member.hasPermission('BAN_MEMBERS') && !DBot.owners.includes(msg.author.id))
 			return 'You must have `BAN_MEMBERS` permission ;n;';
 		
 		if (!me.hasPermission('BAN_MEMBERS'))
@@ -281,7 +281,7 @@ DBot.RegisterCommand({
 			if (!member)
 				return DBot.CommandError('Invalid user ;n;', 'ban', args, i + 1);
 			
-			if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot)
+			if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || DBot.owners.includes(member.user.id))
 				return DBot.CommandError('oh', 'ban', args, i + 1);
 			
 			if (!DBot.CanTarget(msg.member, member))
@@ -351,7 +351,7 @@ DBot.RegisterCommand({
 			return;
 		}
 		
-		if (!msg.member.hasPermission('MANAGE_MESSAGES') && msg.author.id != DBot.DBot)
+		if (!msg.member.hasPermission('MANAGE_MESSAGES') && !DBot.owners.includes(msg.author.id))
 			return 'You must have `MANAGE_MESSAGES` permission ;n;';
 		
 		if (!me.hasPermission('MANAGE_MESSAGES'))
@@ -378,7 +378,7 @@ DBot.RegisterCommand({
 				
 				member.offs = member.offs || [];
 				
-				if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot)
+				if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || DBot.owners.includes(member.user.id))
 					return DBot.CommandError('oh', 'off', args, i + 1);
 				
 				if (!DBot.CanTarget(msg.member, member))
@@ -409,7 +409,7 @@ DBot.RegisterCommand({
 			let upath = DBot.URLRoot + '/blogs/' + sha + '.txt';
 			
 			for (let member of msg.channel.members.array()) {
-				if (member.user.id == msg.member.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot || DBot.GetImmunityLevel(member) >= rCache)
+				if (member.user.id == msg.member.id || member.user.id == DBot.bot.user.id || DBot.owners.includes(member.user.id) || DBot.GetImmunityLevel(member) >= rCache)
 					continue;
 				
 				member.offs = member.offs || [];
@@ -564,7 +564,7 @@ DBot.RegisterCommand({
 			return;
 		}
 		
-		if (!msg.member.hasPermission('MANAGE_MESSAGES') && msg.author.id != DBot.DBot)
+		if (!msg.member.hasPermission('MANAGE_MESSAGES') && !DBot.owners.includes(msg.author.id))
 			return 'You must have `MANAGE_MESSAGES` permission ;n;';
 		
 		if (!me.hasPermission('MANAGE_MESSAGES'))
@@ -591,7 +591,7 @@ DBot.RegisterCommand({
 				
 				member.offs = member.offs || [];
 				
-				if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || member.user.id == DBot.DBot)
+				if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || DBot.owners.includes(member.user.id))
 					return DBot.CommandError('oh', 'deoff', args, i + 1);
 				
 				if (!member.offs.includes(msg.channel.uid))

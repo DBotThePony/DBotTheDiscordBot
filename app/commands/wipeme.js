@@ -95,7 +95,7 @@ DBot.RegisterCommand({
 		if (DBot.IsPM(msg))
 			return 'Must execute in server channel ;n;';
 		
-		if (!msg.member.hasPermission('MANAGE_MESSAGES') && msg.author.id != DBot.DBot)
+		if (!msg.member.hasPermission('MANAGE_MESSAGES') && !DBot.owners.includes(msg.author.id))
 			return 'You must have MANAGE_MESSAGES permission to command me that ;n;';
 		
 		let filterID = DBot.bot.user.id;

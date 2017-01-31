@@ -8,7 +8,7 @@ module.exports = {
 	help_hide: true,
 	
 	func: function(args, cmd, msg) {
-		if (msg.author.id == DBot.DBot)
+		if (DBot.owners.includes(msg.author.id))
 			return 'sudo ' + cmd + '...';
 		else
 			return '42';

@@ -8,7 +8,7 @@ module.exports = {
 	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
-		if (msg.author.id != DBot.DBot)
+		if (!DBot.owners.includes(msg.author.id))
 			return 'Nope.avi';
 		
 		let url = DBot.CombinedURL(args[0], msg.channel);

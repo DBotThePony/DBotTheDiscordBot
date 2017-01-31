@@ -15,7 +15,7 @@ module.exports = {
 		if (!me)
 			return '<internal pony error>';
 		
-		if (!msg.member.hasPermission('MANAGE_MESSAGES') && msg.author.id != DBot.DBot)
+		if (!msg.member.hasPermission('MANAGE_MESSAGES') && !DBot.owners.includes(msg.author.id))
 			return 'You must have MANAGE_MESSAGES permission!';
 		
 		if (!me.hasPermission('MANAGE_MESSAGES'))
@@ -120,7 +120,7 @@ DBot.RegisterCommand({
 		if (!me)
 			return '<internal pony error>';
 		
-		if (!msg.member.hasPermission('MANAGE_MESSAGES') && msg.author.id != DBot.DBot)
+		if (!msg.member.hasPermission('MANAGE_MESSAGES') && !DBot.owners.includes(msg.author.id))
 			return 'You must have MANAGE_MESSAGES permission!';
 		
 		if (!me.hasPermission('MANAGE_MESSAGES'))
