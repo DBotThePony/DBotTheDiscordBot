@@ -309,6 +309,22 @@ let findRelated = function(str) {
 	return matches;
 }
 
+let clearCommand;
+
+{
+	let clearExpr = /[a-zа-я0-9]/gi;
+	
+	clearCommand = function(str) {
+		let output = '';
+		
+		str.replace(clearExpr, function(match) {
+			output += match;
+		});
+		
+		return output;
+	}
+}
+
 let SpamScore = {};
 
 setInterval(function() {
@@ -752,7 +768,7 @@ DBot.IdentifyCommand = function(msg) {
 	if (!rawCommand)
 		return false;
 	
-	let command = rawCommand.toLowerCase();
+	let command = clearCommand(rawCommand.toLowerCase());
 	
 	/*
 		splitted[shift - 1] = Our ID
@@ -837,7 +853,7 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 	if (!rawCommand)
 		return false;
 	
-	let command = rawCommand.toLowerCase();
+	let command = clearCommand(rawCommand.toLowerCase());
 	
 	/*
 		splitted[shift - 1] = Our ID
