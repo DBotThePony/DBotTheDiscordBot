@@ -67,6 +67,8 @@ const botHooks = [
 	['channelDelete', 'ChannelDeleted'],
 	['channelUpdate', 'ChannelUpdates'],
 	['userUpdate', 'UserChanges'],
+	['typingStart', 'ChatStart'],
+	['typingStop', 'ChatFinish'],
 ];
 
 let REGISTERED_HOOKS = false;

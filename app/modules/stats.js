@@ -21,6 +21,12 @@ WHERE
     )
 `;
 
+hook.Add('ChatStart', 'Statistics', function(channel, user) {
+	if (channel.guild)
+		Postgres.query('SELECT stats_typing(\'' + user.id + '\',\'' + channel.guild.id + '\',\'' + channel.id + '\');');
+	else
+		Postgres.query('SELECT stats_typing(\'' + user.id + '\');');
+});
 
 hook.Add('OnValidMessage', 'Statistics', function(msg) {
 	if (msg.author.id == '210879254378840074')

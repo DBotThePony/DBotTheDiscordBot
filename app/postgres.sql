@@ -234,6 +234,7 @@ CREATE TABLE IF NOT EXISTS stats__generic_users (
 	"MESSAGES_E" INTEGER NOT NULL DEFAULT 0,
 	"MESSAGES_D" INTEGER NOT NULL DEFAULT 0,
 	"IMAGES" INTEGER NOT NULL DEFAULT 0,
+	"TYPINGS" INTEGER NOT NULL DEFAULT 0,
 	PRIMARY KEY ("ID")
 );
 
@@ -257,6 +258,7 @@ CREATE TABLE IF NOT EXISTS stats__generic_servers (
 	"MESSAGES_E" INTEGER NOT NULL DEFAULT 0,
 	"MESSAGES_D" INTEGER NOT NULL DEFAULT 0,
 	"IMAGES" INTEGER NOT NULL DEFAULT 0,
+	"TYPINGS" INTEGER NOT NULL DEFAULT 0,
 	PRIMARY KEY ("ID")
 );
 
@@ -281,6 +283,7 @@ CREATE TABLE IF NOT EXISTS stats__peruser_servers (
 	"MESSAGES_E" INTEGER NOT NULL DEFAULT 0,
 	"MESSAGES_D" INTEGER NOT NULL DEFAULT 0,
 	"IMAGES" INTEGER NOT NULL DEFAULT 0,
+	"TYPINGS" INTEGER NOT NULL DEFAULT 0,
 	PRIMARY KEY ("ID", "USER")
 );
 
@@ -292,6 +295,7 @@ CREATE TABLE IF NOT EXISTS stats__generic_channels (
 	"MESSAGES_E" INTEGER NOT NULL DEFAULT 0,
 	"MESSAGES_D" INTEGER NOT NULL DEFAULT 0,
 	"IMAGES" INTEGER NOT NULL DEFAULT 0,
+	"TYPINGS" INTEGER NOT NULL DEFAULT 0,
 	PRIMARY KEY ("ID")
 );
 
@@ -316,6 +320,7 @@ CREATE TABLE IF NOT EXISTS stats__peruser_channels (
 	"MESSAGES_E" INTEGER NOT NULL DEFAULT 0,
 	"MESSAGES_D" INTEGER NOT NULL DEFAULT 0,
 	"IMAGES" INTEGER NOT NULL DEFAULT 0,
+	"TYPINGS" INTEGER NOT NULL DEFAULT 0,
 	PRIMARY KEY ("ID", "USER")
 );
 
@@ -1135,6 +1140,38 @@ BEGIN
 		(SELECT user_id, words_to_insert."ID", words_to_insert."WORD_COUNT" AS "COUNT" FROM words_to_insert)
 	ON CONFLICT ("ID", "WORD") DO
 		UPDATE SET "COUNT" = stats__words_users."COUNT" + excluded."COUNT";
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION stats_typing(user_id_raw VARCHAR(64))
+RETURNS void AS $$
+DECLARE user_id INTEGER;
+BEGIN
+	user_id := get_user_id(user_id_raw);
+	UPDATE stats__generic_users SET "TYPINGS" = "TYPINGS" + 1 WHERE "ID" = user_id;
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION stats_typing(user_id_raw VARCHAR(64), server_id_raw VARCHAR(64), channel_id_raw VARCHAR(64))
+RETURNS void AS $$
+DECLARE user_id INTEGER;
+DECLARE server_id INTEGER;
+DECLARE channel_id INTEGER;
+BEGIN
+	user_id := get_user_id(user_id_raw);
+	server_id := get_server_id(server_id_raw);
+	channel_id := get_channel_id(channel_id_raw, server_id);
+	UPDATE stats__generic_users SET "TYPINGS" = "TYPINGS" + 1 WHERE "ID" = user_id;
+	UPDATE stats__generic_servers SET "TYPINGS" = "TYPINGS" + 1 WHERE "ID" = server_id;
+	UPDATE stats__generic_channels SET "TYPINGS" = "TYPINGS" + 1 WHERE "ID" = channel_id;
+	
+	INSERT INTO stats__peruser_servers ("ID", "USER", "TYPINGS")
+		VALUES (server_id, user_id, 1)
+		ON CONFLICT ("ID", "USER") DO UPDATE SET
+			"TYPINGS" = stats__peruser_servers."TYPINGS" + 1;
+	
+	INSERT INTO stats__peruser_channels ("ID", "USER", "TYPINGS")
+		VALUES (channel_id, user_id, 1)
+		ON CONFLICT ("ID", "USER") DO UPDATE SET
+			"TYPINGS" = stats__peruser_channels."TYPINGS" + 1;
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION stats_delete(user_id_raw VARCHAR(64), channel_id_raw VARCHAR(64), server_id_raw VARCHAR(64), message_length INTEGER)
