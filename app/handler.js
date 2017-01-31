@@ -1,10 +1,25 @@
 
 /* global DBot, hook, cvars, FCVAR_NOTNULL, FCVAR_BOOLONLY, Util */
 
+Util.mkdir(DBot.WebRoot + '/msgs');
+
+const fs = DBot.js.fs;
+
 let msgFuncs = [
 	function(str) {
 		if (this.wasDeleted)
 			return {then: function() {}, catch: function() {}};
+		
+		if (str.length > 1800) {
+			let sha = DBot.HashString(CurTime() + this.author.id + this.channel.id);
+			let oldMess = str;
+			str = 'Message is too big to send it here, here is the message: <' + DBot.URLRoot + '/msgs/' + sha + '.txt>';
+			let path = DBot.WebRoot + '/msgs/' + sha + '.txt';
+			
+			let stream = fs.createWriteStream(path);
+			stream.write(oldMess);
+			stream.end();
+		}
 		
 		let promise = this.___reply(str);
 		let self = this;
@@ -22,6 +37,17 @@ let msgFuncs = [
 	function(str) {
 		if (this.wasDeleted)
 			return {then: function() {}, catch: function() {}};
+		
+		if (str.length > 1800) {
+			let sha = DBot.HashString(CurTime() + this.author.id + this.channel.id);
+			let oldMess = str;
+			str = 'Message is too big to send it here, here is the message: <' + DBot.URLRoot + '/msgs/' + sha + '.txt>';
+			let path = DBot.WebRoot + '/msgs/' + sha + '.txt';
+			
+			let stream = fs.createWriteStream(path);
+			stream.write(oldMess);
+			stream.end();
+		}
 		
 		let promise = this.channel.sendMessage(str);
 		let self = this;
