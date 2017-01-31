@@ -6,6 +6,7 @@ const queryToList = 'SELECT *, (SELECT "NAME" FROM servers WHERE servers."ID" = 
 
 module.exports = {
 	name: 'complain',
+	alias: ['feedback', 'suggestion', 'issue', 'bug'],
 	
 	argNeeded: true,
 	failMessage: 'Missing text',
@@ -27,7 +28,7 @@ module.exports = {
 		
 		MySQL.query('INSERT INTO complains ("SERVER", "CHANNEL", "USER", "STAMP", "CONTENT") VALUES (' + stuff.join(',') + ')');
 		
-		return 'Complain sended! Yay!';
+		return 'Complain sended! Yay!\nIf you got an info about generic bot bug or issue, open an issue ticket here: https://git.dbot.serealia.ca/dbot/NotDBot/issues';
 	}
 }
 
