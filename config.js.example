@@ -42,4 +42,14 @@ module.exports = {
 	// Name of database to use
 	// env var: PGDATABASE
 	sql_database: 'notdbot',
+
+	// Path to web server bot directory (not to root of your web server)
+	// Should be readable by web server process. Should be writable by bot process.
+	webroot: '/home/dbot_bot/www',
+	
+	// [prefix] to all URLs that bot sends
+	webpath: 'dbot.serealia.ca/bot',
+	
+	// The protocol that server uses. It can be http or https
+	protocol: 'https',
 }

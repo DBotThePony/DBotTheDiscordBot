@@ -4,9 +4,9 @@ sprintf = require("sprintf-js").sprintf;
 /* global DBot */
 
 DBot.fs = require('fs');
-DBot.WebRoot = 'D:/www/derpco/bot';
-DBot.URLRootBare = 'dbot.serealia.ca/bot';
-DBot.URLRoot = 'https://' + DBot.URLRootBare;
+DBot.WebRoot = DBot.cfg.webroot;
+DBot.URLRootBare = DBot.cfg.webpath;
+DBot.URLRoot = DBot.cfg.protocol + '://' + DBot.cfg.webpath;
 DBot.DBot = '141004095145115648';
 
 DBot.js = {};
