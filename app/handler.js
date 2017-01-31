@@ -1,4 +1,6 @@
 
+/* global DBot, hook, cvars, FCVAR_NOTNULL, FCVAR_BOOLONLY, Util */
+
 let msgFuncs = [
 	function(str) {
 		if (this.wasDeleted)
@@ -60,17 +62,17 @@ DBot.bot.on('message', function(msg) {
 			let supp = hook.Run('OnHumanMessage', msg);
 			
 			if (supp === true) return;
-		}
+		};
 		
-		if (msg.channel.type == 'dm') {
+		if (msg.channel.type === 'dm') {
 			try {
-				DBot.HandleMessage(msg, true)
+				DBot.HandleMessage(msg, true);
 				return;
 			} catch(err) {
 				console.error(err);
 				return;
-			}
-		}
+			};
+		};
 		
 		if (!DBot.IsAskingMe(msg)) return;
 		
@@ -83,16 +85,16 @@ DBot.bot.on('message', function(msg) {
 				msg.reply('Hi? x3 @NotDBot help');
 			
 			return;
-		}
+		};
 		
 		try {
 			DBot.HandleMessage(msg);
 		} catch(err) {
 			console.error(err);
-		}
+		};
 	} catch(err) {
 		console.error(err);
-	}
+	};
 });
 
 DBot.CommandsAntiSpam = {};
@@ -112,132 +114,132 @@ DBot.ParseString = function(str, ignoreHandlers) {
 			nextHaveNoAction = false;
 			current += item;
 			continue;
-		}
+		};
 		
-		if (item == ' ' && !inDouble && !inSingle) {
-			if (current != '') {
+		if (item === ' ' && !inDouble && !inSingle) {
+			if (current !== '') {
 				if (!parsingHandlers) {
 					output.push(current);
 				} else {
 					handlers.push(current);
-				}
-			}
+				};
+			};
 			
 			current = '';
 			continue;
-		}
+		};
 		
-		if (item == '\\') {
+		if (item === '\\') {
 			nextHaveNoAction = true;
 			continue;
-		}
+		};
 		
-		if (item == '|' && !inSingle && !inDouble && !ignoreHandlers) {
+		if (item === '|' && !inSingle && !inDouble && !ignoreHandlers) {
 			parsingHandlers = true;
 			continue;
-		}
+		};
 		
-		if (item == '"') {
+		if (item === '"') {
 			if (inDouble) {
 				if (inSingle) {
 					current += item;
 				} else {
-					if (current != '') {
+					if (current !== '') {
 						if (!parsingHandlers) {
 							output.push(current);
 						} else {
 							handlers.push(current);
-						}
+						};
 					} else {
 						if (!parsingHandlers) {
 							output.push(null);
 						} else {
 							handlers.push(null);
-						}
-					}
+						};
+					};
 					
 					current = '';
 					inDouble = false;
-				}
+				};
 			} else {
 				if (inSingle) {
 					current += item;
 				} else {
 					inDouble = true;
-				}
-			}
+				};
+			};
 			
 			continue;
-		}
+		};
 		
-		if (item == '\'') {
+		if (item === '\'') {
 			if (inSingle) {
 				if (inDouble) {
 					current += item;
 				} else {
-					if (current != '') {
+					if (current !== '') {
 						if (!parsingHandlers) {
 							output.push(current);
 						} else {
 							handlers.push(current);
-						}
+						};
 					} else {
 						if (!parsingHandlers) {
 							output.push(null);
 						} else {
 							handlers.push(null);
-						}
-					}
+						};
+					};
 					
 					current = '';
 					inSingle = false;
-				}
+				};
 			} else {
 				if (inDouble) {
 					current += item;
 				} else {
 					inSingle = true;
-				}
-			}
+				};
+			};
 			
 			continue;
-		}
+		};
 		
 		current += item;
-	}
+	};
 	
-	if (current != '') {
+	if (current !== '') {
 		if (!parsingHandlers) {
 			output.push(current);
 		} else {
 			handlers.push(current);
-		}
-	}
+		};
+	};
 	
 	for (let i in output) {
-		if (output[i] == null)
+		if (output[i] === null)
 			output[i] = '';
-	}
+	};
 	
 	for (let i in handlers) {
-		if (handlers[i] == null)
+		if (handlers[i] === null)
 			handlers[i] = '';
-	}
+	};
 	
 	return [output, handlers];
-}
+};
 
 DBot.TrimArray = function(arr) {
 	let newArray = [];
 	
 	arr.forEach(function(item, i) {
-		if (item != '') {
+		if (item !== '') {
 			newArray.push(item);
-		}
+		};
 	});
 	
 	return newArray;
-}
+};
 
 DBot.__LastMoreCommand = {};
 DBot.__LastRetryCommand = {};
@@ -254,28 +256,28 @@ let CompareStrings = function(Str1, Str2) {
 		if (I1 > Str2.length) {
 			result--;
 			continue;
-		}
+		};
 		
-		let cond = Str1[I1] == Str2[I1];
+		let cond = Str1[I1] === Str2[I1];
 		
-		for (let i1 = -2; i <= 2; i++) {
-			for (let i2 = -2; i <= 2; i++) {
-				if (Str1[I1 + i1] != '' && Str2[I1 + i2] != '' && Str1[I1 + i1] == Str2[I1 + i2]) {
+		for (let i1 = -2; i1 <= 2; i1++) {
+			for (let i2 = -2; i1 <= 2; i1++) {
+				if (Str1[I1 + i1] !== '' && Str2[I1 + i2] !== '' && Str1[I1 + i1] === Str2[I1 + i2]) {
 					cond = true;
 					break;
-				}
-			}
+				};
+			};
 			
 			if (cond)
 				break;
-		}
+		};
 		
 		if (!cond)
 			result--;
-	}
+	};
 	
 	return result;
-}
+};
 
 let findRelated = function(str) {
 	let matches = [];
@@ -290,8 +292,8 @@ let findRelated = function(str) {
 		
 		if (comp >= minimum) {
 			matches.push([Command, comp]);
-		}
-	}
+		};
+	};
 	
 	if (!matches[0])
 		return [];
@@ -301,13 +303,13 @@ let findRelated = function(str) {
 			return 1;
 		} else {
 			return -1;
-		}
+		};
 		
 		return 0;
 	});
 	
 	return matches;
-}
+};
 
 let clearCommand;
 
@@ -322,8 +324,8 @@ let clearCommand;
 		});
 		
 		return output;
-	}
-}
+	};
+};
 
 let SpamScore = {};
 
@@ -331,8 +333,8 @@ setInterval(function() {
 	for (let i in SpamScore) {
 		if (SpamScore[i] > 0) {
 			SpamScore[i]--;
-		}
-	}
+		};
+	};
 }, 1000);
 
 DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extraArgument, parsedHandlers) {
@@ -340,7 +342,7 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 	
 	if (can === false) {
 		return;
-	}
+	};
 	
 	SpamScore[cCommand.id] = SpamScore[cCommand.id] || 0;
 	SpamScore[cCommand.id]++;
@@ -349,13 +351,13 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 		if (msg.channel.cooldown && msg.channel.cooldown > CurTime()) {
 			msg.channel.cooldown = CurTime() + 1;
 			return;
-		}
+		};
 		
 		msg.reply('Stop spamming `' + cCommand.id + '`');
 		msg.channel.cooldown = CurTime() + 1;
 		
 		return;
-	}
+	};
 	
 	let timeout = cCommand.delay || 1.5;
 	let curr = UnixStamp();
@@ -366,14 +368,14 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 			if (msg.channel.cooldown && msg.channel.cooldown > CurTime()) {
 				msg.channel.cooldown = CurTime() + 1;
 				return;
-			}
+			};
 			
 			msg.reply(':broken_heart: P... please, wait before running a new command. Wait ' + (Math.floor(delta * 10)) / 10 + ' seconds');
 			msg.channel.cooldown = CurTime() + 1;
 			
 			return;
-		}
-	}
+		};
+	};
 	
 	DBot.CommandsAntiSpam[msg.author.id] = curr + timeout;
 	
@@ -382,23 +384,23 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 		
 		msg.reply(messageFromCommand + Util.HighlightHelp([cCommand.id, '<missing>'], 2) + 'Help:\n```' + DBot.BuildHelpStringForCommand(command) + '```\n');
 		return;
-	}
+	};
 	
 	if (cCommand.allowUserArgument) {
 		for (let k in parsedArgs) {
-			if (typeof parsedArgs[k] != 'string') {
+			if (typeof parsedArgs[k] !== 'string') {
 				continue;
-			}
+			};
 			
 			let user = DBot.IdentifyUser(parsedArgs[k]);
 			
 			if (user)
 				parsedArgs[k] = user;
-			else if (parsedArgs[k] == '@me') {
+			else if (parsedArgs[k] === '@me') {
 				parsedArgs[k] = msg.author;
-			}
-		}
-	}
+			};
+		};
+	};
 	
 	if (cCommand.checkAccess) {
 		let reply = cCommand.checkAccess(parsedArgs, rawcmd, msg);
@@ -406,26 +408,26 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 		if (!reply) {
 			msg.reply('No access');
 			return;
-		}
-	}
+		};
+	};
 	
 	if (!DBot.__LastMoreCommand[msg.channel.id]) {
 		// PM channel workaround
 		DBot.__LastMoreCommand[msg.channel.id] = {};
-	}
+	};
 	
 	if (!DBot.__LastRetryCommand[msg.channel.id]) {
 		// PM channel workaround
 		DBot.__LastRetryCommand[msg.channel.id] = {};
-	}
+	};
 	
-	if (cCommand.id != 'more' && cCommand.id != 'retry') {
+	if (cCommand.id !== 'more' && cCommand.id !== 'retry') {
 		if (cCommand.more) {
 			DBot.__LastMoreCommand[msg.channel.id][msg.author.id] = [cCommand, parsedArgs, rawcmd, extraArgument, parsedHandlers];
-		}
+		};
 		
 		DBot.__LastRetryCommand[msg.channel.id][msg.author.id] = [cCommand, parsedArgs, rawcmd, extraArgument, parsedHandlers];
-	}
+	};
 	
 	msg.oldReply = msg.oldReply || msg.reply;
 	let PIPE_HIT = false;
@@ -443,9 +445,9 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 			});
 			
 			return promise;
-		}
+		};
 		
-		if (cCommand.id != 'more' && cCommand.id != 'retry' && parsedHandlers[0]) {
+		if (cCommand.id !== 'more' && cCommand.id !== 'retry' && parsedHandlers[0]) {
 			let pipeID = parsedHandlers[0].toLowerCase();
 			let pipe = DBot.CommandsPipes[pipeID];
 			
@@ -463,8 +465,8 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 						first = false;
 					} else {
 						rawcmd += ' ' + splitted[i];
-					}
-				}
+					};
+				};
 				
 				if (!pipe.no_touch)
 					rawcmd = rawcmd.replace(/```/gi, '');
@@ -483,17 +485,17 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 					msg.oldReply('<internal pony error>');
 					console.error(err);
 					return;
-				}
+				};
 				
 				if (reply === true) {
 					return;
-				} else if (typeof reply == 'string') {
+				} else if (typeof reply === 'string') {
 					return this.promiseReply(reply);
 				} else if (reply === false) {
 					return this.promiseReply('Pipe that you specified does not accept command output');
-				}
-			}
-		}
+				};
+			};
+		};
 		
 		let promise = this.oldReply(str);
 		let self = this;
@@ -503,7 +505,7 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 		});
 		
 		return promise;
-	}
+	};
 	
 	msg.sendMessage = function(str) {
 		if (this.wasDeleted || this.instantEdit)
@@ -511,9 +513,9 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 		
 		if (PIPE_HIT) {
 			return this.promiseReply(str);
-		}
+		};
 		
-		if (cCommand.id != 'more' && cCommand.id != 'retry' && parsedHandlers[0]) {
+		if (cCommand.id !== 'more' && cCommand.id !== 'retry' && parsedHandlers[0]) {
 			let pipeID = parsedHandlers[0].toLowerCase();
 			let pipe = DBot.CommandsPipes[pipeID];
 			
@@ -531,8 +533,8 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 						first = false;
 					} else {
 						rawcmd += ' ' + splitted[i];
-					}
-				}
+					};
+				};
 				
 				if (!pipe.no_touch)
 					rawcmd = rawcmd.replace(/```/gi, '');
@@ -549,20 +551,20 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 					msg.oldReply('<internal pony error>');
 					console.error(err);
 					return;
-				}
+				};
 				
 				if (reply === true) {
 					return;
-				} else if (typeof reply == 'string') {
+				} else if (typeof reply === 'string') {
 					return this.promiseSend(reply);
 				} else if (reply === false) {
 					return this.promiseReply('Pipe that you specified does not accept command output');
-				}
-			}
-		}
+				};
+			};
+		};
 		
 		return this.promiseSend(str);
-	}
+	};
 	
 	hook.Run('PreExecuteCommand', cCommand.id, msg.author, parsedArgs, rawcmd, msg, extraArgument, parsedHandlers);
 	
@@ -574,19 +576,19 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 		msg.oldReply('<internal pony error>');
 		console.error(err);
 		return;
-	}
+	};
 	
 	hook.Run('PostExecuteCommand', cCommand.id, msg.author, parsedArgs, rawcmd, msg, extraArgument, parsedHandlers);
 	hook.Run('CommandExecuted', cCommand.id, msg.author, parsedArgs, rawcmd, msg, extraArgument, parsedHandlers);
 	
-	if (typeof reply == 'string') {
+	if (typeof reply === 'string') {
 		msg.reply(reply);
 	} else if (reply === false) {
 		msg.oldReply('I don\'t know what to do with that :\\');
-	}
+	};
 	
 	return reply;
-}
+};
 
 hook.Add('OnMessageDeleted', 'Handler', function(msg) {
 	msg.wasDeleted = true;
@@ -597,7 +599,7 @@ hook.Add('OnMessageDeleted', 'Handler', function(msg) {
 	for (let mess of msg.replies) {
 		if (mess.deletable)
 			mess.delete(0);
-	}
+	};
 });
 
 hook.Add('OnMessageEdit', 'Handler', function(omsg, nmsg) {
@@ -606,7 +608,7 @@ hook.Add('OnMessageEdit', 'Handler', function(omsg, nmsg) {
 	omsg.replies = omsg.replies || [];
 	nmsg.replies = omsg.replies;
 	
-	let contentsChanged = omsg.content && nmsg.content && omsg.content != nmsg.content;
+	let contentsChanged = omsg.content && nmsg.content && omsg.content !== nmsg.content;
 	
 	if (omsg.internalCreateTime + 1 > CurTime())
 		return;
@@ -617,12 +619,12 @@ hook.Add('OnMessageEdit', 'Handler', function(omsg, nmsg) {
 	} else {
 		omsg.instantEdit = false;
 		nmsg.instantEdit = false;
-	}
+	};
 	
 	for (let mess of omsg.replies) {
 		if (mess.deletable)
 			mess.delete(0);
-	}
+	};
 	
 	let pm = DBot.IsPM(nmsg);
 	
@@ -631,7 +633,7 @@ hook.Add('OnMessageEdit', 'Handler', function(omsg, nmsg) {
 			DBot.DefineMember(nmsg.member);
 		
 		return;
-	}
+	};
 	
 	let can = DBot.HandleMessage(nmsg, pm, true);
 	
@@ -645,10 +647,10 @@ cvars.ServerVar('prefix_disable', '0', [FCVAR_BOOLONLY], 'Disable bot prefix. In
 cvars.ChannelVar('prefix_disable', '0', [FCVAR_BOOLONLY], 'Disable bot prefix in current channel. In this case, you can command to bot only by @Mention');
 
 DBot.IsAskingMe = function(msg) {
-	if (msg.content.substr(0, DBot.aidLen) == DBot.askId)
+	if (msg.content.substr(0, DBot.aidLen) === DBot.askId)
 		return true;
 	
-	if (msg.content.substr(0, DBot.aidLen2) == DBot.askId2)
+	if (msg.content.substr(0, DBot.aidLen2) === DBot.askId2)
 		return true;
 	
 	let prefix = '}';
@@ -663,17 +665,17 @@ DBot.IsAskingMe = function(msg) {
 		let sPrefix = cvars.Server(msg.channel.guild).getVar('prefix').getString();
 		let cPrefix = cvars.Channel(msg.channel).getVar('prefix').getString();
 		
-		if (cPrefix != '')
+		if (cPrefix !== '')
 			prefix = cPrefix;
 		else
 			prefix = sPrefix;
-	}
+	};
 	
-	if (msg.content.substr(0, 1) == prefix)
+	if (msg.content.substr(0, 1) === prefix)
 		return true;
 	
 	return false;
-}
+};
 
 DBot.MessagePrefix = function(msg) {
 	if (DBot.IsPM(msg))
@@ -688,20 +690,20 @@ DBot.MessagePrefix = function(msg) {
 		let sPrefix = cvars.Server(msg.channel.guild).getVar('prefix').getString();
 		let cPrefix = cvars.Channel(msg.channel).getVar('prefix').getString();
 		
-		if (cPrefix != '')
+		if (cPrefix !== '')
 			return cPrefix;
 		else
 			return sPrefix;
-	}
+	};
 	
 	return '}';
-}
+};
 
 DBot.IsAskingMe_Command = function(msg) {
-	if (msg.content.substr(0, DBot.aidcLen) == DBot.askIdC)
+	if (msg.content.substr(0, DBot.aidcLen) === DBot.askIdC)
 		return true;
 	
-	if (msg.content.substr(0, DBot.aidcLen2) == DBot.askIdC2)
+	if (msg.content.substr(0, DBot.aidcLen2) === DBot.askIdC2)
 		return true;
 	
 	let prefix = '}';
@@ -716,25 +718,25 @@ DBot.IsAskingMe_Command = function(msg) {
 		let sPrefix = cvars.Server(msg.channel.guild).getVar('prefix').getString();
 		let cPrefix = cvars.Channel(msg.channel).getVar('prefix').getString();
 		
-		if (cPrefix != '')
+		if (cPrefix !== '')
 			prefix = cPrefix;
 		else
 			prefix = sPrefix;
-	}
+	};
 	
-	if (msg.content.substr(0, 1) == prefix)
+	if (msg.content.substr(0, 1) === prefix)
 		return true;
 	
 	return false;
-}
+};
 
 DBot.IdentifyCommand = function(msg) {
 	let rawmessage = msg.content;
 	let isPrivate = DBot.IsPM(msg);
 	
-	if (rawmessage == '') {
+	if (rawmessage === '') {
 		return false;
-	}
+	};
 	
 	let splitted = DBot.TrimArray(rawmessage.split(' '));
 	
@@ -744,13 +746,13 @@ DBot.IdentifyCommand = function(msg) {
 		let sPrefix = cvars.Server(msg.channel.guild).getVar('prefix').getString();
 		let cPrefix = cvars.Channel(msg.channel).getVar('prefix').getString();
 		
-		if (cPrefix != '')
+		if (cPrefix !== '')
 			prefix = cPrefix;
 		else
 			prefix = sPrefix;
-	}
+	};
 	
-	if (rawmessage.substr(0, prefix.length) == prefix) {
+	if (rawmessage.substr(0, prefix.length) === prefix) {
 		let recreate = [];
 		recreate.push(prefix);
 		
@@ -758,10 +760,10 @@ DBot.IdentifyCommand = function(msg) {
 		
 		for (let i in splitted) {
 			recreate.push(splitted[i]);
-		}
+		};
 		
 		splitted = recreate;
-	}
+	};
 	
 	let rawCommand = splitted[1];
 	
@@ -778,11 +780,11 @@ DBot.IdentifyCommand = function(msg) {
 	
 	if (!DBot.Commands[command]) {
 		return false;
-	}
+	};
 	
 	let cCommand = DBot.Commands[command];
 	return cCommand.id;
-}
+};
 
 DBot.HandleMessage = function(msg, isPrivate, test) {
 	let shift = 1;
@@ -792,18 +794,18 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 	
 	let rawmessage = msg.content;
 	
-	if (rawmessage == '') {
+	if (rawmessage === '') {
 		if (test)
 			return false;
 		
 		if (isPrivate) {
 			if (msg.attachments) {
 				msg.reply('Oh! A Picture x3');
-			}
-		}
+			};
+		};
 		
 		return;
-	}
+	};
 	
 	let splitted = DBot.TrimArray(rawmessage.split(' '));
 	
@@ -820,21 +822,21 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		let sPrefix = cvars.Server(msg.channel.guild).getVar('prefix').getString();
 		let cPrefix = cvars.Channel(msg.channel).getVar('prefix').getString();
 		
-		if (cPrefix != '')
+		if (cPrefix !== '')
 			prefix = cPrefix;
 		else
 			prefix = sPrefix;
 		
-	}
+	};
 	
-	if (rawmessage.substr(0, prefix.length) == prefix) {
+	if (rawmessage.substr(0, prefix.length) === prefix) {
 		if (isPrivate) {
 			if (test)
 				return false;
 			
 			msg.reply('Oh, you don\'t need } in PM messages x3\nTry without }');
 			return;
-		}
+		};
 		
 		let recreate = [];
 		recreate.push(prefix);
@@ -843,10 +845,10 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		
 		for (let i in splitted) {
 			recreate.push(splitted[i]);
-		}
+		};
 		
 		splitted = recreate;
-	}
+	};
 	
 	let rawCommand = splitted[shift];
 	
@@ -873,21 +875,21 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 			if (msg.channel.cooldown && msg.channel.cooldown > CurTime()) {
 				msg.channel.cooldown = CurTime() + 1;
 				return;
-			}
+			};
 			
 			msg.channel.cooldown = CurTime() + 1;
-		}
+		};
 		
 		let output = 'I don\'t know what to do with that :\\';
 		let related = findRelated(command);
 		
 		if (related[0] && related[0][1] > 1) {
 			output += '\nMaybe you mean `' + related[0][0] + '`?';
-		}
+		};
 		
 		msg.reply(output);
 		return;
-	}
+	};
 	
 	let cCommand = DBot.Commands[command];
 	
@@ -902,7 +904,7 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		
 		msg.reply('Command is banned on entrie server ;w;');
 		return;
-	}
+	};
 	
 	if (ChannelBans && ChannelBans.isBanned(cCommand.id)) {
 		if (test)
@@ -910,7 +912,7 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		
 		msg.reply('Command is banned on this channel ;w;');
 		return;
-	}
+	};
 	
 	if (ServerBans && ServerBans.isBanned(cCommand.name)) {
 		if (test)
@@ -918,7 +920,7 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		
 		msg.reply('Command is banned on entrie server ;w;');
 		return;
-	}
+	};
 	
 	if (ChannelBans && ChannelBans.isBanned(cCommand.name)) {
 		if (test)
@@ -926,7 +928,7 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		
 		msg.reply('Command is banned on this channel ;w;');
 		return;
-	}
+	};
 	
 	if (test)
 		return true;
@@ -935,7 +937,7 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 	let first = true;
 	
 	for (let i = 1 + shift; i < splitted.length; i++) {
-		if (splitted[i] == '')
+		if (splitted[i] === '')
 			continue;
 		
 		if (first) {
@@ -943,8 +945,8 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 			first = false;
 		} else {
 			rawcmd += ' ' + splitted[i];
-		}
-	}
+		};
+	};
 	
 	let parsedData = DBot.ParseString(rawcmd);
 	let parsedArgs = parsedData[0];
@@ -959,8 +961,8 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 			firstRedone = false;
 		} else {
 			redoneCmd += ' ' + parsedArgs[i];
-		}
-	}
+		};
+	};
 	
 	DBot.ExecuteCommand(cCommand, msg, parsedArgs, redoneCmd, command, null, parsedHandlers);
-}
+};
