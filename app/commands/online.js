@@ -52,7 +52,7 @@ hook.Add('UserInitialized', 'LastSeen', function(user) {
 			console.error('Failed to create lastonline entry: ' + err);
 	});
 	
-	Postgre.query('INSERT INTO uptime ("ID", "STAMP") VALUES (' + user.uid + ', currtime()) ON CONFLICT ("ID") DO UPDATE SET "STAMP" = currtime()', function(err, data) {
+	Postgre.query('INSERT INTO uptime ("ID", "STAMP") VALUES (' + user.uid + ', currtime()) ON CONFLICT ("ID") DO NOTHING', function(err, data) {
 		if (err)
 			console.error('Failed to create lastonline entry: ' + err);
 	});
@@ -92,7 +92,7 @@ hook.Add('UsersInitialized', 'LastSeen', function() {
 	
 	if (updateStr) {
 		Postgre.query('INSERT INTO lastonline VALUES ' + updateStr + ' ON CONFLICT ("ID") DO UPDATE SET "LASTONLINE" = currtime()');
-		Postgre.query('INSERT INTO uptime ("ID", "STAMP") VALUES ' + updateStr + ' ON CONFLICT ("ID") DO UPDATE SET "STAMP" = currtime()');
+		Postgre.query('INSERT INTO uptime ("ID", "STAMP") VALUES ' + updateStr + ' ON CONFLICT ("ID") DO NOTHING');
 	}
 	
 	if (statusStr)

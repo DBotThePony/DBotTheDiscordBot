@@ -617,7 +617,7 @@ CREATE TABLE IF NOT EXISTS uptime (
 	"ONLINE" double precision NOT NULL DEFAULT 0,
 	"AWAY" double precision NOT NULL DEFAULT 0,
 	"DNT" double precision NOT NULL DEFAULT 0,
-	"STAMP" INTEGER NOT NULL,
+	"STAMP" INTEGER NOT NULL DEFAULT currtime(),
 	PRIMARY KEY ("ID")
 );
 
