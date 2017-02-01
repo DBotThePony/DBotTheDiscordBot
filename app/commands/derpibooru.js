@@ -3,6 +3,7 @@ const http = require('https');
 const unirest = DBot.js.unirest;
 const JSON3 = DBot.js.json3;
 const fs = DBot.js.fs;
+const url = DBot.js.url;
 
 DBot.CreateTagsSpace('derpibooru', [
 	'anthro',
@@ -37,7 +38,7 @@ let GetImage = function(ID, callback) {
 				callback(JSON3.parse(data), ID);
 			});
 		} else {
-			unirest.get('https://trixiebooru.org/' + ID + '.json')
+			unirest.get('https://www.derpibooru.org/' + ID + '.json')
 			.end(function(reply) {
 				if (reply.status != 200) {
 					callback({}, ID);
@@ -58,19 +59,30 @@ let GetImage = function(ID, callback) {
 }
 
 let getRandomImage = function(callback) {
-	let options = {
-		host: 'trixiebooru.org',
-		port: 443,
-		protocol: 'https:',
-		path: '/images/random',
-	};
+	let options = url.parse('https://www.derpibooru.org/search?q=*&random_image=y.json');
 	
 	let req = http.request(options, function(response) {
-		let location = response.headers.location;
-		let split = location.split('/');
-		let myID = split[split.length - 1];
-		
-		GetImage(myID, callback);
+		try {
+			let location;
+			
+			for (let i in response.rawHeaders) {
+				let opt = response.rawHeaders[i];
+				
+				if (opt == 'Location' || opt == 'location') {
+					location = response.rawHeaders[Number(i) + 1];
+					break;
+				}
+			}
+			
+			let split = location.split('/');
+			let myID = split[split.length - 1];
+			
+			let split2 = myID.split('?');
+
+			GetImage(split2[0], callback);
+		} catch(err) {
+			callback({}, -1);
+		}
 	});
 	
 	req.on('error', function(err) {
@@ -147,7 +159,7 @@ module.exports = {
 						}
 					}
 					
-					msg.reply('Tags: ' + itags + '\n<https://trixiebooru.org/' + myID +'>\nhttps:' + target);
+					msg.reply('Tags: ' + itags + '\n<https://www.derpibooru.org/' + myID +'>\nhttps:' + target);
 				});
 			}
 			
@@ -175,7 +187,7 @@ module.exports = {
 					}
 				}
 				
-				msg.reply('Tags: ' + itags + '\n<https://trixiebooru.org/' + ID +'>\nhttps:' + target);
+				msg.reply('Tags: ' + itags + '\n<https://www.derpibooru.org/' + ID +'>\nhttps:' + target);
 			});
 		} else {
 			let encode = '';
@@ -270,9 +282,9 @@ module.exports = {
 					previousStuff.push(data.id);
 				
 				if (isCached)
-					msg.reply('(cached results)\nTags: ' + data.tags + '\n<https://trixiebooru.org/' + data.id + '>\nhttps:' + target);
+					msg.reply('(cached results)\nTags: ' + data.tags + '\n<https://www.derpibooru.org/' + data.id + '>\nhttps:' + target);
 				else
-					msg.reply('Tags: ' + data.tags + '\n<https://trixiebooru.org/' + data.id + '>\nhttps:' + target);
+					msg.reply('Tags: ' + data.tags + '\n<https://www.derpibooru.org/' + data.id + '>\nhttps:' + target);
 			}
 			
 			fs.stat(path, function(err, stat) {
@@ -286,7 +298,7 @@ module.exports = {
 						msg.reply('Uh oh, i broke for now');
 					}
 				} else {
-					unirest.get('https://trixiebooru.org/search.json?q=' + encode)
+					unirest.get('https://www.derpibooru.org/search.json?q=' + encode)
 					.end(function (response) {
 						try {
 							let parsed = response.body;
