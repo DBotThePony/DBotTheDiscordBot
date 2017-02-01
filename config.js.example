@@ -22,6 +22,10 @@ module.exports = {
 	steam: 'A670xxxxxxxxxxxxxxxxxxx',
 	steam_enable: true,
 	
+	// Mashape API key
+	urban: 'EBS2Sxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+	urban_enable: true,
+	
 	// PostgreSQL database connection options
 	
 	// Hostname

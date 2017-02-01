@@ -1,4 +1,6 @@
 
+if (!DBot.cfg.urban_enable) return;
+
 const unirest = DBot.js.unirest;
 
 module.exports = {
@@ -12,15 +14,14 @@ module.exports = {
 	desc: 'Get a definition of word',
 	
 	func: function(args, cmd, msg) {
-		MySQL.query('SELECT * FROM urbancache WHERE WORD = ' + Util.escape(cmd), function(err, data) {
-			if (err)
-				return;
-			
+		msg.channel.startTyping();
+		
+		MySQL.query('SELECT * FROM urbancache WHERE "WORD" = ' + Util.escape(cmd), function(err, data) {
 			let curr = UnixStamp();
 			
 			if (!data[0] || data[0].USTAMP < curr) {
 				unirest.get("https://mashape-community-urban-dictionary.p.mashape.com/define?term=" + encodeURIComponent(cmd))
-				.header("X-Mashape-Key", "EBS2SokObUmshIhkhF080NPpTw4Zp10mx1QjsnSQwZbLG1jWJ9")
+				.header("X-Mashape-Key", DBot.cfg.urban)
 				.header("Accept", "text/plain")
 				.end(function (result) {
 					let first = result.body.list[0];
@@ -35,6 +36,16 @@ module.exports = {
 					let def = first.definition;
 					let example = first.example;
 					
+					if (def.length > 700) {
+						def = def.substr(0, 700) + ' <...>';
+					}
+					
+					
+					if (example.length > 1000) {
+						example = example.substr(0, 1000) + ' <...>';
+					}
+					
+					msg.channel.stopTyping();
 					msg.reply(tags + '\nDefinition: ' + def + '\nExample: ```' + example + '```');
 					
 					let q = 'INSERT INTO urbancache ("WORD", "DEFINITION", "TAGS", "ULINK", "DEXAMPLE", "USTAMP") VALUES ('
@@ -44,16 +55,18 @@ module.exports = {
 						+ Util.escape(link) + ', '
 						+ Util.escape(example) + ', '
 						+ Util.escape(curr + 3600) + ') ON CONFLICT ("WORD") DO UPDATE SET\
-						"WORD" = ' + Util.escape(cmd) + ',\
-						"DEFINITION" = ' + Util.escape(def) + ',\
-						"TAGS" = ' + Util.escape(tags) + ',\
-						"ULINK" = ' + Util.escape(link) + ',\
-						"DEXAMPLE" = ' + Util.escape(example) + ', \
-						"USTAMP" = ' + Util.escape(curr + 3600);
+						"WORD" = excluded."WORD",\
+						"DEFINITION" = excluded."DEFINITION",\
+						"TAGS" = excluded."TAGS",\
+						"ULINK" = excluded."ULINK",\
+						"DEXAMPLE" = excluded."DEXAMPLE", \
+						"USTAMP" = excluded."USTAMP"';
 					
 					MySQL.query(q);
 				});
 			} else {
+				msg.channel.stopTyping();
+				
 				let first = data[0];
 				let tags = '(cached result)\nTags: ' + first.TAGS;
 				let link = first.ULINK;
