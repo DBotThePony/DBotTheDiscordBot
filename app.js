@@ -3,7 +3,12 @@ process.env['PATH'] = './bin;' + process.env['PATH'];
 const stamp = (new Date()).getTime();
 
 const Discord = require('discord.js');
-const bot = new Discord.Client();
+
+const options = {
+	autoReconnect: false
+};
+
+const bot = new Discord.Client(options);
 
 let stdin = process.openStdin();
 
