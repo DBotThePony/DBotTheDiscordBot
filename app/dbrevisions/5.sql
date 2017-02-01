@@ -1,0 +1,11 @@
+
+ALTER TABLE uptime
+	ADD COLUMN "LASTONLINE" INTEGER NOT NULL DEFAULT 0;
+
+ALTER TABLE uptime
+	ALTER COLUMN "STAMP" SET DEFAULT currtime();
+
+UPDATE uptime SET "LASTONLINE" = lastonline."LASTONLINE" FROM lastonline WHERE lastonline."ID" = uptime."ID";
+
+DROP TABLE lastonline;
+

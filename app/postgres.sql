@@ -201,11 +201,6 @@ CREATE TABLE IF NOT EXISTS joinleft_log (
 	"STATUS" boolean NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS lastonline (
-	"ID" SERIAL PRIMARY KEY,
-	"LASTONLINE" INTEGER NOT NULL
-);
-
 CREATE TABLE IF NOT EXISTS meme_cache (
 	"ID" SERIAL PRIMARY KEY,
 	"URL" VARCHAR(64) NOT NULL,
@@ -1243,16 +1238,16 @@ BEGIN
 	UPDATE stats__generic_users SET "MESSAGES_D" = "MESSAGES_D" + 1, "CHARS_D" = "CHARS_D" + message_length WHERE "ID" = user_id;
 END; $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION users_heartbeat(cTime INTEGER)
+CREATE OR REPLACE FUNCTION users_heartbeat()
 RETURNS void AS $$
+DECLARE cTime INTEGER;
 BEGIN
-	UPDATE lastonline SET "LASTONLINE" = cTime FROM users WHERE users."ID" = lastonline."ID" AND users."STATUS" != 'offline' AND users."ID" = lastonline."ID" AND users."TIME" > cTime - 120;
-	
-	UPDATE uptime SET "TOTAL_ONLINE" = "TOTAL_ONLINE" + 5 FROM users WHERE users."ID" = uptime."ID" AND users."STATUS" != 'offline' AND users."ID" = uptime."ID" AND users."TIME" > cTime - 120;
-	UPDATE uptime SET "ONLINE" = "ONLINE" + 5 FROM users WHERE users."ID" = uptime."ID" AND users."STATUS" = 'online' AND users."ID" = uptime."ID" AND users."TIME" > cTime - 120;
-	UPDATE uptime SET "AWAY" = "AWAY" + 5 FROM users WHERE users."ID" = uptime."ID" AND users."STATUS" = 'idle' AND users."ID" = uptime."ID" AND users."TIME" > cTime - 120;
-	UPDATE uptime SET "DNT" = "DNT" + 5 FROM users WHERE users."ID" = uptime."ID" AND users."STATUS" = 'dnd' AND users."ID" = uptime."ID" AND users."TIME" > cTime - 120;
-	UPDATE uptime SET "TOTAL_OFFLINE" = "TOTAL_OFFLINE" + 5 FROM users WHERE users."ID" = uptime."ID" AND users."STATUS" = 'offline' AND users."ID" = uptime."ID" AND users."TIME" > cTime - 120;
+	cTime := currtime();
+	UPDATE uptime SET "LASTONLINE" = cTime, "TOTAL_ONLINE" = "TOTAL_ONLINE" + 5 FROM users WHERE users."ID" = uptime."ID" AND users."STATUS" != 'offline' AND users."TIME" > cTime - 120;
+	UPDATE uptime SET "ONLINE" = "ONLINE" + 5 FROM users WHERE users."ID" = uptime."ID" AND users."STATUS" = 'online' AND users."TIME" > cTime - 120;
+	UPDATE uptime SET "AWAY" = "AWAY" + 5 FROM users WHERE users."ID" = uptime."ID" AND users."STATUS" = 'idle' AND users."TIME" > cTime - 120;
+	UPDATE uptime SET "DNT" = "DNT" + 5 FROM users WHERE users."ID" = uptime."ID" AND users."STATUS" = 'dnd' AND users."TIME" > cTime - 120;
+	UPDATE uptime SET "TOTAL_OFFLINE" = "TOTAL_OFFLINE" + 5 FROM users WHERE users."ID" = uptime."ID" AND users."STATUS" = 'offline' AND users."TIME" > cTime - 120;
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION update_nicknames_stats(cTime INTEGER)

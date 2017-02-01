@@ -34,7 +34,7 @@ setInterval(function() {
 		}
 	}
 	
-	finalQuery += 'UPDATE lastonline SET "LASTONLINE" = currtime() FROM users WHERE users."STATUS" != \'offline\' AND users."ID" = lastonline."ID" AND users."TIME" > currtime() - 120;';
+	finalQuery += 'SELECT users_heartbeat();';
 	Postgre.query(finalQuery);
 }, 5000);
 
@@ -47,19 +47,12 @@ hook.Add('UserInitialized', 'LastSeen', function(user) {
 	if (!INIT)
 		return;
 	
-	Postgre.query('INSERT INTO lastonline VALUES (' + user.uid + ', currtime()) ON CONFLICT ("ID") DO UPDATE SET "LASTONLINE" = currtime()', function(err, data) {
-		if (err)
-			console.error('Failed to create lastonline entry: ' + err);
-	});
-	
-	Postgre.query('INSERT INTO uptime ("ID", "STAMP") VALUES (' + user.uid + ', currtime()) ON CONFLICT ("ID") DO NOTHING', function(err, data) {
-		if (err)
-			console.error('Failed to create lastonline entry: ' + err);
+	Postgre.query('INSERT INTO uptime ("ID") VALUES (' + user.uid + ') ON CONFLICT ("ID") DO NOTHING', function(err, data) {
+		if (err) console.error('Failed to create uptime entry: ' + err);
 	});
 	
 	Postgre.query('UPDATE users SET "STATUS" = \'' + user.presence.status + '\' WHERE "ID" = ' + user.uid, function(err, data) {
-		if (err)
-			console.error('Failed to create lastonline entry: ' + err);
+		if (err) console.error('Failed to update users entry: ' + err);
 	});
 });
 
@@ -73,9 +66,9 @@ hook.Add('UsersInitialized', 'LastSeen', function() {
 	
 	for (let user of users) {
 		if (!updateStr)
-			updateStr = '(' + (user.uid || sql.User(user)) + ',currtime())';
+			updateStr = '(' + (user.uid || sql.User(user)) + ')';
 		else
-			updateStr += ',(' + (user.uid || sql.User(user)) + ',currtime())';
+			updateStr += ',(' + (user.uid || sql.User(user)) + ')';
 		
 		try {
 			user.lastStatus = user.presence.status;
@@ -87,13 +80,10 @@ hook.Add('UsersInitialized', 'LastSeen', function() {
 		} catch(err) {
 			
 		}
-		
 	}
 	
-	if (updateStr) {
-		Postgre.query('INSERT INTO lastonline VALUES ' + updateStr + ' ON CONFLICT ("ID") DO UPDATE SET "LASTONLINE" = currtime()');
-		Postgre.query('INSERT INTO uptime ("ID", "STAMP") VALUES ' + updateStr + ' ON CONFLICT ("ID") DO NOTHING');
-	}
+	if (updateStr)
+		Postgre.query('INSERT INTO uptime ("ID") VALUES ' + updateStr + ' ON CONFLICT ("ID") DO NOTHING');
 	
 	if (statusStr)
 		Postgre.query('UPDATE users SET "STATUS" = "m"."STATUS" FROM (VALUES ' + statusStr + ') AS "m"("ID", "STATUS") WHERE users."ID" = "m"."ID"');
@@ -122,7 +112,7 @@ module.exports = {
 		
 		let uid = DBot.GetUserID(args[0]);
 		
-		Postgre.query('SELECT "LASTONLINE" FROM lastonline WHERE "ID" = ' + uid, function(err, data) {
+		Postgre.query('SELECT "LASTONLINE" FROM uptime WHERE "ID" = ' + uid, function(err, data) {
 			if (err || !data || !data[0]) {
 				msg.reply('<internal pony error>');
 				return;
