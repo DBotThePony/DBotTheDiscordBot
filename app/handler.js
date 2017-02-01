@@ -656,10 +656,14 @@ hook.Add('OnMessageEdit', 'Handler', function(omsg, nmsg) {
 		return;
 	};
 	
-	let can = DBot.HandleMessage(nmsg, pm, true);
-	
-	if (can)
-		DBot.HandleMessage(nmsg, pm);
+	try {
+		let can = DBot.HandleMessage(nmsg, pm, true);
+		
+		if (can)
+			DBot.HandleMessage(nmsg, pm);
+	} catch(err) {
+		console.error(err);
+	}
 });
 
 cvars.ServerVar('prefix', '}', [FCVAR_NOTNULL], 'Prefix of bot commands on server');
@@ -840,14 +844,20 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		ChannelBans = DBot.ChannelCBans(msg.channel);
 		MemberBans = DBot.MemberCBans(msg.member);
 		
-		let sPrefix = cvars.Server(msg.channel.guild).getVar('prefix').getString();
-		let cPrefix = cvars.Channel(msg.channel).getVar('prefix').getString();
+		let channelVars = cvars.Channel(msg.channel);
+		let serverVars = cvars.Server(msg.channel.guild);
 		
-		if (cPrefix !== '')
-			prefix = cPrefix;
-		else
-			prefix = sPrefix;
-		
+		if (channelVars && serverVars) {
+			let sPrefix = serverVars.getVar('prefix').getString();
+			let cPrefix = channelVars.getVar('prefix').getString();
+			
+			if (cPrefix !== '')
+				prefix = cPrefix;
+			else
+				prefix = sPrefix;
+		} else {
+			prefix = '}';
+		}
 	};
 	
 	if (rawmessage.substr(0, prefix.length) === prefix) {
