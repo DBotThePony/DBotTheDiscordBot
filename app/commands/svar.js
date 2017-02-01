@@ -13,7 +13,7 @@ module.exports = {
 			return 'There must be variable name' + Util.HighlightHelp(['svar'], 2, args);
 		}
 		
-		let clet = cvars.Server(msg.channel.guild).getVar(args[0]);
+		let cvar = cvars.Server(msg.channel.guild).getVar(args[0]);
 		
 		if (!cvar) {
 			return 'No such variable' + Util.HighlightHelp(['svar'], 2, args);
@@ -138,7 +138,7 @@ DBot.RegisterCommand({
 			return 'There must be variable name' + Util.HighlightHelp(['cvar'], 2, args);
 		}
 		
-		let clet = cvars.Channel(msg.channel).getVar(args[0]);
+		let cvar = cvars.Channel(msg.channel).getVar(args[0]);
 		
 		if (!cvar) {
 			return 'No such variable' + Util.HighlightHelp(['cvar'], 2, args);
@@ -210,7 +210,7 @@ DBot.RegisterCommand({
 			return DBot.CommandError('Invalid variable', 'mcvar', args, 2);
 		}
 		
-		let clet = cvars.Channel(channel).getVar(args[1]);
+		let cvar = cvars.Channel(channel).getVar(args[1]);
 		
 		if (!cvar) {
 			return DBot.CommandError('No such variable', 'mcvar', args, 2);
@@ -266,7 +266,7 @@ DBot.RegisterCommand({
 			return 'There must be variable name' + Util.HighlightHelp(['uvar'], 2, args);
 		}
 		
-		let clet = cvars.Client(msg.author).getVar(args[0]);
+		let cvar = cvars.Client(msg.author).getVar(args[0]);
 		
 		if (!cvar) {
 			return 'No such variable' + Util.HighlightHelp(['uvar'], 2, args);
