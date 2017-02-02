@@ -165,7 +165,7 @@ DBot.ParseString = function(str, ignoreHandlers) {
 			continue;
 		};
 		
-		if (item === '"' && current === '') {
+		if (item === '"') {
 			if (inDouble) {
 				if (inSingle) {
 					current += item;
@@ -187,12 +187,14 @@ DBot.ParseString = function(str, ignoreHandlers) {
 					current = '';
 					inDouble = false;
 				};
-			} else {
+			} else if (current === '') {
 				if (inSingle) {
 					current += item;
 				} else {
 					inDouble = true;
 				};
+			} else {
+				current += item;
 			};
 			
 			continue;
@@ -220,12 +222,14 @@ DBot.ParseString = function(str, ignoreHandlers) {
 					current = '';
 					inSingle = false;
 				};
-			} else {
+			} else if (current === '') {
 				if (inDouble) {
 					current += item;
 				} else {
 					inSingle = true;
 				};
+			} else {
+				current += item;
 			};
 			
 			continue;
