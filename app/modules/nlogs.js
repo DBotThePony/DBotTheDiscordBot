@@ -6,59 +6,45 @@ const hDuration = require('humanize-duration');
 
 cvars.ServerVar('name_notify', '0', [FCVAR_BOOLONLY], 'Enable nickname changes notifications');
 
+hook.Add('MemberNicknameChanges', 'MemberNameLogs', function(member, oldMember) {
+	if (!DBot.SQLReady()) return;
+	
+	try {
+		if (!member.guild.uid) return;
+		let UiD = DBot.GetMemberIDSoft(member);
+		if (!UiD) return;
+		
+		const oldName = oldMember.nickname || oldMember.user.username;
+		const newName = member.nickname || member.user.username;
+
+		let notifications = cvars.Server(member.guild).getVar('notifications').getBool();
+		let name_notify = cvars.Server(member.guild).getVar('name_notify').getBool();
+
+		if (notifications && name_notify) {
+			let channel = DBot.GetNotificationChannel(member.guild);
+
+			if (channel) {
+				channel.sendMessage('```\nUser @' + oldName + ' (@' + member.user.username + ') has changes his nick to @' + newName + '\n```');
+			}
+		}
+
+		Postgres.query('UPDATE members SET "NAME" = ' + Util.escape(newName) + ' WHERE "ID" = ' + UiD + ';');
+	} catch(err) {
+		console.error(err);
+	}
+});
+
 setInterval(function() {
-	if (!DBot.SQLReady())
-		return;
+	if (!DBot.SQLReady()) return;
 	
 	let finalQuery = '';
-	
-	for (let member of DBot.GetMembers()) {
-		try {
-			if (!member.guild.uid)
-				continue;
-			
-			let UiD = DBot.GetMemberIDSoft(member);
-			
-			if (!UiD)
-				continue;
-			
-			let name = member.nickname || member.user.username;
-			
-			if (!name)
-				continue;
-			
-			member.oldNickname = member.oldNickname || name;
-			
-			let notifications = cvars.Server(member.guild).getVar('notifications').getBool();
-			let name_notify = cvars.Server(member.guild).getVar('name_notify').getBool();
-			
-			if (member.oldNickname != name) {
-				if (notifications && name_notify) {
-					let channel = DBot.GetNotificationChannel(member.guild);
-					
-					if (channel) {
-						channel.sendMessage('```\nUser @' + member.oldNickname + ' (@' + member.user.username + ') has changes his nick to @' + name + '\n```');
-					}
-				}
-				
-				finalQuery += 'UPDATE members SET "NAME" = ' + Util.escape(name) + ' WHERE "ID" = ' + UiD + ';';
-			}
-			
-			member.oldNickname = name;
-		} catch(err) {
-			console.error(err);
-		}
-	}
 	
 	for (let user of DBot.GetUsers()) {
 		try {
 			let name = user.username;
 			let uid = DBot.GetUserIDSoft(user);
-			if (!uid)
-				continue;
-			
-			if (!name)
-				continue;
+			if (!uid) continue;
+			if (!name) continue;
 			
 			user.oldUName = user.oldUName || name;
 			
@@ -105,7 +91,6 @@ hook.Add('MemberInitialized', 'MemberNameLogs', function(member) {
 		return;
 	
 	let name = Util.escape(member.nickname || member.user.username);
-	member.oldNickname = member.nickname || member.user.username;
 	MySQL.query('UPDATE members SET "NAME" = ' + name + ' WHERE "ID" = ' + member.uid, function(err) {
 		if (!err)
 			return;
@@ -120,14 +105,13 @@ hook.Add('MembersInitialized', 'MemberNameLogs', function(members) {
 	
 	for (let member of members) {
 		let name = Util.escape(member.nickname || member.user.username);
-		member.oldNickname = member.nickname || member.user.username;
 		
 		if (finalQuery)
 			finalQuery += ',';
 		else
 			finalQuery = '';
 		
-		finalQuery += '(' + Util.escape(member.uid) + ', ' + name + ')';
+		finalQuery += '(' + Util.escape(member.uid) + ',' + name + ')';
 	}
 	
 	if (!finalQuery) {
