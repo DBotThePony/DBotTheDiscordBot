@@ -127,23 +127,28 @@ module.exports = {
 		if (!args[0]) {
 			let tries = 0;
 			
+			msg.channel.startTyping();
+			
 			let searchFunc;
 			
 			searchFunc = function() {
 				tries++;
 				
 				if (tries >= 4) {
+					msg.channel.stopTyping();
 					msg.reply('Could not find an valid image. Maybe you or server banned most of valid tags');
 					return;
 				}
 				
 				getRandomImage(function(parse, myID) {
 					if (myID == -1) {
+						msg.channel.stopTyping();
 						msg.reply('Derpibooru is down! Oh fuck.');
 						return;
 					}
 					
 					if (!parse || !parse.representations) {
+						msg.channel.stopTyping();
 						msg.reply('Derpibooru is down!');
 						return;
 					}
@@ -159,19 +164,24 @@ module.exports = {
 						}
 					}
 					
+					msg.channel.stopTyping();
 					msg.reply('Tags: ' + itags + '\n<https://www.derpibooru.org/' + myID +'>\nhttps:' + target);
 				});
 			}
 			
 			searchFunc();
 		} else if (num) {
+			msg.channel.startTyping();
+			
 			GetImage(num, function(data, ID, isError) {
 				if (isError) {
+					msg.channel.stopTyping();
 					msg.reply('Not a valid image ID!');
 					return;
 				}
 				
 				if (!data || !data.representations) {
+					msg.channel.stopTyping();
 					msg.reply('Derpibooru is down, or told me invalid phrase');
 					return;
 				}
@@ -183,10 +193,12 @@ module.exports = {
 				for (let i in split) {
 					if (!(msg.channel.name || 'private').match('nsfw') && (ClientTags.isBanned(split[i]) || ServerTags && ServerTags.isBanned(split[i]) || ChannelTags && ChannelTags.isBanned(split[i]))) {
 						msg.reply('Image have tags that was blocked by server, channel or even you ;n; Next tag was banned: ' + split[i]);
+						msg.channel.stopTyping();
 						return;
 					}
 				}
 				
+				msg.channel.stopTyping();
 				msg.reply('Tags: ' + itags + '\n<https://www.derpibooru.org/' + ID +'>\nhttps:' + target);
 			});
 		} else {
@@ -218,6 +230,8 @@ module.exports = {
 			
 			let path = DBot.WebRoot + '/derpibooru/search/' + DBot.HashString(encode) + '.json';
 			
+			msg.channel.startTyping();
+			
 			let continueLoad = function(parsed, isCached) {
 				let valids = [];
 				
@@ -245,6 +259,8 @@ module.exports = {
 					else
 						msg.reply('Sorry, no results');
 					
+					msg.channel.stopTyping();
+					
 					return;
 				}
 				
@@ -271,6 +287,7 @@ module.exports = {
 				}
 				
 				if (!valids2[0]) {
+					msg.channel.stopTyping();
 					msg.reply('Oops! No more unique results!\nMight you want reset me by typing }derpibooru again?');
 					return;
 				}
@@ -285,6 +302,8 @@ module.exports = {
 					msg.reply('(cached results)\nTags: ' + data.tags + '\n<https://www.derpibooru.org/' + data.id + '>\nhttps:' + target);
 				else
 					msg.reply('Tags: ' + data.tags + '\n<https://www.derpibooru.org/' + data.id + '>\nhttps:' + target);
+				
+				msg.channel.stopTyping();
 			}
 			
 			fs.stat(path, function(err, stat) {
@@ -295,6 +314,7 @@ module.exports = {
 						});
 					} catch(err) {
 						console.log(err);
+						msg.channel.stopTyping();
 						msg.reply('Uh oh, i broke for now');
 					}
 				} else {
@@ -304,6 +324,7 @@ module.exports = {
 							let parsed = response.body;
 							if (!parsed) {
 								msg.reply('Derpibooru is down! Onoh!');
+								msg.channel.stopTyping();
 								return;
 							}
 							
@@ -312,6 +333,7 @@ module.exports = {
 						} catch(err) {
 							console.log(err);
 							msg.reply('Uh oh, i broke for now');
+							msg.channel.stopTyping();
 						}
 					});
 				}
