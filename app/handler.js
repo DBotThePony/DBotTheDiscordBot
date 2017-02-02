@@ -423,10 +423,35 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 			
 			let user = DBot.IdentifyUser(parsedArgs[k]);
 			
-			if (user)
+			if (user) {
 				parsedArgs[k] = user;
-			else if (parsedArgs[k] === '@me') {
-				parsedArgs[k] = msg.author;
+			} else {
+				switch (parsedArgs[k]) {
+					case '@me':
+					case '@myself':
+					case '@self':
+					case '@user':
+					case '%self%':
+					case '%me%':
+					case '%myself%':
+					case '%user%':
+						parsedArgs[k] = msg.author;
+						break;
+					case '@bot':
+					case '@notdbot':
+					case '%bot%':
+					case '%notdbot%':
+						parsedArgs[k] = DBot.bot.user;
+						break;
+					case '@owner':
+					case '@serverowner':
+					case '@server_owner':
+					case '%owner%':
+					case '%serverowner%':
+					case '%server_owner%':
+						if (msg.channel.guild) parsedArgs[k] = msg.channel.guild.owner.user;
+						break;
+				};
 			};
 		};
 	};
