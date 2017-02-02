@@ -130,9 +130,12 @@ hook.Add('MembersInitialized', 'MemberNameLogs', function(members) {
 		finalQuery += '(' + Util.escape(member.uid) + ', ' + name + ')';
 	}
 	
-	if (!finalQuery) return DBot.updateLoadingLevel(false);
+	if (!finalQuery) {
+		DBot.updateLoadingLevel(false);
+		return;
+	}
 	
-	Postgres.query('UPDATE members SET "NAME" = m."NAME" FROM (VALUES ' + finalQuery + ') AS m ("ID", "NAME") WHERE members."ID" = m."ID"', () => DBot.updateLoadingLevel(false));
+	Postgres.query('UPDATE members SET "NAME" = m."NAME" FROM (VALUES ' + finalQuery + ') AS m ("ID", "NAME") WHERE members."ID" = m."ID"', function() {DBot.updateLoadingLevel(false);});
 });
 
 hook.Add('UserInitialized', 'MemberNameLogs', function(user, id) {
@@ -156,7 +159,7 @@ hook.Add('UsersInitialized', 'MemberNameLogs', function() {
 	
 	for (let user of DBot.GetUsers()) {
 		let uid = DBot.GetUserIDSoft(user);
-		if (!uid) return;
+		if (!uid) continue;
 		
 		let name = Util.escape(user.username);
 		user.oldUName = user.username;
@@ -169,9 +172,12 @@ hook.Add('UsersInitialized', 'MemberNameLogs', function() {
 		finalQuery += '(' + uid + ', ' + name + ')';
 	}
 	
-	if (!finalQuery) return DBot.updateLoadingLevel(false);
+	if (!finalQuery) {
+		DBot.updateLoadingLevel(false);
+		return;
+	}
 	
-	Postgres.query('UPDATE users SET "NAME" = "VALUES"."NAME" FROM (VALUES ' + finalQuery + ') AS "VALUES" ("ID", "NAME") WHERE users."ID" = "VALUES"."ID";',  () => DBot.updateLoadingLevel(false));
+	Postgres.query('UPDATE users SET "NAME" = "VALUES"."NAME" FROM (VALUES ' + finalQuery + ') AS "VALUES" ("ID", "NAME") WHERE users."ID" = "VALUES"."ID";',  function() {DBot.updateLoadingLevel(false);});
 });
 
 Util.mkdir(DBot.WebRoot + '/namelog');

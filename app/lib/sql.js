@@ -763,6 +763,8 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 		}
 	}
 	
+	if (!build[0]) return;
+	
 	for (let i in users1) {
 		if (!users1[i].id)
 			continue; // DiscordSocketTheBugFiner

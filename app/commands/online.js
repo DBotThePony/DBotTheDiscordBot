@@ -87,12 +87,12 @@ hook.Add('UsersInitialized', 'LastSeen', function() {
 	}
 	
 	if (updateStr)
-		Postgre.query('INSERT INTO uptime ("ID") VALUES ' + updateStr + ' ON CONFLICT ("ID") DO NOTHING', () => DBot.updateLoadingLevel(false));
+		Postgre.query('INSERT INTO uptime ("ID") VALUES ' + updateStr + ' ON CONFLICT ("ID") DO NOTHING', function() {DBot.updateLoadingLevel(false);});
 	else
 		DBot.updateLoadingLevel(false);
 	
 	if (statusStr)
-		Postgre.query('UPDATE users SET "STATUS" = "m"."STATUS" FROM (VALUES ' + statusStr + ') AS "m"("ID", "STATUS") WHERE users."ID" = "m"."ID"', () => DBot.updateLoadingLevel(false));
+		Postgre.query('UPDATE users SET "STATUS" = "m"."STATUS" FROM (VALUES ' + statusStr + ') AS "m"("ID", "STATUS") WHERE users."ID" = "m"."ID"', function() {DBot.updateLoadingLevel(false);});
 	else
 		DBot.updateLoadingLevel(false);
 });
