@@ -71,14 +71,18 @@ DBot.bot.on('message', function(msg) {
 	msg.___reply = msg.___reply || msg.reply; // There is also oldReply, but oldReply is used when command was actually executed.
 	msg.reply = msg.promiseReply;
 	
-	if (!DBot.SQLReady())
-		return;
-	
 	try {
+		if (DBot.IsMyMessage(msg)) return;
+
+		if (!DBot.SQLReady()) {
+			if (msg.channel.type === 'dm')
+				msg.channel.sendMessage('I am still starting up.');
+			return;
+		}
+		
 		msg.internalCreateTime = CurTime();
 		hook.Run('OnMessage', msg);
 		
-		if (DBot.IsMyMessage(msg)) return;
 		if (hook.Run('CheckValidMessage', msg) === true) return;
 		if (hook.Run('PreOnValidMessage', msg) === true) return;
 		
