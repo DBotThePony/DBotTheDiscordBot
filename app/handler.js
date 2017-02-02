@@ -76,7 +76,7 @@ DBot.bot.on('message', function(msg) {
 
 		if (!DBot.SQLReady()) {
 			if (msg.channel.type === 'dm')
-				msg.channel.sendMessage('I am still starting up.');
+				msg.channel.sendMessage('I am still starting up.\nLeft [' + DBot.LOADING_LEVEL + '/' + DBot.maximalLoadingValue + '] stages');
 			return;
 		}
 		

@@ -711,11 +711,11 @@ DBot.IsReady = function() {
 	return DBot.IsOnline() && DBot.LOADING_LEVEL <= 0 && DBot.SQL_START;
 };
 
-let maximalLoadingValue = 0;
+DBot.maximalLoadingValue = 0;
 
 let updateLoadingStatus = function() {
 	if (DBot.LOADING_LEVEL > 0)
-		DBot.Status('Loading, left [' + DBot.LOADING_LEVEL + '/' + maximalLoadingValue + '] stages');
+		DBot.Status('Loading, left [' + DBot.LOADING_LEVEL + '/' + DBot.maximalLoadingValue + '] stages');
 	else
 		DBot.Status('Finishing up...');
 };
@@ -774,7 +774,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 	DBot.LOADING_LEVEL = 6;
 	
 	hook.Run('UpdateLoadingLevel', DBot.updateLoadingLevel);
-	maximalLoadingValue = DBot.LOADING_LEVEL;
+	DBot.maximalLoadingValue = DBot.LOADING_LEVEL;
 	
 	updateLoadingStatus();
 	

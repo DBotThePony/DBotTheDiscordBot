@@ -12,13 +12,20 @@ RealTime = UnixStamp;
 
 let cooldown = 0;
 let statusTimerID;
+let lastRequestedStatus;
 
 DBot.Status = function(newStatus) {
 	if (cooldown > CurTime()) {
-		if (statusTimerID) clearTimeout(statusTimerID);
+		if (statusTimerID) {
+			lastRequestedStatus = newStatus;
+			return;
+		};
+		
+		lastRequestedStatus = newStatus;
 		
 		statusTimerID = setTimeout(function() {
-			DBot.bot.user.setGame(newStatus);
+			DBot.bot.user.setGame(lastRequestedStatus);
+			statusTimerID = null;
 		}, 10000);
 		return;
 	}
