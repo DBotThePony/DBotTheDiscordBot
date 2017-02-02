@@ -17,6 +17,7 @@ module.exports = {
 			myValue = eval(cmd);
 		} catch(err) {
 			msg.sendMessage('```\n' + err.stack + '\n```');
+			return;
 		}
 		
 		if (myValue === undefined) {
