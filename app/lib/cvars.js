@@ -97,11 +97,13 @@ class ConVar {
 	}
 	
 	fetch() {
+		let self = this;
+		
 		MySQL.query('SELECT "VALUE" FROM cvar_' + this.realm + ' WHERE "ID" = ' + this.id + ' AND "CVAR" = ' + Util.escape(this.name), function(err, data) {
 			if (!data || !data[0]) {
-				MySQL.query('INSERT INTO cvar_' + me.realm + ' ("ID", "CVAR", "VALUE") VALUES (' + me.id + ', ' + Util.escape(me.name) + ', ' + Util.escape(me.defValue) + ')');
+				MySQL.query('INSERT INTO cvar_' + self.realm + ' ("ID", "CVAR", "VALUE") VALUES (' + self.id + ', ' + Util.escape(self.name) + ', ' + Util.escape(self.defValue) + ')');
 			} else {
-				me.value = data[0].VALUE;
+				self.value = data[0].VALUE;
 			}
 		});
 	}
@@ -447,8 +449,8 @@ class UserVarSession {
 			}
 			
 			if (!data[0]) {
-				for (let cvar of self.cvars) {
-					cvar.fetch();
+				for (let cvari in self.cvars) {
+					self.cvars[cvari].fetch();
 				}
 			}
 		});
@@ -527,8 +529,8 @@ class ServerVarSession {
 			}
 			
 			if (!data[0]) {
-				for (let cvar of self.cvars) {
-					cvar.fetch();
+				for (let cvari in self.cvars) {
+					self.cvars[cvari].fetch();
 				}
 			}
 		});
@@ -606,8 +608,8 @@ class ChannelVarSession {
 			}
 			
 			if (!data[0]) {
-				for (let cvar of self.cvars) {
-					cvar.fetch();
+				for (let cvari in self.cvars) {
+					self.cvars[cvari].fetch();
 				}
 			}
 		});
