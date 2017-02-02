@@ -56,6 +56,10 @@ hook.Add('UserInitialized', 'LastSeen', function(user) {
 	});
 });
 
+hook.Add('UpdateLoadingLevel', 'LastSeen', function(callFunc) {
+	callFunc(true, 2);
+});
+
 hook.Add('UsersInitialized', 'LastSeen', function() {
 	INIT = true;
 	
@@ -83,10 +87,10 @@ hook.Add('UsersInitialized', 'LastSeen', function() {
 	}
 	
 	if (updateStr)
-		Postgre.query('INSERT INTO uptime ("ID") VALUES ' + updateStr + ' ON CONFLICT ("ID") DO NOTHING');
+		Postgre.query('INSERT INTO uptime ("ID") VALUES ' + updateStr + ' ON CONFLICT ("ID") DO NOTHING', () => DBot.updateLoadingLevel(false));
 	
 	if (statusStr)
-		Postgre.query('UPDATE users SET "STATUS" = "m"."STATUS" FROM (VALUES ' + statusStr + ') AS "m"("ID", "STATUS") WHERE users."ID" = "m"."ID"');
+		Postgre.query('UPDATE users SET "STATUS" = "m"."STATUS" FROM (VALUES ' + statusStr + ') AS "m"("ID", "STATUS") WHERE users."ID" = "m"."ID"', () => DBot.updateLoadingLevel(false));
 });
 
 setInterval(function() {

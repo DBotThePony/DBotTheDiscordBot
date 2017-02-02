@@ -96,6 +96,10 @@ setInterval(function() {
 	});
 }, 10000);
 
+hook.Add('UpdateLoadingLevel', 'NameLogs', function(callFunc) {
+	callFunc(true, 2);
+});
+
 hook.Add('MemberInitialized', 'MemberNameLogs', function(member) {
 	if (!DBot.SQLReady())
 		return;
@@ -128,7 +132,7 @@ hook.Add('MembersInitialized', 'MemberNameLogs', function(members) {
 	
 	if (!finalQuery) return;
 	
-	Postgres.query('UPDATE members SET "NAME" = m."NAME" FROM (VALUES ' + finalQuery + ') AS m ("ID", "NAME") WHERE members."ID" = m."ID"');
+	Postgres.query('UPDATE members SET "NAME" = m."NAME" FROM (VALUES ' + finalQuery + ') AS m ("ID", "NAME") WHERE members."ID" = m."ID"', () => DBot.updateLoadingLevel(false));
 });
 
 hook.Add('UserInitialized', 'MemberNameLogs', function(user, id) {
@@ -167,7 +171,7 @@ hook.Add('UsersInitialized', 'MemberNameLogs', function() {
 	
 	if (!finalQuery) return;
 	
-	Postgres.query('UPDATE users SET "NAME" = "VALUES"."NAME" FROM (VALUES ' + finalQuery + ') AS "VALUES" ("ID", "NAME") WHERE users."ID" = "VALUES"."ID";');
+	Postgres.query('UPDATE users SET "NAME" = "VALUES"."NAME" FROM (VALUES ' + finalQuery + ') AS "VALUES" ("ID", "NAME") WHERE users."ID" = "VALUES"."ID";',  () => DBot.updateLoadingLevel(false));
 });
 
 Util.mkdir(DBot.WebRoot + '/namelog');

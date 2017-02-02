@@ -256,6 +256,10 @@ hook.Add('UserInitialized', 'UserTags', function(obj) {
 	}
 });
 
+hook.Add('UpdateLoadingLevel', 'UserTags', function(callFunc) {
+	callFunc(true, 1);
+});
+
 hook.Add('UsersInitialized', 'UserTags', function() {
 	let callbackFunc = function(err, data) {
 		if (err) {
@@ -276,6 +280,7 @@ hook.Add('UsersInitialized', 'UserTags', function() {
 		
 		Postgre.query(q, function(err, data) {
 			if (err) throw err;
+			DBot.updateLoadingLevel(false);
 			
 			let spaces = {};
 			
@@ -301,6 +306,8 @@ hook.Add('UsersInitialized', 'UserTags', function() {
 	
 	Postgre.query('SELECT init_tags();', callbackFunc);
 });
+
+// TODO - Optimize startup
 
 hook.Add('ServerInitialized', 'ServerTags', function(obj) {
 	for (let i in DBot.tags) {

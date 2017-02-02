@@ -228,9 +228,14 @@ hook.Add('MemberInitialized', 'MemberCommandBans', function(obj) {
 	});
 });
 
+hook.Add('UpdateLoadingLevel', 'MemberCommandBans', function(callFunc) {
+	callFunc(true, 3);
+});
+
 hook.Add('MembersInitialized', 'MemberCommandBans', function() {
 	Postgres.query('SELECT command_banned_cmember."UID", command_banned_cmember."CHANNEL" FROM command_banned_cmember, users WHERE users."TIME" > currtime() - 120 AND command_banned_cmember."UID" = users."ID"', function(err, data) {
 		if (err) throw err;
+		DBot.updateLoadingLevel(false);
 		
 		for (let row of data) {
 			let get = DBot.GetMember(row.UID);
@@ -247,6 +252,7 @@ hook.Add('MembersInitialized', 'MemberCommandBans', function() {
 	
 	Postgres.query('SELECT command_banned_member."UID" FROM command_banned_member, users WHERE users."TIME" > currtime() - 120 AND command_banned_member."UID" = users."ID"', function(err, data) {
 		if (err) throw err;
+		DBot.updateLoadingLevel(false);
 		
 		for (let row of data) {
 			let get = DBot.GetMember(row.UID);
@@ -263,6 +269,7 @@ hook.Add('MembersInitialized', 'MemberCommandBans', function() {
 	
 	Postgres.query('SELECT command_bans_member."UID", command_bans_member."COMMAND" FROM command_bans_member, users WHERE users."TIME" > currtime() - 120 AND command_bans_member."UID" = users."ID"', function(err, data) {
 		if (err) throw err;
+		DBot.updateLoadingLevel(false);
 		
 		for (let row of data) {
 			if (!DBot.GetMember(row.UID))

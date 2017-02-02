@@ -655,6 +655,10 @@ hook.Add('ServerInitialized', 'CVars', function(obj) {
 	cvars.SERVERS[DBot.GetServerID(obj)] = new ServerVarSession(obj);
 });
 
+hook.Add('UpdateLoadingLevel', 'CVars', function(callFunc) {
+	callFunc(true, 3);
+});
+
 hook.Add('UsersInitialized', 'CVars', function(users) {
 	let cVarsArray;
 	
@@ -668,6 +672,8 @@ hook.Add('UsersInitialized', 'CVars', function(users) {
 	if (!cVarsArray) return;
 	
 	Postgres.query('SELECT cvar_client."ID", cvar_client."CVAR", cvar_client."VALUE" FROM cvar_client, users WHERE users."TIME" > currtime() - 120 AND users."ID" = cvar_client."ID" AND "CVAR" IN (' + cVarsArray + ')', function(err, data) {
+		DBot.updateLoadingLevel(false);
+		
 		for (let row of data) {
 			let obj = DBot.GetUser(row.ID);
 			
@@ -695,6 +701,8 @@ hook.Add('ChannelsInitialized', 'CVars', function(channels) {
 	if (!cVarsArray) return;
 	
 	Postgres.query('SELECT cvar_channel."ID", cvar_channel."CVAR", cvar_channel."VALUE" FROM cvar_channel, channels WHERE channels."TIME" > currtime() - 120 AND channels."ID" = cvar_channel."ID" AND "CVAR" IN (' + cVarsArray + ')', function(err, data) {
+		DBot.updateLoadingLevel(false);
+		
 		for (let row of data) {
 			let obj = DBot.GetChannel(row.ID);
 			
@@ -722,6 +730,8 @@ hook.Add('ServersInitialized', 'CVars', function(servers) {
 	if (!cVarsArray) return;
 	
 	Postgres.query('SELECT cvar_server."ID", cvar_server."CVAR", cvar_server."VALUE" FROM cvar_server, servers WHERE servers."TIME" > currtime() - 120 AND servers."ID" = cvar_server."ID" AND "CVAR" IN (' + cVarsArray + ')', function(err, data) {
+		DBot.updateLoadingLevel(false);
+		
 		for (let row of data) {
 			let obj = DBot.GetServer(row.ID);
 			

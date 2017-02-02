@@ -67,6 +67,10 @@ let updateRoleRules = function(role) {
 		MySQL.query(q, continueFunc);
 }
 
+hook.Add('UpdateLoadingLevel', 'RoleLogs', function(callFunc) {
+	callFunc(true, 1);
+});
+
 hook.Add('RoleInitialized', 'RoleLogs', updateRoleRules);
 hook.Add('RolesInitialized', 'RoleLogs', function(role_map, role_array, role_array_ids, roleHashMap, role_array_uids) {
 	INIT = true;
@@ -88,6 +92,7 @@ hook.Add('RolesInitialized', 'RoleLogs', function(role_map, role_array, role_arr
 	
 	Postgres.query(q, function(err, data) {
 		if (err) throw err;
+		DBot.updateLoadingLevel(false);
 		
 		let cTime = Util.escape(Math.floor(CurTime()));
 		
