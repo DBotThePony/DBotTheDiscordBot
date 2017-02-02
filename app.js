@@ -115,6 +115,11 @@ hook.Add('SQLInitialize', 'Core', function() {
 bot.on('ready', function() {
 	LEVEL_OF_CONNECTION++;
 	
+	if (LEVEL_OF_CONNECTION >= 2) {
+		console.log('Connection was duplicated! WTF?');
+		return;
+	}
+	
 	console.log('Connection established');
 	DBot.InitVars();
 	hook.Run('BotConnected', DBot.bot);
