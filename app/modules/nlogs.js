@@ -130,7 +130,7 @@ hook.Add('MembersInitialized', 'MemberNameLogs', function(members) {
 		finalQuery += '(' + Util.escape(member.uid) + ', ' + name + ')';
 	}
 	
-	if (!finalQuery) return;
+	if (!finalQuery) return DBot.updateLoadingLevel(false);
 	
 	Postgres.query('UPDATE members SET "NAME" = m."NAME" FROM (VALUES ' + finalQuery + ') AS m ("ID", "NAME") WHERE members."ID" = m."ID"', () => DBot.updateLoadingLevel(false));
 });
@@ -169,7 +169,7 @@ hook.Add('UsersInitialized', 'MemberNameLogs', function() {
 		finalQuery += '(' + uid + ', ' + name + ')';
 	}
 	
-	if (!finalQuery) return;
+	if (!finalQuery) return DBot.updateLoadingLevel(false);
 	
 	Postgres.query('UPDATE users SET "NAME" = "VALUES"."NAME" FROM (VALUES ' + finalQuery + ') AS "VALUES" ("ID", "NAME") WHERE users."ID" = "VALUES"."ID";',  () => DBot.updateLoadingLevel(false));
 });

@@ -669,7 +669,7 @@ hook.Add('UsersInitialized', 'CVars', function(users) {
 			cVarsArray += ',' + Util.escape(i);
 	}
 	
-	if (!cVarsArray) return;
+	if (!cVarsArray) return DBot.updateLoadingLevel(false);
 	
 	Postgres.query('SELECT cvar_client."ID", cvar_client."CVAR", cvar_client."VALUE" FROM cvar_client, users WHERE users."TIME" > currtime() - 120 AND users."ID" = cvar_client."ID" AND "CVAR" IN (' + cVarsArray + ')', function(err, data) {
 		DBot.updateLoadingLevel(false);
@@ -698,7 +698,7 @@ hook.Add('ChannelsInitialized', 'CVars', function(channels) {
 			cVarsArray += ',' + Util.escape(i);
 	}
 	
-	if (!cVarsArray) return;
+	if (!cVarsArray) return DBot.updateLoadingLevel(false);
 	
 	Postgres.query('SELECT cvar_channel."ID", cvar_channel."CVAR", cvar_channel."VALUE" FROM cvar_channel, channels WHERE channels."TIME" > currtime() - 120 AND channels."ID" = cvar_channel."ID" AND "CVAR" IN (' + cVarsArray + ')', function(err, data) {
 		DBot.updateLoadingLevel(false);
@@ -727,7 +727,7 @@ hook.Add('ServersInitialized', 'CVars', function(servers) {
 			cVarsArray += ',' + Util.escape(i);
 	}
 	
-	if (!cVarsArray) return;
+	if (!cVarsArray) return DBot.updateLoadingLevel(false);
 	
 	Postgres.query('SELECT cvar_server."ID", cvar_server."CVAR", cvar_server."VALUE" FROM cvar_server, servers WHERE servers."TIME" > currtime() - 120 AND servers."ID" = cvar_server."ID" AND "CVAR" IN (' + cVarsArray + ')', function(err, data) {
 		DBot.updateLoadingLevel(false);

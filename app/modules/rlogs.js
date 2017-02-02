@@ -76,19 +76,19 @@ hook.Add('RolesInitialized', 'RoleLogs', function(role_map, role_array, role_arr
 	INIT = true;
 	
 	let q = 'SELECT\
-				"member_roles"."ROLE",\
-				array_to_string(array_agg("member_roles"."MEMBER"), \',\') AS "MEMBER",\
-				array_to_string(array_agg("users"."UID"), \',\') AS "USER"\
-			FROM\
-				"member_roles",\
-				"users",\
-				"members"\
-			WHERE\
-				"member_roles"."ROLE" = ANY (' + sql.Array(role_array_uids) + '::INTEGER[]) AND\
-				"members"."ID" = "member_roles"."MEMBER" AND\
-				"users"."ID" = "members"."USER"\
-			GROUP BY\
-				"member_roles"."ROLE"';
+		"member_roles"."ROLE",\
+		array_to_string(array_agg("member_roles"."MEMBER"), \',\') AS "MEMBER",\
+		array_to_string(array_agg("users"."UID"), \',\') AS "USER"\
+	FROM\
+		"member_roles",\
+		"users",\
+		"members"\
+	WHERE\
+		"member_roles"."ROLE" = ANY (' + sql.Array(role_array_uids) + '::INTEGER[]) AND\
+		"members"."ID" = "member_roles"."MEMBER" AND\
+		"users"."ID" = "members"."USER"\
+	GROUP BY\
+		"member_roles"."ROLE"';
 	
 	Postgres.query(q, function(err, data) {
 		if (err) throw err;
