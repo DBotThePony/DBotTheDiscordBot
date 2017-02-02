@@ -93,14 +93,17 @@ class ConVar {
 		
 		this.value = this.defValue;
 		
-		if (!noLoad)
-			MySQL.query('SELECT "VALUE" FROM cvar_' + this.realm + ' WHERE "ID" = ' + this.id + ' AND "CVAR" = ' + Util.escape(this.name), function(err, data) {
-				if (!data || !data[0]) {
-					MySQL.query('INSERT INTO cvar_' + me.realm + ' ("ID", "CVAR", "VALUE") VALUES (' + me.id + ', ' + Util.escape(me.name) + ', ' + Util.escape(me.defValue) + ')');
-				} else {
-					me.value = data[0].VALUE;
-				}
-			});
+		if (!noLoad) this.fetch();
+	}
+	
+	fetch() {
+		MySQL.query('SELECT "VALUE" FROM cvar_' + this.realm + ' WHERE "ID" = ' + this.id + ' AND "CVAR" = ' + Util.escape(this.name), function(err, data) {
+			if (!data || !data[0]) {
+				MySQL.query('INSERT INTO cvar_' + me.realm + ' ("ID", "CVAR", "VALUE") VALUES (' + me.id + ', ' + Util.escape(me.name) + ', ' + Util.escape(me.defValue) + ')');
+			} else {
+				me.value = data[0].VALUE;
+			}
+		});
 	}
 	
 	haveFlag(flag) {
@@ -442,6 +445,12 @@ class UserVarSession {
 					self.cvars[row.CVAR].setValueRaw(row.VALUE);
 				}
 			}
+			
+			if (!data[0]) {
+				for (let cvar of self.cvars) {
+					cvar.fetch();
+				}
+			}
 		});
 	}
 	
@@ -516,6 +525,12 @@ class ServerVarSession {
 					self.cvars[row.CVAR].setValueRaw(row.VALUE);
 				}
 			}
+			
+			if (!data[0]) {
+				for (let cvar of self.cvars) {
+					cvar.fetch();
+				}
+			}
 		});
 	}
 	
@@ -587,6 +602,12 @@ class ChannelVarSession {
 			for (let row of data) {
 				if (self.cvars[row.CVAR]) {
 					self.cvars[row.CVAR].setValueRaw(row.VALUE);
+				}
+			}
+			
+			if (!data[0]) {
+				for (let cvar of self.cvars) {
+					cvar.fetch();
 				}
 			}
 		});
@@ -663,15 +684,49 @@ hook.Add('UsersInitialized', 'CVars', function(users) {
 	let cVarsArray;
 	
 	for (let i in cvars.CONVARS_USER) {
-		if (!cVarsArray)
-			cVarsArray = Util.escape(i);
+	if (!cVarsArray)
+			cVarsArray = '(' + Util.escape(i) + ',' + Util.escape(cvars.CONVARS_USER[i].val) + ')';
 		else
-			cVarsArray += ',' + Util.escape(i);
+			cVarsArray += ',(' + Util.escape(i) + ',' + Util.escape(cvars.CONVARS_USER[i].val) + ')';
 	}
 	
 	if (!cVarsArray) return DBot.updateLoadingLevel(false);
 	
-	Postgres.query('SELECT cvar_client."ID", cvar_client."CVAR", cvar_client."VALUE" FROM cvar_client, users WHERE users."TIME" > currtime() - 120 AND users."ID" = cvar_client."ID" AND "CVAR" IN (' + cVarsArray + ')', function(err, data) {
+	let query = `
+WITH vars_values ("VAR", "VALUE") AS (
+	VALUES ${cVarsArray}
+),
+
+fake_insert_notexists AS (
+	INSERT INTO cvar_client (
+		SELECT
+			users."ID",
+			vars_values."VAR",
+			vars_values."VALUE"
+		FROM
+			vars_values,
+			users
+		WHERE
+			users."ID" NOT IN
+				(SELECT "ID" FROM cvar_client)
+	)
+)
+
+SELECT
+	cvar_client."ID",
+	cvar_client."CVAR",
+	cvar_client."VALUE"
+FROM
+	cvar_client,
+	users
+WHERE
+	users."TIME" > currtime() - 120 AND
+	users."ID" = cvar_client."ID" AND
+	"CVAR" IN (SELECT vars_values."VAR" FROM vars_values)
+`;
+	
+	Postgres.query(query, function(err, data) {
+		if (err) throw err;
 		DBot.updateLoadingLevel(false);
 		
 		for (let row of data) {
@@ -693,14 +748,48 @@ hook.Add('ChannelsInitialized', 'CVars', function(channels) {
 	
 	for (let i in cvars.CONVARS_CHANNEL) {
 		if (!cVarsArray)
-			cVarsArray = Util.escape(i);
+			cVarsArray = '(' + Util.escape(i) + ',' + Util.escape(cvars.CONVARS_CHANNEL[i].val) + ')';
 		else
-			cVarsArray += ',' + Util.escape(i);
+			cVarsArray += ',(' + Util.escape(i) + ',' + Util.escape(cvars.CONVARS_CHANNEL[i].val) + ')';
 	}
 	
 	if (!cVarsArray) return DBot.updateLoadingLevel(false);
 	
-	Postgres.query('SELECT cvar_channel."ID", cvar_channel."CVAR", cvar_channel."VALUE" FROM cvar_channel, channels WHERE channels."TIME" > currtime() - 120 AND channels."ID" = cvar_channel."ID" AND "CVAR" IN (' + cVarsArray + ')', function(err, data) {
+	let query = `
+WITH vars_values ("VAR", "VALUE") AS (
+	VALUES ${cVarsArray}
+),
+
+fake_insert_notexists AS (
+	INSERT INTO cvar_channel (
+		SELECT
+			channels."ID",
+			vars_values."VAR",
+			vars_values."VALUE"
+		FROM
+			vars_values,
+			channels
+		WHERE
+			channels."ID" NOT IN
+				(SELECT "ID" FROM cvar_channel)
+	)
+)
+
+SELECT
+	cvar_channel."ID",
+	cvar_channel."CVAR",
+	cvar_channel."VALUE"
+FROM
+	cvar_channel,
+	channels
+WHERE
+	channels."TIME" > currtime() - 120 AND
+	channels."ID" = cvar_channel."ID" AND
+	"CVAR" IN (SELECT vars_values."VAR" FROM vars_values)
+`;
+	
+	Postgres.query(query, function(err, data) {
+		if (err) throw err;
 		DBot.updateLoadingLevel(false);
 		
 		for (let row of data) {
@@ -722,14 +811,47 @@ hook.Add('ServersInitialized', 'CVars', function(servers) {
 	
 	for (let i in cvars.CONVARS_SERVER) {
 		if (!cVarsArray)
-			cVarsArray = Util.escape(i);
+			cVarsArray = '(' + Util.escape(i) + ',' + Util.escape(cvars.CONVARS_SERVER[i].val) + ')';
 		else
-			cVarsArray += ',' + Util.escape(i);
+			cVarsArray += ',(' + Util.escape(i) + ',' + Util.escape(cvars.CONVARS_SERVER[i].val) + ')';
 	}
 	
 	if (!cVarsArray) return DBot.updateLoadingLevel(false);
 	
-	Postgres.query('SELECT cvar_server."ID", cvar_server."CVAR", cvar_server."VALUE" FROM cvar_server, servers WHERE servers."TIME" > currtime() - 120 AND servers."ID" = cvar_server."ID" AND "CVAR" IN (' + cVarsArray + ')', function(err, data) {
+	let query = `
+WITH vars_values ("VAR", "VALUE") AS (
+	VALUES ${cVarsArray}
+),
+
+fake_insert_notexists AS (
+	INSERT INTO cvar_server (
+		SELECT
+			servers."ID",
+			vars_values."VAR",
+			vars_values."VALUE"
+		FROM
+			vars_values,
+			servers
+		WHERE
+			servers."ID" NOT IN
+				(SELECT "ID" FROM cvar_server)
+	)
+)
+
+SELECT
+	cvar_server."ID",
+	cvar_server."CVAR",
+	cvar_server."VALUE"
+FROM
+	cvar_server,
+	servers
+WHERE
+	servers."TIME" > currtime() - 120 AND
+	servers."ID" = cvar_server."ID" AND
+	"CVAR" IN (SELECT vars_values."VAR" FROM vars_values)
+`;
+	Postgres.query(query, function(err, data) {
+		if (err) throw err;
 		DBot.updateLoadingLevel(false);
 		
 		for (let row of data) {
