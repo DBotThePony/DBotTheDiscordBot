@@ -68,14 +68,4 @@ let changeStatus = function() {
 	DBot.bot.user.setGame(DBot.RandomArray(Statuses));
 }
 
-let INITIALIZED = false;
-
-hook.Add('BotOnline', 'BotStatus', function() {
-	if (INITIALIZED)
-		return;
-	
-	// changeStatus();
-	setInterval(changeStatus, 120000);
-	
-	INITIALIZED = true;
-});
+setInterval(changeStatus, 120000);
