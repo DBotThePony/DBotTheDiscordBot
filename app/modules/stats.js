@@ -24,7 +24,7 @@ WHERE
 `;
 
 hook.Add('ChatStart', 'Statistics', function(channel, user) {
-	if (user.id == DBot.bot.user.id) return;
+	if (user.id === DBot.bot.user.id) return;
 	
 	if (channel.guild)
 		Postgres.query('SELECT stats_typing(\'' + user.id + '\',\'' + channel.guild.id + '\',\'' + channel.id + '\');');
@@ -1825,87 +1825,114 @@ DBot.RegisterCommand({
 	}
 });
 
-/*
-let SPACES = function(len) {
-	if (len <= 0)
-		return '';
-	
-	let output = '';
-	
-	for (let i = 1; i <= len; i++) {
-		output += ' ';
-	}
-	
-	return output;
-}
+const command_stats_query = `
+SELECT
+	"COMMAND",
+	SUM("COUNT") AS "CALLED_TIMES"
+FROM
+	stats__command_users
+WHERE
+	"COMMAND" != 'more' AND
+	"COMMAND" != 'retry'
+GROUP BY
+	"COMMAND"
+ORDER BY "CALLED_TIMES" DESC LIMIT 10
+`;
 
 DBot.RegisterCommand({
 	name: 'commandstats',
-	alias: ['commstats'],
+	alias: ['commstats', 'commandsstats'],
 	
 	help_args: '[user]',
-	desc: 'Displays global command usage statistics\nIf user is specified, displays his command statistics',
-	delay: 10,
+	desc: 'Global command usage statistics',
+	delay: 5,
 	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
 		msg.channel.startTyping();
 		
-		if (typeof args[0] != 'object') {
-			Postgres.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_user WHERE "COMMAND" != \'more\' AND "COMMAND" != \'retry\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data) {
-				Postgres.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_user WHERE "COMMAND" != \'more\' AND "COMMAND" != \'retry\' AND "UID" = \'' + DBot.GetUserID(msg.author) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
+		let id = DBot.GetUserID(msg.author);
+		let nick = msg.author.username;
+		let hideGlobal = false;
+		
+		if (typeof args[0] === 'object') {
+			id = DBot.GetUserID(args[0]);
+			nick = args[0].username;
+			hideGlobal = true;
+		}
+		
+		const query = `
+			SELECT
+				"COMMAND",
+				SUM("COUNT") AS "CALLED_TIMES"
+			FROM
+				stats__command_users
+			WHERE
+				"COMMAND" != 'more' AND
+				"COMMAND" != 'retry' AND
+				"ID" = ${id}
+			GROUP BY
+				"COMMAND"
+			ORDER BY "CALLED_TIMES" DESC LIMIT 10
+		`;
+		
+		const callback = function(userData, data) {
+			let output = '```';
+			
+			if (!hideGlobal) {
+				output += '\n------ Global command usage statistics';
+				
+				for (let row of data) {
+					output += '\n' + Util.AppendSpaces(row.COMMAND, 20) + formatNumberFunc(row.CALLED_TIMES);
+				}
+			}
+			
+			output += '\n------ @' + nick + ' command usage statistics';
+			
+			for (let row of userData) {
+				output += '\n' + Util.AppendSpaces(row.COMMAND, 20) + formatNumberFunc(row.CALLED_TIMES);
+			}
+			
+			msg.channel.stopTyping();
+			msg.reply(output + '\n```');
+		};
+		
+		if (!hideGlobal) {
+			Postgres.query(command_stats_query, function(err1, data) {
+				if (err1) {
+					console.log(err1);
+					msg.reply('<internal pony error>');
 					msg.channel.stopTyping();
-					try {
-						let output = 'Global command usage statistics\nCommand                   Used times\n```';
-						
-						for (let i in data) {
-							let row = data[i];
-							
-							output += row.COMMAND + SPACES(20 - row.COMMAND.length) + numeral(row.CALLED_TIMES).format('0,0') + '\n';
-						}
-						
-						output += '```\nYour command usage statistics\nCommand                        Used times\n```';
-						
-						for (let i in data2) {
-							let row = data2[i];
-							
-							output += row.COMMAND + SPACES(20 - row.COMMAND.length) + numeral(row.CALLED_TIMES).format('0,0') + '\n';
-						}
-						
-						output += '```\n';
-						
-						msg.reply(output);
-					} catch(err) {
-						console.error(err);
+					return;
+				}
+				
+				Postgres.query(query, function(err2, userData) {
+					if (err2) {
+						console.log(err2);
 						msg.reply('<internal pony error>');
+						msg.channel.stopTyping();
+						return;
 					}
+					
+					callback(userData, data);
 				});
 			});
 		} else {
-			Postgres.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_user WHERE "COMMAND" != \'more\' AND "COMMAND" != \'retry\' AND "UID" = \'' + DBot.GetUserID(args[0]) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
-				msg.channel.stopTyping();
-				
-				try {
-					let output = '@' + args[0].username + ' command usage statistics\nCommand                        Used times\n```';
-					
-					for (let i in data2) {
-						let row = data2[i];
-						
-						output += row.COMMAND + SPACES(20 - row.COMMAND.length) + numeral(row.CALLED_TIMES).format('0,0') + '\n';
-					}
-					
-					output += '```\n';
-					
-					msg.reply(output);
-				} catch(err) {
-					console.error(err);
+			Postgres.query(query, function(err2, userData) {
+				if (err2) {
+					console.log(err2);
 					msg.reply('<internal pony error>');
+					msg.channel.stopTyping();
+					return;
 				}
+
+				callback(userData);
 			});
 		}
-	},
+	}
 });
 
+/*
 DBot.RegisterCommand({
 	name: 'scommandstats',
 	alias: ['scommstats'],
@@ -1922,8 +1949,8 @@ DBot.RegisterCommand({
 		msg.channel.startTyping();
 		
 		if (typeof args[0] != 'object') {
-			Postgres.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_server WHERE "COMMAND" != \'more\' AND "COMMAND" != \'retry\' AND "UID" = \'' + DBot.GetServerID(msg.channel.guild) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data) {
-				Postgres.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_userver WHERE "COMMAND" != \'more\' AND "COMMAND" != \'retry\' AND "UID" = \'' + DBot.GetUserID(msg.author) + '\' AND "ID" = \'' + DBot.GetServerID(msg.channel.guild) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
+			Postgres.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_servers WHERE "COMMAND" != \'more\' AND "COMMAND" != \'retry\' AND "UID" = \'' + DBot.GetServerID(msg.channel.guild) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data) {
+				Postgres.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__ucommand_servers WHERE "COMMAND" != \'more\' AND "COMMAND" != \'retry\' AND "UID" = \'' + DBot.GetUserID(msg.author) + '\' AND "ID" = \'' + DBot.GetServerID(msg.channel.guild) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
 					msg.channel.stopTyping();
 					
 					try {
@@ -1949,7 +1976,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			Postgres.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_userver WHERE "COMMAND" != \'more\' AND "COMMAND" != \'retry\' AND "UID" = \'' + DBot.GetUserID(args[0]) + '\' AND "ID" = \'' + DBot.GetServerID(msg.channel.guild) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
+			Postgres.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__ucommand_servers WHERE "COMMAND" != \'more\' AND "COMMAND" != \'retry\' AND "UID" = \'' + DBot.GetUserID(args[0]) + '\' AND "ID" = \'' + DBot.GetServerID(msg.channel.guild) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
 				msg.channel.stopTyping();
 				
 				try {
@@ -1987,8 +2014,8 @@ DBot.RegisterCommand({
 		msg.channel.startTyping();
 		
 		if (typeof args[0] != 'object') {
-			Postgres.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_channel WHERE "COMMAND" != \'more\' AND "COMMAND" != \'retry\' AND "UID" = \'' + DBot.GetChannelID(msg.channel) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data) {
-				Postgres.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_uchannel WHERE "COMMAND" != \'more\' AND "COMMAND" != \'retry\' AND "UID" = \'' + DBot.GetUserID(msg.author) + '\' AND "ID" = \'' + DBot.GetChannelID(msg.channel) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
+			Postgres.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_channels WHERE "COMMAND" != \'more\' AND "COMMAND" != \'retry\' AND "UID" = \'' + DBot.GetChannelID(msg.channel) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data) {
+				Postgres.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__ucommand_channels WHERE "COMMAND" != \'more\' AND "COMMAND" != \'retry\' AND "UID" = \'' + DBot.GetUserID(msg.author) + '\' AND "ID" = \'' + DBot.GetChannelID(msg.channel) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
 					msg.channel.stopTyping();
 					try {
 						let output = 'This channel command usage statistics\nCommand                    Used times\n```';
@@ -2013,7 +2040,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			Postgres.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__command_uchannel WHERE "COMMAND" != \'more\' AND "COMMAND" != \'retry\' AND "UID" = \'' + DBot.GetUserID(args[0]) + '\' AND "ID" = \'' + DBot.GetChannelID(msg.channel) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
+			Postgres.query('SELECT "COMMAND", SUM("COUNT") as "CALLED_TIMES" FROM stats__ucommand_channels WHERE "COMMAND" != \'more\' AND "COMMAND" != \'retry\' AND "UID" = \'' + DBot.GetUserID(args[0]) + '\' AND "ID" = \'' + DBot.GetChannelID(msg.channel) + '\' GROUP BY "COMMAND" ORDER BY "CALLED_TIMES" DESC LIMIT 10', function(err, data2) {
 				msg.channel.stopTyping();
 				try {
 					let output =  '@' + args[0].username + ' command usage statistics on this channel\nCommand                    Used times\n```';
