@@ -5,49 +5,84 @@ Util.mkdir(DBot.WebRoot + '/msgs');
 
 const fs = DBot.js.fs;
 
+let baseMessageHandleFunc = function(self, str) {
+	if (self.wasDeleted)
+		return {then: function() {}, catch: function() {}};
+
+	if (str.length > 1800) {
+		let sha = DBot.HashString(CurTime() + self.author.id + self.channel.id);
+		let oldMess = str;
+		str = 'Message is too big to send it here, here is the message: <' + DBot.URLRoot + '/msgs/' + sha + '.txt>';
+		let path = DBot.WebRoot + '/msgs/' + sha + '.txt';
+
+		let stream = fs.createWriteStream(path);
+		stream.write(oldMess);
+		stream.end();
+		return str;
+	}
+
+	if (self.channel.guild) {
+		let me = self.channel.guild.member(DBot.bot.user);
+		if (!me) return; // WHAT.
+		let myPerms = self.channel.permissionsFor(me);
+
+		if (myPerms && !myPerms.hasPermission('SEND_MESSAGES')) {
+			self.author.lastUnableToSendNotification = self.author.lastUnableToSendNotification || 0;
+
+			if (self.author.lastUnableToSendNotification < CurTime()) {
+				self.author
+						.sendMessage('I am unable to send messages into current channel.')
+						.then(function(newMSG) {
+							if (self.wasDeleted)
+								newMSG.delete(0);
+							else
+								self.replies.push(newMSG);
+						});
+
+				self.author.lastUnableToSendNotification = CurTime() + 40;
+			}
+
+			let promise = self.author.sendMessage(str);
+
+			promise.then(function(nmsg) {
+				if (self.wasDeleted)
+					nmsg.delete(0);
+				else
+					self.replies.push(nmsg);
+			});
+
+			return promise;
+		}
+	}
+};
+
 let msgFuncs = [
 	function(str) {
-		if (this.wasDeleted)
-			return {then: function() {}, catch: function() {}};
-		
-		if (str.length > 1800) {
-			let sha = DBot.HashString(CurTime() + this.author.id + this.channel.id);
-			let oldMess = str;
-			str = 'Message is too big to send it here, here is the message: <' + DBot.URLRoot + '/msgs/' + sha + '.txt>';
-			let path = DBot.WebRoot + '/msgs/' + sha + '.txt';
-			
-			let stream = fs.createWriteStream(path);
-			stream.write(oldMess);
-			stream.end();
-		}
+		let baseReply = baseMessageHandleFunc(this, str);
+		if (typeof baseReply === 'object')
+			return baseReply;
+		else if (typeof baseReply === 'string')
+			str = baseReply;
 		
 		let promise = this.___reply(str);
 		let self = this;
 		
 		promise.then(function(nmsg) {
-			self.replies.push(nmsg);
-			
 			if (self.wasDeleted)
 				nmsg.delete(0);
+			else
+				self.replies.push(nmsg);
 		});
 		
 		return promise;
 	},
 	
 	function(str) {
-		if (this.wasDeleted)
-			return {then: function() {}, catch: function() {}};
-		
-		if (str.length > 1800) {
-			let sha = DBot.HashString(CurTime() + this.author.id + this.channel.id);
-			let oldMess = str;
-			str = 'Message is too big to send it here, here is the message: <' + DBot.URLRoot + '/msgs/' + sha + '.txt>';
-			let path = DBot.WebRoot + '/msgs/' + sha + '.txt';
-			
-			let stream = fs.createWriteStream(path);
-			stream.write(oldMess);
-			stream.end();
-		}
+		let baseReply = baseMessageHandleFunc(this, str);
+		if (typeof baseReply === 'object')
+			return baseReply;
+		else if (typeof baseReply === 'string')
+			str = baseReply;
 		
 		let promise = this.channel.sendMessage(str);
 		let self = this;
