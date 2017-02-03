@@ -863,6 +863,124 @@ BEGIN
 	ON CONFLICT DO NOTHING;
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION init_tags_channels()
+RETURNS void AS $$
+BEGIN
+	WITH valid AS (
+		SELECT
+			channels."ID"
+		FROM
+			channels
+		WHERE
+			channels."TIME" > currtime() - 120
+	),
+
+	fake_list_insert AS (
+		INSERT INTO
+			tags_list
+			SELECT
+				valid."ID",
+				'channel' AS "REALM",
+				tags_defbans."SPACE",
+				tags_defbans."TAG"
+			FROM
+				valid,
+				tags_defbans
+			WHERE NOT EXISTS (
+				SELECT
+					1 AS "RESULT"
+				FROM
+					tags_init
+				WHERE
+					valid."ID" = tags_init."UID" AND
+					tags_init."REALM" = 'channel' AND
+					tags_init."SPACE" = tags_defbans."SPACE"
+			)
+	)
+	
+	INSERT INTO
+		tags_init
+		SELECT
+			valid."ID",
+			'channel' AS "REALM",
+			tags_defbans."SPACE"
+		FROM
+			valid,
+			tags_defbans
+		WHERE NOT EXISTS (
+			SELECT
+				1 AS "RESULT"
+			FROM
+				tags_init
+			WHERE
+				valid."ID" = tags_init."UID" AND
+				tags_init."REALM" = 'channel' AND
+				tags_init."SPACE" = tags_defbans."SPACE"
+		) GROUP BY
+			valid."ID",
+			tags_defbans."SPACE"
+	ON CONFLICT DO NOTHING;
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION init_tags_servers()
+RETURNS void AS $$
+BEGIN
+	WITH valid AS (
+		SELECT
+			servers."ID"
+		FROM
+			servers
+		WHERE
+			servers."TIME" > currtime() - 120
+	),
+
+	fake_list_insert AS (
+		INSERT INTO
+			tags_list
+			SELECT
+				valid."ID",
+				'server' AS "REALM",
+				tags_defbans."SPACE",
+				tags_defbans."TAG"
+			FROM
+				valid,
+				tags_defbans
+			WHERE NOT EXISTS (
+				SELECT
+					1 AS "RESULT"
+				FROM
+					tags_init
+				WHERE
+					valid."ID" = tags_init."UID" AND
+					tags_init."REALM" = 'server' AND
+					tags_init."SPACE" = tags_defbans."SPACE"
+			)
+	)
+	
+	INSERT INTO
+		tags_init
+		SELECT
+			valid."ID",
+			'server' AS "REALM",
+			tags_defbans."SPACE"
+		FROM
+			valid,
+			tags_defbans
+		WHERE NOT EXISTS (
+			SELECT
+				1 AS "RESULT"
+			FROM
+				tags_init
+			WHERE
+				valid."ID" = tags_init."UID" AND
+				tags_init."REALM" = 'server' AND
+				tags_init."SPACE" = tags_defbans."SPACE"
+		) GROUP BY
+			valid."ID",
+			tags_defbans."SPACE"
+	ON CONFLICT DO NOTHING;
+END; $$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION roles_logger_trigger()
 RETURNS TRIGGER AS $$
 DECLARE curr_time INTEGER;

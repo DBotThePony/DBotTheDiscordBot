@@ -179,27 +179,27 @@ class TagBase {
 }
 
 DBot.UserTags = function(user, space) {
-	if (cache.client[space][user.id])
-		return cache.client[space][user.id];
+	if (cache.client[space][user.uid])
+		return cache.client[space][user.uid];
 	
-	cache.client[space][user.id] = new TagBase(user, space, 'client', DBot.GetUserID);
-	return cache.client[space][user.id];
+	cache.client[space][user.uid] = new TagBase(user, space, 'client', DBot.GetUserID);
+	return cache.client[space][user.uid];
 }
 
 DBot.ServerTags = function(server, space) {
-	if (cache.server[space][server.id])
-		return cache.server[space][server.id];
+	if (cache.server[space][server.uid])
+		return cache.server[space][server.uid];
 	
-	cache.server[space][server.id] = new TagBase(server, space, 'server', DBot.GetServerID);
-	return cache.server[space][server.id];
+	cache.server[space][server.uid] = new TagBase(server, space, 'server', DBot.GetServerID);
+	return cache.server[space][server.uid];
 }
 
 DBot.ChannelTags = function(channel, space) {
-	if (cache.channel[space][channel.id])
-		return cache.channel[space][channel.id];
+	if (cache.channel[space][channel.uid])
+		return cache.channel[space][channel.uid];
 	
 	cache.channel[space][channel.id] = new TagBase(channel, space, 'channel', DBot.GetChannelID);
-	return cache.channel[space][channel.id];
+	return cache.channel[space][channel.uid];
 }
 
 DBot.ValidTagSpaces = function() {
@@ -216,15 +216,15 @@ DBot.ValidTagSpaces = function() {
 }
 
 DBot.UnloadUserTags = function(user, space) {
-	cache.client[space][user.id] = undefined;
+	cache.client[space][user.uid] = undefined;
 }
 
 DBot.UnloadServerTags = function(server, space) {
-	cache.server[space][server.id] = undefined;
+	cache.server[space][server.uid] = undefined;
 }
 
 DBot.UnloadChannelTags = function(channel, space) {
-	cache.channel[space][channel.id] = undefined;
+	cache.channel[space][channel.uid] = undefined;
 }
 
 hook.Add('PreDeleteUser', 'UserTags', function(obj) {
@@ -245,11 +245,8 @@ hook.Add('PreDeleteServer', 'ServerTags', function(obj) {
 	}
 });
 
-let init = false;
-
 hook.Add('UserInitialized', 'UserTags', function(obj) {
-	if (!init)
-		return;
+	if (!DBot.SQLReady()) return;
 	
 	for (let i in DBot.tags) {
 		DBot.UserTags(obj, i);
@@ -257,7 +254,7 @@ hook.Add('UserInitialized', 'UserTags', function(obj) {
 });
 
 hook.Add('UpdateLoadingLevel', 'UserTags', function(callFunc) {
-	callFunc(true, 1);
+	callFunc(true, 3);
 });
 
 hook.Add('UsersInitialized', 'UserTags', function() {
@@ -268,15 +265,7 @@ hook.Add('UsersInitialized', 'UserTags', function() {
 			return;
 		};
 		
-		init = true;
-		
-		let mapping = [];
-		
-		for (let user of DBot.GetUsers()) {
-			mapping[user.uid] = user;
-		}
-		
-		let q = 'SELECT tags_list."UID", tags_list."SPACE", UNNEST("TAG") AS "TAG" FROM tags_list, users WHERE users."TIME" > currtime() - 120 AND users."ID" = tags_list."UID"';
+		let q = 'SELECT tags_list."UID", tags_list."SPACE", UNNEST("TAG") AS "TAG" FROM tags_list, users WHERE tags_list."REALM" = \'client\' AND users."TIME" > currtime() - 120 AND users."ID" = tags_list."UID"';
 		
 		Postgre.query(q, function(err, data) {
 			if (err) throw err;
@@ -307,16 +296,96 @@ hook.Add('UsersInitialized', 'UserTags', function() {
 	Postgre.query('SELECT init_tags();', callbackFunc);
 });
 
-// TODO - Optimize startup
-
 hook.Add('ServerInitialized', 'ServerTags', function(obj) {
+	if (!DBot.SQLReady()) return;
+	
 	for (let i in DBot.tags) {
 		DBot.ServerTags(obj, i);
 	}
 });
 
+hook.Add('ServersInitialized', 'UserTags', function() {
+	let callbackFunc = function(err, data) {
+		if (err) {
+			console.error(err);
+			Postgre.query('SELECT init_tags_servers();', callbackFunc);
+			return;
+		};
+		
+		let q = 'SELECT tags_list."UID", tags_list."SPACE", UNNEST("TAG") AS "TAG" FROM tags_list, servers WHERE tags_list."REALM" = \'server\' AND servers."TIME" > currtime() - 120 AND servers."ID" = tags_list."UID"';
+		
+		Postgre.query(q, function(err, data) {
+			if (err) throw err;
+			DBot.updateLoadingLevel(false);
+			
+			let spaces = {};
+			
+			for (let row of data) {
+				if (!DBot.GetServer(row.UID))
+					continue; // wtf
+				
+				cache.server[row.SPACE][row.UID] = cache.server[row.SPACE][row.UID] || new TagBase(DBot.GetServer(row.UID), row.SPACE, 'server', DBot.GetServerID, true, true);
+				
+				cache.server[row.SPACE][row.UID].ready = false;
+				cache.server[row.SPACE][row.UID].banTag(row.TAG);
+				
+				spaces[row.SPACE] = true;
+			}
+			
+			for (let s in spaces) {
+				for (let sp in cache.server[s]) {
+					cache.server[s][sp].ready = true;
+				}
+			}
+		});
+	}
+	
+	Postgre.query('SELECT init_tags_servers();', callbackFunc);
+});
+
 hook.Add('ChannelInitialized', 'ChannelTags', function(obj) {
+	if (!DBot.SQLReady()) return;
+	
 	for (let i in DBot.tags) {
 		DBot.ChannelTags(obj, i);
 	}
+});
+
+hook.Add('ChannelsInitialized', 'UserTags', function() {
+	let callbackFunc = function(err, data) {
+		if (err) {
+			console.error(err);
+			Postgre.query('SELECT init_tags_channels();', callbackFunc);
+			return;
+		};
+		
+		let q = 'SELECT tags_list."UID", tags_list."SPACE", UNNEST("TAG") AS "TAG" FROM tags_list, channels WHERE tags_list."REALM" = \'channel\' AND channels."TIME" > currtime() - 120 AND channels."ID" = tags_list."UID"';
+		
+		Postgre.query(q, function(err, data) {
+			if (err) throw err;
+			DBot.updateLoadingLevel(false);
+			
+			let spaces = {};
+			
+			for (let row of data) {
+				if (!DBot.GetChannel(row.UID))
+					continue; // wtf
+				
+				cache.channel[row.SPACE][row.UID] = cache.channel[row.SPACE][row.UID] || new TagBase(DBot.GetChannel(row.UID), row.SPACE, 'channel', DBot.GetChannelID, true, true);
+				
+				cache.channel[row.SPACE][row.UID].ready = false;
+				cache.channel[row.SPACE][row.UID].banTag(row.TAG);
+				
+				spaces[row.SPACE] = true;
+			}
+			
+			for (let s in spaces) {
+				for (let sp in cache.channel[s]) {
+					cache.channel[s][sp].ready = true;
+				}
+			}
+		});
+	}
+	
+	Postgre.query('SELECT init_tags_channels();', callbackFunc);
 });
