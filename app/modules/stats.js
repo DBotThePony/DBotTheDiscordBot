@@ -1322,11 +1322,6 @@ DBot.RegisterCommand({
 			let output = '```';
 			
 			if (!hideGlobal) {
-				const servers = DBot.GetServers().length;
-				const channels = DBot.GetChannels().length;
-				const members = DBot.GetMembers().length;
-				const users = DBot.GetUsers().length;
-				
 				output += '\nTotal servers:                   ' + formatNumberFunc(DBot.GetServers().length);
 				output += '\nTotal channels:                  ' + formatNumberFunc(DBot.GetChannels().length);
 				output += '\nTotal users:                     ' + formatNumberFunc(DBot.GetMembers().length);
@@ -1391,54 +1386,159 @@ DBot.RegisterCommand({
 	}
 });
 
-/*
 DBot.RegisterCommand({
-	name: 'stats',
+	name: 'sstats',
+	alias: ['serverstats'],
 	
 	help_args: '[user]',
-	desc: 'Displays generic statistics collected by me\nIf user is specified, prints this user global statistics',
-	delay: 10,
-	
+	desc: 'Server statistics',
+	delay: 5,
 	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
-		msg.channel.startTyping();
+		if (DBot.IsPM(msg))
+			return 'PM? ;n;';
 		
-		let servers = 0;
-		let channels = 0;
-		let users = 0;
-		let USERS_MEM = {};
-		let ID = DBot.GetUserID(msg.author);
+		let id = DBot.GetUserID(msg.author);
+		let serverid = DBot.GetServerID(msg.channel.guild);
+		let nick = msg.author.username;
+		let hideGlobal = false;
 		
-		let Servers = DBot.GetServers();
-		
-		for (let i in Servers) {
-			servers++;
-			let Channels = Servers[i].channels.array();
-			let Users = Servers[i].members.array();
-			
-			channels = Channels.length;
-			
-			for (let us in Users) {
-				let user = Users[us].user;
-				let uid = user.id;
-				
-				if (!USERS_MEM[uid]) {
-					users++;
-					USERS_MEM[uid] = true;
-				}
-			}
+		if (typeof args[0] === 'object') {
+			id = DBot.GetUserID(args[0]);
+			nick = args[0].username
+			hideGlobal = true;
 		}
 		
-		let UserID = msg.author.id;
+		msg.channel.startTyping();
 		
-		if (typeof args[0] == 'object')
-			UserID = args[0].id;
+		const stats_query = `
+			WITH most_used_command AS (
+				SELECT
+					"COMMAND",
+					SUM("COUNT") AS "COUNT"
+				FROM
+					stats__ucommand_servers
+				WHERE
+					"ID" = ${serverid} AND
+					"USER" = ${id}
+				GROUP BY
+					"COMMAND"
+				ORDER BY
+					"COUNT" DESC
+				LIMIT 1
+			)
+
+			SELECT
+				"CHARS" AS "TotalChars",
+				"MESSAGES" AS "TotalMessages",
+				"MESSAGES_E" AS "TotalMessagesEdited",
+				"MESSAGES_D" AS "TotalMessagesDeleted",
+				"IMAGES" AS "TotalImagesSent",
+				"TYPINGS" AS "TotalTypings",
+				(SELECT "COMMAND" FROM most_used_command) AS "MostCommandUsed",
+				(SELECT "COUNT" FROM most_used_command) AS "MostCommandUsedCount"
+			FROM
+				stats__peruser_servers
+			WHERE
+				"ID" = ${serverid} AND
+				"USER" = ${id}
+			`;
 		
-		let userQuery = '';
-	},
+		const server_stats_query = `
+			WITH most_used_command AS (
+				SELECT
+					"COMMAND",
+					SUM("COUNT") AS "COUNT"
+				FROM
+					stats__command_servers
+				WHERE
+					"ID" = ${serverid}
+				GROUP BY
+					"COMMAND"
+				ORDER BY
+					"COUNT" DESC
+				LIMIT 1
+			)
+
+			SELECT
+				SUM("CHARS") AS "TotalChars",
+				SUM("MESSAGES") AS "TotalMessages",
+				SUM("MESSAGES_E") AS "TotalMessagesEdited",
+				SUM("MESSAGES_D") AS "TotalMessagesDeleted",
+				SUM("IMAGES") AS "TotalImagesSent",
+				SUM("TYPINGS") AS "TotalTypings",
+				(SELECT "COMMAND" FROM most_used_command) AS "MostCommandUsed",
+				(SELECT "COUNT" FROM most_used_command) AS "MostCommandUsedCount"
+			FROM
+				stats__generic_servers
+			WHERE
+				"ID" = ${serverid}
+			`;
+		
+		const funcCallback = function(userData, data) {
+			let output = '```';
+			
+			if (!hideGlobal) {
+				output += '\n------ Server statistics';
+				output += '\nTotal chars printed:             ' + formatNumberFunc(data[0].TotalChars);
+				output += '\nTotal messages sent:             ' + formatNumberFunc(data[0].TotalMessages);
+				output += '\nTotal messages edited:           ' + formatNumberFunc(data[0].TotalMessagesEdited);
+				output += '\nTotal messages deleted:          ' + formatNumberFunc(data[0].TotalMessagesDeleted);
+				output += '\nTotal images sent:               ' + formatNumberFunc(data[0].TotalImagesSent);
+				output += '\nTotal "typing" starts:           ' + formatNumberFunc(data[0].TotalTypings);
+				output += '\nMost command used:               ' + data[0].MostCommandUsed;
+				output += '\nUsed times:                      ' + formatNumberFunc(data[0].MostCommandUsedCount);
+			}
+			
+			output += '\n------ @' + nick + ' statistics';
+			output += '\nTotal chars printed:             ' + formatNumberFunc(userData[0].TotalChars);
+			output += '\nTotal messages sent:             ' + formatNumberFunc(userData[0].TotalMessages);
+			output += '\nTotal messages edited:           ' + formatNumberFunc(userData[0].TotalMessagesEdited);
+			output += '\nTotal messages deleted:          ' + formatNumberFunc(userData[0].TotalMessagesDeleted);
+			output += '\nTotal images sent:               ' + formatNumberFunc(userData[0].TotalImagesSent);
+			output += '\nTotal "typing" starts:           ' + formatNumberFunc(userData[0].TotalTypings);
+			output += '\nMost command used:               ' + userData[0].MostCommandUsed;
+			output += '\nUsed times:                      ' + formatNumberFunc(userData[0].MostCommandUsedCount);
+			
+			msg.channel.stopTyping();
+			msg.reply(output + '\n```');
+		};
+		
+		if (!hideGlobal) {
+			Postgres.query(stats_query, function(err1, userData) {
+				if (err1) {
+					console.log(err1);
+					msg.reply('<internal pony error>');
+					msg.channel.stopTyping();
+					return;
+				}
+				
+				Postgres.query(server_stats_query, function(err2, data) {
+					if (err2) {
+						console.log(err2);
+						msg.reply('<internal pony error>');
+						msg.channel.stopTyping();
+						return;
+					}
+					
+					funcCallback(userData, data);
+				});
+			});
+		} else {
+			Postgres.query(stats_query, function(err1, userData) {
+				if (err1) {
+					console.log(err1);
+					msg.reply('<internal pony error>');
+					msg.channel.stopTyping();
+					return;
+				}
+				
+				funcCallback(userData);
+			});
+		}
+	}
 });
-*/
 
 /*
 DBot.RegisterCommand({
