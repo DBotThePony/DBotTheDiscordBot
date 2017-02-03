@@ -286,9 +286,11 @@ hook.Add('UsersInitialized', 'UserTags', function() {
 			}
 			
 			for (let s in spaces) {
-				for (let sp in cache.client[s]) {
-					cache.client[s][sp].ready = true;
-				}
+				if (cache.client[s])
+					for (let sp in cache.client[s]) {
+						if (cache.client[s][sp])
+							cache.client[s][sp].ready = true;
+					}
 			}
 		});
 	}
@@ -333,9 +335,11 @@ hook.Add('ServersInitialized', 'UserTags', function() {
 			}
 			
 			for (let s in spaces) {
-				for (let sp in cache.server[s]) {
-					cache.server[s][sp].ready = true;
-				}
+				if (cache.server[s])
+					for (let sp in cache.server[s]) {
+						if (cache.server[s][sp])
+							cache.server[s][sp].ready = true;
+					}
 			}
 		});
 	}
@@ -380,12 +384,14 @@ hook.Add('ChannelsInitialized', 'UserTags', function() {
 			}
 			
 			for (let s in spaces) {
-				for (let sp in cache.channel[s]) {
-					cache.channel[s][sp].ready = true;
-				}
+				if (cache.channel[s])
+					for (let sp in cache.channel[s]) {
+						if (cache.channel[s][sp])
+							cache.channel[s][sp].ready = true;
+					}
 			}
 		});
-	}
+	};
 	
 	Postgre.query('SELECT init_tags_channels();', callbackFunc);
 });
