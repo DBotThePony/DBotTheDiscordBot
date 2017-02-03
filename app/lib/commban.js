@@ -78,42 +78,48 @@ class CommandBanClass {
 		return this.bans;
 	}
 	
-	constructor(obj, realm, IDFunc, noFetch) {
+	fetch() {
+		let self = this;
+		
+		MySQL.query('SELECT "COMMAND" FROM command_bans_' + this.realm + ' WHERE "UID" = ' + this.uid, function(err, data) {
+			if (err) throw err;
+			
+			for (let i in data) {
+				self.ban(data[i].COMMAND);
+			}
+			
+			self.ready = true;
+			hook.Run('CommandBansInitialized', self.obj, self);
+		});
+		
+		return this;
+	}
+	
+	constructor(obj, realm, IDFunc) {
 		this.bans = [];
 		this.obj = obj;
 		this.realm = realm;
 		this.ready = false;
 		this.uid = IDFunc(obj);
-		let Me = this;
-		
-		if (noFetch)
-			return;
-		
-		MySQL.query('SELECT "COMMAND" FROM command_bans_' + this.realm + ' WHERE "UID" = ' + this.uid, function(err, data) {
-			for (let i in data) {
-				Me.ban(data[i].COMMAND);
-			}
-			
-			Me.ready = true;
-			hook.Run('CommandBansInitialized', obj, Me);
-		});
 	}
 }
 
 DBot.ServerCBans = function(server) {
-	if (cache.server[server.id])
-		return cache.server[server.id];
+	if (cache.server[server.uid])
+		return cache.server[server.uid];
 	
-	cache.server[server.id] = new CommandBanClass(server, 'server', DBot.GetServerID);
-	return cache.server[server.id];
+	cache.server[server.uid] = new CommandBanClass(server, 'server', DBot.GetServerID);
+	cache.server[server.uid].fetch();
+	return cache.server[server.uid];
 }
 
 DBot.ChannelCBans = function(channel) {
-	if (cache.channel[channel.id])
-		return cache.channel[channel.id];
+	if (cache.channel[channel.uid])
+		return cache.channel[channel.uid];
 	
-	cache.channel[channel.id] = new CommandBanClass(channel, 'channel', DBot.GetChannelID);
-	return cache.channel[channel.id];
+	cache.channel[channel.uid] = new CommandBanClass(channel, 'channel', DBot.GetChannelID);
+	cache.channel[channel.uid].fetch();
+	return cache.channel[channel.uid];
 }
 
 DBot.MemberCBans = function(member) {
@@ -121,27 +127,73 @@ DBot.MemberCBans = function(member) {
 		return cache.member[member.uid];
 	
 	cache.member[member.uid] = new CommandBanClass(member, 'member', DBot.GetMemberID);
+	cache.member[member.uid].fetch();
 	return cache.member[member.uid];
 }
 
 hook.Add('PreDeleteChannel', 'ChannelBans', function(obj) {
-	cache.channel[obj.id] = undefined;
+	cache.channel[obj.uid] = undefined;
 });
 
 hook.Add('PreDeleteServer', 'ServerBans', function(obj) {
-	cache.server[obj.id] = undefined;
+	cache.server[obj.uid] = undefined;
 });
 
-hook.Add('ServerInitialized', 'ServerBans', function(obj) {
-	DBot.ServerCBans(obj);
+hook.Add('UpdateLoadingLevel', 'CommandBans', function(callFunc) {
+	callFunc(true, 2);
 });
 
-hook.Add('ChannelInitialized', 'ChannelBans', function(obj) {
-	DBot.ChannelCBans(obj);
+hook.Add('ServerInitialized', 'ServerBans', function(server) {
+	if (!DBot.SQLReady()) return;
+	DBot.ServerCBans(server);
 });
 
-let init = false;
-let initCount = 3;
+hook.Add('ServersInitialized', 'ServerBans', function(servers) {
+	for (let server of servers) {
+		if (!cache.server[server.uid])
+			cache.server[server.uid] = new CommandBanClass(server, 'server', DBot.GetServerID);
+	}
+	
+	Postgres.query('SELECT command_bans_server."UID", "COMMAND" FROM command_bans_server, servers WHERE command_bans_server."UID" = servers."ID" AND servers."TIME" > currtime() - 120', function(err, data) {
+		if (err) throw err;
+		DBot.updateLoadingLevel(false);
+		
+		for (let row of data) {
+			let ob = cache.server[row.UID];
+			if (ob) ob.ban(row.COMMAND);
+		}
+		
+		for (let server of servers) {
+			cache.server[server.uid].ready = true;
+		}
+	});
+});
+
+hook.Add('ChannelInitialized', 'ChannelBans', function(channel) {
+	if (!DBot.SQLReady()) return;
+	DBot.ChannelCBans(channel);
+});
+
+hook.Add('ChannelsInitialized', 'ServerBans', function(channels) {
+	for (let channel of channels) {
+		if (!cache.channel[channel.uid])
+			cache.channel[channel.uid] = new CommandBanClass(channel, 'channel', DBot.GetChannelID);
+	}
+	
+	Postgres.query('SELECT command_bans_channel."UID", "COMMAND" FROM command_bans_channel, channels WHERE command_bans_channel."UID" = channels."ID" AND channels."TIME" > currtime() - 120', function(err, data) {
+		if (err) throw err;
+		DBot.updateLoadingLevel(false);
+		
+		for (let row of data) {
+			let ob = cache.channel[row.UID];
+			if (ob) ob.ban(row.COMMAND);
+		}
+		
+		for (let channel of channels) {
+			cache.channel[channel.uid].ready = true;
+		}
+	});
+});
 
 let addMethods = function(obj) {
 	obj.channelBans = obj.channelBans || [];
@@ -210,8 +262,7 @@ let addMethods = function(obj) {
 hook.Add('MemberInitialized', 'MemberCommandBans', function(obj) {
 	addMethods(obj);
 	
-	if (!init)
-		return;
+	if (!DBot.SQLReady()) return;
 	
 	DBot.MemberCBans(obj);
 	
@@ -232,7 +283,11 @@ hook.Add('UpdateLoadingLevel', 'MemberCommandBans', function(callFunc) {
 	callFunc(true, 3);
 });
 
-hook.Add('MembersInitialized', 'MemberCommandBans', function() {
+hook.Add('MembersInitialized', 'MemberCommandBans', function(members) {
+	for (let member of members) {
+		addMethods(member);
+	}
+	
 	Postgres.query('SELECT command_banned_cmember."UID", command_banned_cmember."CHANNEL" FROM command_banned_cmember, users WHERE users."TIME" > currtime() - 120 AND command_banned_cmember."UID" = users."ID"', function(err, data) {
 		if (err) throw err;
 		DBot.updateLoadingLevel(false);
@@ -245,9 +300,6 @@ hook.Add('MembersInitialized', 'MemberCommandBans', function() {
 			
 			get.channelBans.push(Number(row.CHANNEL));
 		}
-		
-		initCount--;
-		init = initCount == 0;
 	});
 	
 	Postgres.query('SELECT command_banned_member."UID" FROM command_banned_member, users WHERE users."TIME" > currtime() - 120 AND command_banned_member."UID" = users."ID"', function(err, data) {
@@ -262,9 +314,6 @@ hook.Add('MembersInitialized', 'MemberCommandBans', function() {
 			
 			get.totalMute = true;
 		}
-		
-		initCount--;
-		init = initCount == 0;
 	});
 	
 	Postgres.query('SELECT command_bans_member."UID", command_bans_member."COMMAND" FROM command_bans_member, users WHERE users."TIME" > currtime() - 120 AND command_bans_member."UID" = users."ID"', function(err, data) {
@@ -275,7 +324,7 @@ hook.Add('MembersInitialized', 'MemberCommandBans', function() {
 			if (!DBot.GetMember(row.UID))
 				continue;
 			
-			cache.member[row.UID] = cache.member[row.UID] || new CommandBanClass(DBot.GetMember(row.UID), 'member', DBot.GetMemberID, true);
+			cache.member[row.UID] = cache.member[row.UID] || new CommandBanClass(DBot.GetMember(row.UID), 'member', DBot.GetMemberID);
 			cache.member[row.UID].ready = false;
 			cache.member[row.UID].ban(row.COMMAND);
 		}
@@ -283,9 +332,6 @@ hook.Add('MembersInitialized', 'MemberCommandBans', function() {
 		for (let i in cache.member) {
 			cache.member[i].ready = true;
 		}
-		
-		initCount--;
-		init = initCount == 0;
 	});
 });
 
@@ -324,7 +370,7 @@ hook.Add('CanReply', 'MemberCommandBans', function(msg) {
 		return false;
 });
 
-hook.Add('ClientLeftServer', 'MemberCommandBans', function(obj) {
-	cache.member[obj.id] = cache.member[obj.id] || {};
-	cache.member[obj.id][obj.guild.id] = undefined;
+hook.Add('ClientLeftServer', 'MemberCommandBans', function(user, server, member) {
+	if (!member.uid) return;
+	cache.member[member.uid] = undefined;
 });
