@@ -23,6 +23,22 @@ WHERE
     )
 `;
 
+let never_talk_sql_count = `
+SELECT
+	COUNT(*) AS "COUNT"
+FROM
+	users,
+	members
+WHERE
+	users."TIME" > currtime() - 120 AND
+	users."UID" != '%s' AND
+	members."SERVER" = %i AND
+	members."USER" = users."ID" AND
+    members."USER" NOT IN (
+    	SELECT stats__peruser_servers."USER" FROM stats__peruser_servers WHERE stats__peruser_servers."ID" = %i
+    )
+`;
+
 hook.Add('ChatStart', 'Statistics', function(channel, user) {
 	if (user.id === DBot.bot.user.id) return;
 	
@@ -2155,5 +2171,62 @@ DBot.RegisterCommand({
 				callback(userData);
 			});
 		}
+	}
+});
+
+DBot.RegisterCommand({
+	name: 'server',
+	
+	help_args: '',
+	desc: 'Server info',
+	delay: 5,
+	allowUserArgument: true,
+	
+	func: function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'PM? ;n;';
+		
+		msg.channel.startTyping();
+		
+		const server = msg.channel.guild;
+		const users = server.members.array().length;
+		const channels = server.channels.array().length;
+		
+		Postgres.query(sprintf(never_talk_sql_count, DBot.bot.user.id, server.uid, server.uid), function(err, data) {
+			const inactiveUsers = data[0].COUNT || 0;
+			const inactivePercent = Math.floor(inactiveUsers / users * 100 + 0.5);
+			
+			let onlineUsers = 0;
+			
+			for (let member of server.members.array()) {
+				try {
+					if (member.user.presence.status !== 'offline')
+						onlineUsers++;
+				} catch(err) {
+					
+				}
+			}
+			
+			const onlinePerc = Math.floor(onlineUsers / users * 100 + 0.5);
+			const verLevel = server.verificationLevel === 0 && 'NONE' ||
+					server.verificationLevel === 1 && 'LOW' ||
+					server.verificationLevel === 2 && 'MEDIUM' ||
+					server.verificationLevel === 3 && 'HIGH';
+			
+			let reply = '```';
+			reply += '\nServer name:               ' + server.name;
+			reply += '\nServer ID:                 <' + server.id + '>';
+			reply += '\nServer ID in my DB:        ' + server.uid;
+			reply += '\nServer owner:              @' + (server.owner.nickname || server.owner.user.username) + ' <@' + server.owner.id + '>';
+			reply += '\nServer avatar:\n' + (server.iconURL || '<server has no avatar>');
+			reply += '\nTotal users:               ~' + users + ' (accurate: ' + server.memberCount + ', ' + inactiveUsers + ' are inactive (' + inactivePercent + '%), ' + onlineUsers + ' are online (' + onlinePerc + '%))';
+			reply += '\nTotal channels:            ' + channels;
+			reply += '\nServer region:             ' + server.region;
+			reply += '\nDefault channel:           #' + server.defaultChannel.name;
+			reply += '\nVerification level:        ' + verLevel;
+			
+			msg.reply(reply + '\n```');
+			msg.channel.stopTyping();
+		});
 	}
 });
