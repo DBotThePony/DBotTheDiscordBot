@@ -1539,423 +1539,161 @@ DBot.RegisterCommand({
 	}
 });
 
-/*
-DBot.RegisterCommand({
-	name: 'sstats',
-	alias: ['server', 'serverstats'],
-	
-	help_args: '[user]',
-	desc: 'Displays this server statistics collected by me\nIf user is specified, displays his statistics on this server',
-	delay: 10,
-	
-	allowUserArgument: true,
-	
-	func: function(args, cmd, msg) {
-		if (DBot.IsPM(msg))
-			return 'Oh! This is a PM! x3';
-		
-		let server = msg.channel.guild;
-		let ID = DBot.GetServerID(server);
-		
-		msg.channel.startTyping();
-		
-		if (typeof args[0] != 'object') {
-			let UID = DBot.GetUserID(msg.author);
-			
-			let Channels = server.channels.array();
-			let Users = server.members.array();
-			let channels = Channels.length;
-			let users = Users.length;
-			let onlineUsers = 0;
-			
-			for (let member of Users) {
-				try {
-					let status = member.user.presence.status;
-					
-					if (status != 'offline')
-						onlineUsers++;
-				} catch(err) {
-					
-				}
-			}
-			
-			let percentOnline = Math.floor(onlineUsers / users * 100);
-			
-			let q = 'SELECT SUM("COUNT") as "cnt" FROM stats__chars_server WHERE "UID" = ' + ID + ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__words_server WHERE "UID" = ' + ID + ';\
-			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__words_server WHERE "UID" = ' + ID + ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__images_server WHERE "UID" = ' + ID + ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_server WHERE "UID" = ' + ID + ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__command_server WHERE "UID" = ' + ID + ';\
-			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_server WHERE "UID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1;\
-			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_server_d WHERE "UID" = ' + ID + ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_server_e WHERE "UID" = ' + ID + ';\
-			';
-			
-			let qU = 'SELECT SUM("COUNT") as "cnt" FROM stats__uchars_server WHERE "UID" = ' + UID + ' AND "ID" = ' + ID + ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__uwords_server WHERE "UID" = ' + UID + ' AND "ID" = ' + ID + ';\
-			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__uwords_server WHERE "UID" = ' + UID + ' AND "ID" = ' + ID + ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__uimages_server WHERE "UID" = ' + UID + ' AND "ID" = ' + ID + ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_server WHERE "UID" = ' + UID + ' AND "ID" = ' + ID + ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "ID" = ' + ID + ';\
-			SELECT stats_get_rank(' + UID + ', ' + ID + ') AS "RANK";\
-			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_server_d WHERE "UID" = ' + UID + ' AND "ID" = ' + ID +  ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_server_e WHERE "UID" = ' + UID + ' AND "ID" = ' + ID +  ';\
-			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "ID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1;\
-			';
-			
-			// Generic Server Stats
-			Postgres.query(q, function(err, data) {
-				
-				// Server Stats by user
-				Postgres.query(qU, function(err, uData) {
-					
-					// Users that are inactive
-					Postgres.query(sprintf(never_talk_sql, DBot.bot.user.id, msg.channel.guild.uid, msg.channel.guild.uid), function(err, iData) {
-						msg.channel.stopTyping();
-						
-						try {
-							for (let i = 0; i <= 8; i++) {
-								uData[i] = uData[i] || [];
-								data[i] = data[i] || [];
-								uData[i][0] = uData[i][0] || {};
-								data[i][0] = data[i][0] || {};
-							}
-							
-							let inactiveCount = 0;
-							
-							for (let i of iData) {
-								inactiveCount++;
-							}
-							
-							let percentInactive = Math.floor(inactiveCount / users * 100);
-							
-							let TotalChars = data[0].cnt || 0;
-							let TotalWordsSaid = data[1].cnt || 0;
-							let TotalUniqueWords = data[2].cnt || 0;
-							let TotalImagesSend = data[3].cnt || 0;
-							let TotalPhrasesSaid = data[4].cnt || 0;
-							let TotalCommandsExecuted = data[5].cnt || 0;
-							
-							let MostUsedCommand = data[6].COMMAND || '<unknown>';
-							let MostUsedCommand_count = data[6].summ || 0;
-							let TotalPhrasesDeleted = data[7].cnt || 0;
-							let TotalPhrasesEdited = data[8].cnt || 0;
-							
-							let TotalChars_USER = uData[0].cnt || 0;
-							let TotalWordsSaid_USER = uData[1].cnt || 0;
-							let TotalUniqueWords_USER = uData[2].cnt || 0;
-							let TotalImagesSend_USER = uData[3].cnt || 0;
-							let TotalPhrasesSaid_USER = uData[4].cnt || 0;
-							let TotalCommandsExecuted_USER = uData[5].cnt || 0;
-							
-							let TotalPhrasesDeleted_USER = uData[7].cnt || 0;
-							let TotalPhrasesEdited_USER = uData[8].cnt || 0;
-							let RANK = uData[6].RANK || 0;
-							let MostUsedCommand_USER = uData[9].COMMAND || '<unknown>';
-							let MostUsedCommand_count_USER = uData[9].summ || 0;
-							
-							let output = '\n```';
-							
-							output += '------ Infos\n';
-							output += 'Server Name:                              ' + msg.channel.guild.name + '\n';
-							output += 'Server ID:                                ' + msg.channel.guild.id + '\n';
-							output += 'Server Owner:                             @' + msg.channel.guild.owner.user.username + '\n';
-							output += 'Server ID in my Database:                 ' + ID + '\n';
-							output += 'Server region:                            ' + msg.channel.guild.region + '\n';
-							output += 'Server default channel:                   #' + msg.channel.guild.defaultChannel.name + '\n';
-							output += 'Server avatar URL:\n' + (msg.channel.guild.iconURL || '<no avatar>') + '\n';
-							output += 'Server is large?:                         ' + (msg.channel.guild.large && 'yes' || 'no') + '\n';
-							output += '------ Statistics\n';
-							
-							output += 'Total Channels on this server:            ' + numeral(channels).format('0,0') + '\n';
-							output += 'Total Users on this server:              ' + (msg.channel.guild.large && '~' || ' ') + numeral(users).format('0,0') + ' (' + numeral(onlineUsers).format('0,0') + ' online, ' + percentOnline + '%, ' + numeral(inactiveCount).format('0,0') + ' inactive, ' + percentInactive + '%)\n';
-							output += 'Total chars printed by all users:         ' + numeral(TotalChars).format('0,0') + '\n';
-							output += 'Total words said by all users:            ' + numeral(TotalWordsSaid).format('0,0') + '\n';
-							output += 'Total unique words:                       ' + numeral(TotalUniqueWords).format('0,0') + '\n';
-							output += 'Total images sent:                        ' + numeral(TotalImagesSend).format('0,0') + '\n';
-							output += 'Total phrases said by all users:          ' + numeral(TotalPhrasesSaid).format('0,0') + '\n';
-							output += 'Total phrases edited:                     ' + numeral(TotalPhrasesEdited).format('0,0') + '\n';
-							output += 'Total phrases deleted:                    ' + numeral(TotalPhrasesDeleted).format('0,0') + '\n';
-							output += 'Total amount of commands executed:        ' + numeral(TotalCommandsExecuted).format('0,0') + '\n';
-							output += 'Most command used:                        ' + MostUsedCommand + '; Times Executed: ' + numeral(MostUsedCommand_count).format('0,0') + '\n';
-							
-							output += '------ Your stats on this server\n';
-							
-							output += 'Rank:                                     ' + numeral(RANK).format('0,0') + '\n';
-							output += 'Total chars printed:                      ' + numeral(TotalChars_USER).format('0,0') + '\n';
-							output += 'Total words said:                         ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
-							output += 'Total unique words said:                  ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
-							output += 'Total images sent:                        ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
-							output += 'Total phrases said:                       ' + numeral(TotalPhrasesSaid_USER).format('0,0') + '\n';
-							output += 'Total amount of commands executed:        ' + numeral(TotalCommandsExecuted_USER).format('0,0') + '\n';
-							output += 'Most command used:                        ' + MostUsedCommand_USER + '; Times Executed: ' + MostUsedCommand_count_USER + '\n';
-							
-							output += '```\nAlso try stats (global statistics) and cstats (channel statistics)';
-							
-							msg.reply(output);
-						} catch(err) {
-							console.error(err);
-							msg.reply('<internal pony error>');
-						}
-					});
-				});
-			});
-		} else {
-			let UID = DBot.GetUserID(args[0]);
-			
-			let qU = 'SELECT SUM("COUNT") as "cnt" FROM stats__uchars_server WHERE "UID" = ' + UID + ' AND "ID" = ' + ID + ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__uwords_server WHERE "UID" = ' + UID + ' AND "ID" = ' + ID + ';\
-			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__uwords_server WHERE "UID" = ' + UID + ' AND "ID" = ' + ID + ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__uimages_server WHERE "UID" = ' + UID + ' AND "ID" = ' + ID + ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_server WHERE "UID" = ' + UID + ' AND "ID" = ' + ID + ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "ID" = ' + ID + ';\
-			SELECT stats_get_rank(' + UID + ', ' + ID + ') AS "RANK";\
-			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_server_d WHERE "UID" = ' + UID + ' AND "ID" = ' + ID +  ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_server_e WHERE "UID" = ' + UID + ' AND "ID" = ' + ID +  ';\
-			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_userver WHERE "UID" = ' + UID + ' AND "ID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1;\
-			';
-			
-			// Server Stats by user
-			Postgres.query(qU, function(err, uData) {
-				msg.channel.stopTyping();
-				
-				try {
-					for (let i = 0; i <= 9; i++) {
-						uData[i] = uData[i] || [];
-						uData[i][0] = uData[i][0] || {};
-					}
-					
-					let TotalChars_USER = uData[0].cnt || 0;
-					let TotalWordsSaid_USER = uData[1].cnt || 0;
-					let TotalUniqueWords_USER = uData[2].cnt || 0;
-					let TotalImagesSend_USER = uData[3].cnt || 0;
-					let TotalPhrasesSaid_USER = uData[4].cnt || 0;
-					let TotalCommandsExecuted_USER = uData[5].cnt || 0;
-					
-					let TotalPhrasesDeleted_USER = uData[7].cnt || 0;
-					let TotalPhrasesEdited_USER = uData[8].cnt || 0;
-					let RANK = uData[6].RANK || 0;
-					let MostUsedCommand_USER = uData[9].COMMAND || '<unknown>';
-					let MostUsedCommand_count_USER = uData[9].summ || 0;
-					
-					let output = '\n```';
-					
-					output += '------ @' + args[0].username + ' stats on this server\n';
-					
-					output += 'Rank:                                         ' + numeral(RANK).format('0,0') + '\n';
-					output += 'Total chars printed:                          ' + numeral(TotalChars_USER).format('0,0') + '\n';
-					output += 'Total words said:                             ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
-					output += 'Total unique words said:                      ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
-					output += 'Total images sent:                            ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
-					output += 'Total phrases said:                           ' + numeral(TotalPhrasesSaid_USER).format('0,0') + '\n';
-					output += 'Total phrases edited:                         ' + numeral(TotalPhrasesEdited_USER).format('0,0') + '\n';
-					output += 'Total phrases deleted:                        ' + numeral(TotalPhrasesDeleted_USER).format('0,0') + '\n';
-					output += 'Total amount of commands executed:            ' + numeral(TotalCommandsExecuted_USER).format('0,0') + '\n';
-					output += 'Most command used:                            ' + MostUsedCommand_USER + '; Times Executed: ' + MostUsedCommand_count_USER + '\n';
-					
-					output += '```';
-					
-					msg.reply(output);
-				} catch(err) {
-					console.error(err);
-					msg.reply('<internal pony error>');
-				}
-			});
-		}
-	}
-});
-
 DBot.RegisterCommand({
 	name: 'cstats',
-	alias: ['channel', 'channelstats'],
+	alias: ['channelstats'],
 	
 	help_args: '[user]',
-	desc: 'Displays this channel statistics collected by me\nIf user is specified, displays his statistics on this channel',
-	delay: 10,
-	
+	desc: 'Channel statistics',
+	delay: 5,
 	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
 		if (DBot.IsPM(msg))
-			return 'Oh! This is a PM! x3';
+			return 'PM? ;n;';
 		
-		let channel = msg.channel;
-		let ID = DBot.GetChannelID(channel);
+		let id = DBot.GetUserID(msg.author);
+		let channelid = DBot.GetChannelID(msg.channel);
+		let nick = msg.author.username;
+		let hideGlobal = false;
+		
+		if (typeof args[0] === 'object') {
+			id = DBot.GetUserID(args[0]);
+			nick = args[0].username;
+			hideGlobal = true;
+		}
 		
 		msg.channel.startTyping();
 		
-		if (typeof args[0] != 'object') {
-			let UID = DBot.GetUserID(msg.author);
+		const stats_query = `
+			WITH most_used_command AS (
+				SELECT
+					"COMMAND",
+					SUM("COUNT") AS "COUNT"
+				FROM
+					stats__ucommand_channels
+				WHERE
+					"ID" = ${channelid} AND
+					"USER" = ${id}
+				GROUP BY
+					"COMMAND"
+				ORDER BY
+					"COUNT" DESC
+				LIMIT 1
+			)
+
+			SELECT
+				"CHARS" AS "TotalChars",
+				"MESSAGES" AS "TotalMessages",
+				"MESSAGES_E" AS "TotalMessagesEdited",
+				"MESSAGES_D" AS "TotalMessagesDeleted",
+				"IMAGES" AS "TotalImagesSent",
+				"TYPINGS" AS "TotalTypings",
+				(SELECT "COMMAND" FROM most_used_command) AS "MostCommandUsed",
+				(SELECT "COUNT" FROM most_used_command) AS "MostCommandUsedCount"
+			FROM
+				stats__peruser_channels
+			WHERE
+				"ID" = ${channelid} AND
+				"USER" = ${id}
+			`;
+		
+		const channel_stats_query = `
+			WITH most_used_command AS (
+				SELECT
+					"COMMAND",
+					SUM("COUNT") AS "COUNT"
+				FROM
+					stats__command_channels
+				WHERE
+					"ID" = ${channelid}
+				GROUP BY
+					"COMMAND"
+				ORDER BY
+					"COUNT" DESC
+				LIMIT 1
+			)
+
+			SELECT
+				SUM("CHARS") AS "TotalChars",
+				SUM("MESSAGES") AS "TotalMessages",
+				SUM("MESSAGES_E") AS "TotalMessagesEdited",
+				SUM("MESSAGES_D") AS "TotalMessagesDeleted",
+				SUM("IMAGES") AS "TotalImagesSent",
+				SUM("TYPINGS") AS "TotalTypings",
+				(SELECT "COMMAND" FROM most_used_command) AS "MostCommandUsed",
+				(SELECT "COUNT" FROM most_used_command) AS "MostCommandUsedCount"
+			FROM
+				stats__generic_channels
+			WHERE
+				"ID" = ${channelid}
+			`;
+		
+		const funcCallback = function(userData, data) {
+			let output = '```';
 			
-			// Generic Server Stats
-			let q = 'SELECT SUM("COUNT") as "cnt" FROM stats__chars_channel WHERE "UID" = ' + ID +  ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__words_channel WHERE "UID" = ' + ID +  ';\
-			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__words_channel WHERE "UID" = ' + ID +  ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__images_channel WHERE "UID" = ' + ID +  ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_channel WHERE "UID" = ' + ID +  ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__command_channel WHERE "UID" = ' + ID +  ';\
-			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_channel WHERE "UID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1' +  ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_channel_d WHERE "UID" = ' + ID + ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__phrases_channel_e WHERE "UID" = ' + ID + ';\
-			';
+			if (!hideGlobal) {
+				output += '\n------ Channel statistics';
+				output += '\nTotal chars printed:             ' + formatNumberFunc(data[0].TotalChars);
+				output += '\nTotal messages sent:             ' + formatNumberFunc(data[0].TotalMessages);
+				output += '\nTotal messages edited:           ' + formatNumberFunc(data[0].TotalMessagesEdited);
+				output += '\nTotal messages deleted:          ' + formatNumberFunc(data[0].TotalMessagesDeleted);
+				output += '\nTotal images sent:               ' + formatNumberFunc(data[0].TotalImagesSent);
+				output += '\nTotal "typing" starts:           ' + formatNumberFunc(data[0].TotalTypings);
+				output += '\nMost command used:               ' + data[0].MostCommandUsed;
+				output += '\nUsed times:                      ' + formatNumberFunc(data[0].MostCommandUsedCount);
+			}
 			
-			// Channel Stats by user
-			let qU = 'SELECT SUM("COUNT") as "cnt" FROM stats__uchars_channel WHERE "UID" = ' + UID + ' AND "ID" = ' + ID +  ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__uwords_channel WHERE "UID" = ' + UID + ' AND "ID" = ' + ID +  ';\
-			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__uwords_channel WHERE "UID" = ' + UID + ' AND "ID" = ' + ID +  ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__uimages_channel WHERE "UID" = ' + UID + ' AND "ID" = ' + ID +  ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_channel WHERE "UID" = ' + UID + ' AND "ID" = ' + ID +  ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "ID" = ' + ID +  ';\
-			SELECT stats_get_rank_channel(' + UID + ', ' + ID + ') AS "RANK";\
-			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_channel_d WHERE "UID" = ' + UID + ' AND "ID" = ' + ID +  ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_channel_e WHERE "UID" = ' + UID + ' AND "ID" = ' + ID +  ';\
-			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "ID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1' +  ';\
-			';
+			output += '\n------ @' + nick + ' statistics';
+			output += '\nTotal chars printed:             ' + formatNumberFunc(userData[0].TotalChars);
+			output += '\nTotal messages sent:             ' + formatNumberFunc(userData[0].TotalMessages);
+			output += '\nTotal messages edited:           ' + formatNumberFunc(userData[0].TotalMessagesEdited);
+			output += '\nTotal messages deleted:          ' + formatNumberFunc(userData[0].TotalMessagesDeleted);
+			output += '\nTotal images sent:               ' + formatNumberFunc(userData[0].TotalImagesSent);
+			output += '\nTotal "typing" starts:           ' + formatNumberFunc(userData[0].TotalTypings);
+			output += '\nMost command used:               ' + userData[0].MostCommandUsed;
+			output += '\nUsed times:                      ' + formatNumberFunc(userData[0].MostCommandUsedCount);
 			
-			Postgres.query(q, function(err, data) {
-				Postgres.query(qU, function(err, uData) {
+			msg.channel.stopTyping();
+			msg.reply(output + '\n```');
+		};
+		
+		if (!hideGlobal) {
+			Postgres.query(stats_query, function(err1, userData) {
+				if (err1) {
+					console.log(err1);
+					msg.reply('<internal pony error>');
 					msg.channel.stopTyping();
-					
-					try {
-						for (let i = 0; i <= 9; i++) {
-							uData[i] = uData[i] || [];
-							data[i] = data[i] || [];
-							uData[i][0] = uData[i][0] || {};
-							data[i][0] = data[i][0] || {};
-						}
-						
-						let TotalChars = data[0].cnt || 0;
-						let TotalWordsSaid = data[1].cnt || 0;
-						let TotalUniqueWords = data[2].cnt || 0;
-						let TotalImagesSend = data[3].cnt || 0;
-						let TotalPhrasesSaid = data[4].cnt || 0;
-						let TotalCommandsExecuted = data[5].cnt || 0;
-						
-						let MostUsedCommand = data[6].COMMAND || '<unknown>';
-						let MostUsedCommand_count = data[6].summ || 0;
-						let TotalPhrasesDeleted = data[7].cnt || 0;
-						let TotalPhrasesEdited = data[8].cnt || 0;
-						
-						let TotalChars_USER = uData[0].cnt || 0;
-						let TotalWordsSaid_USER = uData[1].cnt || 0;
-						let TotalUniqueWords_USER = uData[2].cnt || 0;
-						let TotalImagesSend_USER = uData[3].cnt || 0;
-						let TotalPhrasesSaid_USER = uData[4].cnt || 0;
-						let TotalCommandsExecuted_USER = uData[5].cnt || 0;
-						
-						let TotalPhrasesDeleted_USER = uData[7].cnt || 0;
-						let TotalPhrasesEdited_USER = uData[8].cnt || 0;
-						let RANK = uData[6].RANK || 0;
-						let MostUsedCommand_USER = uData[9].COMMAND || '<unknown>';
-						let MostUsedCommand_count_USER = uData[9].summ || 0;
-						
-						let output = '\n```';
-						
-						output += '------ Infos\n';
-						output += 'Channel Name:                            ' + msg.channel.name + '\n';
-						output += 'Channel ID:                              ' + msg.channel.id + '\n';
-						output += 'Channel ID in my Database:               ' + ID + '\n';
-						output += 'Is default channel?:                     ' + (msg.channel.guild.defaultChannel.id == msg.channel.id && 'yes' || 'no') + '\n';
-						output += '------ Statistics\n';
-						
-						output += 'Total chars printed by all users:        ' + numeral(TotalChars).format('0,0') + '\n';
-						output += 'Total words said by all users:           ' + numeral(TotalWordsSaid).format('0,0') + '\n';
-						output += 'Total unique words:                      ' + numeral(TotalUniqueWords).format('0,0') + '\n';
-						output += 'Total images sent:                       ' + numeral(TotalImagesSend).format('0,0') + '\n';
-						output += 'Total phrases said by all users:         ' + numeral(TotalPhrasesSaid).format('0,0') + '\n';
-						output += 'Total phrases edited:                    ' + numeral(TotalPhrasesEdited).format('0,0') + '\n';
-						output += 'Total phrases deleted:                   ' + numeral(TotalPhrasesDeleted).format('0,0') + '\n';
-						output += 'Total amount of commands executed:       ' + numeral(TotalCommandsExecuted).format('0,0') + '\n';
-						output += 'Most command used:                       ' + MostUsedCommand + '; Times Executed: ' + numeral(MostUsedCommand_count).format('0,0') + '\n';
-						
-						output += '------ Your stats on this channel\n';
-						
-						output += 'Rank:                                    ' + numeral(RANK).format('0,0') + '\n';
-						output += 'Total chars printed:                     ' + numeral(TotalChars_USER).format('0,0') + '\n';
-						output += 'Total words said:                        ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
-						output += 'Total unique words said:                 ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
-						output += 'Total images sent:                       ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
-						output += 'Total phrases said:                      ' + numeral(TotalPhrasesSaid_USER).format('0,0') + '\n';
-						output += 'Total phrases edited:                    ' + numeral(TotalPhrasesEdited_USER).format('0,0') + '\n';
-						output += 'Total phrases deleted:                   ' + numeral(TotalPhrasesDeleted_USER).format('0,0') + '\n';
-						output += 'Total amount of commands executed:       ' + numeral(TotalCommandsExecuted_USER).format('0,0') + '\n';
-						output += 'Most command used:                       ' + MostUsedCommand_USER + '; Times Executed: ' + numeral(MostUsedCommand_count_USER).format('0,0') + '\n';
-						
-						output += '```\nAlso try stats (global statistics) and sstats (server statistics)';
-						
-						msg.reply(output);
-					} catch(err) {
-						console.error(err);
+					return;
+				}
+				
+				Postgres.query(channel_stats_query, function(err2, data) {
+					if (err2) {
+						console.log(err2);
 						msg.reply('<internal pony error>');
+						msg.channel.stopTyping();
+						return;
 					}
+					
+					funcCallback(userData, data);
 				});
 			});
 		} else {
-			let UID = DBot.GetUserID(args[0]);
-			
-			// Channel Stats by user
-			let q = 'SELECT SUM("COUNT") as "cnt" FROM stats__uchars_channel WHERE "UID" = ' + UID + ' AND "ID" = ' + ID +  ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__uwords_channel WHERE "UID" = ' + UID + ' AND "ID" = ' + ID +  ';\
-			SELECT COUNT(DISTINCT "WORD") as "cnt" FROM stats__uwords_channel WHERE "UID" = ' + UID + ' AND "ID" = ' + ID +  ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__uimages_channel WHERE "UID" = ' + UID + ' AND "ID" = ' + ID +  ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_channel WHERE "UID" = ' + UID + ' AND "ID" = ' + ID +  ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "ID" = ' + ID +  ';\
-			SELECT stats_get_rank_channel(' + UID + ', ' + ID + ') AS "RANK";\
-			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_channel_d WHERE "UID" = ' + UID + ' AND "ID" = ' + ID +  ';\
-			SELECT SUM("COUNT") as "cnt" FROM stats__uphrases_channel_e WHERE "UID" = ' + UID + ' AND "ID" = ' + ID +  ';\
-			SELECT "COMMAND", SUM("COUNT") as "summ" FROM stats__command_uchannel WHERE "UID" = ' + UID + ' AND "ID" = ' + ID + ' GROUP BY "COMMAND" ORDER BY "summ" DESC LIMIT 1' +  ';\
-			';
-			
-			Postgres.qeury(q, function(err, uData) {
-				msg.channel.stopTyping();
-				
-				try {
-					for (let i = 0; i <= 9; i++) {
-						uData[i] = uData[i] || [];
-						uData[i][0] = uData[i][0] || {};
-					}
-					
-					let TotalChars_USER = uData[0].cnt || 0;
-					let TotalWordsSaid_USER = uData[1].cnt || 0;
-					let TotalUniqueWords_USER = uData[2].cnt || 0;
-					let TotalImagesSend_USER = uData[3].cnt || 0;
-					let TotalPhrasesSaid_USER = uData[4].cnt || 0;
-					let TotalCommandsExecuted_USER = uData[5].cnt || 0;
-					
-					let TotalPhrasesDeleted_USER = uData[7].cnt || 0;
-					let TotalPhrasesEdited_USER = uData[8].cnt || 0;
-					let RANK = uData[6].RANK || 0;
-					let MostUsedCommand_USER = uData[9].COMMAND || '<unknown>';
-					let MostUsedCommand_count_USER = uData[9].summ || 0;
-					
-					let output = '\n```';
-					
-					output += '------ @' + args[0].username + ' stats on this channel\n';
-					
-					output += 'Rank:                                       ' + numeral(RANK).format('0,0') + '\n';
-					output += 'Total chars printed:                        ' + numeral(TotalChars_USER).format('0,0') + '\n';
-					output += 'Total words said:                           ' + numeral(TotalWordsSaid_USER).format('0,0') + '\n';
-					output += 'Total unique words said:                    ' + numeral(TotalUniqueWords_USER).format('0,0') + '\n';
-					output += 'Total images sent:                          ' + numeral(TotalImagesSend_USER).format('0,0') + '\n';
-					output += 'Total phrases said:                         ' + numeral(TotalPhrasesSaid_USER).format('0,0') + '\n';
-					output += 'Total phrases edited:                       ' + numeral(TotalPhrasesEdited_USER).format('0,0') + '\n';
-					output += 'Total phrases deleted:                      ' + numeral(TotalPhrasesDeleted_USER).format('0,0') + '\n';
-					output += 'Total amount of commands executed:          ' + numeral(TotalCommandsExecuted_USER).format('0,0') + '\n';
-					output += 'Most command used:                          ' + MostUsedCommand_USER + '; Times Executed: ' + numeral(MostUsedCommand_count_USER).format('0,0') + '\n';
-					
-					output += '```';
-					
-					msg.reply(output);
-				} catch(err) {
-					console.error(err);
+			Postgres.query(stats_query, function(err1, userData) {
+				if (err1) {
+					console.log(err1);
 					msg.reply('<internal pony error>');
+					msg.channel.stopTyping();
+					return;
 				}
+				
+				funcCallback(userData);
 			});
 		}
 	}
 });
 
+/*
 let SPACES = function(len) {
 	if (len <= 0)
 		return '';
