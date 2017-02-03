@@ -814,36 +814,29 @@ BEGIN
 			users
 		WHERE
 			users."TIME" > currtime() - 120
-	)
-	
-	INSERT INTO
-		tags_list
-		SELECT
-			valid."ID",
-			'client' AS "REALM",
-			tags_defbans."SPACE",
-			tags_defbans."TAG"
-		FROM
-			valid,
-			tags_defbans
-		WHERE NOT EXISTS (
+	),
+
+	fake_list_insert AS (
+		INSERT INTO
+			tags_list
 			SELECT
-				1 AS "RESULT"
+				valid."ID",
+				'client' AS "REALM",
+				tags_defbans."SPACE",
+				tags_defbans."TAG"
 			FROM
-				tags_init
-			WHERE
-				valid."ID" = tags_init."UID" AND
-				tags_init."REALM" = 'client' AND
-				tags_init."SPACE" = tags_defbans."SPACE"
-		);
-	
-	WITH valid AS (
-		SELECT
-			users."ID"
-		FROM
-			users
-		WHERE
-			users."TIME" > currtime() - 120
+				valid,
+				tags_defbans
+			WHERE NOT EXISTS (
+				SELECT
+					1 AS "RESULT"
+				FROM
+					tags_init
+				WHERE
+					valid."ID" = tags_init."UID" AND
+					tags_init."REALM" = 'client' AND
+					tags_init."SPACE" = tags_defbans."SPACE"
+			)
 	)
 	
 	INSERT INTO
@@ -868,7 +861,6 @@ BEGIN
 			valid."ID",
 			tags_defbans."SPACE"
 	ON CONFLICT DO NOTHING;
-			
 END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION roles_logger_trigger()
