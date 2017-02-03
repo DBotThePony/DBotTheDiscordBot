@@ -370,7 +370,7 @@ hook.Add('CanReply', 'MemberCommandBans', function(msg) {
 		return false;
 });
 
-hook.Add('ClientLeftServer', 'MemberCommandBans', function(user, server, member) {
+hook.Add('ClientLeftServer', 'MemberCommandBans', function(member) {
 	if (!member.uid) return;
 	cache.member[member.uid] = undefined;
 });
