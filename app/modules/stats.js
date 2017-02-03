@@ -1,4 +1,6 @@
 
+/* global Util, Postgres, DBot, sql, hook */
+
 const numeral = require('numeral');
 const moment = require('moment');
 const hDuration = require('humanize-duration');
@@ -29,10 +31,9 @@ hook.Add('ChatStart', 'Statistics', function(channel, user) {
 });
 
 hook.Add('OnValidMessage', 'Statistics', function(msg) {
-	if (msg.author.id == '210879254378840074')
-		return; // Loal
+	if (msg.author.id === '210879254378840074') return; // Loal
 	
-	let extra = msg.channel.guild != undefined && msg.channel.type != 'dm';
+	let extra = msg.channel.guild !== undefined && msg.channel.type !== 'dm';
 	let Words = msg.content.split(/( |\n)+/);
 	let rWords = [];
 	let length = msg.content.length;
@@ -67,7 +68,7 @@ hook.Add('OnMessageEdit', 'Statistics', function(oldMessage, msg) {
 	if (msg.author.bot)
 		return;
 	
-	let extra = msg.channel.guild != undefined && msg.channel.type != 'dm';
+	let extra = msg.channel.guild !== undefined && msg.channel.type !== 'dm';
 	let length = msg.content.length;
 	
 	if (extra) {
@@ -81,7 +82,7 @@ hook.Add('OnMessageDeleted', 'Statistics', function(msg) {
 	if (msg.author.bot)
 		return;
 	
-	let extra = msg.channel.guild != undefined && msg.channel.type != 'dm';
+	let extra = msg.channel.guild !== undefined && msg.channel.type !== 'dm';
 	let length = msg.content.length;
 	
 	if (extra) {
@@ -95,7 +96,7 @@ hook.Add('CommandExecuted', 'Statistics', function(commandID, user, args, cmd, m
 	let channelID;
 	let serverID;
 	let userID = DBot.GetUserID(user);
-	let extra = msg.channel.guild != undefined && msg.channel.type != 'dm';
+	let extra = msg.channel.guild !== undefined && msg.channel.type !== 'dm';
 	
 	if (extra) {
 		Postgres.query('SELECT stats_command(' + sql.Concat(msg.author.id, msg.channel.id, msg.channel.guild.id) + ', ' + Util.escape(commandID) + ');');
@@ -159,7 +160,7 @@ DBot.RegisterCommand({
 			let output = '```\n' + Util.AppendSpaces('Server name', 60) + Util.AppendSpaces('Total phrases', 15) + Util.AppendSpaces('Chars printed', 15) + Util.AppendSpaces('Total commands executed', 10) + '\n';
 			
 			for (let row of data) {
-				output += Util.AppendSpaces('<' + row.UID.trim() + '> ' + row.NAME, 60) + Util.AppendSpaces(numeral(row.TOTAL_PHRASES).format('0,0'), 15) + Util.AppendSpaces(numeral(row.TOTAL_CHARS).format('0,0'), 15) + Util.AppendSpaces(numeral(row.TOTAL_COMMANDS).format('0,0'), 10) + '\n'
+				output += Util.AppendSpaces('<' + row.UID.trim() + '> ' + row.NAME, 60) + Util.AppendSpaces(numeral(row.TOTAL_PHRASES).format('0,0'), 15) + Util.AppendSpaces(numeral(row.TOTAL_CHARS).format('0,0'), 15) + Util.AppendSpaces(numeral(row.TOTAL_COMMANDS).format('0,0'), 10) + '\n';
 			}
 			
 			msg.reply(output + '```');
@@ -249,8 +250,8 @@ let top10fn = function(name, order) {
 				msg.reply('<internal pony error>');
 			}
 		});
-	}
-}
+	};
+};
 
 DBot.RegisterCommand({
 	name: 'top10',
@@ -358,8 +359,8 @@ let gtop10fn = function(name, order) {
 				msg.reply('<internal pony error>');
 			}
 		});
-	}
-}
+	};
+};
 
 DBot.RegisterCommand({
 	name: 'gtop10',
@@ -479,7 +480,7 @@ let ctop10fn = function(name, order) {
 			}
 		});
 	};
-}
+};
 
 DBot.RegisterCommand({
 	name: 'ctop10',
@@ -532,7 +533,7 @@ DBot.RegisterCommand({
 		
 		msg.channel.startTyping();
 		
-		if (args[0] != 'prune') {
+		if (args[0] !== 'prune') {
 			Postgres.query(sprintf(never_talk_sql, DBot.bot.user.id, msg.channel.guild.uid, msg.channel.guild.uid), function(err, data) {
 				msg.channel.stopTyping();
 				
@@ -614,7 +615,7 @@ DBot.RegisterCommand({
 				stream.end();
 				
 				stream.on('finish', function() {
-					msg.reply(DBot.URLRoot + '/ntstats/' + sha + '.txt')
+					msg.reply(DBot.URLRoot + '/ntstats/' + sha + '.txt');
 				});
 			});
 		} else {
@@ -622,7 +623,6 @@ DBot.RegisterCommand({
 			
 			if (!me) {
 				msg.reply('<internal pony error>');
-				console.error(err);
 				return;
 			}
 			
@@ -677,7 +677,7 @@ DBot.RegisterCommand({
 						.then(function() {
 							total--;
 							
-							if (total == 0) {
+							if (total === 0) {
 								msg.channel.stopTyping();
 								msg.reply('All members are kicked now ;n;');
 							}
@@ -685,7 +685,7 @@ DBot.RegisterCommand({
 						.catch(function() {
 							total--;
 							
-							if (total == 0) {
+							if (total === 0) {
 								msg.channel.stopTyping();
 								msg.reply('All members are kicked now ;n;');
 							}
@@ -700,7 +700,7 @@ DBot.RegisterCommand({
 				conf.echo();
 			});
 		}
-	},
+	}
 });
 
 let getsfn = function(name, num) {
@@ -713,7 +713,7 @@ let getsfn = function(name, num) {
 		let mode = (args[0] || 'server').toLowerCase();
 		let mode1 = (args[1] || '').toLowerCase();
 		
-		if (mode == 'server') {
+		if (mode === 'server') {
 			let fuckingQuery = `
 			SELECT
 				members."NAME" AS "NAME",
@@ -746,12 +746,12 @@ let getsfn = function(name, num) {
 				let output = '```' + Util.AppendSpaces('Username', 30) + Util.AppendSpaces('Get', 10) + Util.AppendSpaces('Date', 10) + '\n';
 				
 				for (let row of data) {
-					output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * 1000).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ')', 10) + '\n'
+					output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * 1000).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ')', 10) + '\n';
 				}
 				
 				msg.reply(output + '```');
 			});
-		} else if (mode == 'image' || mode == 'images' || mode == 'server' && (mode1 == 'image' || mode1 == 'images')) {
+		} else if (mode === 'image' || mode === 'images' || mode === 'server' && (mode1 === 'image' || mode1 === 'images')) {
 			let fuckingQuery = `
 			SELECT
 				members."NAME" AS "NAME",
@@ -784,12 +784,12 @@ let getsfn = function(name, num) {
 				let output = '```' + Util.AppendSpaces('Username', 30) + Util.AppendSpaces('Get', 10) + Util.AppendSpaces('Date', 10) + '\n';
 				
 				for (let row of data) {
-					output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * 100).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 100) + ')', 10) + '\n'
+					output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * 100).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 100) + ')', 10) + '\n';
 				}
 				
 				msg.reply(output + '```');
 			});
-		} else if (mode == 'channel') {
+		} else if (mode === 'channel') {
 			let fuckingQuery = `
 			SELECT
 				members."NAME" AS "NAME",
@@ -823,12 +823,12 @@ let getsfn = function(name, num) {
 				let output = '```' + Util.AppendSpaces('Username', 30) + Util.AppendSpaces('Get', 10) + Util.AppendSpaces('Date', 10) + '\n';
 				
 				for (let row of data) {
-					output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * 1000).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ')', 10) + '\n'
+					output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * 1000).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ')', 10) + '\n';
 				}
 				
 				msg.reply(output + '```');
 			});
-		} else if (mode == 'channel' && (mode1 == 'image' || mode1 == 'images')) {
+		} else if (mode === 'channel' && (mode1 === 'image' || mode1 === 'images')) {
 			let fuckingQuery = `
 			SELECT
 				members."NAME" AS "NAME",
@@ -862,7 +862,7 @@ let getsfn = function(name, num) {
 				let output = '```' + Util.AppendSpaces('Username', 30) + Util.AppendSpaces('Get', 10) + Util.AppendSpaces('Date', 10) + '\n';
 				
 				for (let row of data) {
-					output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * num * 100).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * num * 100) + ')', 10) + '\n'
+					output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * num * 100).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * num * 100) + ')', 10) + '\n';
 				}
 				
 				msg.reply(output + '```');
@@ -870,8 +870,8 @@ let getsfn = function(name, num) {
 		} else {
 			return DBot.CommandError('Unknown subcommand', name, args, 1);
 		}
-	}
-}
+	};
+};
 
 let descFullGet = `
 Submodes are:
@@ -1029,7 +1029,7 @@ DBot.RegisterCommand({
 		
 		msg.channel.startTyping();
 		
-		if (typeof args[0] != 'object') {
+		if (typeof args[0] !== 'object') {
 			Postgres.query(sprintf(word_server_sql, msg.channel.guild.uid), function(err1, gdata) {
 				Postgres.query(sprintf(word_server_sql_user, msg.channel.guild.uid, msg.author.uid), function(err2, udata) {
 					msg.channel.stopTyping();
@@ -1048,13 +1048,13 @@ DBot.RegisterCommand({
 					
 					let output = Util.AppendSpaces('Word', 25) + Util.AppendSpaces('Count', 6) + '\n```\n';
 					
-					output += '----- Server\n'
+					output += '----- Server\n';
 					
 					for (let row of gdata) {
 						output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
 					}
 					
-					output += '----- Your\n'
+					output += '----- Your\n';
 					
 					for (let row of udata) {
 						output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
@@ -1075,7 +1075,7 @@ DBot.RegisterCommand({
 				
 				let output = Util.AppendSpaces('Word', 25) + Util.AppendSpaces('Count', 6) + '\n```\n';
 				
-				output += '----- His\n'
+				output += '----- His\n';
 				
 				for (let row of udata) {
 					output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
@@ -1084,7 +1084,7 @@ DBot.RegisterCommand({
 				msg.reply(output + '\n```');
 			});
 		}
-	},
+	}
 });
 
 DBot.RegisterCommand({
@@ -1104,7 +1104,7 @@ DBot.RegisterCommand({
 		
 		msg.channel.startTyping();
 		
-		if (typeof args[0] != 'object') {
+		if (typeof args[0] !== 'object') {
 			Postgres.query(sprintf(word_channel_sql, msg.channel.uid), function(err1, gdata) {
 				Postgres.query(sprintf(word_channel_sql_user, msg.channel.uid, msg.author.uid), function(err2, udata) {
 					msg.channel.stopTyping();
@@ -1123,13 +1123,13 @@ DBot.RegisterCommand({
 					
 					let output = Util.AppendSpaces('Word', 25) + Util.AppendSpaces('Count', 6) + '\n```\n';
 					
-					output += '----- Channel\n'
+					output += '----- Channel\n';
 					
 					for (let row of gdata) {
 						output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
 					}
 					
-					output += '----- Your\n'
+					output += '----- Your\n';
 					
 					for (let row of udata) {
 						output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
@@ -1150,7 +1150,7 @@ DBot.RegisterCommand({
 				
 				let output = Util.AppendSpaces('Word', 25) + Util.AppendSpaces('Count', 6) + '\n```\n';
 				
-				output += '----- His\n'
+				output += '----- His\n';
 				
 				for (let row of udata) {
 					output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
@@ -1159,7 +1159,7 @@ DBot.RegisterCommand({
 				msg.reply(output + '\n```');
 			});
 		}
-	},
+	}
 });
 
 DBot.RegisterCommand({
@@ -1176,7 +1176,7 @@ DBot.RegisterCommand({
 		
 		msg.channel.startTyping();
 		
-		if (typeof args[0] != 'object') {
+		if (typeof args[0] !== 'object') {
 			Postgres.query(word_global_sql, function(err1, gdata) {
 				Postgres.query(sprintf(word_sql, id), function(err2, udata) {
 					msg.channel.stopTyping();
@@ -1195,13 +1195,13 @@ DBot.RegisterCommand({
 					
 					let output = Util.AppendSpaces('Word', 25) + Util.AppendSpaces('Count', 6) + '\n```\n';
 					
-					output += '----- Global\n'
+					output += '----- Global\n';
 					
 					for (let row of gdata) {
 						output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
 					}
 					
-					output += '----- Your\n'
+					output += '----- Your\n';
 					
 					for (let row of udata) {
 						output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
@@ -1222,7 +1222,7 @@ DBot.RegisterCommand({
 				
 				let output = Util.AppendSpaces('Word', 25) + Util.AppendSpaces('Count', 6) + '\n```\n';
 				
-				output += '----- His\n'
+				output += '----- His\n';
 				
 				for (let row of udata) {
 					output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
@@ -1231,7 +1231,7 @@ DBot.RegisterCommand({
 				msg.reply(output + '\n```');
 			});
 		}
-	},
+	}
 });
 
 
