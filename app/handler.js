@@ -66,10 +66,13 @@ let msgFuncs = [
 DBot.bot.on('message', function(msg) {
 	msg.replies = msg.replies || [];
 	
+	msg.wasHandled = true;
 	msg.promiseReply = msgFuncs[0];
 	msg.promiseSend = msgFuncs[1];
 	msg.___reply = msg.___reply || msg.reply; // There is also oldReply, but oldReply is used when command was actually executed.
 	msg.reply = msg.promiseReply;
+	
+	if (msg.pinned) return;
 	
 	try {
 		if (DBot.IsMyMessage(msg)) return;
@@ -647,8 +650,7 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 hook.Add('OnMessageDeleted', 'Handler', function(msg) {
 	msg.wasDeleted = true;
 	
-	if (!msg.replies)
-		return;
+	if (!msg.replies) return;
 	
 	for (let mess of msg.replies) {
 		if (mess.deletable)
@@ -657,12 +659,20 @@ hook.Add('OnMessageDeleted', 'Handler', function(msg) {
 });
 
 hook.Add('OnMessageEdit', 'Handler', function(omsg, nmsg) {
+	if (!omsg.wasHandled) return;
 	omsg.internalCreateTime = omsg.internalCreateTime || CurTime();
 	nmsg.internalCreateTime = omsg.internalCreateTime;
 	omsg.replies = omsg.replies || [];
 	nmsg.replies = omsg.replies;
 	
-	let contentsChanged = omsg.content && nmsg.content && omsg.content !== nmsg.content;
+	let pinned = nmsg.pinned || omsg.pinned;
+	omsg.pinned = pinned;
+	nmsg.pinned = pinned;
+	
+	if (pinned) return;
+	
+	const contentsChanged = omsg.content && nmsg.content && omsg.content !== nmsg.content;
+	if (!contentsChanged) return;
 	
 	if (omsg.internalCreateTime + 1 > CurTime())
 		return;
