@@ -24,6 +24,8 @@ WHERE
 `;
 
 hook.Add('ChatStart', 'Statistics', function(channel, user) {
+	if (user.id == DBot.bot.user.id) return;
+	
 	if (channel.guild)
 		Postgres.query('SELECT stats_typing(\'' + user.id + '\',\'' + channel.guild.id + '\',\'' + channel.id + '\');');
 	else
@@ -93,9 +95,6 @@ hook.Add('OnMessageDeleted', 'Statistics', function(msg) {
 });
 
 hook.Add('CommandExecuted', 'Statistics', function(commandID, user, args, cmd, msg) {
-	let channelID;
-	let serverID;
-	let userID = DBot.GetUserID(user);
 	let extra = msg.channel.guild !== undefined && msg.channel.type !== 'dm';
 	
 	if (extra) {
@@ -1281,7 +1280,7 @@ DBot.RegisterCommand({
 		
 		if (typeof args[0] === 'object') {
 			id = DBot.GetUserID(args[0]);
-			nick = args[0].username
+			nick = args[0].username;
 			hideGlobal = true;
 		}
 		
@@ -1406,7 +1405,7 @@ DBot.RegisterCommand({
 		
 		if (typeof args[0] === 'object') {
 			id = DBot.GetUserID(args[0]);
-			nick = args[0].username
+			nick = args[0].username;
 			hideGlobal = true;
 		}
 		
