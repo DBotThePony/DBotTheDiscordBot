@@ -4,7 +4,7 @@ const fs = DBot.js.fs;
 
 UnixStamp = function() {
 	return (new Date()).getTime() / 1000;
-}
+};
 
 CurTime = UnixStamp;
 Systime = UnixStamp;
@@ -258,17 +258,12 @@ DBot.GetUserServers = function(user) {
 }
 
 DBot.GetServers = function() {
-	let dups = {};
-	let reply = [];
-	
-	for (let server of DBot.bot.guilds.array()) {
-		if (dups[server.id]) continue; // WHAT THE FUCK?!
-		dups[server.id] = true;
-		reply.push(server);
-	}
-	
-	return reply;
-}
+	return DBot.bot.guilds.array();
+};
+
+DBot.GetChannels = function() {
+	return DBot.bot.channels.array();
+};
 
 DBot.GetMembers = function() {
 	let members = [];
