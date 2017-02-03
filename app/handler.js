@@ -735,9 +735,7 @@ hook.Add('OnMessageEdit', 'Handler', function(omsg, nmsg) {
 	};
 	
 	try {
-		let can = DBot.HandleMessage(nmsg, pm, true);
-		
-		if (can)
+		if (DBot.HandleMessage(nmsg, pm, true))
 			DBot.HandleMessage(nmsg, pm);
 	} catch(err) {
 		console.error(err);
@@ -938,15 +936,9 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		}
 	};
 	
-	if (rawmessage.substr(0, prefix.length) === prefix) {
-		if (isPrivate) {
-			if (test)
-				return false;
-			
-			msg.reply('Oh, you don\'t need } in PM messages x3\nTry without }');
-			return;
-		};
-		
+	const startsWithPrefix = rawmessage.substr(0, prefix.length) === prefix;
+	
+	if (startsWithPrefix && !isPrivate) {
 		let recreate = [];
 		recreate.push(prefix);
 		
@@ -957,6 +949,13 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		};
 		
 		splitted = recreate;
+	} else if (startsWithPrefix && isPrivate) {
+		if (test) return false;
+
+		msg.reply('Oh, you don\'t need } in PM messages x3\nTry without }');
+		return;
+	} else if (!startsWithPrefix && !isPrivate) {
+		return false;
 	};
 	
 	let rawCommand = splitted[shift];
