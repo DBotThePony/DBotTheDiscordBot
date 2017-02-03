@@ -1245,6 +1245,20 @@ WITH most_used_command AS (
 	ORDER BY
 		"COUNT" DESC
 	LIMIT 1
+),
+
+words_count AS (
+	SELECT
+		SUM("COUNT") AS "COUNT"
+	FROM
+		stats__words_db
+),
+
+words_unique AS (
+	SELECT
+		COUNT(*) AS "UNIQUE"
+	FROM
+		stats__words_db
 )
 
 SELECT
@@ -1255,6 +1269,8 @@ SELECT
 	SUM("IMAGES") AS "TotalImagesSent",
 	SUM("TYPINGS") AS "TotalTypings",
 	(SELECT "COMMAND" FROM most_used_command) AS "MostCommandUsed",
+	(SELECT "UNIQUE" FROM words_unique) AS "UniqueWords",
+	(SELECT "COUNT" FROM words_count) AS "WordsSaid",
 	(SELECT "COUNT" FROM most_used_command) AS "MostCommandUsedCount"
 FROM
 	stats__generic_users
@@ -1300,6 +1316,24 @@ DBot.RegisterCommand({
 				ORDER BY
 					"COUNT" DESC
 				LIMIT 1
+			),
+
+			words_count AS (
+				SELECT
+					SUM("COUNT") AS "COUNT"
+				FROM
+					stats__words_users
+				WHERE
+					"ID" = ${id}
+			),
+
+			words_unique AS (
+				SELECT
+					COUNT(*) AS "UNIQUE"
+				FROM
+					stats__words_users
+				WHERE
+					"ID" = ${id}
 			)
 
 			SELECT
@@ -1310,6 +1344,8 @@ DBot.RegisterCommand({
 				"IMAGES" AS "TotalImagesSent",
 				"TYPINGS" AS "TotalTypings",
 				(SELECT "COMMAND" FROM most_used_command) AS "MostCommandUsed",
+				(SELECT "UNIQUE" FROM words_unique) AS "UniqueWords",
+				(SELECT "COUNT" FROM words_count) AS "WordsSaid",
 				(SELECT "COUNT" FROM most_used_command) AS "MostCommandUsedCount"
 			FROM
 				stats__generic_users
@@ -1328,6 +1364,8 @@ DBot.RegisterCommand({
 				output += '\n------ Global statistics';
 				output += '\nTotal chars printed:             ' + formatNumberFunc(data[0].TotalChars);
 				output += '\nTotal messages sent:             ' + formatNumberFunc(data[0].TotalMessages);
+				output += '\nTotal words said:                ' + formatNumberFunc(data[0].WordsSaid);
+				output += '\nTotal unqiue words said:         ' + formatNumberFunc(data[0].UniqueWords);
 				output += '\nTotal messages edited:           ' + formatNumberFunc(data[0].TotalMessagesEdited);
 				output += '\nTotal messages deleted:          ' + formatNumberFunc(data[0].TotalMessagesDeleted);
 				output += '\nTotal images sent:               ' + formatNumberFunc(data[0].TotalImagesSent);
@@ -1339,6 +1377,8 @@ DBot.RegisterCommand({
 			output += '\n------ @' + nick + ' statistics';
 			output += '\nTotal chars printed:             ' + formatNumberFunc(userData[0].TotalChars);
 			output += '\nTotal messages sent:             ' + formatNumberFunc(userData[0].TotalMessages);
+			output += '\nTotal words said:                ' + formatNumberFunc(userData[0].WordsSaid);
+			output += '\nTotal unqiue words said:         ' + formatNumberFunc(userData[0].UniqueWords);
 			output += '\nTotal messages edited:           ' + formatNumberFunc(userData[0].TotalMessagesEdited);
 			output += '\nTotal messages deleted:          ' + formatNumberFunc(userData[0].TotalMessagesDeleted);
 			output += '\nTotal images sent:               ' + formatNumberFunc(userData[0].TotalImagesSent);
@@ -1426,6 +1466,26 @@ DBot.RegisterCommand({
 				ORDER BY
 					"COUNT" DESC
 				LIMIT 1
+			),
+
+			words_count AS (
+				SELECT
+					SUM("COUNT") AS "COUNT"
+				FROM
+					stats__uwords_servers
+				WHERE
+					"ID" = ${serverid} AND
+					"USER" = ${id}
+			),
+
+			words_unique AS (
+				SELECT
+					COUNT(*) AS "UNIQUE"
+				FROM
+					stats__uwords_servers
+				WHERE
+					"ID" = ${serverid} AND
+					"USER" = ${id}
 			)
 
 			SELECT
@@ -1436,6 +1496,8 @@ DBot.RegisterCommand({
 				"IMAGES" AS "TotalImagesSent",
 				"TYPINGS" AS "TotalTypings",
 				(SELECT "COMMAND" FROM most_used_command) AS "MostCommandUsed",
+				(SELECT "UNIQUE" FROM words_unique) AS "UniqueWords",
+				(SELECT "COUNT" FROM words_count) AS "WordsSaid",
 				(SELECT "COUNT" FROM most_used_command) AS "MostCommandUsedCount"
 			FROM
 				stats__peruser_servers
@@ -1458,6 +1520,24 @@ DBot.RegisterCommand({
 				ORDER BY
 					"COUNT" DESC
 				LIMIT 1
+			),
+
+			words_count AS (
+				SELECT
+					SUM("COUNT") AS "COUNT"
+				FROM
+					stats__words_servers
+				WHERE
+					"ID" = ${serverid}
+			),
+
+			words_unique AS (
+				SELECT
+					COUNT(*) AS "UNIQUE"
+				FROM
+					stats__words_servers
+				WHERE
+					"ID" = ${serverid}
 			)
 
 			SELECT
@@ -1468,6 +1548,8 @@ DBot.RegisterCommand({
 				SUM("IMAGES") AS "TotalImagesSent",
 				SUM("TYPINGS") AS "TotalTypings",
 				(SELECT "COMMAND" FROM most_used_command) AS "MostCommandUsed",
+				(SELECT "UNIQUE" FROM words_unique) AS "UniqueWords",
+				(SELECT "COUNT" FROM words_count) AS "WordsSaid",
 				(SELECT "COUNT" FROM most_used_command) AS "MostCommandUsedCount"
 			FROM
 				stats__generic_servers
@@ -1482,6 +1564,8 @@ DBot.RegisterCommand({
 				output += '\n------ Server statistics';
 				output += '\nTotal chars printed:             ' + formatNumberFunc(data[0].TotalChars);
 				output += '\nTotal messages sent:             ' + formatNumberFunc(data[0].TotalMessages);
+				output += '\nTotal words said:                ' + formatNumberFunc(data[0].WordsSaid);
+				output += '\nTotal unqiue words said:         ' + formatNumberFunc(data[0].UniqueWords);
 				output += '\nTotal messages edited:           ' + formatNumberFunc(data[0].TotalMessagesEdited);
 				output += '\nTotal messages deleted:          ' + formatNumberFunc(data[0].TotalMessagesDeleted);
 				output += '\nTotal images sent:               ' + formatNumberFunc(data[0].TotalImagesSent);
@@ -1493,6 +1577,8 @@ DBot.RegisterCommand({
 			output += '\n------ @' + nick + ' statistics';
 			output += '\nTotal chars printed:             ' + formatNumberFunc(userData[0].TotalChars);
 			output += '\nTotal messages sent:             ' + formatNumberFunc(userData[0].TotalMessages);
+			output += '\nTotal words said:                ' + formatNumberFunc(userData[0].WordsSaid);
+			output += '\nTotal unqiue words said:         ' + formatNumberFunc(userData[0].UniqueWords);
 			output += '\nTotal messages edited:           ' + formatNumberFunc(userData[0].TotalMessagesEdited);
 			output += '\nTotal messages deleted:          ' + formatNumberFunc(userData[0].TotalMessagesDeleted);
 			output += '\nTotal images sent:               ' + formatNumberFunc(userData[0].TotalImagesSent);
@@ -1580,6 +1666,26 @@ DBot.RegisterCommand({
 				ORDER BY
 					"COUNT" DESC
 				LIMIT 1
+			),
+
+			words_count AS (
+				SELECT
+					SUM("COUNT") AS "COUNT"
+				FROM
+					stats__uwords_channels
+				WHERE
+					"ID" = ${channelid} AND
+					"USER" = ${id}
+			),
+
+			words_unique AS (
+				SELECT
+					COUNT(*) AS "UNIQUE"
+				FROM
+					stats__uwords_channels
+				WHERE
+					"ID" = ${channelid} AND
+					"USER" = ${id}
 			)
 
 			SELECT
@@ -1590,6 +1696,8 @@ DBot.RegisterCommand({
 				"IMAGES" AS "TotalImagesSent",
 				"TYPINGS" AS "TotalTypings",
 				(SELECT "COMMAND" FROM most_used_command) AS "MostCommandUsed",
+				(SELECT "UNIQUE" FROM words_unique) AS "UniqueWords",
+				(SELECT "COUNT" FROM words_count) AS "WordsSaid",
 				(SELECT "COUNT" FROM most_used_command) AS "MostCommandUsedCount"
 			FROM
 				stats__peruser_channels
@@ -1612,6 +1720,24 @@ DBot.RegisterCommand({
 				ORDER BY
 					"COUNT" DESC
 				LIMIT 1
+			),
+
+			words_count AS (
+				SELECT
+					SUM("COUNT") AS "COUNT"
+				FROM
+					stats__words_channels
+				WHERE
+					"ID" = ${channelid}
+			),
+
+			words_unique AS (
+				SELECT
+					COUNT(*) AS "UNIQUE"
+				FROM
+					stats__words_channels
+				WHERE
+					"ID" = ${channelid}
 			)
 
 			SELECT
@@ -1622,6 +1748,8 @@ DBot.RegisterCommand({
 				SUM("IMAGES") AS "TotalImagesSent",
 				SUM("TYPINGS") AS "TotalTypings",
 				(SELECT "COMMAND" FROM most_used_command) AS "MostCommandUsed",
+				(SELECT "UNIQUE" FROM words_unique) AS "UniqueWords",
+				(SELECT "COUNT" FROM words_count) AS "WordsSaid",
 				(SELECT "COUNT" FROM most_used_command) AS "MostCommandUsedCount"
 			FROM
 				stats__generic_channels
@@ -1636,6 +1764,8 @@ DBot.RegisterCommand({
 				output += '\n------ Channel statistics';
 				output += '\nTotal chars printed:             ' + formatNumberFunc(data[0].TotalChars);
 				output += '\nTotal messages sent:             ' + formatNumberFunc(data[0].TotalMessages);
+				output += '\nTotal words said:                ' + formatNumberFunc(data[0].WordsSaid);
+				output += '\nTotal unqiue words said:         ' + formatNumberFunc(data[0].UniqueWords);
 				output += '\nTotal messages edited:           ' + formatNumberFunc(data[0].TotalMessagesEdited);
 				output += '\nTotal messages deleted:          ' + formatNumberFunc(data[0].TotalMessagesDeleted);
 				output += '\nTotal images sent:               ' + formatNumberFunc(data[0].TotalImagesSent);
@@ -1647,6 +1777,8 @@ DBot.RegisterCommand({
 			output += '\n------ @' + nick + ' statistics';
 			output += '\nTotal chars printed:             ' + formatNumberFunc(userData[0].TotalChars);
 			output += '\nTotal messages sent:             ' + formatNumberFunc(userData[0].TotalMessages);
+			output += '\nTotal words said:                ' + formatNumberFunc(userData[0].WordsSaid);
+			output += '\nTotal unqiue words said:         ' + formatNumberFunc(userData[0].UniqueWords);
 			output += '\nTotal messages edited:           ' + formatNumberFunc(userData[0].TotalMessagesEdited);
 			output += '\nTotal messages deleted:          ' + formatNumberFunc(userData[0].TotalMessagesDeleted);
 			output += '\nTotal images sent:               ' + formatNumberFunc(userData[0].TotalImagesSent);
