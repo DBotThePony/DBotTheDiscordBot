@@ -83,7 +83,6 @@ let timerOnlineFunc = function() {
 }
 
 hook.Add('SQLInitialize', 'Core', function() {
-	console.log('SQLInitialize');
 	sqlRun = true;
 	if (shouldRunAfterSQL) timerOnlineFunc();
 });
