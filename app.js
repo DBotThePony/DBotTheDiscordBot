@@ -1,7 +1,10 @@
 
+/* global hook */
+
+sprintf = require('sprintf-js').sprintf;
+
 process.env['PATH'] = './bin;' + process.env['PATH'];
 const stamp = (new Date()).getTime();
-
 const Discord = require('discord.js');
 
 const options = {
@@ -15,9 +18,9 @@ let stdin = process.openStdin();
 stdin.addListener('data', function(data) {
 	let str = data.toString().trim();
 	
-	if (str.substr(0, 5) == 'eval ') {
+	if (str.substr(0, 5) === 'eval ') {
 		let code = str.substr(5);
-		console.log('eval(' + code + ')...')
+		console.log('eval(' + code + ')...');
 		
 		try {
 			console.log('--> ', eval(code));
@@ -28,8 +31,6 @@ stdin.addListener('data', function(data) {
 });
 
 DBot = {};
-DBot.bot = bot;
-DBot.client = bot;
 
 try {
 	DBot.cfg = require('./config.js');
@@ -41,23 +42,81 @@ try {
 	throw err;
 }
 
-require('./app/init.js');
+const token = DBot.cfg.token;
+let LEVEL_OF_CONNECTION = 0;
+let TimeoutID = null;
+let sqlRun = false;
+let shouldRunAfterSQL = false;
+
+DBot.bot = bot;
+DBot.client = bot;
+DBot.Discord = Discord;
+DBot.fs = require('fs');
+DBot.WebRoot = DBot.cfg.webroot;
+DBot.URLRootBare = DBot.cfg.webpath;
+DBot.URLRoot = DBot.cfg.protocol + '://' + DBot.cfg.webpath;
+DBot.owners = DBot.cfg.owners;
+
+DBot.js = {};
+
+DBot.js.child_process = require('child_process');
+DBot.js.unirest = require('unirest');
+DBot.js.fs = require('fs');
+DBot.js.json3 = require('json3');
+DBot.js.moment = require('moment');
+DBot.js.numeral = require('numeral');
+DBot.js.url = require('url');
+DBot.js.crypto = require('crypto');
+DBot.js.hDuration = require('humanize-duration');
+DBot.js.Discord = Discord;
+DBot.js.sprintf = sprintf;
+
+DBot.fs = DBot.js.fs;
+
+require('./app/lib/util.js');
+require('./app/lib/hook.js');
+require('./app/lib/sql_helpers.js');
+require('./app/lib/sql.js');
+require('./app/lib/imagick.js');
+require('./app/lib/emoji.js');
+
+require('./app/lib/cvars.js');
+require('./app/generic.js');
+require('./app/lib/tags.js');
+require('./app/lib/commban.js');
+
+require('./app/handler.js');
+require('./app/commands.js');
+
+require('./app/lib/confirm.js');
+
+for (const file of DBot.fs.readdirSync('./app/modules/')) {
+	let sp = file.split('.');
+	if (!sp[1] || sp[1] !== 'js') continue;
+	
+	require('./app/modules/' + file);
+};
+
+DBot.START_STAMP = (new Date()).getTime() / 1000;
 
 hook.RegisterEvents();
-DBot.Discord = Discord;
-
-let LEVEL_OF_CONNECTION = 0;
-const token = DBot.cfg.token;
 
 DBot.IsOnline = function() {
 	return LEVEL_OF_CONNECTION > 0;
-}
+};
 
-IsOnline = DBot.IsOnline;
+const timerOnlineFunc = function() {
+	if (!sqlRun || LEVEL_OF_CONNECTION === 0) return;
+	console.log('Initializing stuff');
+	hook.Run('BotOnline', DBot.bot);
+};
 
-let TimeoutID = null;
+hook.Add('SQLInitialize', 'Core', function() {
+	sqlRun = true;
+	if (shouldRunAfterSQL) timerOnlineFunc();
+});
 
-bot.on('disconnect', function() {
+DBot.disconnectEvent = function(event) {
 	LEVEL_OF_CONNECTION--;
 	
 	if (LEVEL_OF_CONNECTION > 0) return;
@@ -71,23 +130,9 @@ bot.on('disconnect', function() {
 	DBot.SQL_START = false;
 	console.log('Disconnected from servers!');
 	hook.Run('OnDisconnected');
-});
+};
 
-let sqlRun = false;
-let shouldRunAfterSQL = false;
-
-let timerOnlineFunc = function() {
-	if (!sqlRun || LEVEL_OF_CONNECTION === 0) return;
-	console.log('Initializing stuff');
-	hook.Run('BotOnline', DBot.bot);
-}
-
-hook.Add('SQLInitialize', 'Core', function() {
-	sqlRun = true;
-	if (shouldRunAfterSQL) timerOnlineFunc();
-});
-
-bot.on('ready', function() {
+DBot.readyEvent = function() {
 	LEVEL_OF_CONNECTION++;
 	
 	if (LEVEL_OF_CONNECTION >= 2) {
@@ -111,16 +156,16 @@ bot.on('ready', function() {
 		else
 			timerOnlineFunc();
 	}, 6000);
-});
+};
 
-let nStamp = (new Date()).getTime();
-console.log('Initialization complete in ' + (Math.floor((nStamp - stamp) * 100) / 100) + ' ms');
+IsOnline = DBot.IsOnline;
+
+bot.on('ready', DBot.readyEvent);
+bot.on('disconnect', DBot.disconnectEvent);
+
+const nStamp = (new Date()).getTime();
+console.log('Initialization complete in ' + (Math.floor((nStamp - stamp) * 100) / 100) + ' ms. Connecting...');
 
 bot.login(token)
-.then(function() {
-	console.log('Bot ID: ' + bot.user.id);
-})
-.catch(function(err) {
-	console.error('Unable to login.');
-	console.error(err);
-});
+.then(() => console.log('Bot ID: ' + bot.user.id))
+.catch(err => {console.error('Unable to login.'); console.error(err);});
