@@ -1,4 +1,7 @@
 
+/* global DBot, Postgres */
+
+
 module.exports = {
 	name: 'eval',
 	alias: ['debug'],
@@ -12,9 +15,11 @@ module.exports = {
 			return 'Not a bot owner';
 		
 		let myValue;
+		let split = msg.content.split(' ');
+		split.splice(0, 1);
 		
 		try {
-			myValue = eval(cmd);
+			myValue = eval(split.join(' '));
 		} catch(err) {
 			msg.sendMessage('```\n' + err.stack + '\n```');
 			return;
@@ -29,3 +34,44 @@ module.exports = {
 		}
 	}
 };
+
+DBot.RegisterCommand({
+	name: 'sql',
+	
+	help_args: '<code>',
+	desc: 'Bot owner only',
+	help_hide: true,
+	
+	func: function(args, cmd, msg) {
+		if (!DBot.owners.includes(msg.author.id))
+			return 'Not a bot owner';
+		
+		msg.channel.startTyping();
+		
+		let split = msg.content.split(' ');
+		split.splice(0, 1);
+		
+		Postgres.query(split.join(' '), function(err, data) {
+			msg.channel.stopTyping();
+			
+			if (err) {
+				msg.reply('```\n' + err.stack + '\n```');
+				return;
+			}
+			
+			let output = '```\n';
+			
+			for (let row of data) {
+				let mid = [];
+				
+				for (let i in row) {
+					mid.push(row[i]);
+				}
+				
+				output += '[' +  mid.join(', ') + ']\n';
+			}
+			
+			msg.reply(output + '```');
+		});
+	}
+});

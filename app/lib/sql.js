@@ -66,13 +66,6 @@ pgConnection.query = function(query, callback) {
 					for (let row of data.rows) {
 						obj[cID] = row;
 						cID++;
-						
-						for (let i in row) {
-							if (typeof i == 'string') {
-								row[i.toUpperCase()] = row[i];
-								row[i.toLowerCase()] = row[i];
-							}
-						}
 					}
 				}
 				
