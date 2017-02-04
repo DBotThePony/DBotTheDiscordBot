@@ -1,4 +1,6 @@
 
+/* global Util, DBot, hook, Postgres */
+
 const fs = require('fs');
 const child_process = require('child_process');
 const spawn = child_process.spawn;
@@ -44,7 +46,7 @@ IMagick.GetTextSize = function(text, font, size) {
 	let height = IMagick.PrecacheFontsDataHeight[font] * mult;
 	
 	text.replace(CharsExp2, function(matched, p1) {
-		if (p1 == '\n') {
+		if (p1 === '\n') {
 			height += IMagick.PrecacheFontsDataHeight[font] * mult;
 			cLine++;
 			widths[cLine] = 0;
@@ -68,7 +70,7 @@ IMagick.GetTextSize = function(text, font, size) {
 	}
 	
 	return [Math.floor(width), Math.floor(height)];
-}
+};
 
 IMagick.GetCharSize = function(Char, font, size) {
 	size = size || 12;
@@ -84,7 +86,7 @@ IMagick.GetCharSize = function(Char, font, size) {
 	let height = IMagick.PrecacheFontsDataHeight[font] * mult * .9;
 	
 	return [Math.floor(width), Math.floor(height)];
-}
+};
 
 IMagick.GetFontHeight = function(font, size) {
 	size = size || 12;
@@ -98,7 +100,7 @@ IMagick.GetFontHeight = function(font, size) {
 	let height = IMagick.PrecacheFontsDataHeight[font] * (size / 14);
 	
 	return Math.floor(height);
-}
+};
 
 IMagick.PrecacheFont = function(font) {
 	if (!FontsInit)
@@ -111,7 +113,7 @@ IMagick.PrecacheFont = function(font) {
 		return;
 	
 	IMagick.PrecacheFonts.push(font);
-}
+};
 
 let loadingStage3 = function() {
 	console.log('Building up fonts sizes, this can take some time when running first time!');
@@ -127,7 +129,7 @@ let loadingStage3 = function() {
 				for (let row of data) {
 					let trim = row.CHAR.trim();
 					
-					if (trim == '')
+					if (trim === '')
 						trim = ' ';
 					
 					IMagick.PrecacheFontsData[font][trim.replace('\\\\', '\\')] = Number(row.WIDTH);
@@ -142,15 +144,14 @@ let loadingStage3 = function() {
 			
 			let finalQuery = 'BEGIN;';
 			
-			let hash = DBot.HashString(font);
-			let totalChars = CharsToCheckForSize.length;
+			const hash = DBot.HashString(font);
 			let magikArgs = ['xc:none', '-background', 'none', '-font', font];
 			
 			for (let i in CharsToCheckForSize) {
 				let Char = CharsToCheckForSize[i];
 				let oldChar = Char;
 				
-				if (Char == '\\')
+				if (Char === '\\')
 					Char = '\\\\';
 				
 				magikArgs.push('label:' + Char, '-write', DBot.WebRoot + '/imtmp/' + hash + '_' + i + '.png', '+delete');
@@ -167,7 +168,7 @@ let loadingStage3 = function() {
 				fs.unlink('empty-0.png', function() {});
 				fs.unlink('empty-1.png', function() {});
 				
-				if (code != 0)
+				if (code !== 0)
 					throw new Error('Stage 3 of Image Magick load failed; FONT: ' + font);
 				
 				let magikArgs = [];
@@ -186,7 +187,7 @@ let loadingStage3 = function() {
 				magik.stderr.pipe(process.stdout);
 				
 				magik.on('close', function(code) {
-					if (code != 0 || output == '')
+					if (code !== 0 || output === '')
 						throw new Error('Stage 3 of Image Magick load failed; Font: ' + font);
 					
 					let newLines = output.replace(/\r/g, '').split('\n');
@@ -195,7 +196,7 @@ let loadingStage3 = function() {
 						let Char = CharsToCheckForSize[i];
 						let oldChar = CharsToCheckForSize[i];
 						
-						if (newLines[i] == '' || newLines[i] == ' ')
+						if (newLines[i] === '' || newLines[i] === ' ')
 							continue;
 						
 						let parse = newLines[i].split(' ');
@@ -209,13 +210,13 @@ let loadingStage3 = function() {
 						let aspectRatio = height / width;
 						let aspectRatio2 = width / height;
 						
-						if (oldChar == '\\\\') {
+						if (oldChar === '\\\\') {
 							width = Math.floor(width / 2);
 						}
 						
 						finalQuery += 'INSERT INTO font_sizes ("ID", "CHAR", "WIDTH") VALUES (\'' + IMagick.FontIDs[font] + '\', ' + Util.escape(oldChar) + ', \'' + width + '\');';
 						
-						if (Char == 'W') {
+						if (Char === 'W') {
 							finalQuery += 'INSERT INTO font_height ("ID", "HEIGHT") VALUES (\'' + IMagick.FontIDs[font] + '\', \'' + height + '\') ON CONFLICT DO NOTHING;';
 							IMagick.PrecacheFontsDataHeight[font] = height;
 						}
@@ -228,7 +229,7 @@ let loadingStage3 = function() {
 			});
 		});
 	}
-}
+};
 
 let loadingStage2 = function() {
 	let total = 0;
@@ -245,17 +246,15 @@ let loadingStage2 = function() {
 			IMagick.FontIDs[font] = Number(data[0].ID);
 			total--;
 			
-			if (total == 0)
+			if (total === 0)
 				loadingStage3();
 		});
 	}
-}
+};
 
 hook.Add('SQLInitialize', 'IMagick', function() {
 	SQLInit = true;
-	
-	if (FontsInit)
-		loadingStage2();
+	if (FontsInit) loadingStage2();
 });
 
 {
@@ -268,7 +267,7 @@ hook.Add('SQLInitialize', 'IMagick', function() {
 	});
 	
 	magik.on('close', function(code) {
-		if (code != 1) {
+		if (code !== 1) {
 			throw new Error('FATAL ERROR: Image Magick closed != 1 code!');
 		}
 		
@@ -318,7 +317,7 @@ DrawText = function(text, callback, rFontSize) {
 				'-pointsize', rFontSize,
 				'-font', 'Hack-Regular',
 				'-gravity', 'NorthWest',
-				'-fill', 'black',
+				'-fill', 'black'
 			];
 			
 			let buildDraw = '';
@@ -326,7 +325,7 @@ DrawText = function(text, callback, rFontSize) {
 			magikArgs.push('-draw');
 			
 			for (let i in splitLines) {
-				let line = splitLines[i];
+				const line = splitLines[i];
 				
 				buildDraw += ' text 0,' + (i * rFontSize * 1.5) + ' "' + line.replace(/"/g, '\\"').replace(/\\/g, "\\\\") + '"';
 			}
@@ -340,7 +339,7 @@ DrawText = function(text, callback, rFontSize) {
 			Util.Redirect(magik);
 			
 			magik.on('close', function(code) {
-				if (code == 0) {
+				if (code === 0) {
 					callback(null, fpath, fpathU);
 				} else {
 					callback(code);
@@ -370,9 +369,9 @@ IMagick.DrawText = function(data, callback) {
 			max = splitLines[i].length;
 	}
 	
-	let sha = DBot.HashString(text + '-FONTSIZE:' + rFontSize + '-FONT:' + font + '-LOLCAT:' + (lolcat && '1' || '0'));
-	let fpath = DBot.WebRoot + '/textdraw/' + sha + '.png';
-	let fpathU = DBot.URLRoot + '/textdraw/' + sha + '.png';
+	const sha = DBot.HashString(text + '-FONTSIZE:' + rFontSize + '-FONT:' + font + '-LOLCAT:' + (lolcat && '1' || '0'));
+	const fpath = DBot.WebRoot + '/textdraw/' + sha + '.png';
+	const fpathU = DBot.URLRoot + '/textdraw/' + sha + '.png';
 	
 	fs.stat(fpath, function(err, stat) {
 		if (stat) {
@@ -389,14 +388,14 @@ IMagick.DrawText = function(data, callback) {
 					'-pointsize', rFontSize,
 					'-font', font,
 					'-gravity', gravity,
-					'-fill', 'black',
+					'-fill', 'black'
 				];
 				
 				let buildDraw = '';
 				
 				magikArgs.push('-draw');
 				
-				let height = IMagick.GetFontHeight(font, rFontSize);
+				const height = IMagick.GetFontHeight(font, rFontSize);
 				
 				for (let i in splitLines) {
 					let line = splitLines[i];
@@ -413,7 +412,7 @@ IMagick.DrawText = function(data, callback) {
 				Util.Redirect(magik);
 				
 				magik.on('close', function(code) {
-					if (code == 0) {
+					if (code === 0) {
 						callback(null, fpath, fpathU);
 					} else {
 						callback(code);
@@ -425,7 +424,7 @@ IMagick.DrawText = function(data, callback) {
 					'canvas:none',
 					'-pointsize', rFontSize,
 					'-font', font,
-					'-gravity', gravity,
+					'-gravity', gravity
 				];
 				
 				let magikLines = [];
@@ -438,7 +437,7 @@ IMagick.DrawText = function(data, callback) {
 					let previousLength = 0;
 					let calcLineWidth = 0;
 					
-					if (gravity == 'center' || gravity == 'south' || gravity == 'north') {
+					if (gravity === 'center' || gravity === 'south' || gravity === 'north') {
 						calcLineWidth = IMagick.GetTextSize(line, font, rFontSize)[0];
 					}
 					
@@ -447,15 +446,15 @@ IMagick.DrawText = function(data, callback) {
 						let green = Math.sin(charNum / line.length - lineNum / charHeight * 5) * 127 + 128;
 						let blue = Math.sin(lineNum / charHeight * 2 - charNum / line.length * 3) * 127 + 128;
 						
-						lineArg.push('-fill', 'rgb(' + Math.floor(red) + ',' + Math.floor(green) + ',' + Math.floor(blue) + ')', '-draw')
+						lineArg.push('-fill', 'rgb(' + Math.floor(red) + ',' + Math.floor(green) + ',' + Math.floor(blue) + ')', '-draw');
 						let charWidth = IMagick.GetCharSize(line[charNum], font, rFontSize)[0];
 						let chr = line[charNum];
 						
-						if (chr == '\\') {
+						if (chr === '\\') {
 							chr = '\\\\';
 						}
 						
-						if (gravity == 'center' || gravity == 'south' || gravity == 'north') {
+						if (gravity === 'center' || gravity === 'south' || gravity === 'north') {
 							lineArg.push(
 								'text ' + Math.floor(previousLength + charWidth - calcLineWidth / 2) + ',0 ' + '"' + chr + '"'
 							);
@@ -472,7 +471,7 @@ IMagick.DrawText = function(data, callback) {
 				let linesLeft = magikLines.length;
 				let BREAK = false;
 				
-				let continueFunc = function() {
+				const continueFunc = function() {
 					let outputArgs = [];
 					
 					for (let line in magikLines) {
@@ -492,13 +491,13 @@ IMagick.DrawText = function(data, callback) {
 							});
 						}
 						
-						if (code == 0) {
+						if (code === 0) {
 							callback(null, fpath, fpathU);
 						} else {
 							callback(code);
 						}
 					});
-				}
+				};
 				
 				for (let line in magikLines) {
 					let newArgs = Util.AppendArrays(Util.CopyArray(magikArgs), magikLines[line]);
@@ -513,10 +512,10 @@ IMagick.DrawText = function(data, callback) {
 							return;
 						}
 						
-						if (code == 0) {
+						if (code === 0) {
 							linesLeft--;
 							
-							if (linesLeft == 0) {
+							if (linesLeft === 0) {
 								continueFunc();
 							}
 						} else {
@@ -530,7 +529,7 @@ IMagick.DrawText = function(data, callback) {
 			}
 		}
 	});
-}
+};
 
 IMagick.GetInfo = function(path, callback) {
 	let magik = spawn('identify', [path]);
@@ -547,7 +546,7 @@ IMagick.GetInfo = function(path, callback) {
 	});
 	
 	magik.on('close', function(code) {
-		if (code == 0 && output != '') {
+		if (code === 0 && output !== '') {
 			const parse = output.split(' ');
 			
 			const fileName = parse[0];
@@ -565,6 +564,6 @@ IMagick.GetInfo = function(path, callback) {
 			callback(outputErr, null, null, null, null, null);
 		}
 	});
-}
+};
 
 IMagick.Identify = IMagick.GetInfo;
