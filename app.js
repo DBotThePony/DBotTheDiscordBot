@@ -5,7 +5,7 @@ const stamp = (new Date()).getTime();
 const Discord = require('discord.js');
 
 const options = {
-	autoReconnect: false
+	autoReconnect: true
 };
 
 const bot = new Discord.Client(options);
@@ -46,9 +46,7 @@ require('./app/init.js');
 hook.RegisterEvents();
 DBot.Discord = Discord;
 
-let IS_INITIALIZED = false;
 let LEVEL_OF_CONNECTION = 0;
-let ALREADY_CONNECTING = false;
 const token = DBot.cfg.token;
 
 DBot.IsOnline = function() {
@@ -56,25 +54,6 @@ DBot.IsOnline = function() {
 }
 
 IsOnline = DBot.IsOnline;
-
-let loginFunc = function() {
-	if (LEVEL_OF_CONNECTION > 0) return;
-	
-	if (LEVEL_OF_CONNECTION < 0)
-		LEVEL_OF_CONNECTION = 0;
-	
-	if (!IS_INITIALIZED || ALREADY_CONNECTING) return;
-	ALREADY_CONNECTING = true;
-	
-	bot.login(token)
-	.then(function() {
-		ALREADY_CONNECTING = false;
-	})
-	.catch(function() {
-		console.log('Reconnect failed. Retrying in 10 seconds');
-		ALREADY_CONNECTING = false;
-	});
-}
 
 let TimeoutID = null;
 
@@ -86,7 +65,6 @@ bot.on('disconnect', function() {
 	if (LEVEL_OF_CONNECTION < 0)
 		LEVEL_OF_CONNECTION = 0;
 	
-	if (!IS_INITIALIZED) return;
 	if (TimeoutID) clearTimeout(TimeoutID);
 	TimeoutID = null;
 	
@@ -99,17 +77,15 @@ let sqlRun = false;
 let shouldRunAfterSQL = false;
 
 let timerOnlineFunc = function() {
-	if (!sqlRun) return;
-	if (ALREADY_CONNECTING || LEVEL_OF_CONNECTION == 0) return;
+	if (!sqlRun || LEVEL_OF_CONNECTION === 0) return;
 	console.log('Initializing stuff');
 	hook.Run('BotOnline', DBot.bot);
 }
 
 hook.Add('SQLInitialize', 'Core', function() {
+	console.log('SQLInitialize');
 	sqlRun = true;
-	
-	if (shouldRunAfterSQL)
-		timerOnlineFunc();
+	if (shouldRunAfterSQL) timerOnlineFunc();
 });
 
 bot.on('ready', function() {
@@ -131,30 +107,21 @@ bot.on('ready', function() {
 		clearTimeout(TimeoutID);
 	
 	TimeoutID = setTimeout(function() {
-		if (!sqlRun) {
+		if (!sqlRun)
 			shouldRunAfterSQL = true;
-			return;
-		}
-		
-		timerOnlineFunc();
-	}, 4000);
+		else
+			timerOnlineFunc();
+	}, 6000);
 });
-
-setInterval(loginFunc, 10000);
 
 let nStamp = (new Date()).getTime();
 console.log('Initialization complete in ' + (Math.floor((nStamp - stamp) * 100) / 100) + ' ms');
 
-ALREADY_CONNECTING = true;
-
 bot.login(token)
 .then(function() {
-	IS_INITIALIZED = true;
-	ALREADY_CONNECTING = false;
 	console.log('Bot ID: ' + bot.user.id);
 })
 .catch(function(err) {
-	ALREADY_CONNECTING = false;
 	console.error('Unable to login.');
 	console.error(err);
 });
