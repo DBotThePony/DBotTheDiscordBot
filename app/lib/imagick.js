@@ -548,17 +548,17 @@ IMagick.GetInfo = function(path, callback) {
 	
 	magik.on('close', function(code) {
 		if (code == 0 && output != '') {
-			let parse = output.split(' ');
+			const parse = output.split(' ');
 			
-			let fileName = parse[0];
-			let fileType = parse[1];
-			let fileSizes = parse[2];
+			const fileName = parse[0];
+			const fileType = parse[1];
+			const fileSizes = parse[2];
 			
-			let fileSizesS = fileSizes.split('x');
-			let width = Number(fileSizesS[0]);
-			let height = Number(fileSizesS[1]);
-			let aspectRatio = height / width;
-			let aspectRatio2 = width / height;
+			const fileSizesS = fileSizes.split('x');
+			const width = Number(fileSizesS[0]);
+			const height = Number(fileSizesS[1]);
+			const aspectRatio = height / width;
+			const aspectRatio2 = width / height;
 			
 			callback(null, fileType, width, height, aspectRatio, aspectRatio2);
 		} else {
