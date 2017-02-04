@@ -1083,7 +1083,7 @@ DECLARE user_id INTEGER;
 DECLARE word VARCHAR(64);
 BEGIN
 	user_id := get_user_id(user_id_raw);
-	UPDATE stats__generic_users SET "MESSAGES" = "MESSAGES" + 1, "CHARS" = "CHARS" + message_length WHERE "ID" = user_id;
+	UPDATE stats__generic_users SET "MESSAGES" = "MESSAGES" + 1, "CHARS" = "CHARS" + message_length, "IMAGES" = "IMAGES" + images_seneded WHERE "ID" = user_id;
 	
 	WITH valid_words AS (
 		SELECT
@@ -1164,9 +1164,9 @@ BEGIN
 	server_id := get_server_id(server_id_raw);
 	channel_id := get_channel_id(channel_id_raw, server_id);
 	
-	UPDATE stats__generic_users SET "MESSAGES" = "MESSAGES" + 1, "CHARS" = "CHARS" + message_length WHERE "ID" = user_id;
-	UPDATE stats__generic_channels SET "MESSAGES" = "MESSAGES" + 1, "CHARS" = "CHARS" + message_length WHERE "ID" = channel_id;
-	UPDATE stats__generic_servers SET "MESSAGES" = "MESSAGES" + 1, "CHARS" = "CHARS" + message_length WHERE "ID" = server_id;
+	UPDATE stats__generic_users SET "MESSAGES" = "MESSAGES" + 1, "CHARS" = "CHARS" + message_length, "IMAGES" = "IMAGES" + images_seneded WHERE "ID" = user_id;
+	UPDATE stats__generic_channels SET "MESSAGES" = "MESSAGES" + 1, "CHARS" = "CHARS" + message_length, "IMAGES" = "IMAGES" + images_seneded WHERE "ID" = channel_id;
+	UPDATE stats__generic_servers SET "MESSAGES" = "MESSAGES" + 1, "CHARS" = "CHARS" + message_length, "IMAGES" = "IMAGES" + images_seneded WHERE "ID" = server_id;
 	
 	INSERT INTO stats__peruser_channels("ID", "USER", "CHARS", "MESSAGES", "IMAGES")
 		VALUES (channel_id, user_id, message_length, 1, images_seneded)
