@@ -1,4 +1,6 @@
 
+/* global DBot, Util, IMagick */
+
 const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
 const fs = DBot.fs;
@@ -24,23 +26,38 @@ module.exports = {
 		
 		let fPath;
 		
-		let fPathProcessed = DBot.WebRoot + '/wall/' + hash + '.png';
-		let fPathProcessedURL = DBot.URLRoot + '/wall/' + hash + '.png';
+		const fPathProcessed = DBot.WebRoot + '/wall/' + hash + '.png';
+		const fPathProcessedURL = DBot.URLRoot + '/wall/' + hash + '.png';
 		
 		msg.channel.startTyping();
 		
-		let ContinueFunc = function() {
+		const ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);
 				} else {
-					let magik = spawn('convert', ['(', fPath, '-resize', '128', ')', '-virtual-pixel', 'tile', '-mattecolor', 'none', '-background', 'none', '-resize', '512x512!', '-distort', 'Perspective', '0,0,57,42  0,128,63,130  128,0,140,60  128,128,140,140', fPathProcessed]);
-					
+					let magik = spawn('convert', [
+						'(',
+							'-size', '128x128',
+							'xc:black',
+							'(', fPath,
+							'-resize', '128', ')',
+							'-compose', 'srcover',
+							'-composite',
+						')',
+						'-virtual-pixel', 'tile',
+						'-mattecolor', 'none',
+						'-background', 'none',
+						'-resize', '512x512!',
+						'-distort', 'Perspective', '0,0,57,42  0,128,63,130  128,0,140,60  128,128,140,140',
+						fPathProcessed
+					]);
+
 					Util.Redirect(magik);
-					
+
 					magik.on('close', function(code) {
-						if (code == 0) {
+						if (code === 0) {
 							msg.channel.stopTyping();
 							msg.reply(fPathProcessedURL);
 						} else {
@@ -50,7 +67,7 @@ module.exports = {
 					});
 				}
 			});
-		}
+		};
 		
 		DBot.LoadImageURL(url, function(newPath) {
 			fPath = newPath;
@@ -61,4 +78,4 @@ module.exports = {
 			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
 		});
 	}
-}
+};
