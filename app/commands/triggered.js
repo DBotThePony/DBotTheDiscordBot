@@ -17,7 +17,7 @@ module.exports = {
 		let url = DBot.CombinedURL(args[0], msg.channel);
 		
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered3', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered', args, 1);
 		
 		let sha = DBot.HashString(url);
 		
