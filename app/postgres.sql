@@ -407,12 +407,12 @@ BEGIN
 	IF (OLD."MESSAGES" != NEW."MESSAGES") THEN
 		SELECT stats__generic_servers."MESSAGES" INTO current_messages FROM stats__generic_servers WHERE stats__generic_servers."ID" = NEW."ID";
 
-		IF (current_messages % 100 = 0 AND current_messages > 0) THEN
+		IF (current_messages % 1000 = 0 AND current_messages > 0) THEN
 			INSERT INTO
-				stats__server_get_image
+				stats__server_get
 				("MEMBER", "NUMBER")
 			VALUES
-				(get_member_id_soft(NEW."USER", NEW."ID"), floor(current_messages / 100));
+				(get_member_id_soft(NEW."USER", NEW."ID"), floor(current_messages / 1000));
 		END IF;
 	END IF;
 	
@@ -435,12 +435,12 @@ BEGIN
 			(get_member_id_soft(NEW."USER", NEW."ID"), floor(current_images / 100));
 	END IF;
 
-	IF (current_messages % 100 = 0 AND current_messages > 0) THEN
+	IF (current_messages % 1000 = 0 AND current_messages > 0) THEN
 		INSERT INTO
-			stats__server_get_image
+			stats__server_get
 			("MEMBER", "NUMBER")
 		VALUES
-			(get_member_id_soft(NEW."USER", NEW."ID"), floor(current_messages / 100));
+			(get_member_id_soft(NEW."USER", NEW."ID"), floor(current_messages / 1000));
 	END IF;
 	
 	RETURN NEW;
@@ -466,12 +466,12 @@ BEGIN
 	IF (OLD."MESSAGES" != NEW."MESSAGES") THEN
 		SELECT stats__generic_channels."MESSAGES" INTO current_messages FROM stats__generic_channels WHERE stats__generic_channels."ID" = NEW."ID";
 
-		IF (current_messages % 100 = 0 AND current_messages > 0) THEN
+		IF (current_messages % 1000 = 0 AND current_messages > 0) THEN
 			INSERT INTO
-				stats__channel_get_image
+				stats__channel_get
 				("MEMBER", "CHANNEL", "NUMBER")
 			VALUES
-				(get_member_id_soft(NEW."USER", get_server_from_channel(NEW."ID")), NEW."ID", floor(current_messages / 100));
+				(get_member_id_soft(NEW."USER", get_server_from_channel(NEW."ID")), NEW."ID", floor(current_messages / 1000));
 		END IF;
 	END IF;
 	
@@ -494,12 +494,12 @@ BEGIN
 			(get_member_id_soft(NEW."USER", get_server_from_channel(NEW."ID")), NEW."ID", floor(current_images / 100));
 	END IF;
 
-	IF (current_messages % 100 = 0 AND current_messages > 0) THEN
+	IF (current_messages % 1000 = 0 AND current_messages > 0) THEN
 		INSERT INTO
-			stats__channel_get_image
+			stats__channel_get
 			("MEMBER", "CHANNEL", "NUMBER")
 		VALUES
-			(get_member_id_soft(NEW."USER", get_server_from_channel(NEW."ID")), NEW."ID", floor(current_messages / 100));
+			(get_member_id_soft(NEW."USER", get_server_from_channel(NEW."ID")), NEW."ID", floor(current_messages / 1000));
 	END IF;
 	
 	RETURN NEW;

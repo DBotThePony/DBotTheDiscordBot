@@ -757,7 +757,8 @@ let getsfn = function(name, num) {
 				stats__server_get
 			WHERE
 				stats__server_get."NUMBER" % ${num} = 0 AND
-				members."ID" = stats__server_get."MEMBER"
+				members."ID" = stats__server_get."MEMBER" AND
+				members."SERVER" = ${msg.channel.guild.uid}
 			ORDER BY
 				stats__server_get."ENTRY" DESC
 			LIMIT 10
@@ -795,7 +796,8 @@ let getsfn = function(name, num) {
 				stats__server_get_image
 			WHERE
 				stats__server_get_image."NUMBER" % ${num} = 0 AND
-				members."ID" = stats__server_get_image."MEMBER"
+				members."ID" = stats__server_get_image."MEMBER" AND
+				members."SERVER" = ${msg.channel.guild.uid}
 			ORDER BY
 				stats__server_get_image."ENTRY" DESC
 			LIMIT 10
@@ -834,7 +836,8 @@ let getsfn = function(name, num) {
 			WHERE
 				stats__channel_get."NUMBER" % ${num} = 0 AND
 				stats__channel_get."ID" = ${msg.channel.uid} AND
-				members."ID" = stats__channel_get."MEMBER"
+				members."ID" = stats__channel_get."MEMBER" AND
+				members."SERVER" = ${msg.channel.guild.uid}
 			ORDER BY
 				stats__server_get_image."ENTRY" DESC
 			LIMIT 10
@@ -873,7 +876,8 @@ let getsfn = function(name, num) {
 			WHERE
 				stats__channel_get_image."NUMBER" % ${num} = 0 AND
 				stats__channel_get_image."ID" = ${msg.channel.uid} AND
-				members."ID" = stats__channel_get_image."MEMBER"
+				members."ID" = stats__channel_get_image."MEMBER" AND
+				members."SERVER" = ${msg.channel.guild.uid}
 			ORDER BY
 				stats__server_get_image."ENTRY" DESC
 			LIMIT 10
