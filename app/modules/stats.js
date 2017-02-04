@@ -39,6 +39,24 @@ WHERE
     )
 `;
 
+let never_talk_channel_sql_count = `
+SELECT
+	COUNT(*) AS "COUNT"
+FROM
+	users,
+	members
+WHERE
+	users."TIME" > currtime() - 120 AND
+	users."UID" != '%s' AND
+	members."SERVER" = %i AND
+	members."USER" = users."ID" AND
+    members."USER" NOT IN (
+    	SELECT stats__peruser_channels."USER"
+		FROM stats__peruser_channels, channels
+		WHERE stats__peruser_channels."ID" = channels."ID" AND channels."SID" = %i
+    )
+`;
+
 hook.Add('ChatStart', 'Statistics', function(channel, user) {
 	if (user.id === DBot.bot.user.id) return;
 	
@@ -2224,6 +2242,43 @@ DBot.RegisterCommand({
 			reply += '\nServer region:             ' + server.region;
 			reply += '\nDefault channel:           #' + server.defaultChannel.name;
 			reply += '\nVerification level:        ' + verLevel;
+			
+			msg.reply(reply + '\n```');
+			msg.channel.stopTyping();
+		});
+	}
+});
+
+DBot.RegisterCommand({
+	name: 'channel',
+	
+	help_args: '',
+	desc: 'Channel info',
+	delay: 5,
+	allowUserArgument: true,
+	
+	func: function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'PM? ;n;';
+		
+		msg.channel.startTyping();
+		
+		const server = msg.channel.guild;
+		const users = server.members.array().length;
+		const channel = msg.channel;
+		
+		Postgres.query(sprintf(never_talk_channel_sql_count, DBot.bot.user.id, server.uid, server.uid), function(err, data) {
+			const inactiveUsers = data[0].COUNT || 0;
+			const inactivePercent = Math.floor(inactiveUsers / users * 100 + 0.5);
+			
+			let reply = '```';
+			reply += '\nChannel name:              ' + channel.name;
+			reply += '\nServer ID:                 <' + channel.id + '>';
+			reply += '\nServer ID in my DB:        ' + channel.uid;
+			reply += '\nTotal inactive users:      ~' + inactiveUsers + ' are inactive (' + inactivePercent + '%)';
+			reply += '\nIs Default channel:        ' + (server.defaultChannel.id === channel.id);
+			reply += '\nChannel position:          ' + channel.position;
+			reply += '\nChannel topic:             ' + channel.topic;
 			
 			msg.reply(reply + '\n```');
 			msg.channel.stopTyping();
