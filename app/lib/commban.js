@@ -330,7 +330,7 @@ hook.Add('MembersInitialized', 'MemberCommandBans', function(members) {
 		}
 		
 		for (let i in cache.member) {
-			if (cache.member)
+			if (cache.member[i])
 				cache.member[i].ready = true;
 		}
 	});
