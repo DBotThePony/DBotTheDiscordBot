@@ -519,10 +519,15 @@ class RoleSQLCollection extends SQLCollectionBase {
 	}
 	
 	getInternalID(role) {
-		return role.id + '___' + role.guild.uid;
+		try {
+			return role.id + '___' + role.guild.uid;
+		} catch(err) {
+			return '-1_-1';
+		}
 	}
 	
 	onSplice(id, obj) {
+		if (!obj.guild) return; // Welcome to Discord.js
 		if (!this.mapped.has(Number(obj.guild.uid)))
 			this.mapped.set(Number(obj.guild.uid), []);
 		
@@ -550,6 +555,7 @@ class RoleSQLCollection extends SQLCollectionBase {
 	}
 	
 	mapEntryUpdate(obj, i) {
+		if (!obj.guild) return; // Welcome to Discord.js
 		if (!this.mapped.has(Number(obj.guild.uid)))
 			this.mapped.set(Number(obj.guild.uid), []);
 		
@@ -563,6 +569,7 @@ class RoleSQLCollection extends SQLCollectionBase {
 		let roleQuery = '';
 		
 		for (const [server, roles] of this.mapped) {
+			if (roles.length === 0) continue;
 			roleQuery += 'SELECT get_roles_id(' + server + ',' + sql.Array(roles) + '::VARCHAR(64)[]) AS "RESULT";';
 		}
 		
