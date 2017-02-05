@@ -182,20 +182,39 @@ DBot.DefineServer = function(guild) {
 		hook.Run('ServerInitialized', guild, data[0].ID, false);
 		
 		let channelCollection = new sql.ChannelSQLCollection();
+		let rolesCollection = new sql.RoleSQLCollection();
+		let usersCollection = new sql.UserSQLCollection();
+		let membersCollection = new sql.MemberSQLCollection();
 		
-		for (const channel of guild.channels.array()) {
+		for (const channel of guild.channels.values()) {
 			channelCollection.push(channel);
 		}
 		
-		channelCollection.updateMap();
+		for (const role of guild.roles.values()) {
+			rolesCollection.push(role);
+		}
 		
-		guild.roles.array().forEach(DBot.DefineRole);
+		for (const member of guild.members.values()) {
+			usersCollection.push(member.user);
+			membersCollection.push(member);
+		}
+		
+		channelCollection.updateMap();
+		channelCollection.load(() => hook.Run('MultiChannelsInitialized', channelCollection));
+		
+		rolesCollection.updateMap();
+		rolesCollection.load(() => hook.Run('MultiRolesInitialized', rolesCollection));
+		
+		usersCollection.updateMap();
+		usersCollection.load(function() {
+			hook.Run('MultiUsersInitialized', usersCollection);
+			
+			membersCollection.updateMap();
+			membersCollection.load(() => {
+				hook.Run('MultiMembersInitialized', membersCollection);
+			});
+		});
 	});
-	
-	for (let member of guild.members.values()) {
-		DBot.DefineUser(member.user);
-		DBot.DefineMember(member);
-	}
 };
 
 DBot.DefineChannel = function(channel) {
@@ -228,19 +247,6 @@ DBot.DefineChannel = function(channel) {
 		DBot.ChannelIDs_R[data[0].ID] = channel;
 		hook.Run('ChannelInitialized', channel, data[0].ID, false);
 		channel.uid = data[0].ID;
-	});
-};
-
-DBot.DefineChannels = function(collection) {
-	if (!DBot.IsReady()) return;
-	
-	collection.cleanup();
-	collection.updateMap();
-	
-	Postgres.query(collection.buildIDsRequest(), function(err, data) {
-		if (err) throw err;
-		
-		
 	});
 };
 

@@ -185,9 +185,21 @@ class SQLCollectionBase {
 	
 	load(callback) {
 		this.cleanup();
-		let self = this;
 		
-		Postgres.query('SELECT ' + this.buildIDsRequest(), function(err, data) {
+		if (this.length === 0) {
+			if (callback) callback();
+			return;
+		};
+		
+		let self = this;
+		const build = this.buildIDsRequest();
+		
+		if (!build) {
+			if (callback) callback();
+			return;
+		};
+		
+		Postgres.query('SELECT ' + build, function(err, data) {
 			self.loadCallback(err, data, callback);
 		});
 	}
