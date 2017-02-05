@@ -73,6 +73,7 @@ sql.Array = function(arr) {
 	let first = true;
 	
 	for (let obj of arr) {
+		if (obj === undefined) continue; // what
 		if (first) {
 			first = false;
 			output += Util.escape(obj);
@@ -89,6 +90,7 @@ sql.UArray = function(arr) {
 	let first = true;
 	
 	for (let obj of arr) {
+		if (obj === undefined) continue; // what
 		if (first) {
 			first = false;
 			output += obj;
@@ -105,6 +107,7 @@ sql.Concat = function() {
 	let first = true;
 	
 	for (let obj of arguments) {
+		if (obj === undefined) continue; // what
 		if (first) {
 			first = false;
 			output += Util.escape(obj);
@@ -121,6 +124,7 @@ sql.UConcat = function() {
 	let first = true;
 	
 	for (let obj of arguments) {
+		if (obj === undefined) continue; // what
 		if (first) {
 			first = false;
 			output += obj;

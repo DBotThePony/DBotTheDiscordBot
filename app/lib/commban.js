@@ -81,7 +81,7 @@ class CommandBanClass {
 	fetch() {
 		let self = this;
 		
-		MySQL.query('SELECT "COMMAND" FROM command_bans_' + this.realm + ' WHERE "UID" = ' + this.uid, function(err, data) {
+		MySQL.query('SELECT "COMMAND" FROM command_bans_' + this.realm + ' WHERE "UID" = \'' + this.uid + '\'', function(err, data) {
 			if (err) throw err;
 			
 			for (let i in data) {
@@ -258,6 +258,16 @@ let addMethods = function(obj) {
 	
 	return obj;
 }
+
+hook.Add('MembersFetched', 'MemberCommandBans', function(members, server, oldHashMap) {
+	for (const member of members) {
+		addMethods(member);
+		const getMember = oldHashMap.get(member.id);
+		if (!getMember) continue;
+		member.totalMute = getMember.totalMute;
+		member.channelBans = getMember.channelBans;
+	}
+});
 
 hook.Add('MemberInitialized', 'MemberCommandBans', function(obj) {
 	addMethods(obj);

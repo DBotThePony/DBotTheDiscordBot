@@ -775,7 +775,7 @@ hook.Add('ValidClientAvaliable', 'ModerationCommands', function(user, server, me
 	});
 });
 
-hook.Add('MemberInitialized', 'ModerationCommands', function(member) {
+hook.Add('MemberInitialized', 'ModerationCommands', function(member, uid, isCascade) {
 	if (!INIT)
 		return;
 	
@@ -808,6 +808,10 @@ hook.Add('MemberInitialized', 'ModerationCommands', function(member) {
 
 hook.Add('UpdateLoadingLevel', 'ModerationCommands', function(callFunc) {
 	callFunc(true, 2);
+});
+
+hook.Add('CopyMemberProperties', 'ModerationCommands', function(oldMember, member) {
+	member.offs = oldMember.offs;
 });
 
 hook.Add('MembersInitialized', 'ModerationCommands', function() {

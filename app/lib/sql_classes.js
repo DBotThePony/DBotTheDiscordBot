@@ -95,6 +95,8 @@ class SQLCollectionBase {
 		
 		for (const i in this.objects) {
 			const obj = this.objects[i];
+			const can = this.mapEntryUpdate(obj, i);
+			if (can === false) continue;
 			this.ids[i] = obj.id;
 			
 			this.ids_mapped.set(obj.id, obj);
@@ -106,7 +108,7 @@ class SQLCollectionBase {
 				this.uidMap[i] = undefined;
 			}
 			
-			this.mapEntryUpdate(obj, i);
+			
 		}
 	}
 	
@@ -175,6 +177,7 @@ class SQLCollectionBase {
 	}
 	
 	cleanup() {
+		if (this.forceFetch) return;
 		let toSweep = [];
 		
 		for (const i in this.objects)
@@ -191,14 +194,13 @@ class SQLCollectionBase {
 		if (err) throw err;
 
 		this.parseRows(data);
-		if (callback) callback(this);
 	}
 	
 	load(callback) {
 		this.cleanup();
 		
 		if (this.length === 0) {
-			if (callback) callback();
+			if (callback) callback(this);
 			return;
 		};
 		
@@ -206,12 +208,14 @@ class SQLCollectionBase {
 		const build = this.buildIDsRequest();
 		
 		if (!build) {
-			if (callback) callback();
+			if (callback) callback(self);
 			return;
 		};
 		
 		Postgres.query('SELECT ' + build, function(err, data) {
-			self.loadCallback(err, data, callback);
+			self.loadCallback(err, data);
+			
+			if (callback) callback(self);
 		});
 	}
 	
@@ -416,6 +420,7 @@ class MemberSQLCollection extends SQLCollectionBase {
 	}
 	
 	mapEntryUpdate(obj, i) {
+		if (!obj.guild || !obj.user) return false;
 		this.serveruids[i] = obj.guild.uid;
 		this.users_ids[i] = obj.user.uid;
 		this.members_map.set(this.getInternalID(obj), obj);
@@ -447,15 +452,19 @@ class MemberSQLCollection extends SQLCollectionBase {
 	}
 	
 	isRubbish(obj) {
-		let id = obj.id;
+		try {
+			if (DBot.MemberIDs[obj.user.id] === undefined)
+				DBot.MemberIDs[obj.user.id] = {};
 
-		DBot.MemberIDs[obj.user.id] = DBot.MemberIDs[obj.user.id] || {};
-		if (DBot.MemberIDs[obj.user.id][obj.guild.id]) {
-			obj.uid = DBot.MemberIDs[obj.user.id][obj.guild.id];
-			return true;
+			if (DBot.MemberIDs[obj.user.id][obj.guild.id]) {
+				obj.uid = DBot.MemberIDs[obj.user.id][obj.guild.id];
+				return true;
+			}
+
+			return false;
+		} catch(err) {
+			return false;
 		}
-		
-		return false;
 	}
 	
 	parseRow(row, isCascade) {

@@ -147,8 +147,17 @@ hook.Add('ChannelsInitialized', 'Postgres.Saves', function(channels) {
 
 sql.fetchMembers = function(server) {
 	massiveMemberLoad = true;
+	
+	let hashMap = new Map();
+	
+	for (const member of server.members.values()) {
+		hashMap.set(member.id, member);
+	}
+	
+	hook.Run('PreMembersFetch', server.members.array(), server, hashMap);
 
-	server.fetchMembers().then(function() {
+	server.fetchMembers()
+	.then(function() {
 		massiveMemberLoad = false;
 		let userCollection = new sql.MemberSQLCollection();
 		let collection = new sql.MemberSQLCollection();
@@ -161,10 +170,20 @@ sql.fetchMembers = function(server) {
 		userCollection.cleanup();
 		userCollection.updateMap();
 		userCollection.load(function() {
-			collection.cleanup();
-			collection.updateMap();
-			collection.load();
+			collection.load(function() {
+				for (const member of server.members.array()) {
+					const getMember = hashMap.get(member.id);
+					if (!getMember) continue;
+					member.uid = getMember.uid;
+					hook.Run('CopyMemberProperties', getMember, member);
+				}
+				
+				collection.updateMap();
+				hook.Run('MembersFetched', server.members.array(), server, hashMap, collection);
+			});
 		});
+	}).catch(function(err) {
+		console.error(err);
 	});
 };
 
