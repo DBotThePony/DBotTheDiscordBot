@@ -1,10 +1,10 @@
 
 /* global Util, DBot, hook, Postgres */
 
-const fs = require('fs');
-const child_process = require('child_process');
+const fs = DBot.js.fs;
+const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
-const os = require('os');
+const os = DBot.js.os;
 
 Util.mkdir(DBot.WebRoot + '/imtmp', function() {
 	Util.truncate(DBot.WebRoot + '/imtmp');

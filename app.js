@@ -68,6 +68,7 @@ DBot.js.numeral = require('numeral');
 DBot.js.url = require('url');
 DBot.js.crypto = require('crypto');
 DBot.js.hDuration = require('humanize-duration');
+DBot.js.os = require('os');
 DBot.js.Discord = Discord;
 DBot.js.sprintf = sprintf;
 
