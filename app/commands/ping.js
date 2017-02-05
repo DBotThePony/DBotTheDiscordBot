@@ -13,7 +13,10 @@ module.exports = {
 			let newTime = CurTime();
 			let delta = newTime - stamp;
 			
-			nmsg.edit('It takes me ' + Math.floor(delta * 1000) + ' milliseconds to post a message!');
+			if (cmd)
+				nmsg.edit('It takes me ' + Math.floor(delta * 1000) + ' milliseconds to ping **' + cmd + '**');
+			else
+				nmsg.edit('It takes me ' + Math.floor(delta * 1000) + ' milliseconds to post a message!');
 		});
 	},
 }
