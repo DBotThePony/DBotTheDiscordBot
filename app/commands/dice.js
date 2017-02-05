@@ -296,49 +296,41 @@ DBot.RegisterCommand({
 	delay: 5,
 	
 	func: function(args, cmd, msg) {
-		let url = DBot.CombinedURL(args[0], msg.channel);
+		const url = DBot.CombinedURL(args[0], msg.channel);
 		
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'multi', args, 1);
 		
-		let hash = DBot.HashString(CurTime() + '_' + msg.channel.id);
+		const hash = DBot.HashString(CurTime() + '_' + msg.channel.id);
 		let fPath;
 		
-		let fPathProcessed = DBot.WebRoot + '/multi/' + hash + '.png';
-		let fPathProcessedURL = DBot.URLRoot + '/multi/' + hash + '.png';
+		const fPathProcessed = DBot.WebRoot + '/multi/' + hash + '.png';
+		const fPathProcessedURL = DBot.URLRoot + '/multi/' + hash + '.png';
 		
 		msg.channel.startTyping();
 		
 		let ContinueFunc = function() {
-			if (err) {
-				msg.channel.stopTyping();
-				console.error(err);
-				msg.reply('*falls on the ground and squeaks*');
-				return;
-			}
+			let magikArgs = ['-background', 'none',
+				'-tile', '20x20',
+				'-geometry', '+0+0',
+				'(',
+					'-size', '100x100',
+					'xc:black',
+					'-gravity', 'center',
+					fPath,
+					'-resize', '100x100',
+					
+					'-compose', 'srcover',
+					'-composite',
+				')'
+			];
 			
-			let size = Math.min(Math.ceil(width * .1), Math.ceil(height * .1));
-			
-			let fragmentsW = Math.ceil(width / size);
-			let fragmentsH = Math.ceil(height / size);
-			let total = fragmentsW * fragmentsH;
-			let left = [];
-			
-			for (let i = 0; i < total; i++)
-				left.push(i);
-			
-			let magikArgs = ['-background', 'none', '-tile', fragmentsW + 'x' + fragmentsH, '-geometry', '+0+0', '(', fPath, '-resize', '500x500>', ')'];
-			
-			for (let i = 0; i < total; i++) {
-				let r = Util.Random(0, left.length - 1);
-				let slice = left[r];
-				left.splice(r, 1);
-				
+			for (let i = 0; i <= 400; i++) {
 				let rand = Util.Random(-2, 2);
 				magikArgs.push('(', '-clone', '0', '-rotate', rand * 90, ')')
 			}
 			
-			magikArgs.push('-delete', '0', fPathProcessed);
+			magikArgs.push('-delete', '0', '-delete', '0', fPathProcessed);
 			let magik = spawn('montage', magikArgs);
 			
 			Util.Redirect(magik);
