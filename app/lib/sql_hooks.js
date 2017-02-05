@@ -1,5 +1,7 @@
 
-/* global DBot, hook, Postgres, Util */
+/* global DBot, hook, Postgres, Util, sql */
+
+let massiveMemberLoad = false;
 
 hook.Add('ValidClientLeftServer', 'Postgres.Handlers', function(user, server) {
 	let id = user.id;
@@ -36,6 +38,7 @@ hook.Add('ValidClientJoinsServer', 'Postgres.Handlers', function(user, server, m
 });
 
 hook.Add('ValidClientAvaliable', 'Postgres.Handlers', function(user, server, member) {
+	if (massiveMemberLoad) return;
 	DBot.DefineUser(user);
 	DBot.DefineMember(member);
 });
@@ -142,6 +145,29 @@ hook.Add('ChannelsInitialized', 'Postgres.Saves', function(channels) {
 	});
 });
 
+sql.fetchMembers = function(server) {
+	massiveMemberLoad = true;
+
+	server.fetchMembers().then(function() {
+		massiveMemberLoad = false;
+		let userCollection = new sql.MemberSQLCollection();
+		let collection = new sql.MemberSQLCollection();
+
+		for (const member of server.members.values()) {
+			collection.push(member);
+			userCollection.push(member.user);
+		}
+
+		userCollection.cleanup();
+		userCollection.updateMap();
+		userCollection.load(function() {
+			collection.cleanup();
+			collection.updateMap();
+			collection.load();
+		});
+	});
+};
+
 hook.Add('CheckValidMessage', 'Postgres.Checker', function(msg) {
 	if (!DBot.IsReady()) return true;
 	if (!DBot.UserIsInitialized(msg.author)) {
@@ -157,8 +183,8 @@ hook.Add('CheckValidMessage', 'Postgres.Checker', function(msg) {
 			DBot.DefineChannel(msg.channel);
 			return true;
 		} else if (!msg.member) { // wtf
-			msg.channel.guild.fetchMembers();
-			console.error('Unexpected, server ' + msg.channel.guild.name + ' have null member!');
+			sql.fetchMembers(msg.channel.guild);
+			console.error('Unexpected, server ' + msg.channel.guild.name + ' has null member! Fetching...');
 			return true;
 		} else if (!msg.member.uid) {
 			DBot.DefineMember(msg.member);

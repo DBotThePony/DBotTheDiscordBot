@@ -1,5 +1,5 @@
 
-/* global DBot, Postgres, hook, sql, Symbol */
+/* global DBot, Postgres, hook, sql, Symbol, Map */
 
 const iterableFuncitonCollection = function* () {
 	for (const obj of this.objects) {
@@ -20,6 +20,17 @@ class SQLCollectionBase {
 		this.ids_array = null;
 		this.uids_array_base = null;
 		this[Symbol.iterator] = iterableFuncitonCollection;
+	}
+	
+	static from(obj) {
+		let newObj = new MemberSQLCollection();
+		
+		if (Array.isArray(obj))
+			for (const o of obj)
+				this.push(o);
+		else if (obj instanceof Map)
+			for (const o of obj.values())
+				this.push(o);
 	}
 	
 	push() {
@@ -450,18 +461,23 @@ class MemberSQLCollection extends SQLCollectionBase {
 	parseRow(row, isCascade) {
 		const exp = row.RESULT.split(',');
 		const id = Number(exp[0].substr(1));
-		const userid = Number(exp[1]);
-		const serverid = Number(exp[2].substr(0, exp[2].length - 1));
+		const userid = exp[1];
+		const serverid = exp[2].substr(0, exp[2].length - 1);
 		
-		const server = DBot.GetServer(serverid);
-		const member = this.getMemberHash(userid + '___' + serverid);
-		if (!member) return;
-		if (!server) return;
+		let member = this.getMemberHash(userid + '___' + serverid);
+		
+		if (!member) {
+			const server = DBot.GetServer(serverid);
+			const user = DBot.GetUser(userid);
+			member = server.member(user);
+			
+			if (!member) return; // what the fuck
+		}
 		
 		member.uid = id;
 		
 		DBot.MemberIDs[member.user.id] = DBot.MemberIDs[member.user.id] || {};
-		DBot.MemberIDs[member.user.id][server.id] = id;
+		DBot.MemberIDs[member.user.id][member.guild.id] = id;
 		sql.MembersTable[id] = member;
 		
 		hook.Run('MemberInitialized', member, member.uid, isCascade);

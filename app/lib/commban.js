@@ -367,6 +367,11 @@ hook.Add('CanReply', 'MemberCommandBans', function(msg) {
 	if (member.totalMute)
 		return false;
 	
+	if (!member.channelBans) {
+		addMethods(member);
+		console.error('Member ' + member.user.username + ' on server ' + member.guild.name + ' has missing methods');
+	}
+	
 	if (member.channelBans.includes(cid))
 		return false;
 });
