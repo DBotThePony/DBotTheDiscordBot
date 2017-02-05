@@ -374,7 +374,11 @@ class MemberSQLCollection extends SQLCollectionBase {
 	}
 	
 	getInternalID(member) {
-		return member.user.uid + '___' + member.guild.uid;
+		try {
+			return member.user.uid + '___' + member.guild.uid;
+		} catch(err) {
+			return '-1_-1';
+		}
 	}
 	
 	onSplice(id, obj) {
