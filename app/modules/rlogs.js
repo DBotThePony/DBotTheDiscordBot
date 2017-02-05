@@ -72,7 +72,7 @@ hook.Add('UpdateLoadingLevel', 'RoleLogs', function(callFunc) {
 });
 
 hook.Add('RoleInitialized', 'RoleLogs', updateRoleRules);
-hook.Add('RolesInitialized', 'RoleLogs', function(role_map, role_array, role_array_ids, roleHashMap, role_array_uids) {
+hook.Add('RolesInitialized', 'RoleLogs', function(roleCollection) {
 	INIT = true;
 	
 	let q = 'SELECT\
@@ -84,7 +84,7 @@ hook.Add('RolesInitialized', 'RoleLogs', function(role_map, role_array, role_arr
 		"users",\
 		"members"\
 	WHERE\
-		"member_roles"."ROLE" = ANY (' + sql.Array(role_array_uids) + '::INTEGER[]) AND\
+		"member_roles"."ROLE" = ANY (' + roleCollection.getUIDsArray() + '::INTEGER[]) AND\
 		"members"."ID" = "member_roles"."MEMBER" AND\
 		"users"."ID" = "members"."USER"\
 	GROUP BY\
@@ -97,7 +97,7 @@ hook.Add('RolesInitialized', 'RoleLogs', function(role_map, role_array, role_arr
 		let cTime = Util.escape(Math.floor(CurTime()));
 		
 		for (let row of data) {
-			let role = roleHashMap[row.ROLE];
+			let role = roleCollection.getByUID(row.ROLE);
 			let usersArray = row.USER.split(',');
 			let membersIDArray = row.MEMBER.split(',');
 			

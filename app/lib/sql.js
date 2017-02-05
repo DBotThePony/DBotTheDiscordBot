@@ -1,148 +1,10 @@
 
-/* global hook, DBot, sql, Util, Symbol */
+/* global hook, DBot, sql, Util, Symbol, Postgres, Postgres */
 
-const fs = require('fs');
-const pg = require('pg');
+const fs = DBot.js.fs;
 
-const pgConfig = {
-	user: DBot.cfg.sql_user,
-	database: DBot.cfg.sql_database,
-	password: DBot.cfg.sql_password,
-	host: DBot.cfg.sql_hostname,
-	port: DBot.cfg.sql_port
-};
-
-let pgConnection = new pg.Client(pgConfig);
-
-MySQL = pgConnection;
-MySQLM = pgConnection;
-
-DBot.MySQL = MySQL;
-DBot.MySQLM = MySQLM;
-
-PG = pgConnection;
-Postgre = pgConnection;
-Postgres = pgConnection;
-DBot.PG = pgConnection;
-DBot.Postgre = pgConnection;
-DBot.Postgres = pgConnection;
-
-let sqlPg = fs.readFileSync('./app/postgres.sql', 'utf8').replace(/\r/gi, '');
-
-pgConnection.oldQuery = pgConnection.query;
-
-pgConnection.query = function(query, callback) {
-	let oldStack = new Error().stack;
-	
-	// if (query.length < 100) console.log(query); // To trackdown small queries on startup
-	
-	pgConnection.oldQuery(query, function(err, data) {
-		let newErrorMessage;
-		
-		if (err) {
-			newErrorMessage = 'QUERY: ' + (err.internalQuery || query) + '\nERROR: ' + err.message;
-			
-			if (err.hint)
-				newErrorMessage += '\nHINT: ' + err.hint;
-			
-			if (err.detail)
-				newErrorMessage += '\n' + err.hint;
-			
-			newErrorMessage += '\n' + oldStack;
-			err.stack = newErrorMessage;
-			
-			if (!callback) throw err;
-		}
-		
-		if (callback) {
-			try {
-				let obj = {};
-				let cID = 0;
-				let amountOfRows = 0;
-				
-				if (data) {
-					amountOfRows = data.rows.length;
-					
-					for (let row of data.rows) {
-						obj[cID] = row;
-						cID++;
-					}
-				}
-				
-				obj[Symbol.iterator] = function* () {
-					for (let i = 0; i < amountOfRows; i++) {
-						yield data.rows[i];
-					}
-				};
-				
-				callback(err, obj, data);
-			} catch(newErr) {
-				let e = new Error(newErr);
-				e.stack = newErr.stack + '\n ------- \n' + oldStack.substr(6);
-				throw e; // Rethrow
-			}
-		}
-	});
-};
-
-pgConnection.connect(function(err) {
-	if (err) throw err;
-	
-	pgConnection.query(sqlPg, function(err) {
-		if (err) throw err;
-		
-		let db_rev = 0;
-		let last_rev = DBot.fs.readdirSync('./app/dbrevisions/').length;
-		
-		pgConnection.query('SELECT "VALUE" FROM db_info WHERE "KEY" = \'version\'', function(err, data) {
-			if (err) throw err;
-			if (data[0])
-				db_rev = Number(data[0].VALUE);
-			else
-				pgConnection.query('INSERT INTO db_info VALUES (\'version\', \'' + last_rev + '\')');
-			
-			if (db_rev >= last_rev)
-				hook.Run('SQLInitialize');
-			else {
-				console.log('Upgrading database, please wait...');
-				
-				let callbackFuncs = [];
-				let current = 0;
-				
-				let usualCallback = function(err) {
-					if (err) {
-						console.error('There is a problem with upgrading database');
-						throw err;
-					}
-					
-					current++;
-					if (!callbackFuncs[current])
-						return;
-					
-					callbackFuncs[current]();
-				};
-				
-				for (let i = db_rev + 1; i <= last_rev; i++) {
-					callbackFuncs.push(function(err) {
-						console.log((i - 1) + '->' + i);
-						let contents = DBot.fs.readFileSync('./app/dbrevisions/' + i + '.sql', 'utf8');
-						pgConnection.query(contents, usualCallback);
-					});
-				}
-				
-				callbackFuncs.push(function() {
-					pgConnection.query('UPDATE db_info SET "VALUE" = \'' + last_rev + '\' WHERE "KEY" = \'version\';', function() {
-						console.log('Upgrade complete.');
-						hook.Run('SQLInitialize');
-					});
-				});
-				
-				callbackFuncs[0]();
-			}
-		});
-	});
-});
-
+sql = {};
+DBot.sql = sql;
 DBot.ChannelIDs = {};
 DBot.ServersIDs = {};
 DBot.UsersIDs = {};
@@ -153,548 +15,14 @@ DBot.ServersIDs_R = {};
 DBot.UsersIDs_R = {};
 DBot.MemberIDs_R = {};
 
-hook.Add('ValidClientLeftServer', 'MySQL.Handlers', function(user, server) {
-	let id = user.id;
-	if (!DBot.UserIsGarbage(id))
-		return;
-	
-	hook.Run('PreDeleteUser', user);
-	DBot.UsersIDs_R[DBot.UsersIDs[id]] = undefined;
-	DBot.UsersIDs[id] = undefined;
-	hook.Run('PostDeleteUser', user);
-});
-
-hook.Add('OnJoinedServer', 'MySQL.Handlers', function(server) {
-	DBot.DefineGuild(server);
-});
-
-hook.Add('ChannelCreated', 'MySQL.Handlers', function(channel) {
-	if (!channel.guild)
-		return;
-	
-	if (channel.type === 'dm')
-		return;
-	
-	// Channel in a new server
-	if (!DBot.ServersIDs[channel.guild.id])
-		return;
-	
-	DBot.DefineChannel(channel);
-});
-
-hook.Add('ValidClientJoinsServer', 'MySQL.Handlers', function(user, server, member) {
-	DBot.DefineUser(user);
-	DBot.DefineMember(member);
-});
-
-hook.Add('ValidClientAvaliable', 'MySQL.Handlers', function(user, server, member) {
-	DBot.DefineUser(user);
-	DBot.DefineMember(member);
-});
-
-let ChannelDeleted = function(channel) {
-	hook.Run('PreDeleteChannel', channel);
-	DBot.ChannelIDs_R[DBot.ChannelIDs[channel.id]] = undefined;
-	DBot.ChannelIDs[channel.id] = undefined;
-	hook.Run('PostDeleteChannel', channel);
-};
-
-hook.Add('ChannelDeleted', 'MySQL.Handlers', ChannelDeleted);
-
-hook.Add('OnLeftServer', 'MySQL.Handlers', function(server) {
-	server.channels.array().forEach(ChannelDeleted);
-	
-	hook.Run('PreDeleteServer', server);
-	DBot.ServersIDs_R[DBot.ServersIDs[server.id]] = undefined;
-	DBot.ServersIDs[server.id] = undefined;
-	hook.Run('PostDeleteServer', server);
-});
-
-DBot.GetMemberID = function(obj) {
-	let id = obj.uid;
-	
-	if (!id) {
-		if (!DBot.MemberIDs[obj.user.id] || !DBot.MemberIDs[obj.user.id][obj.guild.id]) {
-			DBot.DefineMember(obj);
-			throw new Error('Initialize member first (' + (obj && (obj.nickname || obj.user.username) || 'null') + ')');
-		}
-		
-		obj.uid = DBot.MemberIDs[obj.user.id][obj.guild.id];
-		return DBot.MemberIDs[obj.user.id][obj.guild.id];
-	}
-	
-	return id;
-};
-
-DBot.GetUserID = function(obj) {
-	let id = obj.id;
-	
-	if (!DBot.UsersIDs[id]) {
-		DBot.DefineUser(obj);
-		throw new Error('Initialize user first (' + (obj && obj.username || 'null') + ')');
-	}
-	
-	obj.uid = DBot.UsersIDs[id];
-	return DBot.UsersIDs[id];
-};
-
-DBot.GetChannelID = function(obj) {
-	let id = obj.id;
-	
-	if (!DBot.ChannelIDs[id]) {
-		DBot.DefineChannel(obj);
-		throw new Error('Initialize channel first (' + (obj && obj.name || 'null') + ')');
-	}
-	
-	obj.uid = DBot.ChannelIDs[id];
-	return DBot.ChannelIDs[id];
-};
-
-DBot.GetServerID = function(obj) {
-	let id = obj.id;
-	
-	if (!DBot.ServersIDs[id]) {
-		DBot.DefineServer(obj);
-		throw new Error('Initialize server first (' + (obj && obj.name || 'null') + ')');
-	}
-	
-	obj.uid = DBot.ServersIDs[id];
-	return DBot.ServersIDs[id];
-};
-
-DBot.GetMemberIDSoft = function(obj) {
-	let id = obj.uid;
-	
-	if (!id) {
-		if (!DBot.MemberIDs[obj.user.id] || !DBot.MemberIDs[obj.user.id][obj.guild.id]) {
-			DBot.DefineMember(obj);
-			return false;
-		}
-		
-		obj.uid = DBot.MemberIDs[obj.user.id][obj.guild.id];
-		return DBot.MemberIDs[obj.user.id][obj.guild.id];
-	}
-	
-	return id;
-};
-
-DBot.GetUserIDSoft = function(obj) {
-	let id = obj.id;
-	
-	if (!DBot.UsersIDs[id]) {
-		DBot.DefineUser(obj);
-		return false;
-	}
-	
-	obj.uid = DBot.UsersIDs[id];
-	return DBot.UsersIDs[id];
-};
-
-DBot.GetChannelIDSoft = function(obj) {
-	let id = obj.id;
-	
-	if (!DBot.ChannelIDs[id]) {
-		DBot.DefineChannel(obj);
-		return false;
-	}
-	
-	obj.uid = DBot.ChannelIDs[id];
-	return DBot.ChannelIDs[id];
-};
-
-DBot.GetServerIDSoft = function(obj) {
-	let id = obj.id;
-	
-	if (!DBot.ServersIDs[id]) {
-		DBot.DefineServer(obj);
-		return false;
-	}
-	
-	return DBot.ServersIDs[id];
-};
-
-DBot.UserIsInitialized = function(obj) {
-	return DBot.UsersIDs[obj.id] !== undefined;
-};
-
-DBot.ChannelIsInitialized = function(obj) {
-	return DBot.ChannelIDs[obj.id] !== undefined;
-};
-
-DBot.ServerIsInitialized = function(obj) {
-	return DBot.ServersIDs[obj.id] !== undefined;
-};
-
-hook.Add('CheckValidMessage', 'MySQL.Checker', function(msg) {
-	if (!DBot.IsReady()) return true;
-	if (!DBot.UserIsInitialized(msg.author)) {
-		DBot.DefineUser(msg.author);
-		return true;
-	}
-	
-	if (!DBot.IsPM(msg)) {
-		if (!DBot.ServerIsInitialized(msg.channel.guild)) {
-			DBot.DefineServer(msg.channel.guild);
-			return true;
-		} else if (!DBot.ChannelIsInitialized(msg.channel)) {
-			DBot.DefineChannel(msg.channel);
-			return true;
-		} else if (!msg.member) { // wtf
-			msg.channel.guild.fetchMembers();
-			console.error('Unexpected, server ' + msg.channel.guild.name + ' have null member!');
-			return true;
-		} else if (!msg.member.uid) {
-			DBot.DefineMember(msg.member);
-			return true;
-		}
-	}
-});
-
-DBot.GetUser = function(id) {
-	if (!DBot.UsersIDs_R[id])
-		return false;
-	
-	return DBot.UsersIDs_R[id];
-};
-
-DBot.GetChannel = function(id) {
-	if (!DBot.ChannelIDs_R[id])
-		return false;
-	
-	return DBot.ChannelIDs_R[id];
-};
-
-DBot.GetServer = function(id) {
-	if (!DBot.ServersIDs_R[id])
-		return false;
-	
-	return DBot.ServersIDs_R[id];
-};
-
-let LoadingUser = {};
-
-DBot.DefineUser = function(user) {
-	if (!DBot.IsReady()) return;
-	let id = user.id;
-	
-	if (LoadingUser[id])
-		return;
-	
-	if (DBot.UsersIDs[id]) {
-		user.uid = DBot.UsersIDs[id];
-		return;
-	}
-	
-	LoadingUser[id] = true;
-	
-	MySQL.query('SELECT ' + sql.User(user) + ' AS "ID"', function(err, data) {
-		if (err) throw err;
-		DBot.UsersIDs[id] = data[0].ID;
-		DBot.UsersIDs_R[data[0].ID] = user;
-		LoadingUser[id] = undefined;
-		user.uid = data[0].ID;
-		hook.Run('UserInitialized', user, data[0].ID, false);
-		hook.Run('ClientInitialized', user, data[0].ID, false);
-	});
-};
-
-let updateLastSeenFunc = function(callback, force) {
-	if (!DBot.SQLReady() && !force) return;
-	let build = [];
-	
-	for (let uid in DBot.UsersIDs_R)
-		build.push(uid);
-	
-	let buildServers = [];
-	let buildChannels = [];
-	let buildMembers = [];
-	
-	for (let server of DBot.GetServers()) {
-		let uid = DBot.GetServerIDSoft(server);
-		
-		if (!uid) continue;
-		
-		buildServers.push(uid);
-		
-		for (let channel of server.channels.array()) {
-			let uid = DBot.GetChannelIDSoft(channel);
-			if (!uid) continue;
-			buildChannels.push(uid);
-		}
-		
-		for (let member of server.members.array()) {
-			let uid = DBot.GetMemberIDSoft(member);
-			if (!uid) continue;
-			buildMembers.push(uid);
-		}
-	}
-	
-	let cTime = Math.floor(CurTime());
-	
-	let finalQuery = 'UPDATE users SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + build.join(',') + ');';
-	
-	if (buildServers)
-		finalQuery += 'UPDATE servers SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + buildServers.join(',') + ');';
-	
-	if (buildChannels)
-		finalQuery += 'UPDATE channels SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + buildChannels.join(',') + ');';
-	
-	if (buildMembers)
-		finalQuery += 'UPDATE members SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + buildMembers.join(',') + ');';
-	
-	Postgre.query(finalQuery, callback);
-};
-
-setInterval(updateLastSeenFunc, 60000);
-
-DBot.DefineChannel = function(channel) {
-	if (!DBot.IsReady()) return;
-	
-	let id = channel.id;
-	
-	if (DBot.ChannelIDs[id]) {
-		channel.uid = DBot.ChannelIDs[id];
-		return;
-	}
-	
-	// PM
-	if (!channel.guild)
-		return;
-	
-	if (channel.type === 'dm') {
-		console.trace('Tried to define channel ID when it is PM!');
-		return;
-	}
-	
-	let serverID = DBot.ServersIDs[channel.guild.id];
-	
-	if (!serverID)
-		throw 'Server ID was never defined';
-	
-	MySQL.query('SELECT ' + sql.Channel(channel) + ' AS "ID"', function(err, data) {
-		if (err) throw err;
-		DBot.ChannelIDs[id] = data[0].ID;
-		DBot.ChannelIDs_R[data[0].ID] = channel;
-		hook.Run('ChannelInitialized', channel, data[0].ID, false);
-		channel.uid = data[0].ID;
-	});
-};
-
-let updateRole = function(role) {
-	let perms = role.serialize();
-	let arr = [];
-	
-	for (let name in perms) {
-		if (perms[name])
-			arr.push(name);
-	}
-	
-	let arr2 = sql.Array(arr) + '::discord_permission[]';
-	
-	let col = Util.parseHexColor(role.hexColor);
-	let colStr = '(' + col[0] + ',' + col[1] + ',' + col[2] + ')';
-	
-	Postgres.query('UPDATE roles SET "NAME" = ' + Util.escape(role.name) + ', "PERMS" = ' + arr2 + ', "COLOR_R" = ' + colStr + ', "HOIST" = ' + Util.escape(role.hoist) + ', "POSITION" = ' + Util.escape(role.position) + ', "MENTION" = ' + Util.escape(role.mentionable) + ' WHERE "ID" = ' + role.uid + ';');
-};
-
-let updateRoles = function(roles) {
-	let namesQuery;
-	let optionsQuery;
-	let permsQuery;
-	
-	let rolesDup = {};
-	
-	let finalQuery = '';
-	
-	for (let role of roles) {
-		if (rolesDup[role.uid])
-			return;
-		
-		rolesDup[role.uid] = true;
-		
-		let perms = role.serialize();
-		let arr = [];
-		
-		for (let name in perms) {
-			if (perms[name])
-				arr.push(name);
-		}
-		
-		let arr2 = sql.Array(arr) + '::discord_permission[]';
-		
-		let col = Util.parseHexColor(role.hexColor);
-		let colStr = '(' + col[0] + ',' + col[1] + ',' + col[2] + ')';
-		
-		if (finalQuery)
-			finalQuery += ',';
-		else
-			finalQuery = '';
-		
-		finalQuery += '(' + role.uid + ',' + Util.escape(role.name) + ',' + colStr + '::rgb_color,' + Util.escape(role.hoist) + ',' + Util.escape(role.position) + ',' + Util.escape(role.mentionable) + ',' + arr2 + ')';
-	}
-	
-	Postgres.query('UPDATE roles SET "NAME" = m."NAME", "PERMS" = m."PERMS", "COLOR_R" = m."COLOR_R", "HOIST" = m."HOIST", "POSITION" = m."POSITION", "MENTION" = m."MENTION" FROM (VALUES ' + finalQuery + ') AS m ("ID", "NAME", "COLOR_R", "HOIST", "POSITION", "MENTION", "PERMS") WHERE roles."ID" = m."ID";');
-};
-
-DBot.DefineRole = function(role, callback) {
-	if (!DBot.IsReady()) return;
-	MySQL.query('SELECT ' + sql.Role(role) + ' AS "ID"', function(err, data) {
-		if (err) throw err;
-		role.uid = data[0].ID;
-		updateRole(role);
-		hook.Run('RoleInitialized', role, role.uid, false);
-		
-		if (typeof callback === 'function')
-			callback(role, data[0].ID);
-	});
-};
-
-hook.Add('RoleChanged', 'MySQL.Handlers', function(oldRole, newRole) {
-	if (!DBot.IsReady()) return;
-	if (!oldRole.guild.uid)
-		return;
-	
-	newRole.uid = newRole.uid || oldRole.uid;
-	
-	if (!newRole.uid) {
-		DBot.DefineRole(newRole);
-		return;
-	}
-	
-	updateRole(newRole);
-});
-
-let MembersTable = {};
-
-DBot.GetMember = function(ID) {
-	return MembersTable[ID] || null;
-};
-
-DBot.DefineMember = function(obj) {
-	if (!DBot.IsReady()) return;
-	if (obj.uid) return;
-	
-	if (DBot.MemberIDs[obj.user.id] && DBot.MemberIDs[obj.user.id][obj.guild.id]) {
-		obj.uid = DBot.MemberIDs[obj.user.id][obj.guild.id];
-		return;
-	}
-	
-	MySQL.query('SELECT ' + sql.Member(obj) + ' AS "ID"', function(err, data) {
-		if (err) throw err;
-		obj.uid = data[0].ID;
-		hook.Run('MemberInitialized', obj, obj.uid, false);
-		
-		MembersTable[obj.uid] = obj;
-	});
-};
-
-let alreadyDefining = {};
-
-DBot.DefineGuild = function(guild) {
-	let id = guild.id;
-	
-	if (alreadyDefining[id])
-		return;
-	
-	if (DBot.ServersIDs[id]) {
-		guild.uid = DBot.ServersIDs[id];
-		return;
-	}
-	
-	alreadyDefining[id] = true;
-	
-	MySQL.query('SELECT ' + sql.Server(guild) + ' AS "ID"', function(err, data) {
-		if (err) throw err;
-		
-		alreadyDefining[id] = undefined;
-		DBot.ServersIDs[id] = data[0].ID;
-		DBot.ServersIDs_R[data[0].ID] = guild;
-		guild.uid = data[0].ID;
-		
-		hook.Run('GuildInitialized', guild, data[0].ID, false);
-		hook.Run('ServerInitialized', guild, data[0].ID, false);
-		guild.channels.array().forEach(DBot.DefineChannel);
-		guild.roles.array().forEach(DBot.DefineRole);
-	});
-	
-	for (let member of guild.members.values()) {
-		DBot.DefineUser(member.user);
-		DBot.DefineMember(member);
-	}
-};
-
-hook.Add('ServerInitialized', 'MySQL.Saves', function(server, id, isCascade) {
-	if (!DBot.SQLReady()) return;
-	if (!server.name) return;
-	
-	MySQL.query('UPDATE servers SET "NAME" = ' + Util.escape(server.name) + ' WHERE "ID" = ' + id, function(err) {
-		if (!err)
-			return;
-		
-		console.error('Failed to save server name ' + id + ' (' + server.name + ')!');
-		console.error(err);
-	});
-});
-
-hook.Add('ServersInitialized', 'MySQL.Saves', function(servers) {
-	let finalQuery;
-	
-	for (let server of servers) {
-		if (!server.name) continue;
-		
-		if (finalQuery)
-			finalQuery += ',';
-		else
-			finalQuery = '';
-		
-		finalQuery += '(' + server.uid + ', ' + Util.escape(server.name) + ')';
-	}
-	
-	if (!finalQuery) return;
-	
-	MySQL.query('UPDATE servers SET "NAME" = m."NAME" FROM (VALUES ' + finalQuery + ') AS m ("ID", "NAME") WHERE servers."ID" = m."ID"', function(err) {
-		if (err) console.error(err);
-	});
-});
-
-hook.Add('ChannelInitialized', 'MySQL.Saves', function(channel, id, isCascade) {
-	if (!DBot.SQLReady()) return;
-	if (!channel.name) return;
-	
-	MySQL.query('UPDATE channels SET "NAME" = ' + Util.escape(channel.name) + ' WHERE "ID" = ' + id, function(err) {
-		if (!err)
-			return;
-		
-		console.error('Failed to save channel name ' + id + ' (' + channel.name + ')!');
-		console.error(err);
-	});
-});
-
-hook.Add('ChannelsInitialized', 'MySQL.Saves', function(channels) {
-	let finalQuery;
-	
-	for (let channel of channels) {
-		if (!channel.name) continue;
-		
-		if (finalQuery)
-			finalQuery += ',';
-		else
-			finalQuery = '';
-		
-		finalQuery += '(' + channel.uid + ', ' + Util.escape(channel.name) + ')';
-	}
-	
-	if (!finalQuery) return;
-	
-	MySQL.query('UPDATE channels SET "NAME" = m."NAME" FROM (VALUES ' + finalQuery + ') AS m ("ID", "NAME") WHERE channels."ID" = m."ID"', function(err) {
-		if (err) console.error(err);
-	});
-});
-
-DBot.DefineServer = DBot.DefineGuild;
+require('./sql_connection.js');
+require('./sql_functions.js');
+require('./sql_classes.js');
+require('./sql_helpers.js');
 
 DBot.LOADING_LEVEL = 0;
 DBot.SQL_START = false;
+DBot.maximalLoadingValue = 0;
 
 DBot.SQLReady = function() {
 	return DBot.LOADING_LEVEL <= 0 && DBot.SQL_START;
@@ -704,9 +32,7 @@ DBot.IsReady = function() {
 	return DBot.IsOnline() && DBot.LOADING_LEVEL <= 0 && DBot.SQL_START;
 };
 
-DBot.maximalLoadingValue = 0;
-
-let updateLoadingStatus = function() {
+const updateLoadingStatus = function() {
 	if (DBot.LOADING_LEVEL > 0)
 		DBot.Status('Loading, left [' + DBot.LOADING_LEVEL + '/' + DBot.maximalLoadingValue + '] stages');
 	else
@@ -727,43 +53,33 @@ DBot.updateLoadingLevel = function(type, times) {
 	updateLoadingStatus();
 };
 
-hook.Add('BotOnline', 'RegisterIDs', function(bot) {
+DBot.startSQL = function(bot) {
 	if (DBot.LOADING_LEVEL > 0)
 		return;
 	
 	DBot.SQL_START = true;
 	
-	let build = [];
-	let users = [];
+	let serversCollection = new sql.ServerSQLCollection();
+	let users = new sql.UserSQLCollection();
 	let users1 = {};
-	let members = [];
+	const servers = DBot.GetServers();
 	
-	let servers = DBot.GetServers();
-	let servers2 = bot.guilds;
-	
-	for (let server of servers) {
-		if (!server.id)
-			continue; // DiscordSocketTheBugFiner
+	for (const server of servers) {
+		if (!server.id) continue; // DiscordSocketTheBugFiner
 		
-		build.push(server.id);
+		serversCollection.push(server);
 		
 		for (let member of server.members.array()) {
-			// members.push(member);
-			if (!member.user.id)
-				continue; // DiscordSocketTheBugFiner
-			
+			if (!member.user.id) continue; // DiscordSocketTheBugFiner
 			users1[member.user.id] = member.user;
 		}
 	}
 	
-	if (!build[0]) return;
+	if (serversCollection.length === 0) return;
 	
 	for (let i in users1) {
-		if (!users1[i].id)
-			continue; // DiscordSocketTheBugFiner
-		
-		users.push(users1[i].id);
-		LoadingUser[users1[i].id] = true;
+		users.push(users1[i]);
+		sql.LoadingUser[users1[i].id] = true;
 	}
 	
 	DBot.LOADING_LEVEL = 6;
@@ -773,232 +89,64 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 	
 	updateLoadingStatus();
 	
-	Postgre.query('SELECT get_servers_id(' + sql.Array(build) + '::VARCHAR(64)[]);', function(err, data) {
-		if (err) throw err;
-		
-		let channels1 = [];
-		let channels2 = [];
-		let channel_map = [];
-		let role_map = {};
-		let role_array = [];
-		let role_array_ids = [];
-		let serverArrayToPass = [];
-		
-		let preventDupes = [];
-		
-		for (let row of data) {
-			let exp = row.get_servers_id.split(',');
-			let id = Number(exp[0].substr(1));
-			let uid = exp[1].substr(0, exp[1].length - 1);
-			
-			if (preventDupes.includes(uid))
-				continue;
-			
-			preventDupes.push(uid);
-			
-			let srv = servers2.get(uid);
-			
-			let shouldCall = srv.uid === undefined && DBot.ServersIDs[srv.id] === undefined;
-			
-			DBot.ServersIDs[uid] = id;
-			DBot.ServersIDs_R[id] = srv;
-			
-			srv.uid = id;
-			
-			if (shouldCall) {
-				hook.Run('GuildInitialized', srv, id, true);
-				hook.Run('ServerInitialized', srv, id, true);
-				serverArrayToPass.push(srv);
-			}
-			
-			let roleMap = [[], {}];
-			role_map[id] = roleMap;
-			
-			for (let role of srv.roles.array()) {
-				roleMap[0].push(role.id);
-				roleMap[1][role.id] = role;
-				
-				role_array.push(role);
-				role_array_ids.push(role.id);
-			}
-			
-			for (let channel of srv.channels.array()) {
-				channels1.push(channel.id);
-				channels2.push(id);
-				channel_map[channel.id] = channel;
-			}
-		}
-		
+	serversCollection.updateMap();
+	serversCollection.load(function() {
+		let channelCollection = new sql.ChannelSQLCollection();
+		let rolesCollection = new sql.RoleSQLCollection();
 		DBot.updateLoadingLevel(false);
 		
-		hook.Run('ServersInitialized', serverArrayToPass);
-		
-		let roleQuery = '';
-		
-		for (let serverid in role_map) {
-			roleQuery += 'SELECT get_roles_id(' + serverid + ',' + sql.Array(role_map[serverid][0]) + '::VARCHAR(64)[]);';
+		for (const server of servers) {
+			for (const role of server.roles.array()) {
+				rolesCollection.push(role);
+			}
 		}
 		
-		Postgre.query(roleQuery, function(err, data) {
-			if (err) {
-				console.log(roleQuery);
-				throw err;
-			}
-			
-			let roleHashMap = {};
-			let role_array_uids = [];
-			
-			for (let row of data) {
-				let exp = row.get_roles_id.split(',');
-				let id = Number(exp[0].substr(1));
-				let uid = exp[1];
-				let serverid = Number(exp[2].substr(0, exp[2].length - 1));
-				
-				if (!serverid || !role_map[serverid])
-					throw new Error('Invalid server in role result: ' + serverid + ' ' + row.get_roles_id);
-				
-				let mapped = role_map[serverid];
-				let role = mapped[1][uid];
-				
-				let shouldCall = role.uid === undefined;
-				
-				role.uid = id;
-				
-				roleHashMap[id] = role;
-				role_array_uids.push(id);
-				
-				if (shouldCall)
-					hook.Run('RoleInitialized', role, role.uid, true);
-			}
-			
+		serversCollection.updateMap();
+		hook.Run('ServersInitialized', serversCollection.objects);
+		
+		rolesCollection.updateMap();
+		rolesCollection.load(function() {
 			DBot.updateLoadingLevel(false);
-			
-			updateRoles(role_array);
-			hook.Run('RolesInitialized', role_map, role_array, role_array_ids, roleHashMap, role_array_uids);
+			rolesCollection.updateMap();
+			hook.Run('RolesInitialized', rolesCollection);
 		});
 		
-		let q = 'SELECT get_channels_id(' + sql.Array(channels1) + '::VARCHAR(64)[],' + sql.Array(channels2) + '::INTEGER[])';
-		Postgre.query(q, function(err, data) {
-			if (err) {
-				console.log(q);
-				throw err;
-			}
-			
-			let channelArrayToPass = [];
-			
-			for (let row of data) {
-				let exp = row.get_channels_id.split(',');
-				let id = Number(exp[0].substr(1));
-				let uid = exp[1].substr(0, exp[1].length - 1);
-				
-				let channel = channel_map[uid];
-				let shouldCall = channel.uid === undefined && DBot.ChannelIDs[channel.id] === undefined;
-				
-				channel.uid = id;
-				DBot.ChannelIDs[uid] = id;
-				DBot.ChannelIDs_R[id] = channel;
-				
-				if (shouldCall) {
-					hook.Run('ChannelInitialized', channel, id, true);
-					channelArrayToPass.push(channel);
-				}
-			}
-			
+		channelCollection.updateMap();
+		channelCollection.load(function() {
 			DBot.updateLoadingLevel(false);
-			
-			hook.Run('ChannelsInitialized', channelArrayToPass);
+			channelCollection.updateMap();
+			hook.Run('ChannelsInitialized', channelCollection.objects, channelCollection);
 		});
 		
-		Postgre.query('SELECT get_users_id(' + sql.Array(users) + '::VARCHAR(64)[]);', function(err, data) {
-			if (err) throw err;
-			
-			let ctime = Math.floor(CurTime());
-			
-			let usersArrayToPass = [];
-			let membersArrayToPass = [];
-			
-			for (let row of data) {
-				let exp = row.get_users_id.split(',');
-				let id = Number(exp[0].substr(1));
-				let uid = exp[1].substr(0, exp[1].length - 1);
-				
-				let user = users1[uid];
-				let shouldCall = user.uid === undefined && DBot.UsersIDs[user.id] === undefined;
-				
-				if (shouldCall)
-					usersArrayToPass.push(user);
-				
-				user.uid = id;
-				
-				DBot.UsersIDs[uid] = id;
-				DBot.UsersIDs_R[id] = user;
-				
-				LoadingUser[uid] = undefined;
-				
-				if (shouldCall) {
-					hook.Run('UserInitialized', user, id, true);
-					hook.Run('ClientInitialized', user, id, true);
-				}
-			}
-			
+		users.updateMap();
+		users.load(function() {
 			DBot.updateLoadingLevel(false);
 			
-			let members1 = [];
-			let members2 = [];
-			let members_map = [];
+			let members = new sql.MemberSQLCollection();
 			
 			for (let server of servers) {
 				for (let member of server.members.array()) {
-					if (!member.user.uid || !member.guild.uid) {
-						continue; // WHAT THE FUCK
-					}
-					
-					members1.push(member.user.uid);
-					members2.push(member.guild.uid);
-					
-					members_map[member.user.uid] = members_map[member.user.uid] || [];
-					members_map[member.user.uid][member.guild.uid] = member;
+					if (!member.user.uid || !member.guild.uid) continue; // WHAT THE FUCK
+					members.push(member);
 				}
 			}
 			
-			let q = 'SELECT get_members_id(' + sql.Array(members1) + '::INTEGER[],' + sql.Array(members2) + '::INTEGER[])';
-			Postgre.query(q, function(err, data) {
-				if (err) {
-					console.log(q);
-					throw err;
-				}
-				
-				for (let row of data) {
-					let exp = row.get_members_id.split(',');
-					let id = Number(exp[0].substr(1));
-					let userid = Number(exp[1]);
-					let serverid = Number(exp[2].substr(0, exp[2].length - 1));
-					
-					let member = members_map[userid][serverid];
-					
-					if (!member)
-						continue; // WTF?
-					
-					let shouldCall = member.uid === undefined && (!DBot.MemberIDs[member.user.id] || DBot.MemberIDs[member.user.id][member.guild.id] === undefined);
-					
-					if (shouldCall)
-						membersArrayToPass.push(member);
-					
-					member.uid = id;
-					MembersTable[member.uid] = member;
-					
-					if (shouldCall)
-						hook.Run('MemberInitialized', member, member.uid, true);
-				}
-				
+			members.updateMap();
+			members.load(function() {
 				DBot.updateLoadingLevel(false);
 				
-				updateLastSeenFunc(function() {
+				sql.updateLastSeenFunc(function() {
 					DBot.updateLoadingLevel(false);
-					hook.Run('UsersInitialized', usersArrayToPass);
-					hook.Run('MembersInitialized', membersArrayToPass);
+					
+					users.updateMap();
+					members.updateMap();
+					hook.Run('UsersInitialized', users.objects);
+					hook.Run('MembersInitialized', members.objects);
 				}, true);
 			});
 		});
 	});
-});
+};
+
+require('./sql_hooks.js');
+

@@ -1,0 +1,171 @@
+
+/* global DBot, hook, Postgres, Util */
+
+hook.Add('ValidClientLeftServer', 'Postgres.Handlers', function(user, server) {
+	let id = user.id;
+	if (!DBot.UserIsGarbage(id))
+		return;
+	
+	hook.Run('PreDeleteUser', user);
+	DBot.UsersIDs_R[DBot.UsersIDs[id]] = undefined;
+	DBot.UsersIDs[id] = undefined;
+	hook.Run('PostDeleteUser', user);
+});
+
+hook.Add('OnJoinedServer', 'Postgres.Handlers', function(server) {
+	DBot.DefineServer(server);
+});
+
+hook.Add('ChannelCreated', 'Postgres.Handlers', function(channel) {
+	if (!channel.guild)
+		return;
+	
+	if (channel.type === 'dm')
+		return;
+	
+	// Channel in a new server
+	if (!DBot.ServersIDs[channel.guild.id])
+		return;
+	
+	DBot.DefineChannel(channel);
+});
+
+hook.Add('ValidClientJoinsServer', 'Postgres.Handlers', function(user, server, member) {
+	DBot.DefineUser(user);
+	DBot.DefineMember(member);
+});
+
+hook.Add('ValidClientAvaliable', 'Postgres.Handlers', function(user, server, member) {
+	DBot.DefineUser(user);
+	DBot.DefineMember(member);
+});
+
+const ChannelDeleted = function(channel) {
+	hook.Run('PreDeleteChannel', channel);
+	DBot.ChannelIDs_R[DBot.ChannelIDs[channel.id]] = undefined;
+	DBot.ChannelIDs[channel.id] = undefined;
+	hook.Run('PostDeleteChannel', channel);
+};
+
+hook.Add('ChannelDeleted', 'Postgres.Handlers', ChannelDeleted);
+
+hook.Add('OnLeftServer', 'Postgres.Handlers', function(server) {
+	server.channels.array().forEach(ChannelDeleted);
+	
+	hook.Run('PreDeleteServer', server);
+	DBot.ServersIDs_R[DBot.ServersIDs[server.id]] = undefined;
+	DBot.ServersIDs[server.id] = undefined;
+	hook.Run('PostDeleteServer', server);
+});
+
+hook.Add('RoleChanged', 'Postgres.Handlers', function(oldRole, newRole) {
+	if (!DBot.IsReady()) return;
+	if (!oldRole.guild.uid)
+		return;
+	
+	newRole.uid = newRole.uid || oldRole.uid;
+	
+	if (!newRole.uid) {
+		DBot.DefineRole(newRole);
+		return;
+	}
+	
+	sql.updateRole(newRole);
+});
+
+
+hook.Add('ServerInitialized', 'Postgres.Saves', function(server, id, isCascade) {
+	if (!DBot.SQLReady()) return;
+	if (!server.name) return;
+	
+	Postgres.query('UPDATE servers SET "NAME" = ' + Util.escape(server.name) + ' WHERE "ID" = ' + id, function(err) {
+		if (!err)
+			return;
+		
+		console.error('Failed to save server name ' + id + ' (' + server.name + ')!');
+		console.error(err);
+	});
+});
+
+hook.Add('ServersInitialized', 'Postgres.Saves', function(servers) {
+	let finalQuery;
+	
+	for (let server of servers) {
+		if (!server.name) continue;
+		
+		if (finalQuery)
+			finalQuery += ',';
+		else
+			finalQuery = '';
+		
+		finalQuery += '(' + server.uid + ', ' + Util.escape(server.name) + ')';
+	}
+	
+	if (!finalQuery) return;
+	
+	Postgres.query('UPDATE servers SET "NAME" = m."NAME" FROM (VALUES ' + finalQuery + ') AS m ("ID", "NAME") WHERE servers."ID" = m."ID"', function(err) {
+		if (err) console.error(err);
+	});
+});
+
+hook.Add('ChannelInitialized', 'Postgres.Saves', function(channel, id, isCascade) {
+	if (!DBot.SQLReady()) return;
+	if (!channel.name) return;
+	
+	Postgres.query('UPDATE channels SET "NAME" = ' + Util.escape(channel.name) + ' WHERE "ID" = ' + id, function(err) {
+		if (!err)
+			return;
+		
+		console.error('Failed to save channel name ' + id + ' (' + channel.name + ')!');
+		console.error(err);
+	});
+});
+
+hook.Add('ChannelsInitialized', 'Postgres.Saves', function(channels) {
+	let finalQuery;
+	
+	for (let channel of channels) {
+		if (!channel.name) continue;
+		
+		if (finalQuery)
+			finalQuery += ',';
+		else
+			finalQuery = '';
+		
+		finalQuery += '(' + channel.uid + ', ' + Util.escape(channel.name) + ')';
+	}
+	
+	if (!finalQuery) return;
+	
+	Postgres.query('UPDATE channels SET "NAME" = m."NAME" FROM (VALUES ' + finalQuery + ') AS m ("ID", "NAME") WHERE channels."ID" = m."ID"', function(err) {
+		if (err) console.error(err);
+	});
+});
+
+hook.Add('CheckValidMessage', 'Postgres.Checker', function(msg) {
+	if (!DBot.IsReady()) return true;
+	if (!DBot.UserIsInitialized(msg.author)) {
+		DBot.DefineUser(msg.author);
+		return true;
+	}
+	
+	if (!DBot.IsPM(msg)) {
+		if (!DBot.ServerIsInitialized(msg.channel.guild)) {
+			DBot.DefineServer(msg.channel.guild);
+			return true;
+		} else if (!DBot.ChannelIsInitialized(msg.channel)) {
+			DBot.DefineChannel(msg.channel);
+			return true;
+		} else if (!msg.member) { // wtf
+			msg.channel.guild.fetchMembers();
+			console.error('Unexpected, server ' + msg.channel.guild.name + ' have null member!');
+			return true;
+		} else if (!msg.member.uid) {
+			DBot.DefineMember(msg.member);
+			return true;
+		}
+	}
+});
+
+setInterval(sql.updateLastSeenFunc, 60000);
+hook.Add('BotOnline', 'RegisterIDs', DBot.startSQL);
