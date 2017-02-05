@@ -1,5 +1,5 @@
 
-/* global hook, DBot, sql, Util */
+/* global hook, DBot, sql, Util, Symbol */
 
 const fs = require('fs');
 const pg = require('pg');
@@ -9,8 +9,8 @@ const pgConfig = {
 	database: DBot.cfg.sql_database,
 	password: DBot.cfg.sql_password,
 	host: DBot.cfg.sql_hostname,
-	port: DBot.cfg.sql_port,
-}
+	port: DBot.cfg.sql_port
+};
 
 let pgConnection = new pg.Client(pgConfig);
 
@@ -73,7 +73,7 @@ pgConnection.query = function(query, callback) {
 					for (let i = 0; i < amountOfRows; i++) {
 						yield data.rows[i];
 					}
-				}
+				};
 				
 				callback(err, obj, data);
 			} catch(newErr) {
@@ -83,7 +83,7 @@ pgConnection.query = function(query, callback) {
 			}
 		}
 	});
-}
+};
 
 pgConnection.connect(function(err) {
 	if (err) throw err;
@@ -172,7 +172,7 @@ hook.Add('ChannelCreated', 'MySQL.Handlers', function(channel) {
 	if (!channel.guild)
 		return;
 	
-	if (channel.type == 'dm')
+	if (channel.type === 'dm')
 		return;
 	
 	// Channel in a new server
@@ -197,7 +197,7 @@ let ChannelDeleted = function(channel) {
 	DBot.ChannelIDs_R[DBot.ChannelIDs[channel.id]] = undefined;
 	DBot.ChannelIDs[channel.id] = undefined;
 	hook.Run('PostDeleteChannel', channel);
-}
+};
 
 hook.Add('ChannelDeleted', 'MySQL.Handlers', ChannelDeleted);
 
@@ -224,7 +224,7 @@ DBot.GetMemberID = function(obj) {
 	}
 	
 	return id;
-}
+};
 
 DBot.GetUserID = function(obj) {
 	let id = obj.id;
@@ -236,7 +236,7 @@ DBot.GetUserID = function(obj) {
 	
 	obj.uid = DBot.UsersIDs[id];
 	return DBot.UsersIDs[id];
-}
+};
 
 DBot.GetChannelID = function(obj) {
 	let id = obj.id;
@@ -248,7 +248,7 @@ DBot.GetChannelID = function(obj) {
 	
 	obj.uid = DBot.ChannelIDs[id];
 	return DBot.ChannelIDs[id];
-}
+};
 
 DBot.GetServerID = function(obj) {
 	let id = obj.id;
@@ -260,7 +260,7 @@ DBot.GetServerID = function(obj) {
 	
 	obj.uid = DBot.ServersIDs[id];
 	return DBot.ServersIDs[id];
-}
+};
 
 DBot.GetMemberIDSoft = function(obj) {
 	let id = obj.uid;
@@ -276,7 +276,7 @@ DBot.GetMemberIDSoft = function(obj) {
 	}
 	
 	return id;
-}
+};
 
 DBot.GetUserIDSoft = function(obj) {
 	let id = obj.id;
@@ -288,7 +288,7 @@ DBot.GetUserIDSoft = function(obj) {
 	
 	obj.uid = DBot.UsersIDs[id];
 	return DBot.UsersIDs[id];
-}
+};
 
 DBot.GetChannelIDSoft = function(obj) {
 	let id = obj.id;
@@ -300,7 +300,7 @@ DBot.GetChannelIDSoft = function(obj) {
 	
 	obj.uid = DBot.ChannelIDs[id];
 	return DBot.ChannelIDs[id];
-}
+};
 
 DBot.GetServerIDSoft = function(obj) {
 	let id = obj.id;
@@ -311,19 +311,19 @@ DBot.GetServerIDSoft = function(obj) {
 	}
 	
 	return DBot.ServersIDs[id];
-}
+};
 
 DBot.UserIsInitialized = function(obj) {
-	return DBot.UsersIDs[obj.id] != undefined;
-}
+	return DBot.UsersIDs[obj.id] !== undefined;
+};
 
 DBot.ChannelIsInitialized = function(obj) {
-	return DBot.ChannelIDs[obj.id] != undefined;
-}
+	return DBot.ChannelIDs[obj.id] !== undefined;
+};
 
 DBot.ServerIsInitialized = function(obj) {
-	return DBot.ServersIDs[obj.id] != undefined;
-}
+	return DBot.ServersIDs[obj.id] !== undefined;
+};
 
 hook.Add('CheckValidMessage', 'MySQL.Checker', function(msg) {
 	if (!DBot.IsReady()) return true;
@@ -355,21 +355,21 @@ DBot.GetUser = function(id) {
 		return false;
 	
 	return DBot.UsersIDs_R[id];
-}
+};
 
 DBot.GetChannel = function(id) {
 	if (!DBot.ChannelIDs_R[id])
 		return false;
 	
 	return DBot.ChannelIDs_R[id];
-}
+};
 
 DBot.GetServer = function(id) {
 	if (!DBot.ServersIDs_R[id])
 		return false;
 	
 	return DBot.ServersIDs_R[id];
-}
+};
 
 let LoadingUser = {};
 
@@ -393,10 +393,10 @@ DBot.DefineUser = function(user) {
 		DBot.UsersIDs_R[data[0].ID] = user;
 		LoadingUser[id] = undefined;
 		user.uid = data[0].ID;
-		hook.Run('UserInitialized', user, data[0].ID);
-		hook.Run('ClientInitialized', user, data[0].ID);
+		hook.Run('UserInitialized', user, data[0].ID, false);
+		hook.Run('ClientInitialized', user, data[0].ID, false);
 	});
-}
+};
 
 let updateLastSeenFunc = function(callback, force) {
 	if (!DBot.SQLReady() && !force) return;
@@ -443,7 +443,7 @@ let updateLastSeenFunc = function(callback, force) {
 		finalQuery += 'UPDATE members SET "TIME" = ' + cTime + ' WHERE "ID" IN (' + buildMembers.join(',') + ');';
 	
 	Postgre.query(finalQuery, callback);
-}
+};
 
 setInterval(updateLastSeenFunc, 60000);
 
@@ -461,7 +461,7 @@ DBot.DefineChannel = function(channel) {
 	if (!channel.guild)
 		return;
 	
-	if (channel.type == 'dm') {
+	if (channel.type === 'dm') {
 		console.trace('Tried to define channel ID when it is PM!');
 		return;
 	}
@@ -475,10 +475,10 @@ DBot.DefineChannel = function(channel) {
 		if (err) throw err;
 		DBot.ChannelIDs[id] = data[0].ID;
 		DBot.ChannelIDs_R[data[0].ID] = channel;
-		hook.Run('ChannelInitialized', channel, data[0].ID);
+		hook.Run('ChannelInitialized', channel, data[0].ID, false);
 		channel.uid = data[0].ID;
 	});
-}
+};
 
 let updateRole = function(role) {
 	let perms = role.serialize();
@@ -495,7 +495,7 @@ let updateRole = function(role) {
 	let colStr = '(' + col[0] + ',' + col[1] + ',' + col[2] + ')';
 	
 	Postgres.query('UPDATE roles SET "NAME" = ' + Util.escape(role.name) + ', "PERMS" = ' + arr2 + ', "COLOR_R" = ' + colStr + ', "HOIST" = ' + Util.escape(role.hoist) + ', "POSITION" = ' + Util.escape(role.position) + ', "MENTION" = ' + Util.escape(role.mentionable) + ' WHERE "ID" = ' + role.uid + ';');
-}
+};
 
 let updateRoles = function(roles) {
 	let namesQuery;
@@ -534,7 +534,7 @@ let updateRoles = function(roles) {
 	}
 	
 	Postgres.query('UPDATE roles SET "NAME" = m."NAME", "PERMS" = m."PERMS", "COLOR_R" = m."COLOR_R", "HOIST" = m."HOIST", "POSITION" = m."POSITION", "MENTION" = m."MENTION" FROM (VALUES ' + finalQuery + ') AS m ("ID", "NAME", "COLOR_R", "HOIST", "POSITION", "MENTION", "PERMS") WHERE roles."ID" = m."ID";');
-}
+};
 
 DBot.DefineRole = function(role, callback) {
 	if (!DBot.IsReady()) return;
@@ -542,12 +542,12 @@ DBot.DefineRole = function(role, callback) {
 		if (err) throw err;
 		role.uid = data[0].ID;
 		updateRole(role);
-		hook.Run('RoleInitialized', role, role.uid);
+		hook.Run('RoleInitialized', role, role.uid, false);
 		
-		if (typeof callback == 'function')
+		if (typeof callback === 'function')
 			callback(role, data[0].ID);
 	});
-}
+};
 
 hook.Add('RoleChanged', 'MySQL.Handlers', function(oldRole, newRole) {
 	if (!DBot.IsReady()) return;
@@ -568,7 +568,7 @@ let MembersTable = {};
 
 DBot.GetMember = function(ID) {
 	return MembersTable[ID] || null;
-}
+};
 
 DBot.DefineMember = function(obj) {
 	if (!DBot.IsReady()) return;
@@ -582,11 +582,11 @@ DBot.DefineMember = function(obj) {
 	MySQL.query('SELECT ' + sql.Member(obj) + ' AS "ID"', function(err, data) {
 		if (err) throw err;
 		obj.uid = data[0].ID;
-		hook.Run('MemberInitialized', obj, obj.uid);
+		hook.Run('MemberInitialized', obj, obj.uid, false);
 		
 		MembersTable[obj.uid] = obj;
 	});
-}
+};
 
 let alreadyDefining = {};
 
@@ -611,8 +611,8 @@ DBot.DefineGuild = function(guild) {
 		DBot.ServersIDs_R[data[0].ID] = guild;
 		guild.uid = data[0].ID;
 		
-		hook.Run('GuildInitialized', guild, data[0].ID);
-		hook.Run('ServerInitialized', guild, data[0].ID);
+		hook.Run('GuildInitialized', guild, data[0].ID, false);
+		hook.Run('ServerInitialized', guild, data[0].ID, false);
 		guild.channels.array().forEach(DBot.DefineChannel);
 		guild.roles.array().forEach(DBot.DefineRole);
 	});
@@ -621,9 +621,9 @@ DBot.DefineGuild = function(guild) {
 		DBot.DefineUser(member.user);
 		DBot.DefineMember(member);
 	}
-}
+};
 
-hook.Add('ServerInitialized', 'MySQL.Saves', function(server, id) {
+hook.Add('ServerInitialized', 'MySQL.Saves', function(server, id, isCascade) {
 	if (!DBot.SQLReady()) return;
 	if (!server.name) return;
 	
@@ -657,7 +657,7 @@ hook.Add('ServersInitialized', 'MySQL.Saves', function(servers) {
 	});
 });
 
-hook.Add('ChannelInitialized', 'MySQL.Saves', function(channel, id) {
+hook.Add('ChannelInitialized', 'MySQL.Saves', function(channel, id, isCascade) {
 	if (!DBot.SQLReady()) return;
 	if (!channel.name) return;
 	
@@ -806,8 +806,8 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 			srv.uid = id;
 			
 			if (shouldCall) {
-				hook.Run('GuildInitialized', srv, id);
-				hook.Run('ServerInitialized', srv, id);
+				hook.Run('GuildInitialized', srv, id, true);
+				hook.Run('ServerInitialized', srv, id, true);
 				serverArrayToPass.push(srv);
 			}
 			
@@ -868,7 +868,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				role_array_uids.push(id);
 				
 				if (shouldCall)
-					hook.Run('RoleInitialized', role, role.uid);
+					hook.Run('RoleInitialized', role, role.uid, true);
 			}
 			
 			DBot.updateLoadingLevel(false);
@@ -899,7 +899,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				DBot.ChannelIDs_R[id] = channel;
 				
 				if (shouldCall) {
-					hook.Run('ChannelInitialized', channel, id);
+					hook.Run('ChannelInitialized', channel, id, true);
 					channelArrayToPass.push(channel);
 				}
 			}
@@ -936,8 +936,8 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 				LoadingUser[uid] = undefined;
 				
 				if (shouldCall) {
-					hook.Run('UserInitialized', user, id);
-					hook.Run('ClientInitialized', user, id);
+					hook.Run('UserInitialized', user, id, true);
+					hook.Run('ClientInitialized', user, id, true);
 				}
 			}
 			
@@ -988,7 +988,7 @@ hook.Add('BotOnline', 'RegisterIDs', function(bot) {
 					MembersTable[member.uid] = member;
 					
 					if (shouldCall)
-						hook.Run('MemberInitialized', member, member.uid);
+						hook.Run('MemberInitialized', member, member.uid, true);
 				}
 				
 				DBot.updateLoadingLevel(false);
