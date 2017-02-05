@@ -17,6 +17,8 @@
     "opusscript": "latest",
     "pg": "latest",
     "unirest": "latest",
+    "ping": "latest",
+    "sprintf-js": "latest",
     "utf8": "latest"
   }
 }
