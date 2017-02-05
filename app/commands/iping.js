@@ -63,6 +63,7 @@ module.exports = {
 			if (ip.match(address))
 				return DBot.CommandError('As i can stroke address with my hoof, i see there are a path', 'iping', args, 1);
 			
+			msg.channel.startTyping();
 			dns.lookup(ip, {family: 4, hints: dns.ADDRCONFIG | dns.V4MAPPED, all: false}, function(err, address) {
 				if (err) {
 					msg.reply('DNS Returned: "You have broken fingers. Wrong DNS name!"');
@@ -70,7 +71,6 @@ module.exports = {
 				}
 				
 				ip = address;
-				msg.channel.startTyping();
 				continueFunc();
 			});
 		}

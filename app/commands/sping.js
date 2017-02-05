@@ -132,6 +132,7 @@ module.exports = {
 			
 			socket.on('error', function(err) {
 				console.error(err);
+				msg.channel.stopTyping();
 				msg.reply('OSHI~ Something is bad with UDP socket...');
 			});
 			
@@ -144,6 +145,7 @@ module.exports = {
 					return;
 				}
 				
+				msg.channel.stopTyping();
 				msg.reply('Failed to ping: Connection timeout!');
 				
 				socket.close();
@@ -171,14 +173,15 @@ module.exports = {
 			msg.channel.startTyping();
 			continueFunc();
 		} else {
+			msg.channel.startTyping();
 			dns.lookup(ip, {family: 4, hints: dns.ADDRCONFIG | dns.V4MAPPED, all: false}, function(err, address) {
 				if (err) {
+					msg.channel.stopTyping();
 					msg.reply('DNS Returned: "You have broken fingers. Wrong DNS name!"');
 					return;
 				}
 				
 				ip = address;
-				msg.channel.startTyping();
 				continueFunc();
 			});
 		}
