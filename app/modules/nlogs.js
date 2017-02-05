@@ -86,9 +86,8 @@ hook.Add('UpdateLoadingLevel', 'NameLogs', function(callFunc) {
 	callFunc(true, 2);
 });
 
-hook.Add('MemberInitialized', 'MemberNameLogs', function(member) {
-	if (!DBot.SQLReady())
-		return;
+hook.Add('MemberInitialized', 'MemberNameLogs', function(member, uid, isCascade) {
+	if (!DBot.SQLReady() || isCascade) return;
 	
 	let name = Util.escape(member.nickname || member.user.username);
 	MySQL.query('UPDATE members SET "NAME" = ' + name + ' WHERE "ID" = ' + member.uid, function(err) {
@@ -98,6 +97,29 @@ hook.Add('MemberInitialized', 'MemberNameLogs', function(member) {
 		console.error('Failed to save nickname for user ' + id + ' (' + user.username + ')!');
 		console.error(err);
 	});
+});
+
+hook.Add('MembersFetched', 'MemberNameLogs', function(members, server, oldHashMap, collection) {
+	if (collection.length === 0) return;
+	let finalQuery;
+	
+	for (let member of collection.objects) {
+		if (!member.uid) continue;
+		let name = Util.escape(member.nickname || member.user.username);
+		
+		if (finalQuery)
+			finalQuery += ',';
+		else
+			finalQuery = '';
+		
+		finalQuery += '(' + Util.escape(member.uid) + ',' + name + ')';
+	}
+	
+	if (!finalQuery) {
+		return;
+	}
+	
+	Postgres.query('UPDATE members SET "NAME" = m."NAME" FROM (VALUES ' + finalQuery + ') AS m ("ID", "NAME") WHERE members."ID" = m."ID"');
 });
 
 hook.Add('MembersInitialized', 'MemberNameLogs', function(members) {

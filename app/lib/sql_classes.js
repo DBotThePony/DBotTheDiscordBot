@@ -19,6 +19,7 @@ class SQLCollectionBase {
 		this.ids_request = null;
 		this.ids_array = null;
 		this.uids_array_base = null;
+		this.cached_joinUID = null;
 		this[Symbol.iterator] = iterableFuncitonCollection;
 	}
 	
@@ -92,6 +93,7 @@ class SQLCollectionBase {
 		this.ids_request = null;
 		this.ids_array = null;
 		this.uids_array_base = null;
+		this.cached_joinUID = null;
 		
 		for (const i in this.objects) {
 			const obj = this.objects[i];
@@ -107,9 +109,24 @@ class SQLCollectionBase {
 			} else {
 				this.uidMap[i] = undefined;
 			}
-			
-			
 		}
+	}
+	
+	joinUID() {
+		if (this.cached_joinUID)
+			return this.cached_joinUID;
+		let output;
+		
+		for (const val of this.uidMap) {
+			if (val === undefined) continue;
+			if (output)
+				output += ',' + val;
+			else
+				output = String(val);
+		}
+		
+		this.cached_joinUID = output;
+		return output;
 	}
 	
 	getIDsArray() {
@@ -189,7 +206,7 @@ class SQLCollectionBase {
 		}
 	}
 	
-	loadCallback(err, data, callback) {
+	loadCallback(err, data) {
 		// Override if needed
 		if (err) throw err;
 

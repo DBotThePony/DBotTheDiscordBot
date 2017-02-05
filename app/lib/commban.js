@@ -34,6 +34,14 @@ class CommandBanClass {
 		return true;
 	}
 	
+	rawban(command) {
+		if (DBot.HaveValue(this.bans, command))
+			return false;
+		
+		this.bans.push(command);
+		return true;
+	}
+	
 	banCommand(command) {
 		return this.addCommand(command);
 	}
@@ -259,7 +267,7 @@ let addMethods = function(obj) {
 	return obj;
 }
 
-hook.Add('MembersFetched', 'MemberCommandBans', function(members, server, oldHashMap) {
+hook.Add('MembersFetched', 'MemberCommandBans', function(members, server, oldHashMap, collection) {
 	for (const member of members) {
 		addMethods(member);
 		const getMember = oldHashMap.get(member.id);
@@ -267,12 +275,47 @@ hook.Add('MembersFetched', 'MemberCommandBans', function(members, server, oldHas
 		member.totalMute = getMember.totalMute;
 		member.channelBans = getMember.channelBans;
 	}
+	
+	if (collection === 0) return;
+	const join = collection.joinUID();
+	
+	Postgres.query('SELECT command_banned_cmember."UID", command_banned_cmember."CHANNEL" FROM command_banned_cmember WHERE command_banned_cmember."UID" IN (' + join + ')', function(err, data) {
+		if (err) throw err;
+		
+		for (let row of data) {
+			let get = DBot.GetMember(row.UID);
+			if (!get) continue;
+			get.channelBans.push(Number(row.CHANNEL));
+		}
+	});
+	
+	Postgres.query('SELECT command_banned_member."UID" FROM command_banned_member WHERE command_banned_member."UID" IN (' + join + ')', function(err, data) {
+		if (err) throw err;
+		
+		for (let row of data) {
+			let get = DBot.GetMember(row.UID);
+			if (!get) continue;
+			get.totalMute = true;
+		}
+	});
+	
+	Postgres.query('SELECT command_bans_member."UID", command_bans_member."COMMAND" FROM command_bans_member WHERE command_bans_member."UID" IN (' + join + ')', function(err, data) {
+		if (err) throw err;
+		
+		for (let row of data) {
+			if (!DBot.GetMember(row.UID)) continue;
+			
+			cache.member[row.UID] = cache.member[row.UID] || new CommandBanClass(DBot.GetMember(row.UID), 'member', DBot.GetMemberID);
+			cache.member[row.UID].ready = true;
+			cache.member[row.UID].rawban(row.COMMAND);
+		}
+	});
 });
 
-hook.Add('MemberInitialized', 'MemberCommandBans', function(obj) {
+hook.Add('MemberInitialized', 'MemberCommandBans', function(obj, uid, isCascade) {
 	addMethods(obj);
 	
-	if (!DBot.SQLReady()) return;
+	if (!DBot.SQLReady() || isCascade) return;
 	
 	DBot.MemberCBans(obj);
 	

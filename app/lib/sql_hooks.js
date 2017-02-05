@@ -38,7 +38,7 @@ hook.Add('ValidClientJoinsServer', 'Postgres.Handlers', function(user, server, m
 });
 
 hook.Add('ValidClientAvaliable', 'Postgres.Handlers', function(user, server, member) {
-	if (massiveMemberLoad) return;
+	if (massiveMemberLoad > 0) return;
 	DBot.DefineUser(user);
 	DBot.DefineMember(member);
 });
@@ -146,7 +146,7 @@ hook.Add('ChannelsInitialized', 'Postgres.Saves', function(channels) {
 });
 
 sql.fetchMembers = function(server) {
-	massiveMemberLoad = true;
+	massiveMemberLoad++;
 	
 	let hashMap = new Map();
 	
@@ -158,7 +158,7 @@ sql.fetchMembers = function(server) {
 
 	server.fetchMembers()
 	.then(function() {
-		massiveMemberLoad = false;
+		massiveMemberLoad--;
 		let userCollection = new sql.MemberSQLCollection();
 		let collection = new sql.MemberSQLCollection();
 
@@ -170,6 +170,7 @@ sql.fetchMembers = function(server) {
 		userCollection.cleanup();
 		userCollection.updateMap();
 		userCollection.load(function() {
+			collection.updateMap();
 			collection.load(function() {
 				for (const member of server.members.array()) {
 					const getMember = hashMap.get(member.id);
@@ -184,6 +185,7 @@ sql.fetchMembers = function(server) {
 		});
 	}).catch(function(err) {
 		console.error(err);
+		massiveMemberLoad--;
 	});
 };
 

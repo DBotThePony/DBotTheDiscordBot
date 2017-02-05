@@ -776,8 +776,7 @@ hook.Add('ValidClientAvaliable', 'ModerationCommands', function(user, server, me
 });
 
 hook.Add('MemberInitialized', 'ModerationCommands', function(member, uid, isCascade) {
-	if (!INIT)
-		return;
+	if (!INIT || isCascade) return;
 	
 	member.offs = [];
 	
@@ -812,6 +811,35 @@ hook.Add('UpdateLoadingLevel', 'ModerationCommands', function(callFunc) {
 
 hook.Add('CopyMemberProperties', 'ModerationCommands', function(oldMember, member) {
 	member.offs = oldMember.offs;
+});
+
+hook.Add('MembersFetched', 'ModerationCommands', function(members, server, hashMap, collection) {
+	if (collection.length === 0) return;
+	const join = collection.joinUID();
+	
+	Postgres.query('SELECT off_users.* FROM off_users WHERE off_users."ID" IN (' + join + ')', function(err, data) {
+		if (err) throw err;
+		
+		for (let row of data) {
+			let member = collection.getByUID(row.ID);
+			console.log(member !== null);
+			
+			if (!member) continue;
+			
+			member.offs = member.offs || [];
+			member.offs.push(row.CHANNEL);
+		}
+	});
+	
+	Postgres.query('SELECT member_softban."ID", member_softban."STAMP", member_softban."ADMIN", members."NAME" AS "ADMIN_NAME", users."NAME" AS "ADMIN_NAME_REAL" FROM member_softban, members, users WHERE member_softban."ID" IN (' + join + ') AND members."ID" = member_softban."ADMIN" AND users."ID" = members."USER"', function(err, data) {
+		if (err) throw err;
+		
+		for (let row of data) {
+			let member = collection.getByUID(row.ID);
+			if (!member) continue;
+			userBanHit(member, row);
+		}
+	});
 });
 
 hook.Add('MembersInitialized', 'ModerationCommands', function() {
