@@ -6,7 +6,10 @@ const child_process = require('child_process');
 const spawn = child_process.spawn;
 const os = require('os');
 
-Util.mkdir(DBot.WebRoot + '/imtmp');
+Util.mkdir(DBot.WebRoot + '/imtmp', function() {
+	Util.truncate(DBot.WebRoot + '/imtmp');
+});
+
 Util.mkdir(DBot.WebRoot + '/textdraw');
 
 IMagick = {};
@@ -47,6 +50,8 @@ const findNearestSize = function(size) {
 	
 	return nearest;
 };
+
+IMagick.findNearestSize = findNearestSize;
 
 IMagick.GetTextSize = function(text, font, size) {
 	size = size || 12;
@@ -154,6 +159,9 @@ hook.Add('UpdateLoadingLevel', 'IMagick', function(callFunc) {
 
 const loadingStage3 = function() {
 	console.log('Building up fonts sizes, this can take some time when running first time!');
+	console.log('--------------------------------------');
+	console.log('DO NOT INTERRUPT THIS PROCESS, OR BAD THINGS WOULD HAPPEN');
+	console.log('--------------------------------------');
 	
 	hook.Run('PrecacheFonts');
 	

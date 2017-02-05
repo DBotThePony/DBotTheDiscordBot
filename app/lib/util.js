@@ -1,8 +1,10 @@
 
+/* global DBot */
+
 Util = {};
 util = Util;
 
-const fs = require('fs');
+const fs = DBot.js.fs;
 const utf8 = require('utf8');
 
 Util.SafeCopy = function(path, to) {
@@ -12,18 +14,18 @@ Util.SafeCopy = function(path, to) {
 		
 		fs.createReadStream(path).pipe(fs.createWriteStream(to));
 	});
-}
+};
 
 TimezoneOffset = function() {
 	return (new Date()).getTimezoneOffset() * 60;
-}
+};
 
 TimeOffset = TimezoneOffset;
 CurTimeOffset = TimezoneOffset;
 RealTimeOffset = TimezoneOffset;
 SysTimeOffset = TimezoneOffset;
 
-let emptyFunc = function() {}
+const emptyFunc = function() {};
 
 Util.CreateDirectory = function(path, callback) {
 	callback = callback || emptyFunc;
@@ -34,7 +36,28 @@ Util.CreateDirectory = function(path, callback) {
 			fs.mkdir(path, function() {callback();});
 		}
 	});
-}
+};
+
+Util.truncate = function(path, callback) {
+	callback = callback || emptyFunc;
+	
+	fs.stat(path, function(err, stat) {
+		if (!stat) {
+			callback();
+		} else {
+			fs.readdir(path, function(err, list) {
+				let done = 0;
+				for (const file of list) {
+					fs.unlink(file, function() {
+						done++;
+						if (done === list.length)
+							callback();
+					});
+				}
+			});
+		}
+	});
+};
 
 Util.mkdir = Util.CreateDirectory
 Util.CreateDir = Util.CreateDirectory
