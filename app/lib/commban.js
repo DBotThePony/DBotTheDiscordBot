@@ -312,7 +312,7 @@ hook.Add('MembersFetched', 'MemberCommandBans', function(members, server, oldHas
 	});
 });
 
-hook.Add('MemberInitialized', 'MemberCommandBans', function(obj, uid, isCascade) {
+const MemberInitialized = function(obj, uid, isCascade) {
 	addMethods(obj);
 	
 	if (!DBot.SQLReady() || isCascade) return;
@@ -330,7 +330,9 @@ hook.Add('MemberInitialized', 'MemberCommandBans', function(obj, uid, isCascade)
 			obj.totalMute = true;
 		}
 	});
-});
+};
+
+hook.Add('MemberInitialized', 'MemberCommandBans', MemberInitialized);
 
 hook.Add('UpdateLoadingLevel', 'MemberCommandBans', function(callFunc) {
 	callFunc(true, 3);
@@ -406,6 +408,11 @@ hook.Add('CanExecuteValidCommand', 'MemberCommandBans', function(user, command, 
 	if (member.totalMute)
 		return false;
 	
+	if (!member.channelBans) {
+		MemberInitialized(member, member.uid, false);
+		console.error('Member ' + member.user.username + ' on server ' + member.guild.name + ' has missing methods');
+	}
+	
 	if (member.channelBans.includes(cid))
 		return false;
 });
@@ -421,7 +428,7 @@ hook.Add('CanReply', 'MemberCommandBans', function(msg) {
 		return false;
 	
 	if (!member.channelBans) {
-		addMethods(member);
+		MemberInitialized(member, member.uid, false);
 		console.error('Member ' + member.user.username + ' on server ' + member.guild.name + ' has missing methods');
 	}
 	
