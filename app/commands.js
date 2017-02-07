@@ -38,7 +38,7 @@ DBot.RegisterCommandPipe = function(command) {
 	return command;
 }
 
-DBot.fs.readdirSync('./app/commands/').forEach(function(file) {
+DBot.js.filesystem.readdirSync('./app/commands/').forEach(function(file) {
 	let sp = file.split('.');
 	if (!sp[1])
 		return;
@@ -58,7 +58,7 @@ DBot.fs.readdirSync('./app/commands/').forEach(function(file) {
 });
 
 try {
-	DBot.fs.readdirSync('./app/pipes/').forEach(function(file) {
+	DBot.js.filesystem.readdirSync('./app/pipes/').forEach(function(file) {
 		let sp = file.split('.');
 		if (!sp[1])
 			return;
@@ -122,7 +122,7 @@ let BuildCommands = function() {
 		output += ' - ' + k;
 		
 		if (item.alias) {
-			output += ' (aliases are: ' + DBot.ConcatArray(item.alias, ', ') + ')';
+			output += ' (aliases are: ' + item.alias.join(', ') + ')';
 		}
 		
 		if (item.desc) {
@@ -205,7 +205,7 @@ let BuildCommands = function() {
 		let help = 'Usage: ' + item.id;
 		
 		if (item.alias) {
-			help = '(aliases: ' + Util.Concat(item.alias, ', ') + ')\n' + help;
+			help = '(aliases: ' + item.alias.join(', ') + ')\n' + help;
 		}
 		
 		if (item.help_args)
@@ -240,7 +240,7 @@ let BuildCommands = function() {
 		let help = 'Usage: ' + item.id;
 		
 		if (item.alias) {
-			help = '(aliases: ' + Util.Concat(item.alias, ', ') + ')\n' + help;
+			help = '(aliases: ' + item.alias.join(', ') + ')\n' + help;
 		}
 		
 		if (item.help_args)
@@ -289,7 +289,7 @@ DBot.BuildHelpStringForCommand = function(command) {
 		output += '\n';
 	
 	if (data.alias) {
-		output += 'Alias(es): ' + DBot.ConcatArray(data.alias, ', ') + '\n';
+		output += 'Alias(es): ' + data.alias.join(', ') + '\n';
 	}
 	
 	if (data.desc)
@@ -316,7 +316,7 @@ DBot.RegisterCommand({
 	desc: 'Displays help',
 	
 	func: function(args, cmd, msg) {
-		let num = Util.ToNumber(args[0]);
+		let num = Number.from(args[0]);
 		
 		if (!args[0]) {
 			msg.author.sendMessage(DBot.BuildHelpString());

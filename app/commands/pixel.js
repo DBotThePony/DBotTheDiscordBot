@@ -1,7 +1,7 @@
 
 const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
-const fs = DBot.fs;
+const fs = DBot.js.filesystem;
 
 Util.mkdir(DBot.WebRoot + '/pixel');
 
@@ -23,7 +23,7 @@ module.exports = {
 		if (!DBot.CheckURLImage(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', 'pixel', args, 1);
 		
-		let hash = DBot.HashString(CurTime() + '_' + msg.channel.id);
+		let hash = String.hash(CurTime() + '_' + msg.channel.id);
 		let fPath;
 		
 		let fPathProcessed = DBot.WebRoot + '/pixel/' + hash + '.png';

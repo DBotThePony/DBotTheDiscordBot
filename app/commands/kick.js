@@ -1,7 +1,7 @@
 
 const moment = DBot.js.moment;
 const hDuration = DBot.js.hDuration;
-const fs = DBot.fs;
+const fs = DBot.js.filesystem;
 Util.mkdir(DBot.WebRoot + '/blogs');
 
 module.exports = {
@@ -221,7 +221,7 @@ DBot.RegisterCommand({
 			return DBot.CommandError('You need to specify at least one user', 'sban', args, 1);
 		
 		for (let i in args) {
-			let p = Util.ToNumber(args[i]);
+			let p = Number.from(args[i]);
 			
 			if (!p || p <= 0)
 				return DBot.CommandError('Invalid ID', 'unsban', args, Number(i) + 1);
@@ -404,7 +404,7 @@ DBot.RegisterCommand({
 			let rCache = DBot.GetImmunityLevel(msg.member);
 			
 			let stream;
-			let sha = DBot.HashString(CurTime() + '___' + msg.channel.guild.id + msg.channel.id);
+			let sha = String.hash(CurTime() + '___' + msg.channel.guild.id + msg.channel.id);
 			let path = DBot.WebRoot + '/blogs/' + sha + '.txt';
 			let upath = DBot.URLRoot + '/blogs/' + sha + '.txt';
 			
@@ -454,7 +454,7 @@ DBot.RegisterCommand({
 		let output = 'Offed on this channel: \n';
 		
 		let stream;
-		let sha = DBot.HashString(CurTime() + '___' + msg.channel.guild.id + msg.channel.id);
+		let sha = String.hash(CurTime() + '___' + msg.channel.guild.id + msg.channel.id);
 		let path = DBot.WebRoot + '/blogs/' + sha + '.txt';
 		let upath = DBot.URLRoot + '/blogs/' + sha + '.txt';
 		
@@ -490,7 +490,7 @@ DBot.RegisterCommand({
 		if (DBot.IsPM(msg))
 			return 'pm ;n;';
 		
-		let sha = DBot.HashString(CurTime() + '_softban_' + msg.channel.guild.id + msg.channel.id);
+		let sha = String.hash(CurTime() + '_softban_' + msg.channel.guild.id + msg.channel.id);
 		let path = DBot.WebRoot + '/blogs/' + sha + '.txt';
 		let upath = DBot.URLRoot + '/blogs/' + sha + '.txt';
 		
@@ -621,7 +621,7 @@ DBot.RegisterCommand({
 			let output = 'Will stop removing all new messages from: ';
 			
 			let stream;
-			let sha = DBot.HashString(CurTime() + '___' + msg.channel.guild.id + msg.channel.id);
+			let sha = String.hash(CurTime() + '___' + msg.channel.guild.id + msg.channel.id);
 			let path = DBot.WebRoot + '/blogs/' + sha + '.txt';
 			let upath = DBot.URLRoot + '/blogs/' + sha + '.txt';
 			

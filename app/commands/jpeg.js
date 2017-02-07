@@ -3,7 +3,7 @@ const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
 const URL = DBot.js.url;
 const unirest = DBot.js.unirest;
-const fs = DBot.fs;
+const fs = DBot.js.filesystem;
 
 Util.mkdir(DBot.WebRoot + '/jpeg', function() {
 	Util.mkdir(DBot.WebRoot + '/jpeg/dlcache');
@@ -21,7 +21,7 @@ module.exports = {
 	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
-		let quality = Util.ToNumber(args[0]) || 3;
+		let quality = Number.from(args[0]) || 3;
 		
 		if (quality > 10)
 			quality = 10;
@@ -34,7 +34,7 @@ module.exports = {
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'jpeg', args, 2);
 		
-		let hash = DBot.HashString(url);
+		let hash = String.hash(url);
 		
 		let fPath;
 		let fPathProcessed = DBot.WebRoot + '/jpeg/' + quality + '/' + hash + '.jpg';

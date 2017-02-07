@@ -43,7 +43,7 @@ module.exports = {
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
 		
-		let sha = DBot.HashString(url);
+		let sha = String.hash(url);
 		
 		let fpath;
 		let fpathProcessed = DBot.WebRoot + '/waw/' + sha + '.gif';
@@ -118,7 +118,7 @@ DBot.RegisterCommand({
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'wave', args, 1);
 		
-		let sha = DBot.HashString(url);
+		let sha = String.hash(url);
 		
 		let fpath;
 		let fpathProcessed = DBot.WebRoot + '/wave/' + sha + '.gif';

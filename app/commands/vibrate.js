@@ -22,7 +22,7 @@ module.exports = {
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'vibrate', args, 1);
 		
-		const sha = DBot.HashString(url);
+		const sha = String.hash(url);
 		
 		let fpath;
 		const fpathProcessed = DBot.WebRoot + '/vibrate/' + sha + '.gif';
@@ -130,7 +130,7 @@ DBot.RegisterCommand({
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'vibrate', args, 1);
 		
-		const sha = DBot.HashString(url);
+		const sha = String.hash(url);
 		
 		let fpath;
 		const fpathProcessed = DBot.WebRoot + '/vibrate/' + sha + '_shake.gif';

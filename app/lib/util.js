@@ -59,76 +59,8 @@ Util.truncate = function(path, callback) {
 	});
 };
 
-Util.mkdir = Util.CreateDirectory
-Util.CreateDir = Util.CreateDirectory
-
-Util.Concat = function(obj, sep) {
-	sep = sep || '';
-	let first = true;
-	let out = '';
-	
-	for (let i in obj) {
-		let item = obj[i];
-		
-		if (first) {
-			first = false;
-			out = item;
-		} else {
-			out += sep + item;
-		}
-	}
-	
-	return out;
-}
-
-// Returns valid number or nothing
-
-Util.ToNumber = function(arg) {
-	let num;
-	
-	if (typeof arg == 'string') {
-		if (arg.match(/^-?[0-9]+$/)) {
-			let tryNum = parseInt(arg);
-		
-			if (tryNum == tryNum) { // NaN ???
-				num = tryNum;
-			}
-		}
-	} else if (typeof arg == 'number') {
-		return arg;
-	}
-	
-	return num;
-}
-
-// Returns valid number or nothing, but casts even if string is not totaly a number
-
-Util.ToNumberSoft = function(arg) {
-	let num;
-	
-	if (typeof arg == 'string') {
-		let match = arg.match(/^-?[0-9]+/);
-		if (match) {
-			let tryNum = parseInt(match[0]);
-		
-			if (tryNum == tryNum) { // NaN ???
-				num = tryNum;
-			}
-		}
-	} else if (typeof arg == 'number') {
-		return arg;
-	}
-	
-	return num;
-}
-
-Util.Random = function(min, max) {
-	return Math.floor(Math.random() * (max - min)) + min;
-}
-
-Util.RandomArray = function(arr) {
-	return arr[Util.Random(0, arr.length - 1)];
-}
+Util.mkdir = Util.CreateDirectory;
+Util.CreateDir = Util.CreateDirectory;
 
 Util.Spaces = function(num) {
 	let output = '';
@@ -138,46 +70,18 @@ Util.Spaces = function(num) {
 	}
 	
 	return output;
-}
-
-Util.StringRepeat = function(str, times) {
-	let output = '';
-	
-	for (let i = 0; i < times; i++) {
-		output += str;
-	}
-	
-	return output;
-}
+};
 
 Util.AppendSpaces = function(str, target) {
-	return str.toString() + Util.StringRepeat(' ', target - str.toString().length);
-}
-
-Util.AppendArrays = function(Dest, Source) {
-	for (let i in Source) {
-		Dest.push(Source[i]);
-	}
-	
-	return Dest;
-}
-
-Util.CopyArray = function(Source) {
-	let Dest = [];
-	
-	for (let i in Source) {
-		Dest.push(Source[i]);
-	}
-	
-	return Dest;
-}
+	return str.toString() + String.repeat(' ', target - str.toString().length);
+};
 
 Util.HighlightHelp = function(args, pos, toMerge, noTilds) {
 	let output;
 	let output2 = '';
 	
 	if (toMerge) {
-		Util.AppendArrays(args, toMerge);
+		Array.Append(args, toMerge);
 	}
 	
 	if (!args[pos - 1]) {
@@ -188,7 +92,7 @@ Util.HighlightHelp = function(args, pos, toMerge, noTilds) {
 		for (let i in args) {
 			let str = args[i];
 			
-			if (typeof args[i] == 'object') { // Assume user
+			if (typeof args[i] === 'object') { // Assume user
 				str = '<@' + args[i].id + '> ';
 			}
 			
@@ -197,8 +101,8 @@ Util.HighlightHelp = function(args, pos, toMerge, noTilds) {
 			else
 				output = '\n' + str + '\n';
 			
-			if ((Number(i) + 1) == pos)
-				output += '  <----- \n' + Util.StringRepeat('^', str.length) + '\n';
+			if ((Number(i) + 1) === pos)
+				output += '  <----- \n' + String.repeat('^', str.length) + '\n';
 			else
 				output += '\n';
 		}
@@ -206,14 +110,14 @@ Util.HighlightHelp = function(args, pos, toMerge, noTilds) {
 		for (let i in args) {
 			let str = args[i];
 			
-			if (typeof args[i] == 'object') { // Assume user
+			if (typeof args[i] === 'object') { // Assume user
 				str = '<@' + args[i].id + '>';
 			}
 			
-			if ((Number(i) + 1) == pos) {
-				output2 += Util.StringRepeat('^', str.length) + ' ';
+			if ((Number(i) + 1) === pos) {
+				output2 += String.repeat('^', str.length) + ' ';
 			} else {
-				output2 += Util.StringRepeat(' ', str.length) + ' ';
+				output2 += String.repeat(' ', str.length) + ' ';
 			}
 			
 			if (output)
@@ -227,12 +131,12 @@ Util.HighlightHelp = function(args, pos, toMerge, noTilds) {
 		return '\n```' + output + '\n' + output2 + '```';
 	else
 		return output + '\n' + output2;
-}
+};
 
 Util.output = function(process2) {
 	process2.stderr.pipe(process.stdout);
 	process2.stdout.pipe(process.stdout);
-}
+};
 
 Util.Redirectstd = Util.output;
 Util.Redirect = Util.output;
@@ -249,7 +153,7 @@ const replaceBlocks = [
 	[/\*(([^\*])*)\*/gi, '<i>$1</i>'],
 	[/```(([^"][^"][^"])*)```/gi, '<span class="codeblock">$1</span>'],
 	[/[^"]"(([^"])*)"[^"]/gi, '<span class="codeblock_s">$1</span>'],
-	[/\n/gi, '<br>'],
+	[/\n/gi, '<br>']
 ];
 
 Util.ParseMarkdown = function(str) {
@@ -260,22 +164,22 @@ Util.ParseMarkdown = function(str) {
 	}
 	
 	return output;
-}
+};
 
 Util.HaveValue = function(arr, val) {
 	for (let i in arr) {
-		if (arr[i] == val)
+		if (arr[i] === val)
 			return true;
 	}
 	
 	return false;
-}
+};
 
 Util.escape = function(str) {
-	if (typeof str == 'boolean')
+	if (typeof str === 'boolean')
 		return str && "true" || "false";
 	
-	if (typeof str == 'number')
+	if (typeof str === 'number')
 		return "" + str + "";
 	
 	let strObj = str.toString()
@@ -286,7 +190,7 @@ Util.escape = function(str) {
 	strObj = '\'' + strObj + '\'';
 	
 	return strObj;
-}
+};
 
 Util.HasValue = Util.HaveValue;
 
@@ -306,7 +210,7 @@ Util.BuildArgumentsString = function(arr) {
 	}
 	
 	return newArr.join(' ');
-}
+};
 
 Util.ReadString = function(buf, offestStart) {
 	let output = '';
@@ -314,7 +218,7 @@ Util.ReadString = function(buf, offestStart) {
 	for (let i = offestStart; i < buf.length; i++) {
 		let Char = String.fromCharCode(buf[i]);
 		
-		if (Char != '\0') {
+		if (Char !== '\0') {
 			output += Char;
 		} else {
 			return [utf8.decode(output), i - offestStart + 1];
@@ -322,30 +226,12 @@ Util.ReadString = function(buf, offestStart) {
 	}
 	
 	return [utf8.decode(output), i - offestStart + 1];
-}
-
-Util.MonospaceText = function(x, y, text, size, spaceMult) {
-	let reply = '';
-	
-	for (let i in text) {
-		let Char = text[i];
-		
-		if (Char == '\\')
-			Char = '\\\\';
-		
-		if (Char == '"')
-			Char = '\\"';
-		
-		reply += ' text ' + (x + i * size * spaceMult) + ',' + y + ' "' + Char + '"';
-	}
-	
-	return reply;
-}
+};
 
 Util.parseHexColor = function(hex) {
 	let toParse = hex;
 	
-	if (hex.substr(0, 1) == '#') {
+	if (hex.substr(0, 1) === '#') {
 		toParse = hex.substr(1);
 	}
 	
@@ -354,7 +240,7 @@ Util.parseHexColor = function(hex) {
 	let blue = parseInt(toParse.substr(5, 2), 16);
 	
 	return [red, green, blue];
-}
+};
 
 Util.WrapText = function(text, limit) {
 	limit = limit || 120;
@@ -378,4 +264,4 @@ Util.WrapText = function(text, limit) {
 	}
 	
 	return lines.join('\n');
-}
+};

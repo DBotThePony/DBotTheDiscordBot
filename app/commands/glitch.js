@@ -1,7 +1,7 @@
 
 const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
-const fs = DBot.fs;
+const fs = DBot.js.filesystem;
 
 Util.mkdir(DBot.WebRoot + '/glitch');
 
@@ -19,7 +19,7 @@ module.exports = {
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'glitch', args, 1);
 		
-		let hash = DBot.HashString(url);
+		let hash = String.hash(url);
 		
 		let fPath;
 		let fPathProcessed = DBot.WebRoot + '/glitch/' + hash + '.png';
@@ -70,7 +70,7 @@ DBot.RegisterCommand({
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'glitch', args, 1);
 		
-		let hash = DBot.HashString(CurTime().toString());
+		let hash = String.hash(CurTime().toString());
 		
 		let fPath;
 		let fPathProcessed = DBot.WebRoot + '/glitch/' + hash + '.jpg';
@@ -95,11 +95,11 @@ DBot.RegisterCommand({
 				}
 				
 				let output = Buffer.from(output2, 'base64');
-				let step = Math.floor(output.length / Util.Random(150, 300));
+				let step = Math.floor(output.length / MathHelper.Random(150, 300));
 				
 				for (let i = 400; i < output.length - 200; i += step) {
-					if (Util.Random(1, 100) > 40) {
-						output[i] = Util.Random(50, 180);
+					if (MathHelper.Random(1, 100) > 40) {
+						output[i] = MathHelper.Random(50, 180);
 					}
 				}
 				

@@ -9,7 +9,7 @@ module.exports = {
 	desc: 'Posts a MD5 checksumm of string',
 	
 	func: function(args, cmd, msg) {
-		return DBot.HashString5(cmd);
+		return String.hash5(cmd);
 	}
 }
 
@@ -23,7 +23,7 @@ DBot.RegisterCommand({
 	desc: 'Posts a SHA1 checksumm of string',
 	
 	func: function(args, cmd, msg) {
-		return DBot.HashString1(cmd);
+		return String.hash1(cmd);
 	}
 });
 
@@ -37,7 +37,7 @@ DBot.RegisterCommand({
 	desc: 'Posts a SHA512 checksumm of string',
 	
 	func: function(args, cmd, msg) {
-		return DBot.HashString512(cmd);
+		return String.hash512(cmd);
 	}
 });
 
@@ -51,6 +51,6 @@ DBot.RegisterCommand({
 	desc: 'Posts a SHA256 checksumm of string',
 	
 	func: function(args, cmd, msg) {
-		return DBot.HashString(cmd);
+		return String.hash(cmd);
 	}
 });

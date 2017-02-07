@@ -1,7 +1,7 @@
 
 const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
-const fs = DBot.fs;
+const fs = DBot.js.filesystem;
 
 Util.mkdir(DBot.WebRoot + '/cappend');
 
@@ -20,7 +20,7 @@ module.exports = {
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'cappend', args, 1);
 		
-		let hash = DBot.HashString(url);
+		let hash = String.hash(url);
 		
 		let fPath;
 		let fPathProcessed = DBot.WebRoot + '/cappend/' + hash + '.png';
@@ -116,7 +116,7 @@ DBot.RegisterCommand({
 		if (!DBot.CheckURLImage(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', 'cappend', args, 1);
 		
-		let hash = DBot.HashString(url);
+		let hash = String.hash(url);
 		
 		let fPath;
 		let fPathProcessed = DBot.WebRoot + '/cappend/' + hash + '.png';

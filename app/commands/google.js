@@ -36,7 +36,7 @@ let fn = function(prefix) {
 	return function(args, cmd, msg, previousStuff) {
 		let enc = encodeURIComponent(prefix + cmd.toLowerCase());
 		let url = Search + enc;
-		let hash = DBot.HashString(enc);
+		let hash = String.hash(enc);
 		let cachePath = DBot.WebRoot + '/google/' + hash + '.json';
 		
 		let ServerTags;
@@ -101,7 +101,7 @@ let fn = function(prefix) {
 				let result;
 				
 				if (previousStuff)
-					result = DBot.RandomArray(items2);
+					result = Array.Random(items2);
 				else
 					result = items2[0];
 				

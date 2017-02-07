@@ -1,4 +1,6 @@
 
+/* global DBot, cvars, FCVAR_CHANNELONLY, hook, Util */
+
 const crypto = DBot.js.crypto;
 const fs = DBot.js.fs;
 
@@ -33,117 +35,15 @@ DBot.Status = function(newStatus) {
 	cooldown = CurTime() + 10;
 	
 	DBot.bot.user.setGame(newStatus);
-}
-
-DBot.Random = function(min, max) {
-	return Math.floor(Math.random() * (max - min)) + min;
-}
-
-DBot.RandomArray = function(arr) {
-	return arr[DBot.Random(0, arr.length - 1)];
-}
-
-DBot.HashString = function(str) {
-	return crypto.createHash('sha256').update(str).digest('hex');
-}
-
-DBot.HashString5 = function(str) {
-	return crypto.createHash('md5').update(str).digest('hex');
-}
-
-DBot.HashString1 = function(str) {
-	return crypto.createHash('sha1').update(str).digest('hex');
-}
-
-DBot.HashString512 = function(str) {
-	return crypto.createHash('sha512').update(str).digest('hex');
-}
+};
 
 DBot.IsMyMessage = function(msg) {
-	return msg.author.id == DBot.bot.user.id;
-}
+	return msg.author.id === DBot.bot.user.id;
+};
 
 DBot.IsPM = function(msg) {
-	return msg.channel.type == 'dm';
-}
-
-DBot.MessageByServerOwner = function(msg) {
-	if (DBot.IsPM(msg))
-		return false;
-	
-	return msg.author.id == msg.channel.guild.ownerID;
-}
-
-const ASSOCIATED_PERMS_TABLE = [
-	['KICK_MEMBERS', 					'manipulate_kick'],
-	['KICK_MEMBERS',					'manipulate'],
-	
-	['BAN_MEMBERS', 					'manipulate'],
-	['BAN_MEMBERS', 					'manipulate_kick'],
-	['BAN_MEMBERS', 					'manipulate_ban'],
-	
-	['ADMINISTRATOR', 					'admin_absolute'],
-	
-	['MANAGE_CHANNELS', 				'edit_messages'],
-	['MANAGE_CHANNELS', 				'moderator'],
-	
-	['MANAGE_GUILD', 					'admin'],
-	['MANAGE_GUILD', 					'moderator'],
-	['MANAGE_MESSAGES', 				'edit_messages'],
-	
-	['MANAGE_NICKNAMES', 				'manipulate_nickname'],
-	['MANAGE_NICKNAMES', 				'manipulate'],
-	
-	['MANAGE_ROLES_OR_PERMISSIONS', 	'manipulate'],
-	['MANAGE_ROLES_OR_PERMISSIONS', 	'admin'],
-	['MANAGE_ROLES_OR_PERMISSIONS', 	'moderator'],
-	['MANAGE_ROLES_OR_PERMISSIONS', 	'edit_messages'],
-	['MANAGE_ROLES_OR_PERMISSIONS', 	'manipulate_ban'],
-	['MANAGE_ROLES_OR_PERMISSIONS', 	'manipulate_kick'],
-];
-
-DBot.Access = function(msg, toCheck) {
-	if (DBot.IsPM(msg))
-		return false;
-	
-	if (msg.author.id == msg.channel.guild.ownerID)
-		return true;
-	
-	let usr = msg.member;
-	
-	for (let i in ASSOCIATED_PERMS_TABLE) {
-		let data = ASSOCIATED_PERMS_TABLE[i];
-		
-		if (data[1] == toCheck) {
-			if (usr.hasPermission(data[0])) {
-				return true;
-			}
-		}
-	}
-	
-	return false;
-}
-
-DBot.MessageByDBot = function(msg) {
-	return msg.author.id == '141004095145115648';
-}
-
-DBot.ConcatArray = function(arr, sep) {
-	sep = sep || '';
-	let first = true;
-	let out = '';
-	
-	arr.forEach(function(item) {
-		if (first) {
-			first = false;
-			out = item;
-		} else {
-			out += sep + item;
-		}
-	});
-	
-	return out;
-}
+	return msg.channel.type === 'dm';
+};
 
 DBot.InitVars = function() {
 	DBot.id = DBot.bot.user.id;
@@ -157,7 +57,7 @@ DBot.InitVars = function() {
 	DBot.aidcLen = DBot.askIdC.length;
 	DBot.aidLen2 = DBot.askId2.length;
 	DBot.aidcLen2 = DBot.askIdC2.length;
-}
+};
 
 cvars.ServerVar('notify_channel', '', [FCVAR_CHANNELONLY], 'Channel to threat as notifications channel');
 
@@ -170,35 +70,35 @@ DBot.GetNotificationChannel = function(server) {
 	let channels = server.channels.array();
 	
 	for (let channel of channels) {
-		if (channel.name.match('shitposting') || channel.name == 'notifications' || channel.name == 'notification') {
+		if (channel.name.match('shitposting') || channel.name === 'notifications' || channel.name === 'notification') {
 			get = channel;
 			break;
 		}
 	}
 	
 	return get || server.defaultChannel;
-}
+};
 
 DBot.HaveValue = function(arr, val) {
 	for (let vl of arr) {
-		if (vl == val)
+		if (vl === val)
 			return true;
 	}
 	
 	return false;
-}
+};
 
 DBot.HasValue = DBot.HaveValue;
 
 DBot.FormatAsk = function(user) {
 	return '<@' + user.id + '>, ';
-}
+};
 
 DBot.UserIsGarbage = function(userID) {
 	let users = DBot.client.users.array();
 	
 	for (let k in users) {
-		if (users[k].id == userID)
+		if (users[k].id === userID)
 			return false;
 	}
 	
@@ -210,13 +110,13 @@ DBot.UserIsGarbage = function(userID) {
 		let members = server.members.array();
 		
 		for (let member of members) {
-			if (member.id == userID)
+			if (member.id === userID)
 				return false;
 		}
 	}
 	
 	return true;
-}
+};
 
 DBot.GetUsers = function() {
 	let output = {};
@@ -241,21 +141,21 @@ DBot.GetUsers = function() {
 	}
 	
 	return reply;
-}
+};
 
 DBot.GetUserServers = function(user) {
 	let servers = [];
 	
 	for (let server of DBot.GetServers()) {
 		for (let member of server.members.array()) {
-			if (user.id == member.user.id) {
+			if (user.id === member.user.id) {
 				servers.push(server);
 			}
 		}
 	}
 	
 	return servers;
-}
+};
 
 DBot.GetServers = function() {
 	return DBot.bot.guilds.array();
@@ -275,66 +175,39 @@ DBot.GetMembers = function() {
 	}
 	
 	return members;
-}
+};
 
 DBot.RefreshData = function() {
 	hook.Run('Refresh');
-}
+};
 
 DBot.TryFindUser = function(uid) {
 	let users = DBot.client.users.array();
 	
 	for (let k of users) {
-		if (k.id == uid)
+		if (k.id === uid)
 			return k;
 	}
 	
 	return false;
-}
+};
 
 DBot.IdentifyUser = function(str) {
 	let len = str.length;
 	
-	if (str.substr(0, 2) != '<@')
+	if (str.substr(0, 2) !== '<@')
 		return false;
 	
-	if (str.substr(len - 1, 1) != '>')
+	if (str.substr(len - 1, 1) !== '>')
 		return false;
 	
-	if (str.substr(0, 3) != '<@!')
+	if (str.substr(0, 3) !== '<@!')
 		return DBot.TryFindUser(str.substr(2, len - 3));
 	else
 		return DBot.TryFindUser(str.substr(3, len - 4));
-}
+};
 
-const WorkingMessages = [
-	'jumping',
-	'spinning around',
-	'jumping on your table',
-	'getting hugs',
-	'booping your nose',
-	'hugging you',
-	'licking your face',
-	'nomming your nose',
-];
-
-const PrefixMessages = [
-	'Please wait, i am ',
-	'Stay here and wait, i am ',
-	'Hold on, i am ',
-	'Wait, i am ',
-	'Weee, it is so fun! I am ',
-	'Wait, Watch me how i am ',
-];
-
-DBot.GenerateWaitMessage = function() {
-	return DBot.RandomArray(PrefixMessages) + DBot.RandomArray(WorkingMessages);
-}
-
-fs.stat(DBot.WebRoot + '/img_cache', function(err, stat) {
-	if (!stat)
-		fs.mkdirSync(DBot.WebRoot + '/img_cache');
-});
+Util.mkdir(DBot.WebRoot + '/img_cache');
 
 const unirest = require('unirest');
 const URL = require('url');
@@ -348,10 +221,10 @@ const insideBotFolder = new RegExp('^\\./resource/', '');
 
 DBot.ExtraxtExt = function(url) {
 	return url.match(imageExtExt)[1];
-}
+};
 
 DBot.CombinedURL = function(url, channel) {
-	if (typeof(url) == 'object') {
+	if (typeof(url) === 'object') {
 		url = url.avatarURL;
 		
 		if (!url)
@@ -376,10 +249,10 @@ DBot.CombinedURL = function(url, channel) {
 	}
 	
 	return url;
-}
+};
 
 DBot.CombinedURL2 = function(url, channel) {
-	if (typeof(url) == 'object') {
+	if (typeof(url) === 'object') {
 		url = url.avatarURL;
 		
 		if (!url)
@@ -404,10 +277,10 @@ DBot.CombinedURL2 = function(url, channel) {
 	}
 	
 	return url;
-}
+};
 
 DBot.LoadImageURL = function(url, callback, callbackError) {
-	let hash = DBot.HashString(url);
+	let hash = String.hash(url);
 	let matchExt = url.match(imageExtExt);
 	let match = url.match(expr);
 
@@ -453,7 +326,7 @@ DBot.LoadImageURL = function(url, callback, callbackError) {
 			});
 		}
 	});
-}
+};
 
 const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
@@ -472,7 +345,7 @@ DBot.EasySpan = function(process, arguments, callback) {
 	cpu.on('close', function(code) {
 		callback(code);
 	});
-}
+};
 
 DBot.FindMeInChannel = function(channel) {
 	let id = DBot.bot.user.id;
@@ -481,30 +354,30 @@ DBot.FindMeInChannel = function(channel) {
 	for (let i in memb) {
 		let Member = memb[i];
 		
-		if (Member.user.id == id)
+		if (Member.user.id === id)
 			return Member;
 	}
 	
 	return false;
-}
+};
 
 DBot.FindChannel = function(id) {
 	let channels = DBot.bot.channels.array();
 	
 	for (let i in channels) {
-		if (channels[i].id == id)
+		if (channels[i].id === id)
 			return channels[i];
 	}
 	
 	return false;
-}
+};
 
 DBot.CommandError = function(message, name, args, argID) {
 	return message + '\n' + Util.HighlightHelp([name], 1 + argID, args) + 'Help:\n```' + DBot.BuildHelpStringForCommand(name) + '```\n';
-}
+};
 
 DBot.GetImmunityLevel = function(member) {
-	if (member.user.id == member.guild.owner.user.id)
+	if (member.user.id === member.guild.owner.user.id)
 		return 9999999;
 	
 	let max = 0;
@@ -515,20 +388,20 @@ DBot.GetImmunityLevel = function(member) {
 	}
 	
 	return max;
-}
+};
 
 DBot.CanTarget = function(member_user, member_target) {
 	if (DBot.owners.includes(member_user.user.id))
 		return true;
 	
-	if (DBot.owners.includes(member_target.user.id) && member_user.user.id != DBot.bot.user.id)
+	if (DBot.owners.includes(member_target.user.id) && member_user.user.id !== DBot.bot.user.id)
 		return false;
 	
-	if (DBot.owners.includes(member_target.user.id) && member_user.user.id == DBot.bot.user.id)
+	if (DBot.owners.includes(member_target.user.id) && member_user.user.id === DBot.bot.user.id)
 		return true;
 	
-	if (member_user.user.id == member_target.user.id)
+	if (member_user.user.id === member_target.user.id)
 		return true;
 	
 	return DBot.GetImmunityLevel(member_user) > DBot.GetImmunityLevel(member_target);
-}
+};

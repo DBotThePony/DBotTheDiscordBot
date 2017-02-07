@@ -122,7 +122,7 @@ module.exports = {
 			ServerTags = DBot.ServerTags(msg.channel.guild, 'derpibooru');
 		}
 		
-		let num = Util.ToNumber(args[0]);
+		let num = Number.from(args[0]);
 		
 		if (!args[0]) {
 			let tries = 0;
@@ -228,7 +228,7 @@ module.exports = {
 				}
 			}
 			
-			let path = DBot.WebRoot + '/derpibooru/search/' + DBot.HashString(encode) + '.json';
+			let path = DBot.WebRoot + '/derpibooru/search/' + String.hash(encode) + '.json';
 			
 			msg.channel.startTyping();
 			
@@ -292,7 +292,7 @@ module.exports = {
 					return;
 				}
 				
-				let data = DBot.RandomArray(valids2);
+				let data = Array.Random(valids2);
 				let target = data.representations.medium || data.representations.small || data.image;
 				
 				if (previousStuff)

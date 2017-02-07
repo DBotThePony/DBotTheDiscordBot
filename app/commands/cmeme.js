@@ -3,7 +3,7 @@ const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
 const URL = DBot.js.url;
 const unirest = DBot.js.unirest;
-const fs = DBot.fs;
+const fs = DBot.js.filesystem;
 
 hook.Add('PrecacheFonts', 'CMeme', function() {
 	IMagick.PrecacheFont('Impact');
@@ -51,7 +51,7 @@ module.exports = {
 				bottomText = args[i];
 		}
 		
-		let hash = DBot.HashString(url + topText + (bottomText || ''));
+		let hash = String.hash(url + topText + (bottomText || ''));
 		
 		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;';

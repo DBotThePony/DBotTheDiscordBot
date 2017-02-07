@@ -65,7 +65,7 @@ const Statuses = [
 
 let changeStatus = function() {
 	if (!DBot.SQLReady()) return;
-	DBot.bot.user.setGame(DBot.RandomArray(Statuses));
+	DBot.bot.user.setGame(Array.Random(Statuses));
 }
 
 setInterval(changeStatus, 120000);

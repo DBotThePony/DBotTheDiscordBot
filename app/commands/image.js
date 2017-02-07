@@ -25,7 +25,7 @@ module.exports = {
 	func: function(args, cmd, msg, previousStuff) {
 		let enc = encodeURIComponent(cmd.toLowerCase());
 		let url = Search + enc;
-		let hash = DBot.HashString(enc);
+		let hash = String.hash(enc);
 		let cachePath = DBot.WebRoot + '/google_images/' + hash + '.json';
 		
 		let ServerTags;
@@ -89,7 +89,7 @@ module.exports = {
 			let result;
 			
 			if (previousStuff)
-				result = DBot.RandomArray(items2);
+				result = Array.Random(items2);
 			else
 				result = items2[0];
 			

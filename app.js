@@ -42,26 +42,12 @@ try {
 	throw err;
 }
 
-const token = DBot.cfg.token;
-let LEVEL_OF_CONNECTION = 0;
-let TimeoutID = null;
-let sqlRun = false;
-let shouldRunAfterSQL = false;
-
-DBot.bot = bot;
-DBot.client = bot;
-DBot.Discord = Discord;
-DBot.fs = require('fs');
-DBot.WebRoot = DBot.cfg.webroot;
-DBot.URLRootBare = DBot.cfg.webpath;
-DBot.URLRoot = DBot.cfg.protocol + '://' + DBot.cfg.webpath;
-DBot.owners = DBot.cfg.owners;
-
 DBot.js = {};
 
 DBot.js.child_process = require('child_process');
 DBot.js.unirest = require('unirest');
 DBot.js.fs = require('fs');
+DBot.js.filesystem = DBot.js.fs;
 DBot.js.json3 = require('json3');
 DBot.js.moment = require('moment');
 DBot.js.numeral = require('numeral');
@@ -71,6 +57,25 @@ DBot.js.hDuration = require('humanize-duration');
 DBot.js.os = require('os');
 DBot.js.Discord = Discord;
 DBot.js.sprintf = sprintf;
+
+MathHelper = require('./app/lib/mathhelper.js');
+require('./app/lib/extensions/array.js');
+require('./app/lib/extensions/number.js');
+require('./app/lib/extensions/string.js');
+
+const token = DBot.cfg.token;
+let LEVEL_OF_CONNECTION = 0;
+let TimeoutID = null;
+let sqlRun = false;
+let shouldRunAfterSQL = false;
+
+DBot.bot = bot;
+DBot.client = bot;
+DBot.Discord = Discord;
+DBot.WebRoot = DBot.cfg.webroot;
+DBot.URLRootBare = DBot.cfg.webpath;
+DBot.URLRoot = DBot.cfg.protocol + '://' + DBot.cfg.webpath;
+DBot.owners = DBot.cfg.owners;
 
 DBot.fs = DBot.js.fs;
 

@@ -1,7 +1,7 @@
 
 const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
-const fs = DBot.fs;
+const fs = DBot.js.filesystem;
 
 Util.mkdir(DBot.WebRoot + '/dice');
 Util.mkdir(DBot.WebRoot + '/multi');
@@ -21,7 +21,7 @@ module.exports = {
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'dice', args, 1);
 		
-		let hash = DBot.HashString(CurTime() + '_' + msg.channel.id);
+		let hash = String.hash(CurTime() + '_' + msg.channel.id);
 		let fPath;
 		
 		let fPathProcessed = DBot.WebRoot + '/dice/' + hash + '.png';
@@ -59,7 +59,7 @@ module.exports = {
 					let magikArgs = ['-background', 'none', '-tile', fragmentsW + 'x' + fragmentsH, '-geometry', '+0+0'];
 					
 					for (let i = 0; i < total; i++) {
-						let rand = Util.Random(-2, 2);
+						let rand = MathHelper.Random(-2, 2);
 						magikArgs.push('(', tmpFileDice + '[' + i + ']', '-rotate', rand * 90, ')')
 					}
 					
@@ -109,7 +109,7 @@ DBot.RegisterCommand({
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'scramble', args, 1);
 		
-		let hash = DBot.HashString(CurTime() + '_2_' + msg.channel.id);
+		let hash = String.hash(CurTime() + '_2_' + msg.channel.id);
 		let fPath;
 		
 		let fPathProcessed = DBot.WebRoot + '/dice/' + hash + '.png';
@@ -151,11 +151,11 @@ DBot.RegisterCommand({
 					let magikArgs = ['-background', 'none', '-tile', fragmentsW + 'x' + fragmentsH, '-geometry', '+0+0'];
 					
 					for (let i = 0; i < total; i++) {
-						let r = Util.Random(0, left.length - 1);
+						let r = MathHelper.Random(0, left.length - 1);
 						let slice = left[r];
 						left.splice(r, 1);
 						
-						let rand = Util.Random(-2, 2);
+						let rand = MathHelper.Random(-2, 2);
 						magikArgs.push('(', tmpFileDice + '[' + slice + ']', '-rotate', rand * 90, ')')
 					}
 					
@@ -205,7 +205,7 @@ DBot.RegisterCommand({
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'scramble2', args, 1);
 		
-		let hash = DBot.HashString(CurTime() + '_2_' + msg.channel.id);
+		let hash = String.hash(CurTime() + '_2_' + msg.channel.id);
 		let fPath;
 		
 		let fPathProcessed = DBot.WebRoot + '/dice/' + hash + '.png';
@@ -247,7 +247,7 @@ DBot.RegisterCommand({
 					let magikArgs = ['-background', 'none', '-tile', fragmentsW + 'x' + fragmentsH, '-geometry', '+0+0'];
 					
 					for (let i = 0; i < total; i++) {
-						let r = Util.Random(0, left.length - 1);
+						let r = MathHelper.Random(0, left.length - 1);
 						let slice = left[r];
 						left.splice(r, 1);
 						
@@ -301,7 +301,7 @@ DBot.RegisterCommand({
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'multi', args, 1);
 		
-		const hash = DBot.HashString(CurTime() + '_' + msg.channel.id);
+		const hash = String.hash(CurTime() + '_' + msg.channel.id);
 		let fPath;
 		
 		const fPathProcessed = DBot.WebRoot + '/multi/' + hash + '.png';
@@ -326,7 +326,7 @@ DBot.RegisterCommand({
 			];
 			
 			for (let i = 0; i <= 400; i++) {
-				let rand = Util.Random(-2, 2);
+				let rand = MathHelper.Random(-2, 2);
 				magikArgs.push('(', '-clone', '0', '-rotate', rand * 90, ')')
 			}
 			
@@ -453,7 +453,7 @@ DBot.RegisterCommand({
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'spinned', args, 1);
 		
-		let hash = DBot.HashString(url);
+		let hash = String.hash(url);
 		let fPath;
 		
 		let fPathProcessed = DBot.WebRoot + '/maze/' + hash + '.png';

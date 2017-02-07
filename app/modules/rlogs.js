@@ -190,7 +190,7 @@ DBot.RegisterCommand({
 		
 		let isFull = args[1] && (args[1].toLowerCase() == 'full' || args[1].toLowerCase() == 'f' || args[1].toLowerCase() == 'all');
 		let limitStr = !isFull && '10' || '200';
-		let sha = DBot.HashString(CurTime() + '_roles_' + msg.channel.guild.id);
+		let sha = String.hash(CurTime() + '_roles_' + msg.channel.guild.id);
 		let path = DBot.WebRoot + '/rlogs/' + sha + '.txt';
 		let pathU = DBot.URLRoot + '/rlogs/' + sha + '.txt';
 		

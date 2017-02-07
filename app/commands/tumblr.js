@@ -22,7 +22,7 @@ module.exports = {
 	desc: 'Posts a random post from specified blog',
 	
 	func: function(args, cmd, msg, previousStuff) {
-		let sha = DBot.HashString(args[0]);
+		let sha = String.hash(args[0]);
 		let fpath = DBot.WebRoot + '/tumblr/' + sha + '.json';
 		
 		msg.channel.startTyping();
@@ -47,7 +47,7 @@ module.exports = {
 				let rand;
 				
 				if (previousStuff) {
-					rand = Util.RandomArray(posts.filter(function(item) {
+					rand = Array.Random(posts.filter(function(item) {
 						return !Util.HasValue(previousStuff, item.id);
 					}));
 					
@@ -58,7 +58,7 @@ module.exports = {
 					
 					previousStuff.push(rand.id);
 				} else {
-					rand = Util.RandomArray(posts);
+					rand = Array.Random(posts);
 				}
 				
 				let url = rand.post_url;

@@ -218,7 +218,7 @@ const loadingStage3 = function() {
 
 					let finalQuery = 'BEGIN;';
 
-					const hash = DBot.HashString(font + '_' + currentSize);
+					const hash = String.hash(font + '_' + currentSize);
 					let magikArgs = ['xc:none', '-background', 'none', '-font', font, '-pointsize', currentSize];
 
 					for (let i in CharsToCheckForSize) {
@@ -389,7 +389,7 @@ DrawText = function(text, callback, rFontSize) {
 			max = splitLines[i].length;
 	}
 	
-	let sha = DBot.HashString(text + '------FONTSIZE:' + rFontSize);
+	let sha = String.hash(text + '------FONTSIZE:' + rFontSize);
 	let fpath = DBot.WebRoot + '/textdraw/' + sha + '.png';
 	let fpathU = DBot.URLRoot + '/textdraw/' + sha + '.png';
 	
@@ -458,7 +458,7 @@ IMagick.DrawText = function(data, callback) {
 			max = splitLines[i].length;
 	}
 	
-	const sha = DBot.HashString(text + '-FONTSIZE:' + rFontSize + '-FONT:' + font + '-LOLCAT:' + (lolcat && '1' || '0'));
+	const sha = String.hash(text + '-FONTSIZE:' + rFontSize + '-FONT:' + font + '-LOLCAT:' + (lolcat && '1' || '0'));
 	const fpath = DBot.WebRoot + '/textdraw/' + sha + '.png';
 	const fpathU = DBot.URLRoot + '/textdraw/' + sha + '.png';
 	
@@ -589,7 +589,7 @@ IMagick.DrawText = function(data, callback) {
 				};
 				
 				for (let line in magikLines) {
-					let newArgs = Util.AppendArrays(Util.CopyArray(magikArgs), magikLines[line]);
+					let newArgs = Array.Append(Array.Copy(magikArgs), magikLines[line]);
 					
 					newArgs.push(DBot.WebRoot + '/textdraw/' + sha + '_tmp_' + line + '.png');
 					let magik = spawn('convert', newArgs);
@@ -656,3 +656,21 @@ IMagick.GetInfo = function(path, callback) {
 };
 
 IMagick.Identify = IMagick.GetInfo;
+
+IMagick.MonospaceText = function(x, y, text, size, spaceMult) {
+	let reply = '';
+	
+	for (let i in text) {
+		let Char = text[i];
+		
+		if (Char === '\\')
+			Char = '\\\\';
+		
+		if (Char === '"')
+			Char = '\\"';
+		
+		reply += ' text ' + (x + i * size * spaceMult) + ',' + y + ' "' + Char + '"';
+	}
+	
+	return reply;
+};

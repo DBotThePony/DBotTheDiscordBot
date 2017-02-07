@@ -3,7 +3,7 @@ const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
 const URL = DBot.js.url;
 const unirest = DBot.js.unirest;
-const fs = DBot.fs;
+const fs = DBot.js.filesystem;
 
 Util.mkdir(DBot.WebRoot + '/polarblur');
 
@@ -43,7 +43,7 @@ module.exports = {
 			}
 		}
 		
-		let hash = DBot.HashString(url);
+		let hash = String.hash(url);
 		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['polarblur'], 2, args);
 		

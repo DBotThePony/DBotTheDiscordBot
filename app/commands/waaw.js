@@ -3,7 +3,7 @@ const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
 const URL = DBot.js.url;
 const unirest = DBot.js.unirest;
-const fs = DBot.fs;
+const fs = DBot.js.filesystem;
 
 Util.mkdir(DBot.WebRoot + '/reflect');
 
@@ -22,7 +22,7 @@ let fn = function(name, toUse) {
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 		
-		let hash = DBot.HashString(url);
+		let hash = String.hash(url);
 		
 		let ext = DBot.ExtraxtExt(url);
 		let fPath;
@@ -113,7 +113,7 @@ let fn2 = function(name, toUse, dir) {
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 		
-		let hash = DBot.HashString(url);
+		let hash = String.hash(url);
 		
 		let fPath;
 		let fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_' + toUse + '.png';
@@ -183,7 +183,7 @@ let fn3 = function(name) {
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
 		
-		let hash = DBot.HashString(url);
+		let hash = String.hash(url);
 		
 		let fPath;
 		let fPathProcessed = DBot.WebRoot + '/reflect/' + hash + '_' + name + '.png';

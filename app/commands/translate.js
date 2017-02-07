@@ -112,7 +112,7 @@ module.exports = {
 			toTranslate += ' ' + args[i];
 		}
 		
-		let sha = DBot.HashString(cmd);
+		let sha = String.hash(cmd);
 		let fpath = DBot.WebRoot + '/translate/' + sha + '.json';
 		
 		let continueFunc = function(data) {

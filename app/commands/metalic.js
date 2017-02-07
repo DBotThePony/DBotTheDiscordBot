@@ -28,7 +28,7 @@ module.exports = {
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'metalic', args, 1);
 		
-		let sha = DBot.HashString(url);
+		let sha = String.hash(url);
 		
 		let fInput;
 		
@@ -84,7 +84,7 @@ DBot.RegisterCommand({
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'metalic', args, 1);
 		
-		let sha = DBot.HashString(url);
+		let sha = String.hash(url);
 		
 		let fInput;
 		

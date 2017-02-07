@@ -148,7 +148,7 @@ module.exports = {
 		if (!time)
 			return 'There is must be time' + Util.HighlightHelp(['timer'], 3, args);
 		
-		let num = Util.ToNumber(time);
+		let num = Number.from(time);
 		
 		for (let i = 2; i < args.length; i++) {
 			time += ' ' + args[i];
@@ -166,15 +166,15 @@ module.exports = {
 			let seconds = time.match(/[0-9]+(s|seconds)/);
 			
 			if (hours) {
-				parsed += Util.ToNumberSoft(hours[0]) * 3600;
+				parsed += Numer.fromWeak(hours[0]) * 3600;
 			}
 			
 			if (minutes) {
-				parsed += Util.ToNumberSoft(minutes[0]) * 60;
+				parsed += Numer.fromWeak(minutes[0]) * 60;
 			}
 			
 			if (seconds) {
-				parsed += Util.ToNumberSoft(seconds[0]);
+				parsed += Numer.fromWeak(seconds[0]);
 			}
 			
 			if (parsed == 0) {

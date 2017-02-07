@@ -117,7 +117,7 @@ module.exports = {
 	more: true,
 	
 	func: function(args, cmd, msg, previousStuff) {
-		args[0] = args[0] || DBot.RandomArray(Boards)[0];
+		args[0] = args[0] || Array.Random(Boards)[0];
 		let board = args[0];
 		board = board.toLowerCase();
 		
@@ -185,7 +185,7 @@ module.exports = {
 				let rand;
 				
 				if (previousStuff) {
-					rand = Util.RandomArray(validReplies.filter(function(item) {
+					rand = Array.Random(validReplies.filter(function(item) {
 						return !Util.HasValue(previousStuff, item[1]);
 					}));
 					
@@ -196,7 +196,7 @@ module.exports = {
 					
 					previousStuff.push(rand[1]);
 				} else {
-					rand = DBot.RandomArray(validReplies);
+					rand = Array.Random(validReplies);
 				}
 				
 				if (!rand) {

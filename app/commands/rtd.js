@@ -7,8 +7,8 @@ module.exports = {
 	desc: 'Rolls the dice!',
 	
 	func: function(args, cmd, msg) {
-		let edges = Math.floor(Util.ToNumber(args[0]) || 6);
-		let times = Math.floor(Util.ToNumber(args[1]) || 1);
+		let edges = Math.floor(Number.from(args[0]) || 6);
+		let times = Math.floor(Number.from(args[1]) || 1);
 		
 		if (edges <= 1)
 			return 'One edge? wot';
@@ -25,12 +25,12 @@ module.exports = {
 		let rolls = [];
 		
 		for (let i = 1; i <= times; i++) {
-			rolls.push(Util.Random(1, edges));
+			rolls.push(MathHelper.Random(1, edges));
 		}
 		
 		if (!DBot.IsPM(msg))
-			msg.channel.sendMessage(msg.author + ' rolled: ' + Util.Concat(rolls, ', '));
+			msg.channel.sendMessage(msg.author + ' rolled: ' + rolls.join(', '));
 		else
-			msg.channel.sendMessage('Rolled: ' + Util.Concat(rolls, ', '));
+			msg.channel.sendMessage('Rolled: ' + rolls.join(', '));
 	}
 }

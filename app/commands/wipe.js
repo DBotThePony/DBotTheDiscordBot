@@ -114,7 +114,7 @@ DBot.RegisterCommand({
 		if (DBot.IsPM(msg))
 			return 'Must execute in server channel ;n;';
 		
-		let amount = Util.ToNumber(args[0]) || 30;
+		let amount = Number.from(args[0]) || 30;
 		let me = DBot.FindMeInChannel(msg.channel);
 		
 		if (!me)

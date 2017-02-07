@@ -3,7 +3,7 @@
 
 const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
-const fs = DBot.fs;
+const fs = DBot.js.filesystem;
 
 Util.mkdir(DBot.WebRoot + '/wall');
 
@@ -22,7 +22,7 @@ module.exports = {
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'wall', args, 1);
 		
-		let hash = DBot.HashString(url);
+		let hash = String.hash(url);
 		
 		let fPath;
 		

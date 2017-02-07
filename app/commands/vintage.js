@@ -3,7 +3,7 @@ const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
 const URL = DBot.js.url;
 let unirest = DBot.js.unirest;
-let fs = DBot.fs;
+let fs = DBot.js.filesystem;
 
 Util.mkdir(DBot.WebRoot + '/vintage');
 Util.mkdir(DBot.WebRoot + '/vintage2');
@@ -32,7 +32,7 @@ module.exports = {
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'vintage', args, 1);
 		
-		let hash = DBot.HashString(url);
+		let hash = String.hash(url);
 		
 		let fPath;
 		
@@ -41,24 +41,10 @@ module.exports = {
 		
 		msg.channel.startTyping();
 		
-		let msgNew;
-		let iShouldDelete = false;
-		
-		msg.oldReply(DBot.GenerateWaitMessage()).then(function(i) {
-			msgNew = i;
-			
-			if (iShouldDelete)
-				msgNew.delete(0);
-		});
-		
 		let ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
-					iShouldDelete = true;
-					if (msgNew)
-						msgNew.delete(0);
-					
 					msg.reply(fPathProcessedURL);
 				} else {
 					let magik = spawn('bash', ['./resource/scripts/vintage1', fPath, fPathProcessed]);
@@ -79,10 +65,6 @@ module.exports = {
 						}
 						
 						msg.channel.stopTyping();
-						
-						iShouldDelete = true;
-						if (msgNew)
-							msgNew.delete(0);
 					});
 				}
 			});
@@ -93,11 +75,6 @@ module.exports = {
 			ContinueFunc();
 		}, function(result) {
 			msg.channel.stopTyping();
-			
-			iShouldDelete = true;
-			if (msgNew)
-				msgNew.delete(0);
-			
 			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
 		});
 	}
@@ -117,7 +94,7 @@ DBot.RegisterCommand({
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'vintage2', args, 1);
 		
-		let hash = DBot.HashString(url);
+		let hash = String.hash(url);
 		
 		let fPath;
 		
@@ -126,24 +103,10 @@ DBot.RegisterCommand({
 		
 		msg.channel.startTyping();
 		
-		let msgNew;
-		let iShouldDelete = false;
-		
-		msg.oldReply(DBot.GenerateWaitMessage()).then(function(i) {
-			msgNew = i;
-			
-			if (iShouldDelete)
-				msgNew.delete(0);
-		});
-		
 		let ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
-					iShouldDelete = true;
-					if (msgNew)
-						msgNew.delete(0);
-					
 					msg.reply(fPathProcessedURL);
 				} else {
 					let magik = spawn('bash', ['./resource/scripts/vintage2', fPath, fPathProcessed]);
@@ -157,16 +120,13 @@ DBot.RegisterCommand({
 					});
 					
 					magik.on('close', function(code) {
+						msg.channel.stopTyping();
+						
 						if (code == 0) {
 							msg.reply(fPathProcessedURL);
 						} else {
 							msg.reply('Uh oh! You are trying to break me ;n; Why? ;n;');
 						}
-						
-						msg.channel.stopTyping();
-						iShouldDelete = true;
-						if (msgNew)
-							msgNew.delete(0);
 					});
 				}
 			});
@@ -177,9 +137,6 @@ DBot.RegisterCommand({
 			ContinueFunc();
 		}, function(result) {
 			msg.channel.stopTyping();
-			iShouldDelete = true;
-			if (msgNew)
-				msgNew.delete(0);
 			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
 		});
 	}
@@ -207,7 +164,7 @@ DBot.RegisterCommand({
 			}
 		}
 		
-		let hash = DBot.HashString(url);
+		let hash = String.hash(url);
 		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['vintage3'], 2, args);
 		
@@ -218,24 +175,10 @@ DBot.RegisterCommand({
 		
 		msg.channel.startTyping();
 		
-		let msgNew;
-		let iShouldDelete = false;
-		
-		msg.oldReply(DBot.GenerateWaitMessage()).then(function(i) {
-			msgNew = i;
-			
-			if (iShouldDelete)
-				msgNew.delete(0);
-		});
-		
 		let ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
-					iShouldDelete = true;
-					if (msgNew)
-						msgNew.delete(0);
-					
 					msg.reply(fPathProcessedURL);
 				} else {
 					let magik = spawn('bash', ['./resource/scripts/vintage3', fPath, fPathProcessed]);
@@ -249,17 +192,13 @@ DBot.RegisterCommand({
 					});
 					
 					magik.on('close', function(code) {
+						msg.channel.stopTyping();
+						
 						if (code == 0) {
 							msg.reply(fPathProcessedURL);
 						} else {
 							msg.reply('Uh oh! You are trying to break me ;n; Why? ;n;');
 						}
-						
-						msg.channel.stopTyping();
-						
-						iShouldDelete = true;
-						if (msgNew)
-							msgNew.delete(0);
 					});
 				}
 			});
@@ -270,11 +209,6 @@ DBot.RegisterCommand({
 			ContinueFunc();
 		}, function(result) {
 			msg.channel.stopTyping();
-			
-			iShouldDelete = true;
-			if (msgNew)
-				msgNew.delete(0);
-			
 			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
 		});
 	}

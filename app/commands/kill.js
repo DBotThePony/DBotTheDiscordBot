@@ -77,7 +77,7 @@ let generateFunc = function(col1, col2) {
 		if (typeof username2 == 'object')
 			username2 = username2.username;
 		
-		let sha = DBot.HashString(username + ' ' + weapon + ' ' + username2);
+		let sha = String.hash(username + ' ' + weapon + ' ' + username2);
 		let fpath = DBot.WebRoot + '/killfeed/' + sha + '.png';
 		let fpathU = DBot.URLRoot + '/killfeed/' + sha + '.png';
 		

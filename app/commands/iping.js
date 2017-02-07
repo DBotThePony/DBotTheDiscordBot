@@ -39,10 +39,10 @@ module.exports = {
 		}
 		
 		if (matchIP) {
-			let a = Util.ToNumber(matchIP[1]);
-			let b = Util.ToNumber(matchIP[2]);
-			let c = Util.ToNumber(matchIP[3]);
-			let d = Util.ToNumber(matchIP[4]);
+			let a = Number.from(matchIP[1]);
+			let b = Number.from(matchIP[2]);
+			let c = Number.from(matchIP[3]);
+			let d = Number.from(matchIP[4]);
 			
 			let cond = !a || !b || !c || !d ||
 				a < 1 || a > 255 ||

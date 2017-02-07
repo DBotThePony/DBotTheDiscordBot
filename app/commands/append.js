@@ -33,7 +33,7 @@ let fn = function(fName, i, resize, fName2) {
 		if (urlBuild.length < 2)
 			return 'Must specify at least two images';
 		
-		let sha = DBot.HashString(urlBuild.join(' '));
+		let sha = String.hash(urlBuild.join(' '));
 		let fpath = DBot.WebRoot + '/append/' + sha + '_' + i + '.png';
 		let fpathU = DBot.URLRoot + '/append/' + sha + '_' + i + '.png';
 		

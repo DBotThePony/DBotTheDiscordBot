@@ -68,7 +68,7 @@ module.exports = {
 		try {
 			let users = msg.channel.guild.members.array();
 			
-			let sha = DBot.HashString(CurTime() + '_' + msg.channel.guild.id);
+			let sha = String.hash(CurTime() + '_' + msg.channel.guild.id);
 			
 			let stream = fs.createWriteStream(DBot.WebRoot + '/users/' + sha + '.html');
 			

@@ -31,7 +31,7 @@ module.exports = {
 		let matchIP = ip.match(/([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/);
 		
 		if (split[1]) {
-			let portNum = Util.ToNumber(split[1]);
+			let portNum = Number.from(split[1]);
 			
 			if (!portNum) {
 				return DBot.CommandError('Invalid port', 'sping', args, 1);
@@ -41,7 +41,7 @@ module.exports = {
 		}
 		
 		let continueFunc = function() {
-			let randPort = Util.Random(50000, 55000);
+			let randPort = MathHelper.Random(50000, 55000);
 			let Closed = false;
 			let sendStamp;
 			
@@ -155,10 +155,10 @@ module.exports = {
 		}
 		
 		if (matchIP) {
-			let a = Util.ToNumber(matchIP[1]);
-			let b = Util.ToNumber(matchIP[2]);
-			let c = Util.ToNumber(matchIP[3]);
-			let d = Util.ToNumber(matchIP[4]);
+			let a = Number.from(matchIP[1]);
+			let b = Number.from(matchIP[2]);
+			let c = Number.from(matchIP[3]);
+			let d = Number.from(matchIP[4]);
 			
 			let cond = !a || !b || !c || !d ||
 				a < 1 || a > 255 ||

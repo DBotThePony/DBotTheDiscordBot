@@ -1,5 +1,5 @@
 
-const fs = DBot.fs;
+const fs = DBot.js.filesystem;
 
 module.exports = {
 	name: 'nfs',

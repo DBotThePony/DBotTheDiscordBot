@@ -3,7 +3,7 @@ const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
 const URL = DBot.js.url;
 const unirest = DBot.js.unirest;
-const fs = DBot.fs;
+const fs = DBot.js.filesystem;
 
 Util.mkdir(DBot.WebRoot + '/wasted');
 
@@ -28,7 +28,7 @@ module.exports = {
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'wasted', args, 1);
 		
-		let hash = DBot.HashString(url);
+		let hash = String.hash(url);
 		
 		let fPath;
 		
@@ -194,7 +194,7 @@ DBot.RegisterCommand({
 			}
 		}
 		
-		let hash = DBot.HashString(url);
+		let hash = String.hash(url);
 		
 		if (!DBot.CheckURLImage(url))
 			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['dead'], 2, args);

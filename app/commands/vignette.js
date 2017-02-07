@@ -3,7 +3,7 @@ const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
 const URL = DBot.js.url;
 const unirest = DBot.js.unirest;
-const fs = DBot.fs;
+const fs = DBot.js.filesystem;
 
 Util.mkdir(DBot.WebRoot + '/vignette');
 
@@ -29,7 +29,7 @@ module.exports = {
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'vignette', args, 1);
 		
-		let hash = DBot.HashString(url);
+		let hash = String.hash(url);
 		
 		msg.channel.startTyping();
 		
@@ -38,24 +38,10 @@ module.exports = {
 		let fPathProcessed = DBot.WebRoot + '/vignette/' + hash + '.png';
 		let fPathProcessedURL = DBot.URLRoot + '/vignette/' + hash + '.png';
 		
-		let msgNew;
-		let iShouldDelete = false;
-		
-		msg.oldReply(DBot.GenerateWaitMessage()).then(function(i) {
-			msgNew = i;
-			
-			if (iShouldDelete)
-				msgNew.delete(0);
-		});
-		
 		let ContinueFunc = function() {
 			fs.stat(fPathProcessed, function(err, stat) {
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
-					iShouldDelete = true;
-					if (msgNew)
-						msgNew.delete(0);
-					
 					msg.reply(fPathProcessedURL);
 				} else {
 					let magik = spawn('bash', ['./resource/scripts/vignette', '-i', '50', '-o', '150', '-c', 'black', '-a', '100', fPath, fPathProcessed]);
@@ -76,9 +62,6 @@ module.exports = {
 						}
 						
 						msg.channel.stopTyping();
-						iShouldDelete = true;
-						if (msgNew)
-							msgNew.delete(0);
 					});
 				}
 			});
@@ -89,11 +72,6 @@ module.exports = {
 			ContinueFunc();
 		}, function(result) {
 			msg.channel.stopTyping();
-			
-			iShouldDelete = true;
-			if (msgNew)
-				msgNew.delete(0);
-			
 			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
 		});
 	}

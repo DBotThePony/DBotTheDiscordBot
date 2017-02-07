@@ -19,7 +19,7 @@ module.exports = {
 	desc: 'Post a RIP',
 	
 	func: function(args, cmd, msg) {
-		args[1] = args[1] || DBot.RandomArray(endPhrases);
+		args[1] = args[1] || Array.Random(endPhrases);
 		let bArgs = '';
 		
 		for (let i = 0; i < Math.min(args.length, 3); i++) {
@@ -28,7 +28,7 @@ module.exports = {
 		
 		msg.channel.startTyping();
 		
-		let hash = DBot.HashString(bArgs);
+		let hash = String.hash(bArgs);
 		let myPath = path + '/' + hash + '.jpg';
 		let url = 'https://dbot.serealia.ca/bot/tomb/' + hash + '.jpg';
 		

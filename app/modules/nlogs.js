@@ -312,7 +312,7 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				let pth = '/namelog/' + DBot.HashString(CurTime()) + '.txt';
+				let pth = '/namelog/' + String.hash(CurTime()) + '.txt';
 				let stream = fs.createWriteStream(DBot.WebRoot + pth);
 				
 				stream.write('\n' + Util.AppendSpaces('Nickname', 40) + Util.AppendSpaces('Total time in use', 40) + Util.AppendSpaces('Last use', 30) + '\n')
@@ -363,7 +363,7 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				let pth = '/namelog/' + DBot.HashString(CurTime() + '_' + msg.channel.guild.id) + '.txt';
+				let pth = '/namelog/' + String.hash(CurTime() + '_' + msg.channel.guild.id) + '.txt';
 				let stream = fs.createWriteStream(DBot.WebRoot + pth);
 				stream.write('\n\n');
 				

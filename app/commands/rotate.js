@@ -1,7 +1,7 @@
 
 const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
-const fs = DBot.fs;
+const fs = DBot.js.filesystem;
 
 Util.mkdir(DBot.WebRoot + '/rotate')
 
@@ -13,7 +13,7 @@ module.exports = {
 	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
-		let degree = Util.ToNumber(args[0]);
+		let degree = Number.from(args[0]);
 		
 		if (!degree)
 			return DBot.CommandError('No degree specified ;N;', 'rotate', args, 1);
@@ -42,7 +42,7 @@ module.exports = {
 		if (!DBot.CheckURLImage2(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', 'rotate', args, 2);
 		
-		let hash = DBot.HashString(url + '___' + degree);
+		let hash = String.hash(url + '___' + degree);
 		
 		let fPath;
 		let fPathProcessed;
@@ -99,7 +99,7 @@ DBot.RegisterCommand({
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'grotate', args, 1);
 		
-		let hash = DBot.HashString(url);
+		let hash = String.hash(url);
 		
 		let fPath;
 		let fPathProcessed = DBot.WebRoot + '/rotate/' + hash + '.gif';
@@ -160,7 +160,7 @@ DBot.RegisterCommand({
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'grotate', args, 1);
 		
-		let hash = DBot.HashString(url);
+		let hash = String.hash(url);
 		
 		let fPath;
 		let fPathProcessed = DBot.WebRoot + '/rotate/' + hash + '.gif';

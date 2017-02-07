@@ -31,12 +31,12 @@ module.exports = {
 	delay: 10,
 	
 	func: function(args, cmd, msg) {
-		let ponePNG = Util.RandomArray(AvaliablePoniesPNG);
+		let ponePNG = Array.Random(AvaliablePoniesPNG);
 		
 		fs.readFile('./resource/poni/' + ponePNG, {encoding: null}, function(err, data) {
 			msg.channel.sendFile(data, ponePNG)
 			.catch(function() {
-				msg.channel.sendMessage('```' + Util.RandomArray(AvaliablePonies.length) + '```');
+				msg.channel.sendMessage('```' + Array.Random(AvaliablePonies.length) + '```');
 			});
 		});
 	},

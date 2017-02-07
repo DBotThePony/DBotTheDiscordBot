@@ -1,6 +1,6 @@
 
 const moment = require('moment');
-const fs = DBot.fs;
+const fs = DBot.js.filesystem;
 const hDuration = require('humanize-duration');
 
 Util.mkdir(DBot.WebRoot + '/jlogs');
@@ -83,7 +83,7 @@ DBot.RegisterCommand({
 				return;
 			}
 			
-			let hash = DBot.HashString(CurTime().toString());
+			let hash = String.hash(CurTime().toString());
 			let stream = fs.createWriteStream(DBot.WebRoot + '/jlogs/' + hash + '.txt');
 			stream.write('\n' + Util.AppendSpaces('User', 40) + Util.AppendSpaces('Type', 20) + Util.AppendSpaces('Time', 30) + '\n');
 			

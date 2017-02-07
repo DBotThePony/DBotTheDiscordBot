@@ -14,8 +14,8 @@ let SteamIDTo64 = function(id) {
 	
 	let split = id.split(':');
 	
-	server = Util.ToNumber(split[1]);
-	AuthID = Util.ToNumber(split[2]);
+	server = Number.from(split[1]);
+	AuthID = Number.from(split[2]);
 	
 	let Mult = AuthID * 2;
 	
@@ -28,7 +28,7 @@ let SteamIDTo64 = function(id) {
 
 let SteamIDFrom64 = function(id) {
 	let newNum = new BigNumber(id);
-	let num = Util.ToNumber(newNum.minus(new BigNumber('76561197960265728')).toString(10));
+	let num = Number.from(newNum.minus(new BigNumber('76561197960265728')).toString(10));
 	
 	let server = num % 2;
 	num = num - server;
@@ -42,8 +42,8 @@ let SteamIDTo3 = function(id) {
 	
 	let split = id.split(':');
 	
-	server = Util.ToNumber(split[1]);
-	AuthID = Util.ToNumber(split[2]);
+	server = Number.from(split[1]);
+	AuthID = Number.from(split[2]);
 	
 	return '[U:1:' + (AuthID * 2 + server) + ']';
 }
@@ -52,7 +52,7 @@ let SteamIDFrom3 = function(id) {
 	let sub = id.substr(1, id.length - 2);
 	let split = sub.split(':');
 	
-	let uid = Util.ToNumber(split[2]);
+	let uid = Number.from(split[2]);
 	if (!uid)
 		return false;
 	
@@ -83,7 +83,7 @@ module.exports = {
 			.replace('http://steamcommunity.com/profile/', '')
 			.replace(manipulateRegExp, '');
 		
-		let validID = Util.ToNumber(toManipulate);
+		let validID = Number.from(toManipulate);
 		
 		let SteamID = '';
 		let SteamID3 = '';

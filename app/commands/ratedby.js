@@ -24,7 +24,7 @@ module.exports = {
 			return DBot.CommandError('Must specify at least one string ;w;', 'ratedby', args, 3);
 		}
 		
-		let age = Util.ToNumber(args[1]);
+		let age = Number.from(args[1]);
 		let ageArg = args[1];
 		
 		if (age) {
@@ -32,7 +32,7 @@ module.exports = {
 		}
 		
 		let ageLen = ageArg.toString().length;
-		let sha = DBot.HashString(msg.author.id + ' ' + cmd);
+		let sha = String.hash(msg.author.id + ' ' + cmd);
 		let fpath = DBot.WebRoot + '/ratedby/' + sha + '.png';
 		let fpathU = DBot.URLRoot + '/ratedby/' + sha + '.png';
 		

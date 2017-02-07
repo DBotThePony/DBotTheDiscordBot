@@ -92,7 +92,7 @@ pgConnection.connect(function(err) {
 		if (err) throw err;
 		
 		let db_rev = 0;
-		let last_rev = DBot.fs.readdirSync('./app/dbrevisions/').length;
+		let last_rev = DBot.js.filesystem.readdirSync('./app/dbrevisions/').length;
 		
 		pgConnection.query('SELECT "VALUE" FROM db_info WHERE "KEY" = \'version\'', function(err, data) {
 			if (err) throw err;
@@ -125,7 +125,7 @@ pgConnection.connect(function(err) {
 				for (let i = db_rev + 1; i <= last_rev; i++) {
 					callbackFuncs.push(function(err) {
 						console.log((i - 1) + '->' + i);
-						let contents = DBot.fs.readFileSync('./app/dbrevisions/' + i + '.sql', 'utf8');
+						let contents = DBot.js.filesystem.readFileSync('./app/dbrevisions/' + i + '.sql', 'utf8');
 						pgConnection.query(contents, usualCallback);
 					});
 				}

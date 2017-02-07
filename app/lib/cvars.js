@@ -150,21 +150,21 @@ class ConVar {
 				if (!val.match(/^([0-9]+)$/))
 					return [false, FCVAR_NUMERSONLY];
 				
-				if (!Util.ToNumber(val))
+				if (!Number.from(val))
 					return [false, FCVAR_NUMERSONLY];
 			} else if (flag == FCVAR_NUMERSONLY_INT) {
 				if (!val.match(/^([0-9]+)$/))
 					return [false, FCVAR_NUMERSONLY_INT];
 				
-				if (!Util.ToNumber(val))
+				if (!Number.from(val))
 					return [false, FCVAR_NUMERSONLY_INT];
 				
-				val = String(Math.floor(Util.ToNumber(val)));
+				val = String(Math.floor(Number.from(val)));
 			} else if (flag == FCVAR_NUMERSONLY_UINT) {
 				if (!val.match(/^([0-9]+)$/))
 					return [false, FCVAR_NUMERSONLY_UINT];
 				
-				let num = Util.ToNumber(val);
+				let num = Number.from(val);
 				if (!num || num < 0)
 					return [false, FCVAR_NUMERSONLY_UINT];
 				
@@ -173,7 +173,7 @@ class ConVar {
 				if (val == '')
 					continue;
 				
-				let channelID2 = Util.ToNumber(val);
+				let channelID2 = Number.from(val);
 				
 				if (channelID2) {
 					let find = DBot.FindChannel(channelID2);
@@ -206,7 +206,7 @@ class ConVar {
 				if (val == '')
 					continue;
 				
-				let user2 = Util.ToNumber(val);
+				let user2 = Number.from(val);
 				
 				if (user2) {
 					let find;
@@ -341,12 +341,12 @@ class ConVar {
 	}
 	
 	getInt() {
-		let val = Util.ToNumber(this.value) || Util.ToNumber(this.defValue);
+		let val = Number.from(this.value) || Number.from(this.defValue);
 		return Math.floor(val);
 	}
 	
 	getFloat() {
-		let val = Util.ToNumber(this.value) || Util.ToNumber(this.defValue);
+		let val = Number.from(this.value) || Number.from(this.defValue);
 		return val;
 	}
 	
@@ -354,7 +354,7 @@ class ConVar {
 		if (this.value == '' || this.value == '0' || this.value == 'false' || this.value == 'lie')
 			return false;
 		
-		let num = Util.ToNumber(this.value);
+		let num = Number.from(this.value);
 		
 		if (num && num < 0)
 			return false;

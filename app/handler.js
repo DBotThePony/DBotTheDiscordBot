@@ -10,7 +10,7 @@ let baseMessageHandleFunc = function(self, str) {
 		return {then: function() {}, catch: function() {}};
 
 	if (str.length > 1800) {
-		let sha = DBot.HashString(CurTime() + self.author.id + self.channel.id);
+		let sha = String.hash(CurTime() + self.author.id + self.channel.id);
 		let oldMess = str;
 		str = 'Message is too big to send it here, here is the message: <' + DBot.URLRoot + '/msgs/' + sha + '.txt>';
 		let path = DBot.WebRoot + '/msgs/' + sha + '.txt';
@@ -547,9 +547,9 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 			let pipe = DBot.CommandsPipes[pipeID];
 			
 			if (pipe) {
-				let spliced = Util.CopyArray(parsedHandlers);
+				let spliced = Array.Copy(parsedHandlers);
 				spliced.splice(0, 1);
-				let splitted = Util.AppendArrays(spliced, str.split(' '));
+				let splitted = Array.Append(spliced, str.split(' '));
 				
 				let rawcmd = '';
 				let first = true;
@@ -615,9 +615,9 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 			let pipe = DBot.CommandsPipes[pipeID];
 			
 			if (pipe) {
-				let spliced = Util.CopyArray(parsedHandlers);
+				let spliced = Array.Copy(parsedHandlers);
 				spliced.splice(0, 1);
-				let splitted = Util.AppendArrays(spliced, str.split(' '));
+				let splitted = Array.Append(spliced, str.split(' '));
 				
 				let rawcmd = '';
 				let first = true;

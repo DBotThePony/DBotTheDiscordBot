@@ -31,7 +31,7 @@ module.exports = {
 						return;
 					}
 					
-					let tags = 'Tags: ' + DBot.ConcatArray(result.body.tags, ', ');
+					let tags = 'Tags: ' + result.body.tags.join(', ');
 					let link = first.permalink;
 					let def = first.definition;
 					let example = first.example;

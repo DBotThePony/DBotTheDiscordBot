@@ -206,7 +206,7 @@ let top10fn = function(name, order) {
 		if (DBot.IsPM(msg))
 			return 'Oh! This is PM x3';
 		
-		let page = Util.ToNumber(args[0]) || 1;
+		let page = Number.from(args[0]) || 1;
 		
 		if (page <= 0)
 			return DBot.CommandError('what', name, args, 1);
@@ -321,7 +321,7 @@ DBot.RegisterCommand({
 
 let gtop10fn = function(name, order) {
 	return function(args, cmd, msg) {
-		let page = Util.ToNumber(args[0]) || 1;
+		let page = Number.from(args[0]) || 1;
 		
 		if (page <= 0)
 			return DBot.CommandError('what', name, args, 1);
@@ -433,7 +433,7 @@ let ctop10fn = function(name, order) {
 		if (DBot.IsPM(msg))
 			return 'Oh! This is PM x3';
 		
-		let page = Util.ToNumber(args[0]) || 1;
+		let page = Number.from(args[0]) || 1;
 		
 		if (page <= 0)
 			return DBot.CommandError('what', 'ctop10', args, 1);
@@ -576,7 +576,7 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				let sha = DBot.HashString(CurTime() + '_' + msg.channel.guild.uid);
+				let sha = String.hash(CurTime() + '_' + msg.channel.guild.uid);
 				let stream = fs.createWriteStream(DBot.WebRoot + '/ntstats/' + sha + '.txt');
 				
 				stream.write('Table of users\n');

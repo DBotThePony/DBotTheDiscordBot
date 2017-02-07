@@ -1,7 +1,7 @@
 
 const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
-const fs = DBot.fs;
+const fs = DBot.js.filesystem;
 
 Util.mkdir(DBot.WebRoot + '/magik');
 
@@ -26,17 +26,17 @@ module.exports = {
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'magik', args, 1);
 		
-		let hash = DBot.HashString(url);
+		let hash = String.hash(url);
 		
-		let comb1 = DBot.RandomArray(combinations);
-		let comb2 = DBot.RandomArray(combinations);
+		let comb1 = Array.Random(combinations);
+		let comb2 = Array.Random(combinations);
 		
 		let selectedDimensions = comb1[0] + '%x' + comb2[0] + '%';
 		let selectedDimensions2 = comb1[1] + '%x' + comb2[1] + '%';
 		
 		let fPath;
 		
-		let newHash = DBot.HashString(url + ' ' + selectedDimensions);
+		let newHash = String.hash(url + ' ' + selectedDimensions);
 		
 		let fPathProcessed = DBot.WebRoot + '/magik/' + newHash + '.png';
 		let fPathProcessedURL = DBot.URLRoot + '/magik/' + newHash + '.png';
@@ -91,7 +91,7 @@ DBot.RegisterCommand({
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'magik', args, 1);
 		
-		let hash = DBot.HashString(url);
+		let hash = String.hash(url);
 		
 		let fPath;
 		

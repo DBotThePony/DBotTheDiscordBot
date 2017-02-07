@@ -156,7 +156,7 @@ DBot.RegisterCommand({
 				max = splitLines[i].length;
 		}
 		
-		let sha = DBot.HashString(build);
+		let sha = String.hash(build);
 		let fpath = DBot.WebRoot + '/text/' + sha + '.png';
 		let fpathU = DBot.URLRoot + '/text/' + sha + '.png';
 		

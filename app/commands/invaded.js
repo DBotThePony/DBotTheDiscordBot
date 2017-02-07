@@ -3,7 +3,7 @@ const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
 const URL = DBot.js.url;
 const unirest = DBot.js.unirest;
-const fs = DBot.fs;
+const fs = DBot.js.filesystem;
 
 fs.stat(DBot.WebRoot + '/invaded', function(err, stat) {
 	if (!stat)
@@ -27,7 +27,7 @@ module.exports = {
 		if (!url)
 			return 'User have no avatar? ;w;';
 		
-		let hash = DBot.HashString(url);
+		let hash = String.hash(url);
 		
 		let fPath;
 		

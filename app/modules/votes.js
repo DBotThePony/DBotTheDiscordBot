@@ -67,7 +67,7 @@ DBot.RegisterCommand({
 		if (!args[0])
 			return 'Name of vote is required' + Util.HighlightHelp(['votetext'], 2, args);
 		
-		let voteID = Util.ToNumber(args[0]);
+		let voteID = Number.from(args[0]);
 		
 		let newCMD = args[1];
 		
@@ -152,7 +152,7 @@ DBot.RegisterCommand({
 		if (!args[0])
 			return 'Name of vote is required' + Util.HighlightHelp(['votetext'], 2, args);
 		
-		let voteID = Util.ToNumber(cmd);
+		let voteID = Number.from(cmd);
 		
 		if (voteID) {
 			MySQL.query('SELECT * FROM votes_list WHERE "ID" = ' + voteID + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
@@ -241,7 +241,7 @@ DBot.RegisterCommand({
 		if (!args[0])
 			return 'Name of vote is required' + Util.HighlightHelp(['votetext'], 2, args);
 		
-		let voteID = Util.ToNumber(cmd);
+		let voteID = Number.from(cmd);
 		
 		if (voteID) {
 			MySQL.query('SELECT * FROM votes_list WHERE "ID" = ' + voteID + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
@@ -331,7 +331,7 @@ DBot.RegisterCommand({
 		if (!args[0])
 			return 'Name of vote is required' + Util.HighlightHelp(['votetext'], 2, args);
 		
-		let voteID = Util.ToNumber(cmd);
+		let voteID = Number.from(cmd);
 		
 		if (voteID) {
 			MySQL.query('SELECT * FROM votes_list WHERE "ID" = ' + voteID + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
@@ -401,7 +401,7 @@ DBot.RegisterCommand({
 		if (!args[0])
 			return 'Name of vote is required' + Util.HighlightHelp(['votetext'], 2, args);
 		
-		let voteID = Util.ToNumber(cmd);
+		let voteID = Number.from(cmd);
 		
 		if (voteID) {
 			MySQL.query('SELECT * FROM votes_list WHERE "ID" = ' + voteID + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
@@ -484,7 +484,7 @@ DBot.RegisterCommand({
 		if (!args[0])
 			return 'Name of vote is required' + Util.HighlightHelp(['voteinfo'], 2, args);
 		
-		let voteID = Util.ToNumber(args[0]);
+		let voteID = Number.from(args[0]);
 		
 		if (voteID) {
 			MySQL.query('SELECT * FROM votes_list WHERE "ID" = ' + voteID + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
@@ -631,7 +631,7 @@ DBot.RegisterCommand({
 		if (!args[1])
 			return 'Name of choice is required' + Util.HighlightHelp(['vote'], 3, args);
 		
-		let voteID = Util.ToNumber(args[0]);
+		let voteID = Number.from(args[0]);
 		let userID = DBot.GetUserID(msg.author);
 		
 		let voteCMD = args[1];
@@ -678,7 +678,7 @@ DBot.RegisterCommand({
 						return;
 					}
 					
-					let choiceID = Util.ToNumber(args[1]);
+					let choiceID = Number.from(args[1]);
 					
 					if (choiceID) {
 						MySQL.query('SELECT "NAME" FROM votes_choices WHERE "VOTE" = ' + voteID + ' AND "CHOICEID" = ' + choiceID, function(err, data) {
@@ -780,7 +780,7 @@ DBot.RegisterCommand({
 						return;
 					}
 					
-					let choiceID = Util.ToNumber(args[1]);
+					let choiceID = Number.from(args[1]);
 					
 					if (choiceID) {
 						MySQL.query('SELECT "NAME" FROM votes_choices WHERE "VOTE" = ' + voteID + ' AND "CHOICEID" = ' + choiceID, function(err, data) {
