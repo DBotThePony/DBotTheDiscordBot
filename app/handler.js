@@ -124,6 +124,9 @@ DBot.bot.on('message', function(msg) {
 		if (hook.Run('CheckValidMessage', msg) === true) return;
 		if (hook.Run('PreOnValidMessage', msg) === true) return;
 		
+		if (DBot.identifyAsk(msg.content) || DBot.IsPM(msg))
+			if (hook.Run('HandleAsk', msg, DBot.IdentifyCommand(msg)) === true) return;
+		
 		hook.Run('OnValidMessage', msg);
 		
 		if (!msg.author.bot) {
@@ -746,6 +749,10 @@ cvars.ServerVar('prefix', '}', [FCVAR_NOTNULL], 'Prefix of bot commands on serve
 cvars.ChannelVar('prefix', '', [], 'Prefix of bot commands on current channel. If empty, uses server prefix instead');
 cvars.ServerVar('prefix_disable', '0', [FCVAR_BOOLONLY], 'Disable bot prefix. In this case, you can command to bot only by @Mention');
 cvars.ChannelVar('prefix_disable', '0', [FCVAR_BOOLONLY], 'Disable bot prefix in current channel. In this case, you can command to bot only by @Mention');
+
+DBot.identifyAsk = function(content) {
+	return content.substr(0, DBot.aidLen) === DBot.askId || content.substr(0, DBot.aidLen2) === DBot.askId2;
+};
 
 DBot.IsAskingMe = function(msg) {
 	if (msg.content.substr(0, DBot.aidLen) === DBot.askId)
