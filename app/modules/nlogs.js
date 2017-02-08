@@ -28,7 +28,7 @@ hook.Add('MemberNicknameChanges', 'MemberNameLogs', function(member, oldMember) 
 			}
 		}
 
-		Postgres.query('UPDATE members SET "NAME" = ' + Util.escape(newName) + ' WHERE "ID" = ' + UiD + ';');
+		Postgres.query('UPDATE members SET "NAME" = ' + Postgres.escape(newName) + ' WHERE "ID" = ' + UiD + ';');
 	} catch(err) {
 		console.error(err);
 	}
@@ -63,7 +63,7 @@ setInterval(function() {
 					}
 				}
 				
-				finalQuery += 'UPDATE users SET "NAME" = ' + Util.escape(name) + ' WHERE "ID" = ' + uid + ';';
+				finalQuery += 'UPDATE users SET "NAME" = ' + Postgres.escape(name) + ' WHERE "ID" = ' + uid + ';';
 			}
 			
 			user.oldUName = name;
@@ -89,7 +89,7 @@ hook.Add('UpdateLoadingLevel', 'NameLogs', function(callFunc) {
 hook.Add('MemberInitialized', 'MemberNameLogs', function(member, uid, isCascade) {
 	if (!DBot.SQLReady() || isCascade) return;
 	
-	let name = Util.escape(member.nickname || member.user.username);
+	let name = Postgres.escape(member.nickname || member.user.username);
 	Postgres.query('UPDATE members SET "NAME" = ' + name + ' WHERE "ID" = ' + member.uid, function(err) {
 		if (!err)
 			return;
@@ -105,14 +105,14 @@ hook.Add('MembersFetched', 'MemberNameLogs', function(members, server, oldHashMa
 	
 	for (let member of collection.objects) {
 		if (!member.uid) continue;
-		let name = Util.escape(member.nickname || member.user.username);
+		let name = Postgres.escape(member.nickname || member.user.username);
 		
 		if (finalQuery)
 			finalQuery += ',';
 		else
 			finalQuery = '';
 		
-		finalQuery += '(' + Util.escape(member.uid) + ',' + name + ')';
+		finalQuery += '(' + Postgres.escape(member.uid) + ',' + name + ')';
 	}
 	
 	if (!finalQuery) {
@@ -126,14 +126,14 @@ hook.Add('MembersInitialized', 'MemberNameLogs', function(members) {
 	let finalQuery;
 	
 	for (let member of members) {
-		let name = Util.escape(member.nickname || member.user.username);
+		let name = Postgres.escape(member.nickname || member.user.username);
 		
 		if (finalQuery)
 			finalQuery += ',';
 		else
 			finalQuery = '';
 		
-		finalQuery += '(' + Util.escape(member.uid) + ',' + name + ')';
+		finalQuery += '(' + Postgres.escape(member.uid) + ',' + name + ')';
 	}
 	
 	if (!finalQuery) {
@@ -148,7 +148,7 @@ hook.Add('UserInitialized', 'MemberNameLogs', function(user, id) {
 	if (!DBot.SQLReady())
 		return;
 	
-	let name = Util.escape(user.username);
+	let name = Postgres.escape(user.username);
 	user.oldUName = user.username;
 	
 	Postgres.query('UPDATE users SET "NAME" = ' + name + ' WHERE "ID" = ' + id, function(err) {
@@ -167,7 +167,7 @@ hook.Add('UsersInitialized', 'MemberNameLogs', function() {
 		let uid = DBot.GetUserIDSoft(user);
 		if (!uid) continue;
 		
-		let name = Util.escape(user.username);
+		let name = Postgres.escape(user.username);
 		user.oldUName = user.username;
 		
 		if (finalQuery)

@@ -12,7 +12,7 @@ module.exports = {
 	desc: 'How much proven info is?',
 	
 	func: function(args, cmd, msg) {
-		Postgres.query('SELECT "VALUE" FROM infometr WHERE "PHRASE" = ' + Util.escape(cmd.toLowerCase()), function(err, data) {
+		Postgres.query('SELECT "VALUE" FROM infometr WHERE "PHRASE" = ' + Postgres.escape(cmd.toLowerCase()), function(err, data) {
 			if (data && data[0]) {
 				msg.reply('\n```' + cmd + '\nInfo - ' + data[0].VALUE + '%```');
 			} else {
@@ -70,7 +70,7 @@ module.exports = {
 				
 				msg.reply('\n```' + cmd + '\nInfo - ' + finalPercent + '%```');
 				
-				Postgres.query('INSERT INTO infometr ("PHRASE", "VALUE") VALUES (' + Util.escape(cmd.toLowerCase()) + ', \'' + finalPercent + '\')');
+				Postgres.query('INSERT INTO infometr ("PHRASE", "VALUE") VALUES (' + Postgres.escape(cmd.toLowerCase()) + ', \'' + finalPercent + '\')');
 			}
 		});
 		

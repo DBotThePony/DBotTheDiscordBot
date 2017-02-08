@@ -24,7 +24,7 @@ let updateFunc = function() {
 		
 		for (let m of matches) {
 			let text = m.substr(22, m.length - 30);
-			let esc = Util.escape(text.replace(/\\/g, ''));
+			let esc = Postgres.escape(text.replace(/\\/g, ''));
 			
 			Postgre.query('SELECT "ID" FROM mfortune WHERE "TEXT" = ' + esc, function(err, data) {
 				if (err) {

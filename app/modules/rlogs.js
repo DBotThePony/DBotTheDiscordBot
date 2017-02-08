@@ -33,7 +33,7 @@ let updateRoleRules = function(role) {
 			}
 			
 			if (!hit) {
-				Postgres.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (' + sql.Member(member) + ', ' + sRole + ', true, ' + Util.escape(Math.floor(CurTime())) + ')');
+				Postgres.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (' + sql.Member(member) + ', ' + sRole + ', true, ' + Postgres.escape(Math.floor(CurTime())) + ')');
 				Postgres.query('INSERT INTO member_roles VALUES (' + sql.Member(member) + ', ' + sRole + ') ON CONFLICT DO NOTHING');
 			}
 		}
@@ -49,7 +49,7 @@ let updateRoleRules = function(role) {
 			}
 			
 			if (!hit) {
-				Postgres.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (\'' + row.MEMBER + '\', ' + sRole + ', false, ' + Util.escape(Math.floor(CurTime())) + ')');
+				Postgres.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (\'' + row.MEMBER + '\', ' + sRole + ', false, ' + Postgres.escape(Math.floor(CurTime())) + ')');
 				Postgres.query('DELETE FROM member_roles WHERE "MEMBER" = \'' + row.MEMBER + '\' AND "ROLE" = ' + sRole);
 			}
 		}
@@ -94,7 +94,7 @@ hook.Add('RolesInitialized', 'RoleLogs', function(roleCollection) {
 		if (err) throw err;
 		DBot.updateLoadingLevel(false);
 		
-		let cTime = Util.escape(Math.floor(CurTime()));
+		let cTime = Postgres.escape(Math.floor(CurTime()));
 		
 		let finalQuery = '';
 		

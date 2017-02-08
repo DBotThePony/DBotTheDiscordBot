@@ -78,9 +78,9 @@ hook.Add('UsersInitialized', 'LastSeen', function() {
 			user.lastStatus = user.presence.status;
 			
 			if (!statusStr)
-				statusStr = '(' + (user.uid || sql.User(user)) + ',' + Util.escape(user.lastStatus) + '::discord_user_status)';
+				statusStr = '(' + (user.uid || sql.User(user)) + ',' + Postgres.escape(user.lastStatus) + '::discord_user_status)';
 			else
-				statusStr += ',(' + (user.uid || sql.User(user)) + ',' + Util.escape(user.lastStatus) + '::discord_user_status)';
+				statusStr += ',(' + (user.uid || sql.User(user)) + ',' + Postgres.escape(user.lastStatus) + '::discord_user_status)';
 		} catch(err) {
 			
 		}

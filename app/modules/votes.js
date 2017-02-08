@@ -33,7 +33,7 @@ DBot.RegisterCommand({
 			}
 		}
 		
-		Postgres.query('INSERT INTO votes_list ("SERVER", "NAME", "STAMP") VALUES (' + DBot.GetServerID(msg.channel.guild) + ', ' + Util.escape(utf8.encode(args[0])) + ', ' + CurTime() + ') RETURNING "ID"', function(err, data) {
+		Postgres.query('INSERT INTO votes_list ("SERVER", "NAME", "STAMP") VALUES (' + DBot.GetServerID(msg.channel.guild) + ', ' + Postgres.escape(utf8.encode(args[0])) + ', ' + CurTime() + ') RETURNING "ID"', function(err, data) {
 			if (err) {
 				msg.reply('Internal pony error');
 				return;
@@ -42,7 +42,7 @@ DBot.RegisterCommand({
 			let uid = data[0].ID;
 			
 			for (let i = 1; i < args.length; i++) {
-				Postgres.query('INSERT INTO votes_choices ("VOTE", "CHOICEID", "NAME") VALUES (' + uid + ', ' + i + ', ' + Util.escape(args[i]) + ')');
+				Postgres.query('INSERT INTO votes_choices ("VOTE", "CHOICEID", "NAME") VALUES (' + uid + ', ' + i + ', ' + Postgres.escape(args[i]) + ')');
 			}
 			
 			msg.reply('Vote created! Vote ID: #' + uid);
@@ -94,7 +94,7 @@ DBot.RegisterCommand({
 				
 				let voteData = data[0];
 				
-				Postgres.query('INSERT INTO votes_text VALUES (' + voteID + ', ' + Util.escape(newCMD) + ') ON CONFLICT ("ID") DO UPDATE SET "TEXT" = ' + Util.escape(newCMD), function(err) {
+				Postgres.query('INSERT INTO votes_text VALUES (' + voteID + ', ' + Postgres.escape(newCMD) + ') ON CONFLICT ("ID") DO UPDATE SET "TEXT" = ' + Postgres.escape(newCMD), function(err) {
 					if (err) {
 						msg.reply('Internal pony error');
 						return;
@@ -104,7 +104,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			Postgres.query('SELECT * FROM votes_list WHERE "NAME" LIKE ' + Util.escape('%' + args[0] + '%') + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
+			Postgres.query('SELECT * FROM votes_list WHERE "NAME" LIKE ' + Postgres.escape('%' + args[0] + '%') + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
 				if (err) {
 					msg.reply('Internal pony error');
 					return;
@@ -123,7 +123,7 @@ DBot.RegisterCommand({
 				let voteID = data[0].ID;
 				let voteData = data[0];
 				
-				Postgres.query('INSERT INTO votes_text VALUES (' + voteID + ', ' + Util.escape(newCMD) + ') ON CONFLICT ("ID") DO UPDATE SET "TEXT" = ' + Util.escape(newCMD), function(err) {
+				Postgres.query('INSERT INTO votes_text VALUES (' + voteID + ', ' + Postgres.escape(newCMD) + ') ON CONFLICT ("ID") DO UPDATE SET "TEXT" = ' + Postgres.escape(newCMD), function(err) {
 					if (err) {
 						msg.reply('Internal pony error');
 						return;
@@ -188,7 +188,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			Postgres.query('SELECT * FROM votes_list WHERE "NAME" LIKE ' + Util.escape('%' + args[0] + '%') + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
+			Postgres.query('SELECT * FROM votes_list WHERE "NAME" LIKE ' + Postgres.escape('%' + args[0] + '%') + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
 				if (err) {
 					msg.reply('Internal pony error');
 					return;
@@ -277,7 +277,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			Postgres.query('SELECT * FROM votes_list WHERE "NAME" LIKE ' + Util.escape('%' + args[0] + '%') + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
+			Postgres.query('SELECT * FROM votes_list WHERE "NAME" LIKE ' + Postgres.escape('%' + args[0] + '%') + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
 				if (err) {
 					msg.reply('Internal pony error');
 					return;
@@ -357,7 +357,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			Postgres.query('SELECT * FROM votes_list WHERE "NAME" LIKE ' + Util.escape('%' + args[0] + '%') + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
+			Postgres.query('SELECT * FROM votes_list WHERE "NAME" LIKE ' + Postgres.escape('%' + args[0] + '%') + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
 				if (err) {
 					msg.reply('Internal pony error');
 					return;
@@ -427,7 +427,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			Postgres.query('SELECT * FROM votes_list WHERE "NAME" LIKE ' + Util.escape('%' + args[0] + '%') + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
+			Postgres.query('SELECT * FROM votes_list WHERE "NAME" LIKE ' + Postgres.escape('%' + args[0] + '%') + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
 				if (err) {
 					msg.reply('Internal pony error');
 					return;
@@ -549,7 +549,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			Postgres.query('SELECT * FROM votes_list WHERE "NAME" LIKE ' + Util.escape('%' + cmd + '%') + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
+			Postgres.query('SELECT * FROM votes_list WHERE "NAME" LIKE ' + Postgres.escape('%' + cmd + '%') + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
 				if (err) {
 					msg.reply('Internal pony error');
 					return;
@@ -709,7 +709,7 @@ DBot.RegisterCommand({
 							});
 						});
 					} else {
-						Postgres.query('SELECT "CHOICEID", "NAME" FROM votes_choices WHERE "VOTE" = ' + voteID + ' AND "NAME" LIKE ' + Util.escape('%' + voteCMD + '%'), function(err, data) {
+						Postgres.query('SELECT "CHOICEID", "NAME" FROM votes_choices WHERE "VOTE" = ' + voteID + ' AND "NAME" LIKE ' + Postgres.escape('%' + voteCMD + '%'), function(err, data) {
 							if (err) {
 								msg.reply('Internal pony error');
 								return;
@@ -742,7 +742,7 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			Postgres.query('SELECT * FROM votes_list WHERE "NAME" LIKE ' + Util.escape('%' + args[0] + '%') + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
+			Postgres.query('SELECT * FROM votes_list WHERE "NAME" LIKE ' + Postgres.escape('%' + args[0] + '%') + ' AND "SERVER" = ' + DBot.GetServerID(msg.channel.guild), function(err, data) {
 				if (err) {
 					msg.reply('Internal pony error');
 					return;
@@ -811,7 +811,7 @@ DBot.RegisterCommand({
 							});
 						});
 					} else {
-						Postgres.query('SELECT "CHOICEID", "NAME" FROM votes_choices WHERE "VOTE" = ' + voteID + ' AND "NAME" LIKE ' + Util.escape('%' + voteCMD + '%'), function(err, data) {
+						Postgres.query('SELECT "CHOICEID", "NAME" FROM votes_choices WHERE "VOTE" = ' + voteID + ' AND "NAME" LIKE ' + Postgres.escape('%' + voteCMD + '%'), function(err, data) {
 							if (err) {
 								msg.reply('Internal pony error');
 								return;

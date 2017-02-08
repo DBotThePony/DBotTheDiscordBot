@@ -30,7 +30,7 @@ module.exports = {
 				msg.channel.stopTyping();
 				msg.reply(fPathProcessedURL);
 			} else {
-				let esc = Util.escape('+' + cmd);
+				let esc = Postgres.escape('+' + cmd);
 				let magik = spawn('convert', [
 					'./resource/files/wc3.jpg',
 					'-gravity', 'center',

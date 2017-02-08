@@ -53,7 +53,7 @@ module.exports = {
 					'-draw', 'rectangle 205,40 625,300',
 					
 					'-font', 'BebasNeue', '-gravity', 'NorthWest', '-pointsize', '36',
-					'-draw', 'text 15,4 ' + Util.escape(args[0]),
+					'-draw', 'text 15,4 ' + Postgres.escape(args[0]),
 					'-draw', 'text ' + (600 - ageLen * 10) + ',4 "' + ageArg + '"',
 					'-draw', 'text 15,300 "' + msg.author.username + '\'s CONTENT RATING"',
 					
@@ -63,7 +63,7 @@ module.exports = {
 				];
 				
 				for (let i = 2; i < args.length; i++) {
-					magikArgs.push('-draw', 'text 220,' + (50 + (i - 2) * 30) + ' ' + Util.escape(args[i]));
+					magikArgs.push('-draw', 'text 220,' + (50 + (i - 2) * 30) + ' ' + Postgres.escape(args[i]));
 				}
 				
 				magikArgs.push(fpath);

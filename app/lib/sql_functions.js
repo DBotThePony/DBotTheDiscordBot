@@ -325,7 +325,7 @@ sql.updateRole = function(role) {
 	let col = Util.parseHexColor(role.hexColor);
 	let colStr = '(' + col[0] + ',' + col[1] + ',' + col[2] + ')';
 	
-	Postgres.query('UPDATE roles SET "NAME" = ' + Util.escape(role.name) + ', "PERMS" = ' + arr2 + ', "COLOR_R" = ' + colStr + ', "HOIST" = ' + Util.escape(role.hoist) + ', "POSITION" = ' + Util.escape(role.position) + ', "MENTION" = ' + Util.escape(role.mentionable) + ' WHERE "ID" = ' + role.uid + ';');
+	Postgres.query('UPDATE roles SET "NAME" = ' + Postgres.escape(role.name) + ', "PERMS" = ' + arr2 + ', "COLOR_R" = ' + colStr + ', "HOIST" = ' + Postgres.escape(role.hoist) + ', "POSITION" = ' + Postgres.escape(role.position) + ', "MENTION" = ' + Postgres.escape(role.mentionable) + ' WHERE "ID" = ' + role.uid + ';');
 };
 
 sql.updateRoles = function(roles) {
@@ -357,7 +357,7 @@ sql.updateRoles = function(roles) {
 		else
 			finalQuery = '';
 		
-		finalQuery += '(' + role.uid + ',' + Util.escape(role.name) + ',' + colStr + '::rgb_color,' + Util.escape(role.hoist) + ',' + Util.escape(role.position) + ',' + Util.escape(role.mentionable) + ',' + arr2 + ')';
+		finalQuery += '(' + role.uid + ',' + Postgres.escape(role.name) + ',' + colStr + '::rgb_color,' + Postgres.escape(role.hoist) + ',' + Postgres.escape(role.position) + ',' + Postgres.escape(role.mentionable) + ',' + arr2 + ')';
 	}
 	
 	Postgres.query('UPDATE roles SET "NAME" = m."NAME", "PERMS" = m."PERMS", "COLOR_R" = m."COLOR_R", "HOIST" = m."HOIST", "POSITION" = m."POSITION", "MENTION" = m."MENTION" FROM (VALUES ' + finalQuery + ') AS m ("ID", "NAME", "COLOR_R", "HOIST", "POSITION", "MENTION", "PERMS") WHERE roles."ID" = m."ID";');

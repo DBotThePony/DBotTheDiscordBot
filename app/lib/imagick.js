@@ -292,7 +292,7 @@ const loadingStage3 = function() {
 									width = Math.floor(width / 2);
 								}
 
-								finalQuery += 'INSERT INTO font_sizes_' + currentSize + ' ("ID", "CHAR", "WIDTH") VALUES (\'' + IMagick.FontIDs[font] + '\', ' + Util.escape(oldChar) + ', \'' + width + '\');';
+								finalQuery += 'INSERT INTO font_sizes_' + currentSize + ' ("ID", "CHAR", "WIDTH") VALUES (\'' + IMagick.FontIDs[font] + '\', ' + Postgres.escape(oldChar) + ', \'' + width + '\');';
 
 								if (Char === 'W') {
 									finalQuery += 'INSERT INTO font_height ("ID", "HEIGHT", "SIZE") VALUES (\'' + IMagick.FontIDs[font] + '\', \'' + height + '\', \'' + currentSize + '\') ON CONFLICT DO NOTHING;';

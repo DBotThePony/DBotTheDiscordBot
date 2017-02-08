@@ -165,7 +165,7 @@ DBot.RegisterCommand({
 			let total = found.length;
 			
 			for (let member of found) {
-				Postgres.query('INSERT INTO member_softban ("ID", "ADMIN") VALUES (get_member_id(' + Util.escape(member.user.id) + ', ' + Util.escape(member.guild.id) + '), get_member_id(' + Util.escape(msg.member.user.id) + ', ' + Util.escape(msg.member.guild.id) + ')) ON CONFLICT ("ID") DO NOTHING');
+				Postgres.query('INSERT INTO member_softban ("ID", "ADMIN") VALUES (get_member_id(' + Postgres.escape(member.user.id) + ', ' + Postgres.escape(member.guild.id) + '), get_member_id(' + Postgres.escape(msg.member.user.id) + ', ' + Postgres.escape(msg.member.guild.id) + ')) ON CONFLICT ("ID") DO NOTHING');
 				member.kick()
 				
 				.then(function() {

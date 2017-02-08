@@ -175,23 +175,6 @@ Util.HaveValue = function(arr, val) {
 	return false;
 };
 
-Util.escape = function(str) {
-	if (typeof str === 'boolean')
-		return str && "true" || "false";
-	
-	if (typeof str === 'number')
-		return "" + str + "";
-	
-	let strObj = str.toString()
-	.replace(/'/gi, '\'\'')
-	.replace(/\\/gi, '\\\\')
-	.replace(/\//gi, '\/');
-	
-	strObj = '\'' + strObj + '\'';
-	
-	return strObj;
-};
-
 Util.HasValue = Util.HaveValue;
 
 Util.BuildArgumentsString = function(arr) {

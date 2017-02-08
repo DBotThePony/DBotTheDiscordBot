@@ -32,7 +32,7 @@ sql.Role = function(obj) {
 	return 'get_role_id_combined(\'' + obj.id + '\', \'' + obj.guild.id + '\')';
 };
 
-sql.escape = Util.escape;
+sql.escape = Postgres.escape;
 
 let concatNames = function(tab) {
 	return '"' + tab.join('", "') + '"';
@@ -42,7 +42,7 @@ let concatValues = function(tab) {
 	let output = [];
 	
 	for (let v of tab) {
-		output.push(Util.escape(v));
+		output.push(Postgres.escape(v));
 	}
 	
 	return output.join(', ');
@@ -76,9 +76,9 @@ sql.Array = function(arr) {
 		if (obj === undefined) continue; // what
 		if (first) {
 			first = false;
-			output += Util.escape(obj);
+			output += Postgres.escape(obj);
 		} else {
-			output += ',' + Util.escape(obj);
+			output += ',' + Postgres.escape(obj);
 		}
 	}
 	
@@ -110,9 +110,9 @@ sql.Concat = function() {
 		if (obj === undefined) continue; // what
 		if (first) {
 			first = false;
-			output += Util.escape(obj);
+			output += Postgres.escape(obj);
 		} else {
-			output += ',' + Util.escape(obj);
+			output += ',' + Postgres.escape(obj);
 		}
 	}
 	

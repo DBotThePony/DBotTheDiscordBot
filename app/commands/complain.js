@@ -24,7 +24,7 @@ module.exports = {
 			sid = DBot.GetServerID(msg.channel.guild);
 		}
 		
-		let stuff = [Util.escape(sid), Util.escape(cid), Util.escape(uid), Util.escape(Math.floor(CurTime())), Util.escape(cmd)];
+		let stuff = [Postgres.escape(sid), Postgres.escape(cid), Postgres.escape(uid), Postgres.escape(Math.floor(CurTime())), Postgres.escape(cmd)];
 		
 		Postgres.query('INSERT INTO complains ("SERVER", "CHANNEL", "USER", "STAMP", "CONTENT") VALUES (' + stuff.join(',') + ')');
 		
@@ -42,8 +42,7 @@ DBot.RegisterCommand({
 		Postgres.query(queryToList, function(err, data) {
 			let output = '';
 			
-			for (let i in data) {
-				let row = data[i];
+			for (let row of data) {
 				let date = moment.unix(row.STAMP);
 				
 				output += '\nComplain ID: ' + row.ID;

@@ -20,7 +20,7 @@ DBot.CreateTagsSpace = function(space, defBans) {
 	DBot.tagCache.channel[space] = {};
 	let b = sql.Array(defBans);
 	
-	Postgre.query('INSERT INTO tags_defbans VALUES (' + Util.escape(space) + ', ' + b + ') ON CONFLICT ("SPACE") DO UPDATE SET "TAG" = ' + b);
+	Postgre.query('INSERT INTO tags_defbans VALUES (' + Postgres.escape(space) + ', ' + b + ') ON CONFLICT ("SPACE") DO UPDATE SET "TAG" = ' + b);
 }
 
 class TagBase {
@@ -34,7 +34,7 @@ class TagBase {
 	update() {
 		let b = sql.Array(this.bans);
 		
-		Postgre.query('UPDATE tags_list SET "TAG" = ' + b + ' WHERE "SPACE" = ' + Util.escape(this.space) + ' AND "REALM" = ' + Util.escape(this.realm) + ' AND "UID" = ' + this.uid);
+		Postgre.query('UPDATE tags_list SET "TAG" = ' + b + ' WHERE "SPACE" = ' + Postgres.escape(this.space) + ' AND "REALM" = ' + Postgres.escape(this.realm) + ' AND "UID" = ' + this.uid);
 	}
 	
 	onUnBanned(tag) {
@@ -108,8 +108,8 @@ class TagBase {
 	simulateSelect(data) {
 		this.ready = false;
 		
-		for (let i in data) {
-			this.banTag(data[i].TAG);
+		for (let i of data) {
+			this.banTag(i.TAG);
 		}
 		
 		this.ready = true;

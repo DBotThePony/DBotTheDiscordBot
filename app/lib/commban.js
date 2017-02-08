@@ -92,8 +92,8 @@ class CommandBanClass {
 		Postgres.query('SELECT "COMMAND" FROM command_bans_' + this.realm + ' WHERE "UID" = \'' + this.uid + '\'', function(err, data) {
 			if (err) throw err;
 			
-			for (let i in data) {
-				self.ban(data[i].COMMAND);
+			for (let row of data) {
+				self.ban(row.COMMAND);
 			}
 			
 			self.ready = true;

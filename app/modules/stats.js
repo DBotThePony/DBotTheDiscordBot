@@ -93,7 +93,7 @@ hook.Add('OnValidMessage', 'Statistics', function(msg) {
 				console.error(err);
 		});
 	} else {
-		Postgres.query('SELECT stats_hit(' + Util.escape(msg.author.id) + ', ' + length + ', ' + sql.Array(rWords) + '::VARCHAR(64)[], ' + Images + ')', function(err) {
+		Postgres.query('SELECT stats_hit(' + Postgres.escape(msg.author.id) + ', ' + length + ', ' + sql.Array(rWords) + '::VARCHAR(64)[], ' + Images + ')', function(err) {
 			if (err)
 				console.error(err);
 		});
@@ -110,7 +110,7 @@ hook.Add('OnMessageEdit', 'Statistics', function(oldMessage, msg) {
 	if (extra) {
 		Postgres.query('SELECT stats_edit(' + sql.Concat(msg.author.id, msg.channel.id, msg.channel.guild.id) + ');');
 	} else {
-		Postgres.query('SELECT stats_edit(' + Util.escape(msg.author.id) + ');');
+		Postgres.query('SELECT stats_edit(' + Postgres.escape(msg.author.id) + ');');
 	}
 });
 
@@ -124,7 +124,7 @@ hook.Add('OnMessageDeleted', 'Statistics', function(msg) {
 	if (extra) {
 		Postgres.query('SELECT stats_delete(' + sql.Concat(msg.author.id, msg.channel.id, msg.channel.guild.id) + ', ' + length + ');');
 	} else {
-		Postgres.query('SELECT stats_delete(' + Util.escape(msg.author.id) + ', ' + length + ');');
+		Postgres.query('SELECT stats_delete(' + Postgres.escape(msg.author.id) + ', ' + length + ');');
 	}
 });
 
@@ -132,9 +132,9 @@ hook.Add('CommandExecuted', 'Statistics', function(commandID, user, args, cmd, m
 	let extra = msg.channel.guild !== undefined && msg.channel.type !== 'dm';
 	
 	if (extra) {
-		Postgres.query('SELECT stats_command(' + sql.Concat(msg.author.id, msg.channel.id, msg.channel.guild.id) + ', ' + Util.escape(commandID) + ');');
+		Postgres.query('SELECT stats_command(' + sql.Concat(msg.author.id, msg.channel.id, msg.channel.guild.id) + ', ' + Postgres.escape(commandID) + ');');
 	} else {
-		Postgres.query('SELECT stats_command(' + Util.escape(msg.author.id) + ', ' + Util.escape(commandID) + ');');
+		Postgres.query('SELECT stats_command(' + Postgres.escape(msg.author.id) + ', ' + Postgres.escape(commandID) + ');');
 	}
 });
 

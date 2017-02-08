@@ -16,7 +16,7 @@ module.exports = {
 	func: function(args, cmd, msg) {
 		msg.channel.startTyping();
 		
-		Postgres.query('SELECT * FROM urbancache WHERE "WORD" = ' + Util.escape(cmd), function(err, data) {
+		Postgres.query('SELECT * FROM urbancache WHERE "WORD" = ' + Postgres.escape(cmd), function(err, data) {
 			let curr = UnixStamp();
 			
 			if (!data[0] || data[0].USTAMP < curr) {
@@ -49,12 +49,12 @@ module.exports = {
 					msg.reply(tags + '\nDefinition: ' + def + '\nExample: ```' + example + '```');
 					
 					let q = 'INSERT INTO urbancache ("WORD", "DEFINITION", "TAGS", "ULINK", "DEXAMPLE", "USTAMP") VALUES ('
-						+ Util.escape(cmd) + ', '
-						+ Util.escape(def) + ', '
-						+ Util.escape(tags) + ', '
-						+ Util.escape(link) + ', '
-						+ Util.escape(example) + ', '
-						+ Util.escape(curr + 3600) + ') ON CONFLICT ("WORD") DO UPDATE SET\
+						+ Postgres.escape(cmd) + ', '
+						+ Postgres.escape(def) + ', '
+						+ Postgres.escape(tags) + ', '
+						+ Postgres.escape(link) + ', '
+						+ Postgres.escape(example) + ', '
+						+ Postgres.escape(curr + 3600) + ') ON CONFLICT ("WORD") DO UPDATE SET\
 						"WORD" = excluded."WORD",\
 						"DEFINITION" = excluded."DEFINITION",\
 						"TAGS" = excluded."TAGS",\

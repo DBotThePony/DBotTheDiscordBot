@@ -45,14 +45,14 @@ fs.readdir('./resource/fortune', function(err, files) {
 				}
 				
 				let phrases = data.split('%');
-				let esc = Util.escape(file);
+				let esc = Postgres.escape(file);
 				
 				totalCnt += phrases.length;
 				
 				for (let phraseID in phrases) {
 					let phr = phrases[phraseID];
 					
-					Postgres.query('INSERT INTO fortune ("CATEGORY", "CONTENT") VALUES (' + esc + ', ' + Util.escape(phr) + ')');
+					Postgres.query('INSERT INTO fortune ("CATEGORY", "CONTENT") VALUES (' + esc + ', ' + Postgres.escape(phr) + ')');
 				}
 			});
 		}
@@ -81,14 +81,14 @@ fs.readdir('./resource/fortune_vulgar', function(err, files) {
 				}
 				
 				let phrases = data.split('%');
-				let esc = Util.escape(file);
+				let esc = Postgres.escape(file);
 				
 				totalCntVulgar += phrases.length;
 				
 				for (let phraseID in phrases) {
 					let phr = phrases[phraseID];
 					
-					Postgres.query('INSERT INTO fortune_vulgar ("CATEGORY", "CONTENT") VALUES (' + esc + ', ' + Util.escape(phr) + ')');
+					Postgres.query('INSERT INTO fortune_vulgar ("CATEGORY", "CONTENT") VALUES (' + esc + ', ' + Postgres.escape(phr) + ')');
 				}
 			});
 		}
@@ -101,14 +101,14 @@ fs.readdir('./resource/fortune_vulgar', function(err, files) {
 				}
 				
 				let phrases = data.split('%');
-				let esc = Util.escape(file);
+				let esc = Postgres.escape(file);
 				
 				totalCntVulgar += phrases.length;
 				
 				for (let phraseID in phrases) {
 					let phr = phrases[phraseID];
 					
-					Postgres.query('INSERT INTO fortune_vulgar ("CATEGORY", "CONTENT") VALUES (' + esc + ', ' + Util.escape(phr) + ')');
+					Postgres.query('INSERT INTO fortune_vulgar ("CATEGORY", "CONTENT") VALUES (' + esc + ', ' + Postgres.escape(phr) + ')');
 				}
 			});
 		}
@@ -136,7 +136,7 @@ module.exports = {
 			if (!Util.HasValue(categories, args[0]))
 				return DBot.CommandError('Invalid fortune category', 'fortune', args, 1);
 			
-			Postgres.query('SELECT "CONTENT" FROM fortune WHERE "CATEGORY" = ' + Util.escape(args[0]) + ' ORDER BY random() LIMIT 1', function(err, data) {
+			Postgres.query('SELECT "CONTENT" FROM fortune WHERE "CATEGORY" = ' + Postgres.escape(args[0]) + ' ORDER BY random() LIMIT 1', function(err, data) {
 				if (err || !data || !data[0]) {
 					return;
 				}
@@ -169,7 +169,7 @@ DBot.RegisterCommand({
 			if (!Util.HasValue(categoriesFull, args[0]))
 				return DBot.CommandError('Invalid fortune category', 'fortune', args, 1);
 			
-			Postgres.query('SELECT "CONTENT" FROM fortune_vulgar WHERE "CATEGORY" = ' + Util.escape(args[0]) + ' ORDER BY random() LIMIT 1', function(err, data) {
+			Postgres.query('SELECT "CONTENT" FROM fortune_vulgar WHERE "CATEGORY" = ' + Postgres.escape(args[0]) + ' ORDER BY random() LIMIT 1', function(err, data) {
 				if (err || !data || !data[0]) {
 					return;
 				}

@@ -99,9 +99,9 @@ class ConVar {
 	fetch() {
 		let self = this;
 		
-		Postgres.query('SELECT "VALUE" FROM cvar_' + this.realm + ' WHERE "ID" = ' + this.id + ' AND "CVAR" = ' + Util.escape(this.name), function(err, data) {
+		Postgres.query('SELECT "VALUE" FROM cvar_' + this.realm + ' WHERE "ID" = ' + this.id + ' AND "CVAR" = ' + Postgres.escape(this.name), function(err, data) {
 			if (!data || !data[0]) {
-				Postgres.query('INSERT INTO cvar_' + self.realm + ' ("ID", "CVAR", "VALUE") VALUES (' + self.id + ', ' + Util.escape(self.name) + ', ' + Util.escape(self.defValue) + ')');
+				Postgres.query('INSERT INTO cvar_' + self.realm + ' ("ID", "CVAR", "VALUE") VALUES (' + self.id + ', ' + Postgres.escape(self.name) + ', ' + Postgres.escape(self.defValue) + ')');
 			} else {
 				self.value = data[0].VALUE;
 			}
@@ -272,7 +272,7 @@ class ConVar {
 		
 		let oldVal = this.value;
 		this.value = val;
-		Postgres.query('UPDATE cvar_' + this.realm + ' SET "VALUE" = ' + Util.escape(val) + ' WHERE "ID" = ' + Util.escape(this.id) + ' AND "CVAR" = ' + Util.escape(this.name));
+		Postgres.query('UPDATE cvar_' + this.realm + ' SET "VALUE" = ' + Postgres.escape(val) + ' WHERE "ID" = ' + Postgres.escape(this.id) + ' AND "CVAR" = ' + Postgres.escape(this.name));
 		
 		this.session.onValueChanged(this, oldVal, val);
 		this.onValueChanged(oldVal, val);
@@ -427,9 +427,9 @@ class UserVarSession {
 		
 		for (let i in cvars.CONVARS_USER) {
 			if (!sqlString)
-				sqlString = Util.escape(i);
+				sqlString = Postgres.escape(i);
 			else
-				sqlString += ',' + Util.escape(i);
+				sqlString += ',' + Postgres.escape(i);
 			
 			this.cvars[i] = new ConVar(cvars.CONVARS_USER[i], obj, true);
 			this.cvars[i].session = this;
@@ -507,9 +507,9 @@ class ServerVarSession {
 		
 		for (let i in cvars.CONVARS_SERVER) {
 			if (!sqlString)
-				sqlString = Util.escape(i);
+				sqlString = Postgres.escape(i);
 			else
-				sqlString += ',' + Util.escape(i);
+				sqlString += ',' + Postgres.escape(i);
 			
 			this.cvars[i] = new ConVar(cvars.CONVARS_SERVER[i], obj, true);
 			this.cvars[i].session = this;
@@ -586,9 +586,9 @@ class ChannelVarSession {
 		
 		for (let i in cvars.CONVARS_CHANNEL) {
 			if (!sqlString)
-				sqlString = Util.escape(i);
+				sqlString = Postgres.escape(i);
 			else
-				sqlString += ',' + Util.escape(i);
+				sqlString += ',' + Postgres.escape(i);
 			
 			this.cvars[i] = new ConVar(cvars.CONVARS_CHANNEL[i], obj, true);
 			this.cvars[i].session = this;
@@ -687,9 +687,9 @@ hook.Add('UsersInitialized', 'CVars', function(users) {
 	
 	for (let i in cvars.CONVARS_USER) {
 	if (!cVarsArray)
-			cVarsArray = '(' + Util.escape(i) + ',' + Util.escape(cvars.CONVARS_USER[i].val) + ')';
+			cVarsArray = '(' + Postgres.escape(i) + ',' + Postgres.escape(cvars.CONVARS_USER[i].val) + ')';
 		else
-			cVarsArray += ',(' + Util.escape(i) + ',' + Util.escape(cvars.CONVARS_USER[i].val) + ')';
+			cVarsArray += ',(' + Postgres.escape(i) + ',' + Postgres.escape(cvars.CONVARS_USER[i].val) + ')';
 	}
 	
 	if (!cVarsArray) return DBot.updateLoadingLevel(false);
@@ -750,9 +750,9 @@ hook.Add('ChannelsInitialized', 'CVars', function(channels) {
 	
 	for (let i in cvars.CONVARS_CHANNEL) {
 		if (!cVarsArray)
-			cVarsArray = '(' + Util.escape(i) + ',' + Util.escape(cvars.CONVARS_CHANNEL[i].val) + ')';
+			cVarsArray = '(' + Postgres.escape(i) + ',' + Postgres.escape(cvars.CONVARS_CHANNEL[i].val) + ')';
 		else
-			cVarsArray += ',(' + Util.escape(i) + ',' + Util.escape(cvars.CONVARS_CHANNEL[i].val) + ')';
+			cVarsArray += ',(' + Postgres.escape(i) + ',' + Postgres.escape(cvars.CONVARS_CHANNEL[i].val) + ')';
 	}
 	
 	if (!cVarsArray) return DBot.updateLoadingLevel(false);
@@ -813,9 +813,9 @@ hook.Add('ServersInitialized', 'CVars', function(servers) {
 	
 	for (let i in cvars.CONVARS_SERVER) {
 		if (!cVarsArray)
-			cVarsArray = '(' + Util.escape(i) + ',' + Util.escape(cvars.CONVARS_SERVER[i].val) + ')';
+			cVarsArray = '(' + Postgres.escape(i) + ',' + Postgres.escape(cvars.CONVARS_SERVER[i].val) + ')';
 		else
-			cVarsArray += ',(' + Util.escape(i) + ',' + Util.escape(cvars.CONVARS_SERVER[i].val) + ')';
+			cVarsArray += ',(' + Postgres.escape(i) + ',' + Postgres.escape(cvars.CONVARS_SERVER[i].val) + ')';
 	}
 	
 	if (!cVarsArray) return DBot.updateLoadingLevel(false);

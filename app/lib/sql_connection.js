@@ -1,77 +1,166 @@
 
 /* global DBot, Symbol, hook */
 
-class SQLConnectionWrapper {
+class SQLResult {
+	constructor(connection, dispatcher, rawData, err) {
+		this.connection = connection;
+		this.worker = connection;
+		this.dispatcher = dispatcher;
+		this.err = err;
+		
+		if (rawData) {
+			this.rawRows = rawData.rows;
+			this.rawData = rawData;
+		} else {
+			this.rawRows = [];
+			this.rawData = {rows: []};
+		}
+		
+		this.amountOfRows = this.rawRows.length;
+		
+		for (let i in this.rawRows) {
+			this[i] = this.rawRows[i];
+		}
+	}
+	
+	getConnection() {
+		return this.connection;
+	}
+	
+	getDispatcher() {
+		return this.connection.dispatcher;
+	}
+	
+	*[Symbol.iterator]() {
+		if (this.err) yield [];
+		for (let i = 0; i < this.amountOfRows; i++) {
+			yield this.rawRows[i];
+		}
+	}
+};
+
+class SQLConnectionDispatcher {
 	constructor(config) {
 		this.counter = 0;
 		this.errcounter = 0;
+		this.waiting = 0;
+		
+		this.load = [];
+		
 		this.config = config;
 		config.workers = config.workers || 1;
-		this.connection = new pg.Client(config);
+		this.connections = [];
+		
+		for (let i = 0; i < this.config.workers; i++) {
+			this.connections.push(new pg.Client(config));
+			this.load[i] = 0;
+		}
+	}
+	
+	findBestWorker() {
+		let min = this.load[0];
+		let workerID = 0;
+		
+		for (const i of this.load) {
+			if (this.load[i] < min) {
+				workerID = i;
+			}
+		}
+		
+		return [this.connections[workerID], workerID];
+	}
+	
+	onResult(workerID, oldStack, query, callback, err, data) {
+		let newErrorMessage;
+		this.waiting--;
+		this.load[workerID]--;
+
+		if (err) {
+			this.errcounter++;
+			newErrorMessage = 'Worker ID: ' + workerID + '\nQUERY: ' + (err.internalQuery || query) + '\nERROR: ' + err.message;
+
+			if (err.hint) newErrorMessage += '\nHINT: ' + err.hint;
+			if (err.detail) newErrorMessage += '\n' + err.hint;
+
+			newErrorMessage += '\n' + oldStack;
+			err.stack = newErrorMessage;
+
+			if (!callback) throw err;
+		}
+
+		if (!callback) return;
+		
+		let result = new SQLResult(this.connections[workerID], this, data);
+
+		try {
+			callback(err, result);
+		} catch(newErr) {
+			let e = new Error(newErr);
+			e.stack = newErr.stack + '\n ------- \n' + oldStack.substr(6);
+			throw e; // Rethrow
+		}
 	}
 	
 	query(query, callback) {
 		this.counter++;
+		this.waiting++;
+		
+		let result = this.findBestWorker();
+		let worker = result[0];
+		let workerID = result[1];
+		
+		this.load[workerID]++;
+		
 		let oldStack = new Error().stack;
-		// if (query.length < 100) console.log(query); // To trackdown small queries on startup
 		let self = this;
 
-		this.connection.query(query, function(err, data) {
-			let newErrorMessage;
-
-			if (err) {
-				self.errcounter++;
-				newErrorMessage = 'QUERY: ' + (err.internalQuery || query) + '\nERROR: ' + err.message;
-
-				if (err.hint)
-					newErrorMessage += '\nHINT: ' + err.hint;
-
-				if (err.detail)
-					newErrorMessage += '\n' + err.hint;
-
-				newErrorMessage += '\n' + oldStack;
-				err.stack = newErrorMessage;
-
-				if (!callback) throw err;
-			}
-
-			if (callback) {
-				try {
-					let obj = {};
-					let cID = 0;
-					let amountOfRows = 0;
-
-					if (data) {
-						amountOfRows = data.rows.length;
-
-						for (let row of data.rows) {
-							obj[cID] = row;
-							cID++;
-						}
-					}
-
-					obj[Symbol.iterator] = function* () {
-						for (let i = 0; i < amountOfRows; i++) {
-							yield data.rows[i];
-						}
-					};
-
-					callback(err, obj, data);
-				} catch(newErr) {
-					let e = new Error(newErr);
-					e.stack = newErr.stack + '\n ------- \n' + oldStack.substr(6);
-					throw e; // Rethrow
-				}
-			}
-		});
+		worker.query(query, (err, data) => self.onResult(workerID, oldStack, query, callback, err, data));
 	}
 	
 	connect(callback) {
-		let connection = this.connection;
-		this.connection.connect(function(err) {
-			if (!callback && err) throw err;
-			if (callback) callback(err);
-		});
+		let errDef;
+		let done = 0;
+		let total = this.config.workers;
+		
+		for (const conn of this.connections) {
+			conn.connect(function(err) {
+				if (errDef) return;
+				
+				if (err) {
+					if (!callback) throw err;
+					errDef = err;
+					callback(errDef);
+					return;
+				}
+				
+				done++;
+				
+				if (done === total) {
+					if (callback) callback(null);
+				}
+			});
+		}
+	}
+	
+	toString() {
+		return '[SQLConnectionDispatcher: W:' + this.waiting + '|Q:' + this.counter + '|E:' + this.errcounter + ']';
+	}
+	
+	escape(str) {
+		if (typeof str === 'boolean')
+			return str && "true" || "false";
+
+		if (typeof str === 'number')
+			return "" + str + "";
+
+		let strObj = str.toString()
+		.replace(/'/gi, '\'\'')
+		.replace(/\\/gi, '\\\\')
+		.replace(/\//gi, '\/');
+
+		strObj = '\'' + strObj + '\'';
+
+		return strObj;
 	}
 };
 
@@ -86,8 +175,8 @@ const pgConfig = {
 	port: DBot.cfg.sql_port
 };
 
-const mainConnection = new SQLConnectionWrapper(pgConfig);
-const secondaryConnection = new SQLConnectionWrapper(pgConfig);
+const mainConnection = new SQLConnectionDispatcher(pgConfig);
+const secondaryConnection = new SQLConnectionDispatcher(pgConfig);
 
 Postgre = mainConnection;
 Postgres = mainConnection;
@@ -154,3 +243,5 @@ mainConnection.connect(function(err) {
 		});
 	});
 });
+
+secondaryConnection.connect();

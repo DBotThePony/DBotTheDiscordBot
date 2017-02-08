@@ -81,7 +81,7 @@ hook.Add('ServerInitialized', 'Postgres.Saves', function(server, id, isCascade) 
 	if (!DBot.SQLReady()) return;
 	if (!server.name) return;
 	
-	Postgres.query('UPDATE servers SET "NAME" = ' + Util.escape(server.name) + ' WHERE "ID" = ' + id, function(err) {
+	Postgres.query('UPDATE servers SET "NAME" = ' + Postgres.escape(server.name) + ' WHERE "ID" = ' + id, function(err) {
 		if (!err)
 			return;
 		
@@ -101,7 +101,7 @@ hook.Add('ServersInitialized', 'Postgres.Saves', function(servers) {
 		else
 			finalQuery = '';
 		
-		finalQuery += '(' + server.uid + ', ' + Util.escape(server.name) + ')';
+		finalQuery += '(' + server.uid + ', ' + Postgres.escape(server.name) + ')';
 	}
 	
 	if (!finalQuery) return;
@@ -115,7 +115,7 @@ hook.Add('ChannelInitialized', 'Postgres.Saves', function(channel, id, isCascade
 	if (!DBot.SQLReady()) return;
 	if (!channel.name) return;
 	
-	Postgres.query('UPDATE channels SET "NAME" = ' + Util.escape(channel.name) + ' WHERE "ID" = ' + id, function(err) {
+	Postgres.query('UPDATE channels SET "NAME" = ' + Postgres.escape(channel.name) + ' WHERE "ID" = ' + id, function(err) {
 		if (!err)
 			return;
 		
@@ -135,7 +135,7 @@ hook.Add('ChannelsInitialized', 'Postgres.Saves', function(channels) {
 		else
 			finalQuery = '';
 		
-		finalQuery += '(' + channel.uid + ', ' + Util.escape(channel.name) + ')';
+		finalQuery += '(' + channel.uid + ', ' + Postgres.escape(channel.name) + ')';
 	}
 	
 	if (!finalQuery) return;

@@ -24,7 +24,7 @@ let UpdateMemes = function() {
 		for (let i in memes) {
 			let val = memes[i];
 			
-			Postgres.query('INSERT INTO meme_cache ("ID", "URL", "NAME") VALUES (' + Util.escape(val.id) + ', ' + Util.escape(val.url) + ', ' + Util.escape(val.name) + ') ON CONFLICT ("ID") DO UPDATE SET "URL" = ' + Util.escape(val.url) + ', "NAME" = ' + Util.escape(val.name));
+			Postgres.query('INSERT INTO meme_cache ("ID", "URL", "NAME") VALUES (' + Postgres.escape(val.id) + ', ' + Postgres.escape(val.url) + ', ' + Postgres.escape(val.name) + ') ON CONFLICT ("ID") DO UPDATE SET "URL" = ' + Postgres.escape(val.url) + ', "NAME" = ' + Postgres.escape(val.name));
 		}
 	});
 }

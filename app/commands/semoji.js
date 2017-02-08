@@ -28,7 +28,7 @@ module.exports = {
 		for (let arg of args) {
 			let str = arg.replace(toReplace, '');
 			
-			Postgres.query('SELECT EMOJI FROM steam_emoji_fail WHERE EMOJI = ' + Util.escape(str), function(err, data) {
+			Postgres.query('SELECT EMOJI FROM steam_emoji_fail WHERE EMOJI = ' + Postgres.escape(str), function(err, data) {
 				if (STOP)
 					return;
 				
@@ -67,7 +67,7 @@ module.exports = {
 								if (result.raw_body.toString() == '') {
 									STOP = true;
 									msg.reply('Invalid Emoji: ' + str + '!');
-									Postgres.query('INSERT INTO steam_emoji_fail VALUES (' + Util.escape(str) + ')');
+									Postgres.query('INSERT INTO steam_emoji_fail VALUES (' + Postgres.escape(str) + ')');
 									msg.channel.stopTyping();
 								} else {
 									fs.writeFile(fpath, result.raw_body, function(err) {
@@ -117,7 +117,7 @@ DBot.RegisterCommand({
 		for (let arg of args) {
 			let str = arg.replace(toReplace, '');
 			
-			Postgres.query('SELECT EMOJI FROM steam_emoji_fail WHERE EMOJI = ' + Util.escape(str), function(err, data) {
+			Postgres.query('SELECT EMOJI FROM steam_emoji_fail WHERE EMOJI = ' + Postgres.escape(str), function(err, data) {
 				if (STOP)
 					return;
 				
@@ -156,7 +156,7 @@ DBot.RegisterCommand({
 								if (result.raw_body.toString() == '') {
 									STOP = true;
 									msg.reply('Invalid Emoji: ' + str + '!');
-									Postgres.query('INSERT INTO steam_emoji_fail VALUES (' + Util.escape(str) + ')');
+									Postgres.query('INSERT INTO steam_emoji_fail VALUES (' + Postgres.escape(str) + ')');
 									msg.channel.stopTyping();
 								} else {
 									let body = result.raw_body.toString();
