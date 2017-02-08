@@ -881,6 +881,7 @@ BEGIN
 					tags_init."REALM" = 'client' AND
 					tags_init."SPACE" = tags_defbans."SPACE"
 			)
+		ON CONFLICT ("UID", "REALM", "SPACE") DO NOTHING
 	)
 	
 	INSERT INTO
@@ -940,6 +941,7 @@ BEGIN
 					tags_init."REALM" = 'channel' AND
 					tags_init."SPACE" = tags_defbans."SPACE"
 			)
+		ON CONFLICT ("UID", "REALM", "SPACE") DO NOTHING
 	)
 	
 	INSERT INTO
@@ -999,6 +1001,7 @@ BEGIN
 					tags_init."REALM" = 'server' AND
 					tags_init."SPACE" = tags_defbans."SPACE"
 			)
+		ON CONFLICT ("UID", "REALM", "SPACE") DO NOTHING
 	)
 	
 	INSERT INTO
