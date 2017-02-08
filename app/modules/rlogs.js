@@ -33,8 +33,8 @@ let updateRoleRules = function(role) {
 			}
 			
 			if (!hit) {
-				MySQL.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (' + sql.Member(member) + ', ' + sRole + ', true, ' + Util.escape(Math.floor(CurTime())) + ')');
-				MySQL.query('INSERT INTO member_roles VALUES (' + sql.Member(member) + ', ' + sRole + ') ON CONFLICT DO NOTHING');
+				Postgres.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (' + sql.Member(member) + ', ' + sRole + ', true, ' + Util.escape(Math.floor(CurTime())) + ')');
+				Postgres.query('INSERT INTO member_roles VALUES (' + sql.Member(member) + ', ' + sRole + ') ON CONFLICT DO NOTHING');
 			}
 		}
 		
@@ -49,8 +49,8 @@ let updateRoleRules = function(role) {
 			}
 			
 			if (!hit) {
-				MySQL.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (\'' + row.MEMBER + '\', ' + sRole + ', false, ' + Util.escape(Math.floor(CurTime())) + ')');
-				MySQL.query('DELETE FROM member_roles WHERE "MEMBER" = \'' + row.MEMBER + '\' AND "ROLE" = ' + sRole);
+				Postgres.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (\'' + row.MEMBER + '\', ' + sRole + ', false, ' + Util.escape(Math.floor(CurTime())) + ')');
+				Postgres.query('DELETE FROM member_roles WHERE "MEMBER" = \'' + row.MEMBER + '\' AND "ROLE" = ' + sRole);
 			}
 		}
 	}
@@ -61,10 +61,10 @@ let updateRoleRules = function(role) {
 		return DBot.DefineRole(role, function(role, newuid) {
 			sRole = newuid;
 			q = 'SELECT "member_roles"."MEMBER", "users"."UID" as "USER" FROM "member_roles", "users", "members" WHERE "member_roles"."ROLE" = ' + sRole + ' AND "members"."ID" = "member_roles"."MEMBER" AND "users"."ID" = "members"."USER" AND "members"."TIME" > currtime() - 120';
-			MySQL.query(q, continueFunc);
+			Postgres.query(q, continueFunc);
 		});
 	else
-		MySQL.query(q, continueFunc);
+		Postgres.query(q, continueFunc);
 }
 
 hook.Add('UpdateLoadingLevel', 'RoleLogs', function(callFunc) {
@@ -236,7 +236,7 @@ DBot.RegisterCommand({
 				"ENTRY" DESC\
 			LIMIT ' + limitStr;
 			
-			MySQL.query(funckingQuery, function(err, data) {
+			Postgres.query(funckingQuery, function(err, data) {
 				if (err) {
 					msg.channel.stopTyping();
 					msg.reply('WTF');
@@ -311,7 +311,7 @@ DBot.RegisterCommand({
 				"ENTRY" DESC\
 			LIMIT ' + limitStr;
 			
-			MySQL.query(funckingQuery, function(err, data) {
+			Postgres.query(funckingQuery, function(err, data) {
 				if (err) {
 					msg.channel.stopTyping();
 					msg.reply('WTF');
@@ -372,7 +372,7 @@ DBot.RegisterCommand({
 				"ENTRY" DESC\
 			LIMIT ' + limitStr;
 			
-			MySQL.query(funckingQuery, function(err, data) {
+			Postgres.query(funckingQuery, function(err, data) {
 				if (err) {
 					msg.channel.stopTyping();
 					msg.reply('WTF');
@@ -434,7 +434,7 @@ DBot.RegisterCommand({
 				"ENTRY" DESC\
 			LIMIT ' + limitStr;
 			
-			MySQL.query(funckingQuery, function(err, data) {
+			Postgres.query(funckingQuery, function(err, data) {
 				if (err) {
 					msg.channel.stopTyping();
 					msg.reply('WTF');
@@ -496,7 +496,7 @@ DBot.RegisterCommand({
 				"ENTRY" DESC\
 			LIMIT ' + limitStr;
 			
-			MySQL.query(funckingQuery, function(err, data) {
+			Postgres.query(funckingQuery, function(err, data) {
 				if (err) {
 					msg.channel.stopTyping();
 					msg.reply('WTF');
@@ -558,7 +558,7 @@ DBot.RegisterCommand({
 				"ENTRY" DESC\
 			LIMIT ' + limitStr;
 			
-			MySQL.query(funckingQuery, function(err, data) {
+			Postgres.query(funckingQuery, function(err, data) {
 				if (err) {
 					msg.channel.stopTyping();
 					msg.reply('WTF');
@@ -620,7 +620,7 @@ DBot.RegisterCommand({
 				"ENTRY" DESC\
 			LIMIT ' + limitStr;
 			
-			MySQL.query(funckingQuery, function(err, data) {
+			Postgres.query(funckingQuery, function(err, data) {
 				if (err) {
 					msg.channel.stopTyping();
 					msg.reply('WTF');

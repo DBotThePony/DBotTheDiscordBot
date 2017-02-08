@@ -16,7 +16,7 @@ module.exports = {
 	func: function(args, cmd, msg) {
 		msg.channel.startTyping();
 		
-		MySQL.query('SELECT * FROM urbancache WHERE "WORD" = ' + Util.escape(cmd), function(err, data) {
+		Postgres.query('SELECT * FROM urbancache WHERE "WORD" = ' + Util.escape(cmd), function(err, data) {
 			let curr = UnixStamp();
 			
 			if (!data[0] || data[0].USTAMP < curr) {
@@ -62,7 +62,7 @@ module.exports = {
 						"DEXAMPLE" = excluded."DEXAMPLE", \
 						"USTAMP" = excluded."USTAMP"';
 					
-					MySQL.query(q);
+					Postgres.query(q);
 				});
 			} else {
 				msg.channel.stopTyping();

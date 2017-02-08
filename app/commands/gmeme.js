@@ -24,7 +24,7 @@ let UpdateMemes = function() {
 		for (let i in memes) {
 			let val = memes[i];
 			
-			MySQL.query('INSERT INTO meme_cache ("ID", "URL", "NAME") VALUES (' + Util.escape(val.id) + ', ' + Util.escape(val.url) + ', ' + Util.escape(val.name) + ') ON CONFLICT ("ID") DO UPDATE SET "URL" = ' + Util.escape(val.url) + ', "NAME" = ' + Util.escape(val.name));
+			Postgres.query('INSERT INTO meme_cache ("ID", "URL", "NAME") VALUES (' + Util.escape(val.id) + ', ' + Util.escape(val.url) + ', ' + Util.escape(val.name) + ') ON CONFLICT ("ID") DO UPDATE SET "URL" = ' + Util.escape(val.url) + ', "NAME" = ' + Util.escape(val.name));
 		}
 	});
 }
@@ -50,7 +50,7 @@ module.exports = {
 	desc: 'Random meme from https://imgflip.com/',
 	
 	func: function(args, cmd, msg) {
-		MySQL.query('SELECT "URL", "NAME" FROM meme_cache ORDER BY random() LIMIT 1', function(err, data) {
+		Postgres.query('SELECT "URL", "NAME" FROM meme_cache ORDER BY random() LIMIT 1', function(err, data) {
 			let meme = data[0];
 			
 			msg.reply('\n' + meme.NAME + '\n' + meme.URL);

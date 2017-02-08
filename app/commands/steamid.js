@@ -105,7 +105,7 @@ module.exports = {
 		}
 		
 		let getFunc = function(id) {
-			MySQL.query('SELECT * FROM steamid_fail WHERE "STEAMID64" = ' + Util.escape(id) + '', function(err, data2) {
+			Postgres.query('SELECT * FROM steamid_fail WHERE "STEAMID64" = ' + Util.escape(id) + '', function(err, data2) {
 				if (err) {
 					msg.channel.stopTyping();
 					console.error(err);
@@ -118,7 +118,7 @@ module.exports = {
 					return
 				}
 				
-				MySQL.query('SELECT * FROM steamid WHERE "STEAMID64" = ' + Util.escape(id) + '', function(err, data) {
+				Postgres.query('SELECT * FROM steamid WHERE "STEAMID64" = ' + Util.escape(id) + '', function(err, data) {
 					if (data && data[0]) {
 						SteamID = data[0].STEAMID;
 						SteamID64 = data[0].STEAMID64;
@@ -131,7 +131,7 @@ module.exports = {
 							let data = result.body.response.players;
 							
 							if (!data[0]) {
-								MySQL.query('INSERT INTO steamid_fail ("STEAMID64") VALUES (' + Util.escape(id) + ')');
+								Postgres.query('INSERT INTO steamid_fail ("STEAMID64") VALUES (' + Util.escape(id) + ')');
 								msg.reply('No such steam account: ' + id);
 								msg.channel.stopTyping();
 								return;
@@ -149,7 +149,7 @@ module.exports = {
 							SteamID3 = steamid3;
 							SteamID64 = id;
 							
-							MySQL.query('INSERT INTO steamid VALUES\
+							Postgres.query('INSERT INTO steamid VALUES\
 							(' + Util.escape(SteamID64) + ', ' + Util.escape(SteamID) + ', ' + Util.escape(SteamID3) + ', ' + Util.escape(profile) + ') ON CONFLICT ("STEAMID64") DO UPDATE SET\
 							"STEAMID64" = ' + Util.escape(SteamID64) + ',\
 							"STEAMID" = ' + Util.escape(SteamID) + ',\
@@ -177,14 +177,14 @@ module.exports = {
 		} else {
 			// assume this is Custom Steam Profile
 			
-			MySQL.query('SELECT * FROM steamid_fail WHERE "CUSTOMID" = ' + Util.escape(toManipulate), function(err, data2) {
+			Postgres.query('SELECT * FROM steamid_fail WHERE "CUSTOMID" = ' + Util.escape(toManipulate), function(err, data2) {
 				if (data2[0]) {
 					msg.channel.stopTyping();
 					msg.reply('No such Steam account: ' + toManipulate);
 					return
 				}
 				
-				MySQL.query('SELECT * FROM steamid WHERE "CUSTOMID" = ' + Util.escape(toManipulate), function(err, data) {
+				Postgres.query('SELECT * FROM steamid WHERE "CUSTOMID" = ' + Util.escape(toManipulate), function(err, data) {
 					if (data && data[0]) {
 						SteamID = data[0].STEAMID;
 						SteamID64 = data[0].STEAMID64;
@@ -197,7 +197,7 @@ module.exports = {
 							let res = result.body;
 							
 							if (!res.response || res.response.success == 42) {
-								MySQL.query('INSERT INTO steamid_fail ("CUSTOMID") VALUES (' + Util.escape(toManipulate) + ')');
+								Postgres.query('INSERT INTO steamid_fail ("CUSTOMID") VALUES (' + Util.escape(toManipulate) + ')');
 								msg.reply('No such Steam account: ' + toManipulate);
 								msg.channel.stopTyping();
 							} else {

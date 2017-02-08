@@ -51,7 +51,7 @@ DBot.RegisterCommand({
 		let split = msg.content.split(' ');
 		split.splice(0, 1);
 		
-		Postgres.query(split.join(' '), function(err, data) {
+		DBot.secondarySQLConnection.query(split.join(' '), function(err, data) {
 			msg.channel.stopTyping();
 			
 			if (err) {

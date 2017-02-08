@@ -3,7 +3,7 @@ const fs = DBot.js.fs;
 const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
 
-MySQL.query('SELECT COUNT(*) AS CNT FROM killicons', function(err, data) {
+Postgres.query('SELECT COUNT(*) AS CNT FROM killicons', function(err, data) {
 	if (data && data[0] && data[0].CNT != 0)
 		return;
 	
@@ -38,7 +38,7 @@ MySQL.query('SELECT COUNT(*) AS CNT FROM killicons', function(err, data) {
 				let aspectRatio = height / width;
 				let aspectRatio2 = width / height;
 				
-				MySQL.query(sql.Insert('killicons', names, [name, file, Class, width, height]));
+				Postgres.query(sql.Insert('killicons', names, [name, file, Class, width, height]));
 			});
 		}
 	});
@@ -90,7 +90,7 @@ let generateFunc = function(col1, col2) {
 				return;
 			}
 			
-			MySQL.query('SELECT * FROM killicons WHERE "CLASSNAME" = ' + Util.escape(weapon) + ' OR "NAME" = ' + Util.escape(weapon) + ' OR "NAME" LIKE ' + Util.escape('%' + weapon + '%') + ' OR "CLASSNAME" LIKE ' + Util.escape('%' + weapon + '%'), function(err, data) {
+			Postgres.query('SELECT * FROM killicons WHERE "CLASSNAME" = ' + Util.escape(weapon) + ' OR "NAME" = ' + Util.escape(weapon) + ' OR "NAME" LIKE ' + Util.escape('%' + weapon + '%') + ' OR "CLASSNAME" LIKE ' + Util.escape('%' + weapon + '%'), function(err, data) {
 				if (err) {
 					msg.channel.stopTyping();
 					msg.reply('<internal pony error>');

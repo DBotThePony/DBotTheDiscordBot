@@ -99,9 +99,9 @@ class ConVar {
 	fetch() {
 		let self = this;
 		
-		MySQL.query('SELECT "VALUE" FROM cvar_' + this.realm + ' WHERE "ID" = ' + this.id + ' AND "CVAR" = ' + Util.escape(this.name), function(err, data) {
+		Postgres.query('SELECT "VALUE" FROM cvar_' + this.realm + ' WHERE "ID" = ' + this.id + ' AND "CVAR" = ' + Util.escape(this.name), function(err, data) {
 			if (!data || !data[0]) {
-				MySQL.query('INSERT INTO cvar_' + self.realm + ' ("ID", "CVAR", "VALUE") VALUES (' + self.id + ', ' + Util.escape(self.name) + ', ' + Util.escape(self.defValue) + ')');
+				Postgres.query('INSERT INTO cvar_' + self.realm + ' ("ID", "CVAR", "VALUE") VALUES (' + self.id + ', ' + Util.escape(self.name) + ', ' + Util.escape(self.defValue) + ')');
 			} else {
 				self.value = data[0].VALUE;
 			}
@@ -272,7 +272,7 @@ class ConVar {
 		
 		let oldVal = this.value;
 		this.value = val;
-		MySQL.query('UPDATE cvar_' + this.realm + ' SET "VALUE" = ' + Util.escape(val) + ' WHERE "ID" = ' + Util.escape(this.id) + ' AND "CVAR" = ' + Util.escape(this.name));
+		Postgres.query('UPDATE cvar_' + this.realm + ' SET "VALUE" = ' + Util.escape(val) + ' WHERE "ID" = ' + Util.escape(this.id) + ' AND "CVAR" = ' + Util.escape(this.name));
 		
 		this.session.onValueChanged(this, oldVal, val);
 		this.onValueChanged(oldVal, val);

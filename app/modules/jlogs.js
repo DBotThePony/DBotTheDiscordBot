@@ -6,11 +6,11 @@ const hDuration = require('humanize-duration');
 Util.mkdir(DBot.WebRoot + '/jlogs');
 
 hook.Add('ValidClientJoinsServer', 'JLogs', function(user, server, member) {
-	MySQL.query('INSERT INTO joinleft_log ("USER", "SERVER", "STAMP", "STATUS") VALUES (' + sql.User(user) + ', ' + sql.Server(server) + ', ' + CurTime() + ', true)');
+	Postgres.query('INSERT INTO joinleft_log ("USER", "SERVER", "STAMP", "STATUS") VALUES (' + sql.User(user) + ', ' + sql.Server(server) + ', ' + CurTime() + ', true)');
 });
 
 hook.Add('ValidClientLeftServer', 'JLogs', function(user, server, member) {
-	MySQL.query('INSERT INTO joinleft_log ("USER", "SERVER", "STAMP", "STATUS") VALUES (' + sql.User(user) + ', ' + sql.Server(server) + ', ' + CurTime() + ', false)');
+	Postgres.query('INSERT INTO joinleft_log ("USER", "SERVER", "STAMP", "STATUS") VALUES (' + sql.User(user) + ', ' + sql.Server(server) + ', ' + CurTime() + ', false)');
 });
 
 DBot.RegisterCommand({
@@ -26,7 +26,7 @@ DBot.RegisterCommand({
 		
 		msg.channel.startTyping();
 		
-		MySQL.query('SELECT joinleft_log."STAMP", joinleft_log."STATUS", users."NAME" as "USERNAME" FROM joinleft_log, users WHERE joinleft_log."SERVER" = ' + DBot.GetServerID(msg.channel.guild) + ' AND users."ID" = joinleft_log."USER" ORDER BY joinleft_log."ID" DESC LIMIT 10', function(err, data) {
+		Postgres.query('SELECT joinleft_log."STAMP", joinleft_log."STATUS", users."NAME" as "USERNAME" FROM joinleft_log, users WHERE joinleft_log."SERVER" = ' + DBot.GetServerID(msg.channel.guild) + ' AND users."ID" = joinleft_log."USER" ORDER BY joinleft_log."ID" DESC LIMIT 10', function(err, data) {
 			if (err) {
 				msg.reply('WTF');
 				msg.channel.stopTyping();
@@ -70,7 +70,7 @@ DBot.RegisterCommand({
 		
 		msg.channel.startTyping();
 		
-		MySQL.query('SELECT joinleft_log."STAMP", joinleft_log."STATUS", users."NAME" as "USERNAME" FROM joinleft_log, users WHERE joinleft_log."SERVER" = ' + DBot.GetServerID(msg.channel.guild) + ' AND users."ID" = joinleft_log."USER" ORDER BY joinleft_log."ID" DESC LIMIT 400', function(err, data) {
+		Postgres.query('SELECT joinleft_log."STAMP", joinleft_log."STATUS", users."NAME" as "USERNAME" FROM joinleft_log, users WHERE joinleft_log."SERVER" = ' + DBot.GetServerID(msg.channel.guild) + ' AND users."ID" = joinleft_log."USER" ORDER BY joinleft_log."ID" DESC LIMIT 400', function(err, data) {
 			if (err) {
 				msg.reply('WTF');
 				msg.channel.stopTyping();

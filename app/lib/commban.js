@@ -15,14 +15,14 @@ class CommandBanClass {
 		if (!this.ready)
 			return;
 		
-		MySQL.query('INSERT INTO command_bans_' + this.realm + ' ("UID", "COMMAND") VALUES (' + this.uid + ', \'' + command + '\')');
+		Postgres.query('INSERT INTO command_bans_' + this.realm + ' ("UID", "COMMAND") VALUES (' + this.uid + ', \'' + command + '\')');
 	}
 	
 	onUnBanned(command) {
 		if (!this.ready)
 			return;
 		
-		MySQL.query('DELETE FROM command_bans_' + this.realm + ' WHERE "UID" = ' + this.uid + ' AND "COMMAND" = \'' + command + '\'');
+		Postgres.query('DELETE FROM command_bans_' + this.realm + ' WHERE "UID" = ' + this.uid + ' AND "COMMAND" = \'' + command + '\'');
 	}
 	
 	addCommand(command) {
@@ -89,7 +89,7 @@ class CommandBanClass {
 	fetch() {
 		let self = this;
 		
-		MySQL.query('SELECT "COMMAND" FROM command_bans_' + this.realm + ' WHERE "UID" = \'' + this.uid + '\'', function(err, data) {
+		Postgres.query('SELECT "COMMAND" FROM command_bans_' + this.realm + ' WHERE "UID" = \'' + this.uid + '\'', function(err, data) {
 			if (err) throw err;
 			
 			for (let i in data) {

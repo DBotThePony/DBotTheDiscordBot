@@ -26,7 +26,7 @@ module.exports = {
 		
 		let stuff = [Util.escape(sid), Util.escape(cid), Util.escape(uid), Util.escape(Math.floor(CurTime())), Util.escape(cmd)];
 		
-		MySQL.query('INSERT INTO complains ("SERVER", "CHANNEL", "USER", "STAMP", "CONTENT") VALUES (' + stuff.join(',') + ')');
+		Postgres.query('INSERT INTO complains ("SERVER", "CHANNEL", "USER", "STAMP", "CONTENT") VALUES (' + stuff.join(',') + ')');
 		
 		return 'Complain sended! Yay!\nIf you got an info about generic bot bug or issue, open an issue ticket here: https://git.dbot.serealia.ca/dbot/NotDBot/issues';
 	}
@@ -39,7 +39,7 @@ DBot.RegisterCommand({
 	desc: 'Lists complains',
 	
 	func: function(args, cmd, msg) {
-		MySQL.query(queryToList, function(err, data) {
+		Postgres.query(queryToList, function(err, data) {
 			let output = '';
 			
 			for (let i in data) {

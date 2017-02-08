@@ -134,7 +134,7 @@ class TagBase {
 		if (!noInitChecks) {
 			let query = 'INSERT INTO tags_list VALUES (\'' + this.uid + '\', \'' + this.realm + '\', \'' + this.space + '\', ARRAY []::VARCHAR(128)[]) ON CONFLICT DO NOTHING; SELECT "UID" FROM tags_init WHERE "UID" = \'' + this.uid + '\' AND "REALM" = \'' + this.realm + '\' AND "SPACE" = \'' + this.space + '\'';
 			
-			MySQL.query(query, function(err, data) {
+			Postgres.query(query, function(err, data) {
 				if (err)
 					throw err;
 				
@@ -147,9 +147,9 @@ class TagBase {
 					self.update();
 					
 					hook.Run('TagsInitialized', self.realm, obj, self.space, self);
-					MySQL.query('INSERT INTO tags_init VALUES (\'' + self.uid + '\', \'' + self.realm + '\', \'' + self.space + '\')');
+					Postgres.query('INSERT INTO tags_init VALUES (\'' + self.uid + '\', \'' + self.realm + '\', \'' + self.space + '\')');
 				} else {
-					MySQL.query('SELECT UNNEST("TAG") AS "TAG" FROM tags_list WHERE "UID" = \'' + self.uid + '\' AND "REALM" = \'' + self.realm + '\' AND "SPACE" = \'' + self.space + '\'', function(err, data) {
+					Postgres.query('SELECT UNNEST("TAG") AS "TAG" FROM tags_list WHERE "UID" = \'' + self.uid + '\' AND "REALM" = \'' + self.realm + '\' AND "SPACE" = \'' + self.space + '\'', function(err, data) {
 						if (err)
 							throw err;
 						
@@ -163,7 +163,7 @@ class TagBase {
 				}
 			});
 		} else {
-			MySQL.query('SELECT UNNEST("TAG") AS "TAG" FROM tags_list WHERE "UID" = \'' + self.uid + '\' AND "REALM" = \'' + self.realm + '\' AND "SPACE" = \'' + self.space + '\'', function(err, data) {
+			Postgres.query('SELECT UNNEST("TAG") AS "TAG" FROM tags_list WHERE "UID" = \'' + self.uid + '\' AND "REALM" = \'' + self.realm + '\' AND "SPACE" = \'' + self.space + '\'', function(err, data) {
 				if (err)
 					throw err;
 				

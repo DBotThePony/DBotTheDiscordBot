@@ -90,7 +90,7 @@ hook.Add('MemberInitialized', 'MemberNameLogs', function(member, uid, isCascade)
 	if (!DBot.SQLReady() || isCascade) return;
 	
 	let name = Util.escape(member.nickname || member.user.username);
-	MySQL.query('UPDATE members SET "NAME" = ' + name + ' WHERE "ID" = ' + member.uid, function(err) {
+	Postgres.query('UPDATE members SET "NAME" = ' + name + ' WHERE "ID" = ' + member.uid, function(err) {
 		if (!err)
 			return;
 		
@@ -151,7 +151,7 @@ hook.Add('UserInitialized', 'MemberNameLogs', function(user, id) {
 	let name = Util.escape(user.username);
 	user.oldUName = user.username;
 	
-	MySQL.query('UPDATE users SET "NAME" = ' + name + ' WHERE "ID" = ' + id, function(err) {
+	Postgres.query('UPDATE users SET "NAME" = ' + name + ' WHERE "ID" = ' + id, function(err) {
 		if (!err)
 			return;
 		
@@ -397,7 +397,7 @@ DBot.RegisterCommand({
 		
 		msg.channel.startTyping();
 		
-		MySQL.query('SELECT "NAME", "LASTUSE", "TIME" FROM uname_logs WHERE "USER" = ' + sql.User(args[0]) + ' ORDER BY "LASTUSE" DESC', function(err, data) {
+		Postgres.query('SELECT "NAME", "LASTUSE", "TIME" FROM uname_logs WHERE "USER" = ' + sql.User(args[0]) + ' ORDER BY "LASTUSE" DESC', function(err, data) {
 			if (err) {
 				msg.channel.stopTyping();
 				msg.reply('WTF');

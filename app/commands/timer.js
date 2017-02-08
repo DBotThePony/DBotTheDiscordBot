@@ -9,7 +9,7 @@ let NOTIFY = {};
 
 hook.Add('BotOnline', 'Timers', function() {
 	INIT = true;
-	MySQL.query('SELECT "ID", "STAMP" FROM timers_ids WHERE "NOTIFY" = false', function(err, data) {
+	Postgres.query('SELECT "ID", "STAMP" FROM timers_ids WHERE "NOTIFY" = false', function(err, data) {
 		for (let i in data) {
 			NOTIFY[data[i].ID] = data[i].STAMP;
 		}
@@ -27,10 +27,10 @@ setInterval(function() {
 			(function() {
 				let id = ID;
 				
-				MySQL.query('UPDATE timers_ids SET "NOTIFY" = true WHERE "ID" = ' + id);
+				Postgres.query('UPDATE timers_ids SET "NOTIFY" = true WHERE "ID" = ' + id);
 				
-				MySQL.query('SELECT "TITLE", "HASH" FROM timers_ids WHERE "ID" = ' + id, function(err, data2) {
-					MySQL.query('SELECT "ID" FROM timers_users WHERE "TIMERID" = ' + id, function(err, data) {
+				Postgres.query('SELECT "TITLE", "HASH" FROM timers_ids WHERE "ID" = ' + id, function(err, data2) {
+					Postgres.query('SELECT "ID" FROM timers_users WHERE "TIMERID" = ' + id, function(err, data) {
 						for (let I in data) {
 							let row = data[I];
 							let user = DBot.GetUser(row.ID);
@@ -210,16 +210,16 @@ module.exports = {
 		
 		fs.stat(fpath, function(err, stat) {
 			if (stat) {
-				MySQL.query('SELECT "ID", "STAMP" FROM timers_ids WHERE "HASH" = \'' + sha + '\'', function(err, data) {
+				Postgres.query('SELECT "ID", "STAMP" FROM timers_ids WHERE "HASH" = \'' + sha + '\'', function(err, data) {
 					msg.reply('Timer already created: ' + fpathURL);
 					
 					if (data[0].STAMP > CurTime()) {
 						NOTIFY[data[0].ID] = data[0].STAMP;
-						MySQL.query('INSERT INTO timers_users VALUES (' + DBot.GetUserID(msg.author) + ', ' + data[0].ID + ') ON CONFLICT DO NOTHING');
+						Postgres.query('INSERT INTO timers_users VALUES (' + DBot.GetUserID(msg.author) + ', ' + data[0].ID + ') ON CONFLICT DO NOTHING');
 					}
 				});
 			} else {
-				MySQL.query('INSERT INTO timers_ids ("TITLE", "STAMP", "HASH", "NOTIFY") VALUES (' + Util.escape(title) + ', ' + unix + ', \'' + sha + '\', false) RETURNING "ID"', function(err, data, originalData) {
+				Postgres.query('INSERT INTO timers_ids ("TITLE", "STAMP", "HASH", "NOTIFY") VALUES (' + Util.escape(title) + ', ' + unix + ', \'' + sha + '\', false) RETURNING "ID"', function(err, data, originalData) {
 					if (err) {
 						msg.reply('I just don\'t know what went wrong!');
 						console.error(err);
@@ -239,7 +239,7 @@ module.exports = {
 					
 					stream.end();
 					
-					MySQL.query('INSERT INTO timers_users VALUES (' + DBot.GetUserID(msg.author) + ', ' + timerID + ') ON CONFLICT DO NOTHING');
+					Postgres.query('INSERT INTO timers_users VALUES (' + DBot.GetUserID(msg.author) + ', ' + timerID + ') ON CONFLICT DO NOTHING');
 					NOTIFY[timerID] = unix;
 					
 					stream.on('finish', function() {
@@ -261,7 +261,7 @@ DBot.RegisterCommand({
 	func: function(args, cmd, msg) {
 		let id = DBot.GetUserID(msg.author);
 		
-		MySQL.query('SELECT "TIMERID" FROM timers_users WHERE "ID" = ' + id, function(err, data) {
+		Postgres.query('SELECT "TIMERID" FROM timers_users WHERE "ID" = ' + id, function(err, data) {
 			let timerz = [];
 			
 			let continueFunc = function() {
@@ -286,7 +286,7 @@ DBot.RegisterCommand({
 				count++;
 				let id2 = data[i].TIMERID;
 				
-				MySQL.query('SELECT * FROM timers_ids WHERE "ID" = ' + id2 + ' AND "NOTIFY" = false', function(err, data) {
+				Postgres.query('SELECT * FROM timers_ids WHERE "ID" = ' + id2 + ' AND "NOTIFY" = false', function(err, data) {
 					count--;
 					
 					if (data && data[0])
@@ -312,9 +312,9 @@ DBot.RegisterCommand({
 			return 'Must specify timer ID' + Util.HighlightHelp(['rtimer'], 2, args);
 		
 		let id = DBot.GetUserID(msg.author);
-		MySQL.query('SELECT "TIMERID" FROM timers_users WHERE "ID" = ' + id + ' AND "TIMERID" = ' + Util.escape(args[0]), function(err, data) {
+		Postgres.query('SELECT "TIMERID" FROM timers_users WHERE "ID" = ' + id + ' AND "TIMERID" = ' + Util.escape(args[0]), function(err, data) {
 			if (data && data[0]) {
-				MySQL.query('DELETE FROM timers_users WHERE "ID" = ' + id + ' AND "TIMERID" = ' + Util.escape(args[0]));
+				Postgres.query('DELETE FROM timers_users WHERE "ID" = ' + id + ' AND "TIMERID" = ' + Util.escape(args[0]));
 				msg.reply('Timer deleted successfully');
 			} else {
 				msg.reply('No such timer ;n;');

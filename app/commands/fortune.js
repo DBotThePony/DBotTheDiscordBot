@@ -31,7 +31,7 @@ fs.readdir('./resource/fortune', function(err, files) {
 		updateFullList;
 	}
 	
-	MySQL.query('SELECT COUNT("ID") as "COUNT" FROM fortune LIMIT 1', function(err, data) {
+	Postgres.query('SELECT COUNT("ID") as "COUNT" FROM fortune LIMIT 1', function(err, data) {
 		if (data && data[0] && data[0].COUNT != 0) {
 			totalCnt = Number(data[0].COUNT);
 			return;
@@ -52,7 +52,7 @@ fs.readdir('./resource/fortune', function(err, files) {
 				for (let phraseID in phrases) {
 					let phr = phrases[phraseID];
 					
-					MySQL.query('INSERT INTO fortune ("CATEGORY", "CONTENT") VALUES (' + esc + ', ' + Util.escape(phr) + ')');
+					Postgres.query('INSERT INTO fortune ("CATEGORY", "CONTENT") VALUES (' + esc + ', ' + Util.escape(phr) + ')');
 				}
 			});
 		}
@@ -67,7 +67,7 @@ fs.readdir('./resource/fortune_vulgar', function(err, files) {
 		updateFullList;
 	}
 	
-	MySQL.query('SELECT COUNT("ID") as "COUNT" FROM fortune_vulgar LIMIT 1', function(err, data) {
+	Postgres.query('SELECT COUNT("ID") as "COUNT" FROM fortune_vulgar LIMIT 1', function(err, data) {
 		if (data && data[0] && data[0].COUNT != 0) {
 			totalCntVulgar = Number(data[0].COUNT);
 			return;
@@ -88,7 +88,7 @@ fs.readdir('./resource/fortune_vulgar', function(err, files) {
 				for (let phraseID in phrases) {
 					let phr = phrases[phraseID];
 					
-					MySQL.query('INSERT INTO fortune_vulgar ("CATEGORY", "CONTENT") VALUES (' + esc + ', ' + Util.escape(phr) + ')');
+					Postgres.query('INSERT INTO fortune_vulgar ("CATEGORY", "CONTENT") VALUES (' + esc + ', ' + Util.escape(phr) + ')');
 				}
 			});
 		}
@@ -108,7 +108,7 @@ fs.readdir('./resource/fortune_vulgar', function(err, files) {
 				for (let phraseID in phrases) {
 					let phr = phrases[phraseID];
 					
-					MySQL.query('INSERT INTO fortune_vulgar ("CATEGORY", "CONTENT") VALUES (' + esc + ', ' + Util.escape(phr) + ')');
+					Postgres.query('INSERT INTO fortune_vulgar ("CATEGORY", "CONTENT") VALUES (' + esc + ', ' + Util.escape(phr) + ')');
 				}
 			});
 		}
@@ -124,7 +124,7 @@ module.exports = {
 	
 	func: function(args, cmd, msg) {
 		if (!args[0]) {
-			MySQL.query('SELECT "CONTENT" FROM fortune WHERE "ID" = ' + MathHelper.Random(1, totalCnt), function(err, data) {
+			Postgres.query('SELECT "CONTENT" FROM fortune WHERE "ID" = ' + MathHelper.Random(1, totalCnt), function(err, data) {
 				if (err || !data || !data[0]) {
 					return;
 				}
@@ -136,7 +136,7 @@ module.exports = {
 			if (!Util.HasValue(categories, args[0]))
 				return DBot.CommandError('Invalid fortune category', 'fortune', args, 1);
 			
-			MySQL.query('SELECT "CONTENT" FROM fortune WHERE "CATEGORY" = ' + Util.escape(args[0]) + ' ORDER BY random() LIMIT 1', function(err, data) {
+			Postgres.query('SELECT "CONTENT" FROM fortune WHERE "CATEGORY" = ' + Util.escape(args[0]) + ' ORDER BY random() LIMIT 1', function(err, data) {
 				if (err || !data || !data[0]) {
 					return;
 				}
@@ -157,7 +157,7 @@ DBot.RegisterCommand({
 	
 	func: function(args, cmd, msg) {
 		if (!args[0]) {
-			MySQL.query('SELECT "CONTENT" FROM fortune_vulgar WHERE "ID" = ' + MathHelper.Random(1, totalCntVulgar), function(err, data) {
+			Postgres.query('SELECT "CONTENT" FROM fortune_vulgar WHERE "ID" = ' + MathHelper.Random(1, totalCntVulgar), function(err, data) {
 				if (err || !data || !data[0]) {
 					return;
 				}
@@ -169,7 +169,7 @@ DBot.RegisterCommand({
 			if (!Util.HasValue(categoriesFull, args[0]))
 				return DBot.CommandError('Invalid fortune category', 'fortune', args, 1);
 			
-			MySQL.query('SELECT "CONTENT" FROM fortune_vulgar WHERE "CATEGORY" = ' + Util.escape(args[0]) + ' ORDER BY random() LIMIT 1', function(err, data) {
+			Postgres.query('SELECT "CONTENT" FROM fortune_vulgar WHERE "CATEGORY" = ' + Util.escape(args[0]) + ' ORDER BY random() LIMIT 1', function(err, data) {
 				if (err || !data || !data[0]) {
 					return;
 				}
