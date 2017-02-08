@@ -42,6 +42,10 @@ try {
 	throw err;
 }
 
+// Small safety stuff
+const token = DBot.cfg.token;
+DBot.cfg.token = undefined;
+
 DBot.js = {};
 
 DBot.js.child_process = require('child_process');
@@ -63,7 +67,6 @@ require('./app/lib/extensions/array.js');
 require('./app/lib/extensions/number.js');
 require('./app/lib/extensions/string.js');
 
-const token = DBot.cfg.token;
 let LEVEL_OF_CONNECTION = 0;
 let TimeoutID = null;
 let sqlRun = false;
