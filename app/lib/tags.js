@@ -57,6 +57,10 @@ class TagBase {
 		return this.addTag(tag);
 	}
 	
+	ban(tag) {
+		return this.addTag(tag);
+	}
+	
 	removeTag(tag) {
 		for (let i in this.bans) {
 			if (this.bans[i] == tag) {
