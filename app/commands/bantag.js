@@ -336,7 +336,7 @@ DBot.RegisterCommand({
 	name: 'tags',
 	
 	help_args: '<action: add/list/remove> <realm: server/channel/client> <space> <tags to ban/unban>',
-	desc: 'Unbans a tag from space. Unbanning tags from server/channel requires you server owner rights.\nWhile send in PM, not needed to tell realm.',
+	desc: 'Unbans/bans a tag from space. Unbanning/banning tags from server/channel requires you server owner rights.\nWhile send in PM, realm is always "client", and that argument is skipped.',
 	
 	func: function(args, cmd, msg) {
 		let action = args[0];
@@ -391,6 +391,10 @@ DBot.RegisterCommand({
 		else if (realm === 'server')
 			tagObj = DBot.ServerTags(msg.channel.guild, space);
 
+		let word = 'Ban';
+		if (action !== 'add')
+			word = 'Unban';
+
 		if (action !== 'list') {
 			if (realm !== 'client' && !msg.member.hasPermission('MANAGE_CHANNELS') && !DBot.owners.includes(msg.author.id))
 				return 'Onoh! You must have at least `MANAGE_CHANNELS` permission to command me to do that :s';
@@ -412,10 +416,7 @@ DBot.RegisterCommand({
 					success.push(tag);
 			}
 			
-			let word = 'Ban';
 			
-			if (action !== 'add')
-				word = 'Unban';
 
 			if (realm === 'client')
 				return word + ' result from space ' + space + '\n' + word + 'ned tags from you: ' + success.join(', ');
@@ -425,11 +426,11 @@ DBot.RegisterCommand({
 				return word + ' result from space ' + space + '\n' + word + 'ned tags from this server: ' + success.join(', ');
 		} else {
 			if (realm === 'client')
-				return 'Banned tags from you in ' + space + ': ```' + tagObj.bans.join(', ') + '```';
+				return word + 'ned tags from you in ' + space + ': ```' + tagObj.bans.join(', ') + '```';
 			else if (realm === 'channel')
-				return 'Banned tags from this channel in ' + space + ': ```' + tagObj.bans.join(', ') + '```';
+				return word + 'Banned tags from this channel in ' + space + ': ```' + tagObj.bans.join(', ') + '```';
 			else if (realm === 'server')
-				return 'Banned tags from this server in ' + space + ': ```' + tagObj.bans.join(', ') + '```';
+				return word + 'ned tags from this server in ' + space + ': ```' + tagObj.bans.join(', ') + '```';
 		}
 	}
 });
