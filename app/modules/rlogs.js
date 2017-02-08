@@ -55,12 +55,12 @@ let updateRoleRules = function(role) {
 		}
 	}
 	
-	let q = 'SELECT "member_roles"."MEMBER", "users"."UID" as "USER" FROM "member_roles", "users", "members" WHERE "member_roles"."ROLE" = ' + sRole + ' AND "members"."ID" = "member_roles"."MEMBER" AND "users"."ID" = "members"."USER"';
+	let q = 'SELECT "member_roles"."MEMBER", "users"."UID" as "USER" FROM "member_roles", "users", "members" WHERE "member_roles"."ROLE" = ' + sRole + ' AND "members"."ID" = "member_roles"."MEMBER" AND "users"."ID" = "members"."USER" AND "members"."TIME" > currtime() - 120';
 	
 	if (!sRole)
 		return DBot.DefineRole(role, function(role, newuid) {
 			sRole = newuid;
-			q = 'SELECT "member_roles"."MEMBER", "users"."UID" as "USER" FROM "member_roles", "users", "members" WHERE "member_roles"."ROLE" = ' + sRole + ' AND "members"."ID" = "member_roles"."MEMBER" AND "users"."ID" = "members"."USER"';
+			q = 'SELECT "member_roles"."MEMBER", "users"."UID" as "USER" FROM "member_roles", "users", "members" WHERE "member_roles"."ROLE" = ' + sRole + ' AND "members"."ID" = "member_roles"."MEMBER" AND "users"."ID" = "members"."USER" AND "members"."TIME" > currtime() - 120';
 			MySQL.query(q, continueFunc);
 		});
 	else
@@ -96,6 +96,8 @@ hook.Add('RolesInitialized', 'RoleLogs', function(roleCollection) {
 		
 		let cTime = Util.escape(Math.floor(CurTime()));
 		
+		let finalQuery = '';
+		
 		for (let row of data) {
 			let role = roleCollection.getByUID(row.ROLE);
 			let usersArray = row.USER.split(',');
@@ -115,8 +117,8 @@ hook.Add('RolesInitialized', 'RoleLogs', function(roleCollection) {
 				}
 				
 				if (!hit) {
-					MySQL.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (' + sql.Member(member) + ', ' + sRole + ', true, ' + cTime + ')');
-					MySQL.query('INSERT INTO member_roles VALUES (' + sql.Member(member) + ', ' + sRole + ') ON CONFLICT DO NOTHING');
+					finalQuery += 'INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (' + sql.Member(member) + ', ' + sRole + ', true, ' + cTime + ');';
+					finalQuery += 'INSERT INTO member_roles VALUES (' + sql.Member(member) + ', ' + sRole + ') ON CONFLICT DO NOTHING;';
 				}
 			}
 			
@@ -138,11 +140,13 @@ hook.Add('RolesInitialized', 'RoleLogs', function(roleCollection) {
 					if (!mbr)
 						return; // WTF?
 					
-					MySQL.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (\'' + mbr + '\', ' + sRole + ', false, ' + cTime + ')');
-					MySQL.query('DELETE FROM member_roles WHERE "MEMBER" = \'' + mbr + '\' AND "ROLE" = ' + sRole);
+					finalQuery += 'INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (\'' + mbr + '\', ' + sRole + ', false, ' + cTime + ');';
+					finalQuery += 'DELETE FROM member_roles WHERE "MEMBER" = \'' + mbr + '\' AND "ROLE" = ' + sRole + ';';
 				}
 			}
 		}
+		
+		Postgres.query(finalQuery);
 	});
 });
 
