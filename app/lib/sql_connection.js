@@ -172,6 +172,7 @@ const pgConfig = {
 	database: DBot.cfg.sql_database,
 	password: DBot.cfg.sql_password,
 	host: DBot.cfg.sql_hostname,
+	workers: DBot.cfg.sql_workers,
 	port: DBot.cfg.sql_port
 };
 

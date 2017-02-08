@@ -46,6 +46,9 @@ module.exports = {
 	// Name of database to use
 	// env var: PGDATABASE
 	sql_database: 'notdbot',
+	
+	// Number of connections done to PostgreSQL DB
+	sql_workers: 1,
 
 	// Path to web server bot directory (not to root of your web server)
 	// Should be readable by web server process. Should be writable by bot process.
