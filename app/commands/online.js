@@ -1,106 +1,8 @@
 
+/* global DBot, Postgres */
+
 const hDuration = DBot.js.hDuration;
 const moment = DBot.js.moment;
-
-// TOTAL_OFFLINE because we must count offline time when bot is online.
-
-hook.Add('SQLInitialize', 'uptime-bot', function() {
-	Postgre.query('SELECT * FROM uptime_bot', function(err, data) {
-		if (!data || !data[0]) {
-			Postgre.query('INSERT INTO uptime_bot VALUES (' + CurTime() + ', 0)');
-		}
-	});
-});
-
-let usersCache = [];
-
-setInterval(function() {
-	if (!DBot.IsOnline())
-		return;
-	
-	let finalQuery = '';
-	
-	for (let user of usersCache) {
-		try {
-			let status = user.presence.status;
-			let ostatus = user.lastStatus;
-			
-			if (status != ostatus) {
-				finalQuery += 'UPDATE users SET "STATUS" = \'' + status + '\' WHERE "ID" = ' + DBot.GetUserID(user) + ';';
-				user.lastStatus = status;
-			}
-		} catch(err) {
-			// console.error(err);
-		}
-	}
-	
-	finalQuery += 'SELECT users_heartbeat();';
-	Postgre.query(finalQuery);
-}, 5000);
-
-let INIT_BOT = false;
-let INIT = false;
-
-hook.Add('UserInitialized', 'LastSeen', function(user) {
-	usersCache.push(user);
-	
-	if (!INIT)
-		return;
-	
-	Postgre.query('INSERT INTO uptime ("ID") VALUES (' + user.uid + ') ON CONFLICT ("ID") DO NOTHING', function(err, data) {
-		if (err) console.error('Failed to create uptime entry: ' + err);
-	});
-	
-	Postgre.query('UPDATE users SET "STATUS" = \'' + user.presence.status + '\' WHERE "ID" = ' + user.uid, function(err, data) {
-		if (err) console.error('Failed to update users entry: ' + err);
-	});
-});
-
-hook.Add('UpdateLoadingLevel', 'LastSeen', function(callFunc) {
-	callFunc(true, 2);
-});
-
-hook.Add('UsersInitialized', 'LastSeen', function() {
-	INIT = true;
-	
-	let users = DBot.GetUsers();
-	
-	let updateStr;
-	let statusStr;
-	
-	for (let user of users) {
-		if (!updateStr)
-			updateStr = '(' + (user.uid || sql.User(user)) + ')';
-		else
-			updateStr += ',(' + (user.uid || sql.User(user)) + ')';
-		
-		try {
-			user.lastStatus = user.presence.status;
-			
-			if (!statusStr)
-				statusStr = '(' + (user.uid || sql.User(user)) + ',' + Postgres.escape(user.lastStatus) + '::discord_user_status)';
-			else
-				statusStr += ',(' + (user.uid || sql.User(user)) + ',' + Postgres.escape(user.lastStatus) + '::discord_user_status)';
-		} catch(err) {
-			
-		}
-	}
-	
-	if (updateStr)
-		Postgre.query('INSERT INTO uptime ("ID") VALUES ' + updateStr + ' ON CONFLICT ("ID") DO NOTHING', function() {DBot.updateLoadingLevel(false);});
-	else
-		DBot.updateLoadingLevel(false);
-	
-	if (statusStr)
-		Postgre.query('UPDATE users SET "STATUS" = "m"."STATUS" FROM (VALUES ' + statusStr + ') AS "m"("ID", "STATUS") WHERE users."ID" = "m"."ID"', function() {DBot.updateLoadingLevel(false);});
-	else
-		DBot.updateLoadingLevel(false);
-});
-
-setInterval(function() {
-	if (DBot.IsOnline())
-		Postgre.query('UPDATE uptime_bot SET "AMOUNT" = "AMOUNT" + 1');
-}, 1000);
 
 module.exports = {
 	name: 'online',
@@ -112,15 +14,15 @@ module.exports = {
 	argNeeded: true,
 	
 	func: function(args, cmd, msg) {
-		if (typeof args[0] != 'object')
+		if (typeof args[0] !== 'object')
 			return 'Must be an user ;n;';
 		
-		if (args[0].presence.status != 'offline')
+		if (args[0].presence.status !== 'offline')
 			return 'User is online i think?';
 		
 		let uid = DBot.GetUserID(args[0]);
 		
-		Postgre.query('SELECT "LASTONLINE" FROM uptime WHERE "ID" = ' + uid, function(err, data) {
+		Postgres.query('SELECT "LASTONLINE" FROM uptime WHERE "ID" = ' + uid, function(err, data) {
 			if (err || !data || !data[0]) {
 				msg.reply('<internal pony error>');
 				return;
@@ -137,7 +39,7 @@ module.exports = {
 			msg.reply('As i remember user <@' + args[0].id + '> was last online at\n`' + formated + ' UTC +0:00` (' + deltaStr + ' ago)');
 		});
 	}
-}
+};
 
 DBot.RegisterCommand({
 	name: 'uptime',
@@ -147,10 +49,10 @@ DBot.RegisterCommand({
 	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
-		if (typeof args[0] == 'object') {
+		if (typeof args[0] === 'object') {
 			let uid = DBot.GetUserID(args[0]);
 			
-			Postgre.query('SELECT * FROM uptime WHERE "ID" = ' + uid, function(err, data) {
+			Postgres.query('SELECT * FROM uptime WHERE "ID" = ' + uid, function(err, data) {
 				if (err || !data || !data[0]) {
 					msg.reply('<internal pony error>');
 					return;
@@ -185,7 +87,7 @@ DBot.RegisterCommand({
 				msg.channel.sendMessage(output);
 			});
 		} else {
-			Postgre.query('SELECT * FROM uptime_bot', function(err, data) {
+			Postgres.query('SELECT * FROM uptime_bot', function(err, data) {
 				let TOTAL_ONLINE = data[0].AMOUNT;
 				let TOTAL_TIME = CurTime() - data[0].START;
 				let TOTAL_OFFLINE = TOTAL_TIME - TOTAL_ONLINE;
