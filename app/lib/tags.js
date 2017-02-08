@@ -97,6 +97,13 @@ class TagBase {
 		return this.bans;
 	}
 	
+	generateList() {
+		if (this.bans[0])
+			return '```' + this.bans.join(', ') + '```';
+		else
+			return 'none';
+	}
+	
 	reset() {
 		this.ready = false;
 		this.bans = [];

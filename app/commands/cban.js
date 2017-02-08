@@ -477,11 +477,11 @@ DBot.RegisterCommand({
 				return word + ' results\n' + word + 'ned commands from this server: ' + success.join(', ');
 		} else {
 			if (typeof realm === 'object')
-				return word + 'ned commands from @' + realm.username + ': ```' + cmdsObj.bans.join(', ') + '```';
+				return word + 'ned commands from @' + realm.username + ': ' + cmdsObj.generateList();
 			else if (realm === 'channel')
-				return word + 'ned commands from this channel: ```' + cmdsObj.bans.join(', ') + '```';
+				return word + 'ned commands from this channel: ' + cmdsObj.generateList();
 			else if (realm === 'server')
-				return word + 'ned commands from this server: ```' + cmdsObj.bans.join(', ') + '```';
+				return word + 'ned commands from this server: ' + cmdsObj.generateList();
 		}
 	}
 });

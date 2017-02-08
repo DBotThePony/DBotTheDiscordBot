@@ -86,6 +86,13 @@ class CommandBanClass {
 		return this.bans;
 	}
 	
+	generateList() {
+		if (this.bans[0])
+			return '```' + this.bans.join(', ') + '```';
+		else
+			return 'none';
+	}
+	
 	fetch() {
 		let self = this;
 		

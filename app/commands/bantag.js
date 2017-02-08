@@ -426,11 +426,11 @@ DBot.RegisterCommand({
 				return word + ' result from space ' + space + '\n' + word + 'ned tags from this server: ' + success.join(', ');
 		} else {
 			if (realm === 'client')
-				return word + 'ned tags from you in ' + space + ': ```' + tagObj.bans.join(', ') + '```';
+				return word + 'ned tags from you in ' + space + ': ' + tagObj.generateList();
 			else if (realm === 'channel')
-				return word + 'Banned tags from this channel in ' + space + ': ```' + tagObj.bans.join(', ') + '```';
+				return word + 'ned tags from this channel in ' + space + ': ' + tagObj.generateList();
 			else if (realm === 'server')
-				return word + 'ned tags from this server in ' + space + ': ```' + tagObj.bans.join(', ') + '```';
+				return word + 'ned tags from this server in ' + space + ': ' + tagObj.generateList();
 		}
 	}
 });
