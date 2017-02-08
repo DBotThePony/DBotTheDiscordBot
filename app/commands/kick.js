@@ -1,4 +1,6 @@
 
+/* global DBot, Postgres, Util, sql, hook */
+
 const moment = DBot.js.moment;
 const hDuration = DBot.js.hDuration;
 const fs = DBot.js.filesystem;
@@ -28,7 +30,7 @@ module.exports = {
 		if (!me.hasPermission('KICK_MEMBERS'))
 			return 'I must have `KICK_MEMBERS` permission ;n;';
 		
-		if (typeof args[0] != 'object')
+		if (typeof args[0] !== 'object')
 			return DBot.CommandError('You need to specify at least one user', 'kick', args, 1);
 		
 		let found = [];
@@ -38,7 +40,7 @@ module.exports = {
 			let arg = args[i];
 			i = Number(i);
 			
-			if (typeof arg != 'object')
+			if (typeof arg !== 'object')
 				return DBot.CommandError('Invalid user ;n;', 'kick', args, i + 1);
 			
 			let member = server.member(arg);
@@ -46,7 +48,7 @@ module.exports = {
 			if (!member)
 				return DBot.CommandError('Invalid user ;n;', 'kick', args, i + 1);
 			
-			if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || DBot.owners.includes(member.user.id))
+			if (member.user.id === msg.author.id || member.user.id === DBot.bot.user.id || DBot.owners.includes(member.user.id))
 				return DBot.CommandError('oh', 'kick', args, i + 1);
 			
 			if (!DBot.CanTarget(msg.member, member))
@@ -68,23 +70,27 @@ module.exports = {
 			msg.reply('Kicking **' + found.length + '** members ;n; Bye ;n;');
 			
 			let total = found.length;
+			let finalQuery = '';
 			
 			for (let member of found) {
 				member.kick()
 				.then(function() {
+					finalQuery += `INSERT INTO kick_logs ("TYPE", "MEMBER_KICKER", "MEMBER_VICTIM", "SERVER") VALUES (false, ${DBot.GetMemberID(msg.member)}, ${DBot.GetMemberID(member)}, ${msg.channel.guild.uid});`;
 					total--;
 					
-					if (total == 0) {
+					if (total === 0) {
 						msg.channel.stopTyping();
 						msg.reply('Kicked ;n;');
+						if (finalQuery !== '') Postgres.query(finalQuery, (err) => {if (err) console.log(err)});
 					}
 				})
 				.catch(function() {
 					total--;
 					
-					if (total == 0) {
+					if (total === 0) {
 						msg.channel.stopTyping();
 						msg.reply('Kicked ;n;');
+						if (finalQuery !== '') Postgres.query(finalQuery, (err) => {if (err) console.log(err)});
 					}
 				});
 			}
@@ -96,7 +102,7 @@ module.exports = {
 		
 		conf.echo();
 	}
-}
+};
 
 DBot.RegisterCommand({
 	name: 'sban',
@@ -123,7 +129,7 @@ DBot.RegisterCommand({
 		if (!me.hasPermission('KICK_MEMBERS'))
 			return 'I must have `KICK_MEMBERS` permission ;n;';
 		
-		if (typeof args[0] != 'object')
+		if (typeof args[0] !== 'object')
 			return DBot.CommandError('You need to specify at least one user', 'sban', args, 1);
 		
 		let found = [];
@@ -133,7 +139,7 @@ DBot.RegisterCommand({
 			let arg = args[i];
 			i = Number(i);
 			
-			if (typeof arg != 'object')
+			if (typeof arg !== 'object')
 				return DBot.CommandError('Invalid user ;n;', 'sban', args, i + 1);
 			
 			let member = server.member(arg);
@@ -141,7 +147,7 @@ DBot.RegisterCommand({
 			if (!member)
 				return DBot.CommandError('Invalid user ;n;', 'sban', args, i + 1);
 			
-			if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || DBot.owners.includes(member.user.id))
+			if (member.user.id === msg.author.id || member.user.id === DBot.bot.user.id || DBot.owners.includes(member.user.id))
 				return DBot.CommandError('oh', 'sban', args, i + 1);
 			
 			if (!DBot.CanTarget(msg.member, member))
@@ -163,26 +169,30 @@ DBot.RegisterCommand({
 			msg.reply('Softban **' + found.length + '** members ;n; Bye ;n;');
 			
 			let total = found.length;
+			let finalQuery = '';
 			
 			for (let member of found) {
-				Postgres.query('INSERT INTO member_softban ("ID", "ADMIN") VALUES (get_member_id(' + Postgres.escape(member.user.id) + ', ' + Postgres.escape(member.guild.id) + '), get_member_id(' + Postgres.escape(msg.member.user.id) + ', ' + Postgres.escape(msg.member.guild.id) + ')) ON CONFLICT ("ID") DO NOTHING');
+				finalQuery += 'INSERT INTO member_softban ("ID", "ADMIN") VALUES (get_member_id(' + Postgres.escape(member.user.id) + ', ' + Postgres.escape(member.guild.id) + '), get_member_id(' + Postgres.escape(msg.member.user.id) + ', ' + Postgres.escape(msg.member.guild.id) + ')) ON CONFLICT ("ID") DO NOTHING;';
+				finalQuery += `INSERT INTO kick_logs ("TYPE", "MEMBER_KICKER", "MEMBER_VICTIM", "SERVER") VALUES (true, ${DBot.GetMemberID(msg.member)}, ${DBot.GetMemberID(member)}, ${msg.channel.guild.uid});`;
 				member.kick()
 				
 				.then(function() {
 					total--;
 					
-					if (total == 0) {
+					if (total === 0) {
 						msg.channel.stopTyping();
 						msg.reply('Softbanned ;n;');
+						if (finalQuery !== '') Postgres.query(finalQuery, (err) => {if (err) console.log(err)});
 					}
 				})
 				
 				.catch(function() {
 					total--;
 					
-					if (total == 0) {
+					if (total === 0) {
 						msg.channel.stopTyping();
 						msg.reply('Softbanned ;n;');
+						if (finalQuery !== '') Postgres.query(finalQuery, (err) => {if (err) console.log(err)});
 					}
 				});
 			}
@@ -263,7 +273,7 @@ DBot.RegisterCommand({
 		if (!me.hasPermission('BAN_MEMBERS'))
 			return 'I must have `BAN_MEMBERS` permission ;n;';
 		
-		if (typeof args[0] != 'object')
+		if (typeof args[0] !== 'object')
 			return DBot.CommandError('You need to specify at least one user', 'ban', args, 1);
 		
 		let found = [];
@@ -273,7 +283,7 @@ DBot.RegisterCommand({
 			let arg = args[i];
 			i = Number(i);
 			
-			if (typeof arg != 'object')
+			if (typeof arg !== 'object')
 				return DBot.CommandError('Invalid user ;n;', 'ban', args, i + 1);
 			
 			let member = server.member(arg);
@@ -281,7 +291,7 @@ DBot.RegisterCommand({
 			if (!member)
 				return DBot.CommandError('Invalid user ;n;', 'ban', args, i + 1);
 			
-			if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || DBot.owners.includes(member.user.id))
+			if (member.user.id === msg.author.id || member.user.id === DBot.bot.user.id || DBot.owners.includes(member.user.id))
 				return DBot.CommandError('oh', 'ban', args, i + 1);
 			
 			if (!DBot.CanTarget(msg.member, member))
@@ -303,23 +313,28 @@ DBot.RegisterCommand({
 			msg.reply('BANNing **' + found.length + '** members ;n; Bye forevar ;n;');
 			
 			let total = found.length;
+			let finalQuery = '';
 			
 			for (let member of found) {
+				finalQuery += `INSERT INTO kick_logs ("TYPE", "MEMBER_KICKER", "MEMBER_VICTIM", "SERVER") VALUES (true, ${DBot.GetMemberID(msg.member)}, ${DBot.GetMemberID(member)}, ${msg.channel.guild.uid});`;
+				
 				member.ban()
 				.then(function() {
 					total--;
 					
-					if (total == 0) {
+					if (total === 0) {
 						msg.channel.stopTyping();
 						msg.reply('BANNed ;n;');
+						if (finalQuery !== '') Postgres.query(finalQuery, (err) => {if (err) console.log(err)});
 					}
 				})
 				.catch(function() {
 					total--;
 					
-					if (total == 0) {
+					if (total === 0) {
 						msg.channel.stopTyping();
 						msg.reply('BANNed ;n;');
+						if (finalQuery !== '') Postgres.query(finalQuery, (err) => {if (err) console.log(err)});
 					}
 				});
 			}
@@ -360,7 +375,7 @@ DBot.RegisterCommand({
 		if (!args[0])
 			return DBot.CommandError('Argument is required', 'off', args, 1);
 		
-		if (typeof args[0] == 'object') {
+		if (typeof args[0] === 'object') {
 			let found = [];
 			let server = msg.channel.guild;
 			
@@ -368,7 +383,7 @@ DBot.RegisterCommand({
 				let arg = args[i];
 				i = Number(i);
 				
-				if (typeof arg != 'object')
+				if (typeof arg !== 'object')
 					return DBot.CommandError('Invalid user ;n;', 'off', args, i + 1);
 				
 				let member = server.member(arg);
@@ -378,7 +393,7 @@ DBot.RegisterCommand({
 				
 				member.offs = member.offs || [];
 				
-				if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || DBot.owners.includes(member.user.id))
+				if (member.user.id === msg.author.id || member.user.id === DBot.bot.user.id || DBot.owners.includes(member.user.id))
 					return DBot.CommandError('oh', 'off', args, i + 1);
 				
 				if (!DBot.CanTarget(msg.member, member))
@@ -400,7 +415,7 @@ DBot.RegisterCommand({
 			}
 			
 			return output;
-		} else if (args[0].toLowerCase() == 'all') {
+		} else if (args[0].toLowerCase() === 'all') {
 			let rCache = DBot.GetImmunityLevel(msg.member);
 			
 			let stream;
@@ -409,7 +424,7 @@ DBot.RegisterCommand({
 			let upath = DBot.URLRoot + '/blogs/' + sha + '.txt';
 			
 			for (let member of msg.channel.members.array()) {
-				if (member.user.id == msg.member.id || member.user.id == DBot.bot.user.id || DBot.owners.includes(member.user.id) || DBot.GetImmunityLevel(member) >= rCache)
+				if (member.user.id === msg.member.id || member.user.id === DBot.bot.user.id || DBot.owners.includes(member.user.id) || DBot.GetImmunityLevel(member) >= rCache)
 					continue;
 				
 				member.offs = member.offs || [];
@@ -527,11 +542,11 @@ DBot.RegisterCommand({
 			
 			for (let row of data) {
 				let output = '\n\n\nMember ID - "' + row.ID + '" (this one is used to unban)\n';
-				output += '\tUser nickname: ' + data[0].VICTIM_THAT_GOT_BANNED + '\n';
-				output += '\tUser username: ' + data[0].BANNED_USERNAME + '\n';
-				output += '\tModerator nickname: ' + data[0].ADMIN_NAME + '\n';
-				output += '\tModerator username: ' + data[0].ADMIN_NAME_REAL + '\n';
-				output += '\tDate of ban: ' + moment.unix(data[0].STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - data[0].STAMP) * 1000) + ' ago)' + '\n';
+				output += '\tUser nickname: ' + row.VICTIM_THAT_GOT_BANNED + '\n';
+				output += '\tUser username: ' + row.BANNED_USERNAME + '\n';
+				output += '\tModerator nickname: ' + row.ADMIN_NAME + '\n';
+				output += '\tModerator username: ' + row.ADMIN_NAME_REAL + '\n';
+				output += '\tDate of ban: ' + moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)' + '\n';
 				
 				stream.write(output);
 			}
@@ -541,7 +556,76 @@ DBot.RegisterCommand({
 			stream.on('finish', function() {
 				msg.reply('List: ' + upath);
 			});
-		})
+		});
+	}
+});
+
+DBot.RegisterCommand({
+	name: 'kicklogs',
+	alias: ['kicklog', 'banlogs', 'banlog'],
+	
+	help_args: '',
+	desc: 'Prints last kicks/bans done through bot',
+	
+	func: function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'pm ;n;';
+		
+		let sha = String.hash(CurTime() + '_kicklog_' + msg.channel.guild.id + msg.channel.id);
+		let path = DBot.WebRoot + '/blogs/' + sha + '.txt';
+		let upath = DBot.URLRoot + '/blogs/' + sha + '.txt';
+		let query = `
+			SELECT
+				"STAMP",
+				"TYPE",
+				kick_logs."MEMBER_KICKER" AS "ADMIN_ID",
+				(SELECT users."UID" FROM users, members WHERE kick_logs."MEMBER_KICKER" = members."ID" AND users."ID" = members."USER") AS "ADMIN_UID",
+				kick_logs."MEMBER_VICTIM" AS "VICTIM_ID",
+				(SELECT users."UID" FROM users, members WHERE kick_logs."MEMBER_VICTIM" = members."ID" AND users."ID" = members."USER") AS "VICTIM_UID",
+				(SELECT members."NAME" FROM members WHERE kick_logs."MEMBER_KICKER" = members."ID") AS "ADMIN_NAME",
+				(SELECT users."NAME" FROM users, members WHERE kick_logs."MEMBER_KICKER" = members."ID" AND users."ID" = members."USER") AS "ADMIN_USERNAME",
+				(SELECT users."NAME" FROM users, members WHERE kick_logs."MEMBER_VICTIM" = members."ID" AND users."ID" = members."USER") AS "VICTIM_USERNAME",
+				(SELECT members."NAME" FROM members WHERE kick_logs."MEMBER_VICTIM" = members."ID") AS "VICTIM_NAME"
+			FROM
+				kick_logs
+			WHERE
+				kick_logs."SERVER" = ${msg.channel.guild.uid}
+			ORDER BY "ENTRY" DESC;
+`;
+		
+		Postgres.query(query, function(err, data) {
+			if (err) {
+				console.error(err);
+				msg.reply('*squeaks because of pain*');
+				return;
+			}
+			
+			if (!data[0]) {
+				msg.reply('No data was returned ;w;');
+				return;
+			}
+			
+			let stream = fs.createWriteStream(path);
+			
+			for (let row of data) {
+				let output = '\n\n\nMember ID - "' + row.VICTIM_ID + '"\n';
+				output += '\tUser nickname: ' + row.VICTIM_NAME + '\n';
+				output += '\tUser username: ' + row.VICTIM_USERNAME + '\n';
+				output += '\tUser Discord ID: ' + row.VICTIM_UID + '\n';
+				output += '\tModerator/Admin nickname: ' + row.ADMIN_NAME + '\n';
+				output += '\tModerator/Admin username: ' + row.ADMIN_USERNAME + '\n';
+				output += '\tModerator/Admin Discord ID: ' + row.ADMIN_UID + '\n';
+				output += '\tDate of ban: ' + moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)' + '\n';
+				
+				stream.write(output);
+			}
+			
+			stream.end();
+			
+			stream.on('finish', function() {
+				msg.reply('List: ' + upath);
+			});
+		});
 	}
 });
 
@@ -573,7 +657,7 @@ DBot.RegisterCommand({
 		if (!args[0])
 			return DBot.CommandError('Argument is required', 'deoff', args, 1);
 		
-		if (typeof args[0] == 'object') {
+		if (typeof args[0] === 'object') {
 			let found = [];
 			let server = msg.channel.guild;
 			
@@ -581,7 +665,7 @@ DBot.RegisterCommand({
 				let arg = args[i];
 				i = Number(i);
 				
-				if (typeof arg != 'object')
+				if (typeof arg !== 'object')
 					return DBot.CommandError('Invalid user ;n;', 'deoff', args, i + 1);
 				
 				let member = server.member(arg);
@@ -591,7 +675,7 @@ DBot.RegisterCommand({
 				
 				member.offs = member.offs || [];
 				
-				if (member.user.id == msg.author.id || member.user.id == DBot.bot.user.id || DBot.owners.includes(member.user.id))
+				if (member.user.id === msg.author.id || member.user.id === DBot.bot.user.id || DBot.owners.includes(member.user.id))
 					return DBot.CommandError('oh', 'deoff', args, i + 1);
 				
 				if (!member.offs.includes(msg.channel.uid))
@@ -606,7 +690,7 @@ DBot.RegisterCommand({
 				output += '<@' + member.user.id + '> ';
 				
 				for (let I in member.offs) {
-					if (member.offs[I] == msg.channel.uid) {
+					if (member.offs[I] === msg.channel.uid) {
 						member.offs.splice(I, 1);
 						break;
 					}
@@ -616,7 +700,7 @@ DBot.RegisterCommand({
 			}
 			
 			return output;
-		} else if (args[0].toLowerCase() == 'all') {
+		} else if (args[0].toLowerCase() === 'all') {
 			let hit = false;
 			let output = 'Will stop removing all new messages from: ';
 			
@@ -629,7 +713,7 @@ DBot.RegisterCommand({
 				let hitLoop = false;
 				
 				for (let I in member.offs) {
-					if (member.offs[I] == msg.channel.uid) {
+					if (member.offs[I] === msg.channel.uid) {
 						member.offs.splice(I, 1);
 						hitLoop = true;
 						break;
@@ -687,7 +771,7 @@ hook.Add('PreOnValidMessage', 'ModerationCommands', function(msg) {
 		
 		let identify = DBot.IdentifyCommand(msg);
 		
-		if ((identify == 'off' || identify == 'deoff') && member.hasPermission('MANAGE_MESSAGES'))
+		if ((identify === 'off' || identify === 'deoff') && member.hasPermission('MANAGE_MESSAGES'))
 			return;
 		
 		if (!member.user.bot) {
@@ -704,14 +788,14 @@ hook.Add('PreOnValidMessage', 'ModerationCommands', function(msg) {
 	}
 });
 
-let userBanHit = function(member, row) {
+const userBanHit = function(member, row) {
 	let output = 'You are softbanned on `' + member.guild.name + '`! ;n;\n';
 	
 	output += 'Moderator nickname: ' + row.ADMIN_NAME + '\n';
 	output += 'Moderator username: ' + row.ADMIN_NAME_REAL + '\n';
 	output += 'Date of ban: ' + moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)' + '\n';
 	
-	output += 'I am little Horsey, and i only do what admins tell me ;n;'
+	output += 'I am little Horsey, and i only do what admins tell me ;n;';
 	
 	if (!member.user.bot)
 		member.sendMessage(output);
@@ -723,7 +807,7 @@ let userBanHit = function(member, row) {
 		member.kickedBySoftban = true;
 		member.kick();
 	}, 5000);
-}
+};
 
 hook.Add('ValidClientJoinsServer', 'ModerationCommands', function(user, server, member) {
 	if (member.aboutToKick)
