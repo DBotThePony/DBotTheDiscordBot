@@ -31,7 +31,9 @@ module.exports = {
 		msg.channel.startTyping();
 		
 		let ContinueFunc = function() {
+			if (msg.checkAbort()) return;
 			IMagick.Identify(fPath, function(err, ftype, width, height) {
+				if (msg.checkAbort()) return;
 				if (err) {
 					msg.channel.stopTyping();
 					console.error(err);
@@ -50,6 +52,7 @@ module.exports = {
 				Util.Redirect(magik);
 				
 				magik.on('close', function(code) {
+					if (msg.checkAbort()) return;
 					if (code != 0) {
 						msg.channel.stopTyping();
 						msg.reply('*falls on the ground and squeaks*');
@@ -69,6 +72,7 @@ module.exports = {
 					Util.Redirect(magik);
 					
 					magik.on('close', function(code) {
+						if (msg.checkAbort()) return;
 						msg.channel.stopTyping();
 						if (code != 0) {
 							msg.reply('*falls on the ground and squeaks*');

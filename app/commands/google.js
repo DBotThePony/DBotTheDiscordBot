@@ -63,6 +63,7 @@ let fn = function(prefix) {
 		msg.channel.startTyping();
 		
 		let continueSearch = function(data, isCached) {
+			if (msg.checkAbort()) return;
 			msg.channel.stopTyping();
 			
 			try {
@@ -121,9 +122,12 @@ let fn = function(prefix) {
 		}
 		
 		fs.stat(cachePath, function(err, stat) {
+			if (msg.checkAbort()) return;
 			let getFunc = function() {
+				if (msg.checkAbort()) return;
 				unirest.get(url)
 				.end(function(result) {
+					if (msg.checkAbort()) return;
 					if (!result.body) {
 						msg.channel.stopTyping();
 						msg.reply('wtf with google');
@@ -138,6 +142,7 @@ let fn = function(prefix) {
 			
 			if (stat) {
 				fs.readFile(cachePath, 'utf8', function(err, data) {
+					if (msg.checkAbort()) return;
 					if (!data || data == '') 
 						return getFunc();
 					

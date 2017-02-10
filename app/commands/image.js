@@ -52,6 +52,7 @@ module.exports = {
 		msg.channel.startTyping();
 		
 		let continueSearch = function(data, isCached) {
+			if (msg.checkAbort()) return;
 			msg.channel.stopTyping();
 			let items = data.items;
 			
@@ -103,7 +104,9 @@ module.exports = {
 		}
 		
 		fs.stat(cachePath, function(err, stat) {
+			if (msg.checkAbort()) return;
 			let getFunc = function() {
+				if (msg.checkAbort()) return;
 				unirest.get(url)
 				.end(function(result) {
 					if (!result.body) {
@@ -120,6 +123,7 @@ module.exports = {
 			
 			if (stat) {
 				fs.readFile(cachePath, 'utf8', function(err, data) {
+					if (msg.checkAbort()) return;
 					if (!data || data == '') 
 						return getFunc();
 					

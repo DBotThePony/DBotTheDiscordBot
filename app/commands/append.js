@@ -40,6 +40,7 @@ let fn = function(fName, i, resize, fName2) {
 		msg.channel.startTyping();
 		
 		fs.stat(fpath, function(err, stat) {
+			if (msg.checkAbort()) return;
 			if (stat) {
 				msg.channel.stopTyping();
 				msg.reply(fpathU);
@@ -48,6 +49,7 @@ let fn = function(fName, i, resize, fName2) {
 				let left = urlBuild.length;
 				
 				let continueFunc = function() {
+					if (msg.checkAbort()) return;
 					let magikArgs = [];
 					
 					for (let ur of urlStrings) {
@@ -66,6 +68,7 @@ let fn = function(fName, i, resize, fName2) {
 					Util.Redirect(magik);
 					
 					magik.on('close', function(code) {
+						if (msg.checkAbort()) return;
 						if (code == 0) {
 							msg.reply(fpathU);
 						} else {

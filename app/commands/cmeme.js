@@ -64,12 +64,15 @@ module.exports = {
 		msg.channel.startTyping();
 		
 		let ContinueFunc = function() {
+			if (msg.checkAbort()) return;
 			fs.stat(fPathProcessed, function(err, stat) {
+				if (msg.checkAbort()) return;
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);
 				} else {
 					IMagick.Identify(fPath, function(err, fileType, width, height, aspectRatio, aspectRatio2) {
+						if (msg.checkAbort()) return;
 						if (err) {
 							msg.channel.stopTyping();
 							msg.reply('<internal pony error>');
@@ -165,6 +168,7 @@ module.exports = {
 						Util.Redirect(magik);
 						
 						magik.on('close', function(code) {
+							if (msg.checkAbort()) return;
 							if (code == 0) {
 								msg.reply(fPathProcessedURL);
 							} else {

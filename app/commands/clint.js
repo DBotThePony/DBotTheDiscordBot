@@ -29,7 +29,9 @@ module.exports = {
 		msg.channel.startTyping();
 		
 		let ContinueFunc = function() {
+			if (msg.checkAbort()) return;
 			fs.stat(fPathProcessed, function(err, stat) {
+				if (msg.checkAbort()) return;
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);
@@ -39,6 +41,7 @@ module.exports = {
 					Util.Redirect(magik);
 					
 					magik.on('close', function(code) {
+						if (msg.checkAbort()) return;
 						if (code == 0) {
 							msg.channel.stopTyping();
 							msg.reply(fPathProcessedURL);

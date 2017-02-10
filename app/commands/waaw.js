@@ -32,7 +32,9 @@ let fn = function(name, toUse) {
 		msg.channel.startTyping();
 		
 		let ContinueFunc = function() {
+			if (msg.checkAbort()) return;
 			fs.stat(fPathProcessed, function(err, stat) {
+				if (msg.checkAbort()) return;
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);
@@ -122,7 +124,9 @@ let fn2 = function(name, toUse, dir) {
 		msg.channel.startTyping();
 		
 		let ContinueFunc = function() {
+			if (msg.checkAbort()) return;
 			fs.stat(fPathProcessed, function(err, stat) {
+				if (msg.checkAbort()) return;
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);
@@ -192,7 +196,9 @@ let fn3 = function(name) {
 		msg.channel.startTyping();
 		
 		let ContinueFunc = function() {
+			if (msg.checkAbort()) return;
 			fs.stat(fPathProcessed, function(err, stat) {
+				if (msg.checkAbort()) return;
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);

@@ -84,6 +84,7 @@ let generateFunc = function(col1, col2) {
 		msg.channel.startTyping();
 		
 		fs.stat(fpath, function(err, stat) {
+			if (msg.checkAbort()) return;
 			if (stat) {
 				msg.channel.stopTyping();
 				msg.reply(fpathU);
@@ -91,6 +92,7 @@ let generateFunc = function(col1, col2) {
 			}
 			
 			Postgres.query('SELECT * FROM killicons WHERE "CLASSNAME" = ' + Postgres.escape(weapon) + ' OR "NAME" = ' + Postgres.escape(weapon) + ' OR "NAME" LIKE ' + Postgres.escape('%' + weapon + '%') + ' OR "CLASSNAME" LIKE ' + Postgres.escape('%' + weapon + '%'), function(err, data) {
+				if (msg.checkAbort()) return;
 				if (err) {
 					msg.channel.stopTyping();
 					msg.reply('<internal pony error>');
@@ -102,8 +104,6 @@ let generateFunc = function(col1, col2) {
 					msg.reply('No such weapon');
 					return;
 				}
-				
-				let filename = data[0].FILENAME;
 				
 				let width = Number(data[0].WIDTH);
 				let iheight = Number(data[0].HEIGHT);
@@ -145,6 +145,7 @@ let generateFunc = function(col1, col2) {
 				Util.Redirect(magik);
 				
 				magik.on('close', function(code) {
+					if (msg.checkAbort()) return;
 					msg.channel.stopTyping();
 					
 					if (code != 0) {

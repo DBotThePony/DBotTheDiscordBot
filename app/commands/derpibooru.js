@@ -132,6 +132,7 @@ module.exports = {
 			let searchFunc;
 			
 			searchFunc = function() {
+				if (msg.checkAbort()) return;
 				tries++;
 				
 				if (tries >= 4) {
@@ -141,6 +142,7 @@ module.exports = {
 				}
 				
 				getRandomImage(function(parse, myID) {
+					if (msg.checkAbort()) return;
 					if (myID == -1) {
 						msg.channel.stopTyping();
 						msg.reply('Derpibooru is down! Oh fuck.');
@@ -171,9 +173,11 @@ module.exports = {
 			
 			searchFunc();
 		} else if (num) {
+			if (msg.checkAbort()) return;
 			msg.channel.startTyping();
 			
 			GetImage(num, function(data, ID, isError) {
+				if (msg.checkAbort()) return;
 				if (isError) {
 					msg.channel.stopTyping();
 					msg.reply('Not a valid image ID!');
@@ -233,6 +237,7 @@ module.exports = {
 			msg.channel.startTyping();
 			
 			let continueLoad = function(parsed, isCached) {
+				if (msg.checkAbort()) return;
 				let valids = [];
 				
 				for (let k in parsed.search) {
@@ -307,6 +312,7 @@ module.exports = {
 			}
 			
 			fs.stat(path, function(err, stat) {
+				if (msg.checkAbort()) return;
 				if (stat && ((stat.ctime.getTime() / 1000) > (UnixStamp() - 3600))) {
 					try {
 						fs.readFile(path, 'utf8', function(err, data) {
@@ -320,6 +326,7 @@ module.exports = {
 				} else {
 					unirest.get('https://www.derpibooru.org/search.json?q=' + encode)
 					.end(function (response) {
+						if (msg.checkAbort()) return;
 						try {
 							let parsed = response.body;
 							if (!parsed) {

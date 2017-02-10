@@ -39,7 +39,9 @@ module.exports = {
 		let fPathProcessedURL = DBot.URLRoot + '/vignette/' + hash + '.png';
 		
 		let ContinueFunc = function() {
+			if (msg.checkAbort()) return;
 			fs.stat(fPathProcessed, function(err, stat) {
+				if (msg.checkAbort()) return;
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);

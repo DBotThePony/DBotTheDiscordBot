@@ -95,6 +95,16 @@ let msgFuncs = [
 		});
 		
 		return promise;
+	},
+	
+	function() {
+		return !(this.wasDeleted || this.instantEdit);
+	},
+	
+	function() {
+		if (this.shouldReply()) return false;
+		this.channel.stopTyping();
+		return true;
 	}
 ];
 
@@ -104,6 +114,8 @@ DBot.bot.on('message', function(msg) {
 	msg.wasHandled = true;
 	msg.promiseReply = msgFuncs[0];
 	msg.promiseSend = msgFuncs[1];
+	msg.shouldReply = msgFuncs[2];
+	msg.checkAbort = msgFuncs[3];
 	msg.___reply = msg.___reply || msg.reply; // There is also oldReply, but oldReply is used when command was actually executed.
 	msg.reply = msg.promiseReply;
 	

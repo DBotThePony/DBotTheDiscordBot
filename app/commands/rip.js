@@ -33,6 +33,7 @@ module.exports = {
 		let url = 'https://dbot.serealia.ca/bot/tomb/' + hash + '.jpg';
 		
 		fs.stat(myPath, function(err, stat) {
+			if (msg.checkAbort()) return;
 			if (stat) {
 				msg.channel.stopTyping();
 				msg.reply(url);
@@ -40,6 +41,7 @@ module.exports = {
 				unirest.get('http://www.tombstonebuilder.com/generate.php?' + bArgs)
 				.encoding(null)
 				.end(function(result) {
+					if (msg.checkAbort()) return;
 					msg.channel.stopTyping();
 					fs.writeFile(myPath, result.body);
 					msg.reply(url);

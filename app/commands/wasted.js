@@ -38,119 +38,94 @@ module.exports = {
 		msg.channel.startTyping();
 		
 		let ContinueFunc = function() {
+			if (msg.checkAbort()) return;
 			fs.stat(fPathProcessed, function(err, stat) {
+				if (msg.checkAbort()) return;
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);
 				} else {
-					let magik = spawn('identify', [fPath]);
-					
-					let output = '';
-					
-					magik.stderr.on('data', function(data) {
-						console.error(data.toString());
-					});
-					
-					magik.stdout.on('data', function(data) {
-						output += data.toString();
-					});
-					
-					magik.on('close', function(code) {
-						if (code == 0 && output != '') {
-							let parse = output.split(' ');
-							let fileName = parse[0];
-							let fileType = parse[1];
-							let fileSizes = parse[2];
-							
-							let fileSizesS = fileSizes.split('x');
-							let width = Number(fileSizesS[0]);
-							let height = Number(fileSizesS[1]);
-							let aspectRatio = height / width;
-							let aspectRatio2 = width / height;
-							
-							let magikArgs = [fPath];
-							
-							if (width < 512) {
-								magikArgs.push('-resize');
-								
-								width = 512;
-								height = Math.floor(aspectRatio * 512);
-								
-								magikArgs.push('512x' + height);
-							}
-							
-							if (height < 512) {
-								magikArgs.push('-resize');
-								
-								height = 512;
-								width = Math.floor(aspectRatio2 * 512);
-								
-								magikArgs.push(width);
-							}
-							
-							if (width > 1500 || height > 1500)
-								msg.reply('Big Picture OwO, Cropping to 1500x1500');
-							
-							if (width > 1500) {
-								magikArgs.push('-resize');
-								
-								width = 1500;
-								height = Math.floor(aspectRatio * 1500);
-								
-								magikArgs.push('1500x' + height);
-							}
-							
-							if (height > 1500) {
-								magikArgs.push('-resize');
-								
-								height = 1500;
-								width = Math.floor(aspectRatio2 * 1500);
-								
-								magikArgs.push(width);
-							}
-							
-							magikArgs.push('-color-matrix', '.3 .1 .3 .3 .1 .3 .3 .1 .3', '-fill', 'rgba(0,0,0,0.5)');
-							
-							let signHeight = height * .2;
-							
-							magikArgs.push('-draw', 'rectangle 0, ' + (height / 2 - signHeight / 2) + ', ' + width + ', ' + (height / 2 + signHeight / 2));
-							
-							magikArgs.push(
-								'-gravity', 'South',
-								'-font', 'PricedownBl-Regular',
-								'-fill', 'rgb(200,30,30)',
-								'-stroke', 'black',
-								'-strokewidth', '3',
-								'-weight', '300'
-							);
-							
-							magikArgs.push('-pointsize', String(Math.floor(signHeight * .8)), '-draw', 'text 0,' + (Math.floor(height / 2 - signHeight * .45)) + ' "wasted"');
-							
-							magikArgs.push(fPathProcessed);
-							
-							let magik = spawn('convert', magikArgs);
-							
-							magik.stderr.on('data', function(data) {
-								console.error(data.toString());
-							});
-							
-							magik.stdout.on('data', function(data) {
-								console.log(data.toString());
-							});
-							
-							magik.on('close', function(code) {
-								msg.channel.stopTyping();
-								
-								if (code == 0) {
-									msg.reply(fPathProcessedURL);
-								} else {
-									msg.reply('<internal pony error>');
-								}
-							});
-						} else {
+					IMagick.Identify(fPath, function(err, fileType, width, height, aspectRatio, aspectRatio2) {
+						if (msg.checkAbort()) return;
+						if (err) {
 							msg.channel.stopTyping();
 							msg.reply('<internal pony error>');
+							return;
 						}
+
+						let magikArgs = [fPath];
+
+						if (width < 512) {
+							magikArgs.push('-resize');
+
+							width = 512;
+							height = Math.floor(aspectRatio * 512);
+
+							magikArgs.push('512x' + height);
+						}
+
+						if (height < 512) {
+							magikArgs.push('-resize');
+
+							height = 512;
+							width = Math.floor(aspectRatio2 * 512);
+
+							magikArgs.push(width);
+						}
+
+						if (width > 1500 || height > 1500)
+							msg.reply('Big Picture OwO, Cropping to 1500x1500');
+
+						if (width > 1500) {
+							magikArgs.push('-resize');
+
+							width = 1500;
+							height = Math.floor(aspectRatio * 1500);
+
+							magikArgs.push('1500x' + height);
+						}
+
+						if (height > 1500) {
+							magikArgs.push('-resize');
+
+							height = 1500;
+							width = Math.floor(aspectRatio2 * 1500);
+
+							magikArgs.push(width);
+						}
+
+						magikArgs.push('-color-matrix', '.3 .1 .3 .3 .1 .3 .3 .1 .3', '-fill', 'rgba(0,0,0,0.5)');
+
+						let signHeight = height * .2;
+
+						magikArgs.push('-draw', 'rectangle 0, ' + (height / 2 - signHeight / 2) + ', ' + width + ', ' + (height / 2 + signHeight / 2));
+
+						magikArgs.push(
+							'-gravity', 'South',
+							'-font', 'PricedownBl-Regular',
+							'-fill', 'rgb(200,30,30)',
+							'-stroke', 'black',
+							'-strokewidth', '3',
+							'-weight', '300'
+						);
+
+						magikArgs.push('-pointsize', String(Math.floor(signHeight * .8)), '-draw', 'text 0,' + (Math.floor(height / 2 - signHeight * .45)) + ' "wasted"');
+
+						magikArgs.push(fPathProcessed);
+
+						let magik = spawn('convert', magikArgs);
+
+						Util.Redirect(magik);
+
+						magik.on('close', function(code) {
+							msg.channel.stopTyping();
+
+							if (code == 0) {
+								msg.reply(fPathProcessedURL);
+							} else {
+								msg.reply('<internal pony error>');
+							}
+						});
 					});
 				}
 			});
@@ -207,120 +182,95 @@ DBot.RegisterCommand({
 		msg.channel.startTyping();
 		
 		let ContinueFunc = function() {
+			if (msg.checkAbort()) return;
 			fs.stat(fPathProcessed, function(err, stat) {
+				if (msg.checkAbort()) return;
 				if (stat && stat.isFile()) {
 					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);
 				} else {
-					let magik = spawn('identify', [fPath]);
-					
-					let output = '';
-					
-					magik.stderr.on('data', function(data) {
-						console.error(data.toString());
-					});
-					
-					magik.stdout.on('data', function(data) {
-						output += data.toString();
-					});
-					
-					magik.on('close', function(code) {
-						if (code == 0 && output != '') {
-							let parse = output.split(' ');
-							let fileName = parse[0];
-							let fileType = parse[1];
-							let fileSizes = parse[2];
-							
-							let fileSizesS = fileSizes.split('x');
-							let width = Number(fileSizesS[0]);
-							let height = Number(fileSizesS[1]);
-							let aspectRatio = height / width;
-							let aspectRatio2 = width / height;
-							
-							let magikArgs = [fPath];
-							
-							if (width < 512) {
-								magikArgs.push('-resize');
-								
-								width = 512;
-								height = Math.floor(aspectRatio * 512);
-								
-								magikArgs.push('512x' + height);
-							}
-							
-							if (height < 512) {
-								magikArgs.push('-resize');
-								
-								height = 512;
-								width = Math.floor(aspectRatio2 * 512);
-								
-								magikArgs.push(width);
-							}
-							
-							if (width > 1500 || height > 1500)
-								msg.reply('Big Picture OwO, Cropping to 1500x1500');
-							
-							if (width > 1500) {
-								magikArgs.push('-resize');
-								
-								width = 1500;
-								height = Math.floor(aspectRatio * 1500);
-								
-								magikArgs.push('1500x' + height);
-							}
-							
-							if (height > 1500) {
-								magikArgs.push('-resize');
-								
-								height = 1500;
-								width = Math.floor(aspectRatio2 * 1500);
-								
-								magikArgs.push(width);
-							}
-							
-							magikArgs.push('-color-matrix', '.3 .1 .3 .3 .1 .3 .3 .1 .3', '-fill', 'rgba(0,0,0,0.05)');
-							
-							let signHeight = height / 5;
-							let internsShadowCount = Math.floor(signHeight / 4);
-							
-							for (let i = internsShadowCount; i >= 0; i--) {
-								magikArgs.push('-draw', 'rectangle 0, ' + (height / 2 - signHeight / 2 - i) + ', ' + width + ', ' + (height / 2 + signHeight / 2 + i));
-							}
-							
-							magikArgs.push(
-								'-gravity', 'South',
-								'-font', 'OptimusPrinceps',
-								'-fill', 'rgb(160,30,30)',
-								'-stroke', 'black'
-							);
-							
-							magikArgs.push('-pointsize', String(signHeight), '-draw', 'text 0,' + (height / 2 - signHeight * .5) + ' "YOU DIED"');
-							
-							magikArgs.push(fPathProcessed);
-							
-							let magik = spawn('convert', magikArgs);
-							
-							magik.stderr.on('data', function(data) {
-								console.error(data.toString());
-							});
-							
-							magik.stdout.on('data', function(data) {
-								console.log(data.toString());
-							});
-							
-							magik.on('close', function(code) {
-								if (code == 0) {
-									msg.reply(fPathProcessedURL);
-								} else {
-									msg.reply('<internal pony error>');
-								}
-								
-								msg.channel.stopTyping();
-							});
-						} else {
+					IMagick.Identify(fPath, function(err, fileType, width, height, aspectRatio, aspectRatio2) {
+						if (msg.checkAbort()) return;
+						if (err) {
 							msg.channel.stopTyping();
 							msg.reply('<internal pony error>');
+							return;
 						}
+						
+						let magikArgs = [fPath];
+
+						if (width < 512) {
+							magikArgs.push('-resize');
+
+							width = 512;
+							height = Math.floor(aspectRatio * 512);
+
+							magikArgs.push('512x' + height);
+						}
+
+						if (height < 512) {
+							magikArgs.push('-resize');
+
+							height = 512;
+							width = Math.floor(aspectRatio2 * 512);
+
+							magikArgs.push(width);
+						}
+
+						if (width > 1500 || height > 1500)
+							msg.reply('Big Picture OwO, Cropping to 1500x1500');
+
+						if (width > 1500) {
+							magikArgs.push('-resize');
+
+							width = 1500;
+							height = Math.floor(aspectRatio * 1500);
+
+							magikArgs.push('1500x' + height);
+						}
+
+						if (height > 1500) {
+							magikArgs.push('-resize');
+
+							height = 1500;
+							width = Math.floor(aspectRatio2 * 1500);
+
+							magikArgs.push(width);
+						}
+
+						magikArgs.push('-color-matrix', '.3 .1 .3 .3 .1 .3 .3 .1 .3', '-fill', 'rgba(0,0,0,0.05)');
+
+						let signHeight = height / 5;
+						let internsShadowCount = Math.floor(signHeight / 4);
+
+						for (let i = internsShadowCount; i >= 0; i--) {
+							magikArgs.push('-draw', 'rectangle 0, ' + (height / 2 - signHeight / 2 - i) + ', ' + width + ', ' + (height / 2 + signHeight / 2 + i));
+						}
+
+						magikArgs.push(
+							'-gravity', 'South',
+							'-font', 'OptimusPrinceps',
+							'-fill', 'rgb(160,30,30)',
+							'-stroke', 'black'
+						);
+
+						magikArgs.push('-pointsize', String(signHeight), '-draw', 'text 0,' + (height / 2 - signHeight * .5) + ' "YOU DIED"');
+
+						magikArgs.push(fPathProcessed);
+
+						let magik = spawn('convert', magikArgs);
+
+						Util.Redirect(magik);
+
+						magik.on('close', function(code) {
+							if (code == 0) {
+								msg.reply(fPathProcessedURL);
+							} else {
+								msg.reply('<internal pony error>');
+							}
+
+							msg.channel.stopTyping();
+						});
 					});
 				}
 			});

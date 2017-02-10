@@ -156,6 +156,7 @@ module.exports = {
 		msg.channel.startTyping();
 		
 		let ContinueLoad = function(data) {
+			if (msg.checkAbort()) return;
 			msg.channel.stopTyping();
 			
 			try {

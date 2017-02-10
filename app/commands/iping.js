@@ -20,6 +20,7 @@ module.exports = {
 		let matchIP = ip.match(/([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/);
 		
 		let continueFunc = function() {
+			if (msg.checkAbort()) return;
 			let stamp = CurTime();
 			
 			ping.promise.probe(ip)

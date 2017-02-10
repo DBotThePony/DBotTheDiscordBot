@@ -32,7 +32,9 @@ module.exports = {
 		msg.channel.startTyping();
 		
 		const ContinueFunc2 = function() {
+			if (msg.checkAbort()) return;
 			fs.stat(fpathProcessed, function(err, stat) {
+				if (msg.checkAbort()) return;
 				if (stat) {
 					msg.channel.stopTyping();
 					msg.reply(fpathU);
@@ -83,7 +85,9 @@ module.exports = {
 		};
 		
 		const ContinueFunc = function() {
+			if (msg.checkAbort()) return;
 			fs.stat(fpathProcessedPrepare, function(err, stat) {
+				if (msg.checkAbort()) return;
 				if (stat) {
 					ContinueFunc2();
 				} else {

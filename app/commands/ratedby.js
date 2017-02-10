@@ -39,6 +39,7 @@ module.exports = {
 		msg.channel.startTyping();
 		
 		fs.stat(fpath, function(err, stat) {
+			if (msg.checkAbort()) return;
 			if (stat) {
 				msg.channel.stopTyping();
 				msg.reply(fpathU);

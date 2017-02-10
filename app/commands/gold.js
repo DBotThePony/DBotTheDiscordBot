@@ -26,6 +26,7 @@ module.exports = {
 		msg.channel.startTyping();
 		
 		fs.stat(fPathProcessed, function(err, stat) {
+			if (msg.checkAbort()) return;
 			if (stat) {
 				msg.channel.stopTyping();
 				msg.reply(fPathProcessedURL);
@@ -42,6 +43,7 @@ module.exports = {
 				]);
 				
 				magik.on('close', function(code) {
+					if (msg.checkAbort()) return;
 					msg.channel.stopTyping();
 					
 					if (code == 0) {
