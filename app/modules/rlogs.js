@@ -55,12 +55,12 @@ let updateRoleRules = function(role) {
 		}
 	}
 	
-	let q = 'SELECT "member_roles"."MEMBER", "users"."UID" as "USER" FROM "member_roles", "users", "members" WHERE "member_roles"."ROLE" = ' + sRole + ' AND "members"."ID" = "member_roles"."MEMBER" AND "users"."ID" = "members"."USER" AND "members"."TIME" > currtime() - 120';
+	let q = 'SELECT "member_roles"."MEMBER", "users"."UID" as "USER" FROM "member_roles", "users", "members" WHERE "member_roles"."ROLE" = ' + sRole + ' AND "members"."ID" = "member_roles"."MEMBER" AND "users"."ID" = "members"."USER"';
 	
 	if (!sRole)
 		return DBot.DefineRole(role, function(role, newuid) {
 			sRole = newuid;
-			q = 'SELECT "member_roles"."MEMBER", "users"."UID" as "USER" FROM "member_roles", "users", "members" WHERE "member_roles"."ROLE" = ' + sRole + ' AND "members"."ID" = "member_roles"."MEMBER" AND "users"."ID" = "members"."USER" AND "members"."TIME" > currtime() - 120';
+			q = 'SELECT "member_roles"."MEMBER", "users"."UID" as "USER" FROM "member_roles", "users", "members" WHERE "member_roles"."ROLE" = ' + sRole + ' AND "members"."ID" = "member_roles"."MEMBER" AND "users"."ID" = "members"."USER"';
 			Postgres.query(q, continueFunc);
 		});
 	else
