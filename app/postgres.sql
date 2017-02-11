@@ -857,6 +857,40 @@ CREATE TABLE IF NOT EXISTS kick_logs (
 	"SERVER" INTEGER NOT NULL REFERENCES servers ("ID")
 );
 
+-----------------------------------
+--- Search results cache tables
+-----------------------------------
+
+CREATE TABLE IF NOT EXISTS derpibooru_pics (
+	"id" INTEGER NOT NULL,
+	"created_at" VARCHAR(64) NOT NULL,
+	"updated_at" VARCHAR(64),
+	"upvotes" INTEGER NOT NULL DEFAULT 0,
+	"downvotes" INTEGER NOT NULL DEFAULT 0,
+	"faves" INTEGER NOT NULL DEFAULT 0,
+	"tags" VARCHAR(64)[] NOT NULL,
+	"thumb_tiny" VARCHAR(255),
+	"thumb_small" VARCHAR(255),
+	"thumb" VARCHAR(255),
+	"small" VARCHAR(255),
+	"medium" VARCHAR(255),
+	"large" VARCHAR(255),
+	"tall" VARCHAR(255),
+	"full" VARCHAR(255) NOT NULL,
+	PRIMARY KEY ("id")
+);
+
+CREATE TABLE IF NOT EXISTS derpibooru_search (
+	"phrase" VARCHAR(64) NOT NULL,
+	"stamp" INTEGER NOT NULL DEFAULT currtime(),
+	"pics" INTEGER[] NOT NULL,
+	PRIMARY KEY ("phrase")
+);
+
+-----------------------------------
+--- Functions
+-----------------------------------
+
 CREATE OR REPLACE FUNCTION init_tags()
 RETURNS void AS $$
 BEGIN

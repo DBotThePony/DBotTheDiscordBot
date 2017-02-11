@@ -1,8 +1,8 @@
 
+/* global Postgres, sql, DBot */
+
 const http = require('https');
 const unirest = DBot.js.unirest;
-const JSON3 = DBot.js.json3;
-const fs = DBot.js.fs;
 const url = DBot.js.url;
 
 DBot.CreateTagsSpace('derpibooru', [
@@ -16,49 +16,123 @@ DBot.CreateTagsSpace('derpibooru', [
 	'fuck',
 	'cum',
 	'cock',
-	'dick',
+	'dick'
 ]);
 
-Util.mkdir(DBot.WebRoot + '/derpibooru', function() {
-	Util.mkdir(DBot.WebRoot + '/derpibooru/search');
-	Util.mkdir(DBot.WebRoot + '/derpibooru/image');
-});
+const checkRepresentations = ['thumb_tiny', 'thumb_small', 'thumb', 'small', 'medium', 'large', 'tall'];
 
-let GetImage = function(ID, callback) {
-	let path = DBot.WebRoot + '/derpibooru/image/' + ID + '.json';
+const serealizeImageData = function(data) {
+	for (const rep of checkRepresentations) {
+		data.representations[rep] = data.representations[rep] || null;
+	}
 	
-	fs.stat(path, function(err, stat) {
-		if (stat) {
-			fs.readFile(path, 'utf8', function(err, data) {
-				if (data == '') {
-					callback({}, ID, true);
-					return;
-				}
-				
-				callback(JSON3.parse(data), ID);
-			});
-		} else {
+	data.updated_at = data.updated_at || null;
+	
+	return `('${data.id}', '${data.created_at}',' ${data.updated_at}',
+'${data.upvotes}', '${data.downvotes}', '${data.faves}',
+${sql.Array(data.tags.split(', '))}, '${data.representations.thumb_tiny}', '${data.representations.thumb_small}',
+'${data.representations.thumb}', '${data.representations.small}', '${data.representations.medium}',
+'${data.representations.large}', '${data.representations.tall}', '${data.representations.full}')`;
+};
+
+const GetImage = function(ID, callback) {
+	Postgres.query('SELECT * FROM derpibooru_pics WHERE id = ' + ID, function(err, data) {
+		if (data.empty()) {
 			unirest.get('https://www.derpibooru.org/' + ID + '.json')
 			.end(function(reply) {
-				if (reply.status != 200) {
+				if (reply.status !== 200) {
 					callback({}, ID);
 					return;
 				}
 				
-				if (reply.raw_body == '') {
+				if (reply.raw_body === '') {
 					callback({}, ID, true);
-					fs.writeFile(path, '');
 					return;
 				}
 				
-				fs.writeFile(path, reply.raw_body);
-				callback(reply.body, ID);
+				const data = reply.body;
+				const insert = `INSERT INTO derpibooru_pics VALUES ${serealizeImageData(data)}`;
+				data.small = data.representations.small;
+				data.medium = data.representations.medium;
+				data.large = data.representations.large;
+				data.full = data.representations.full;
+				
+				Postgres.query(insert);
+				callback(data, ID);
 			});
+		} else {
+			callback(data.seek(), ID);
 		}
 	});
-}
+};
 
-let getRandomImage = function(callback) {
+const searchImages = function(keywords, callback) {
+	let encode;
+	
+	for (const str of keywords) {
+		if (!encode) {
+			encode = encodeURIComponent(str);
+		} else {
+			encode += ' AND ' + encodeURIComponent(str);
+		}
+	}
+	
+	const hash = String.hash(encode);
+	
+	Postgres.query(`SELECT stamp FROM derpibooru_search WHERE derpibooru_search.phrase = ` + Postgres.escape(hash), function(err, data) {
+		data.throw();
+		
+		const getFunc = function() {
+			unirest.get('https://www.derpibooru.org/search.json?q=' + encode)
+			.end(function(response) {
+				try {
+					let data = response.body;
+					if (!data) {
+						callback(null);
+						return;
+					}
+					
+					let images = [];
+					let imagesArray = [];
+					
+					for (const im of data.search) {
+						images.push(serealizeImageData(im));
+						imagesArray.push(im.id);
+						im.small = im.representations.small;
+						im.medium = im.representations.medium;
+						im.large = im.representations.large;
+						im.full = im.representations.full;
+					}
+					
+					Postgres.query(`INSERT INTO derpibooru_pics VALUES ${images.join(',')} ON CONFLICT (id) DO UPDATE
+										SET upvotes = excluded.upvotes, downvotes = excluded.downvotes, faves = excluded.faves`, (err) => {
+						if (err) throw err;
+						
+						Postgres.query(`INSERT INTO derpibooru_search VALUES ('${hash}', ${Math.floor(CurTime())}, ARRAY [${imagesArray.join(',')}]::INTEGER[]) ON CONFLICT (phrase) DO UPDATE SET stamp = excluded.stamp, pics = excluded.pics`, (err) => {
+							if (err) throw err;
+							callback(data.search);
+						});
+					});
+				} catch(err) {
+					console.log(err);
+				}
+			});
+		};
+		
+		if (data.empty(getFunc)) return;
+		const row = data.seek();
+		if (row.stamp < (CurTime() - 3600)) {
+			getFunc();
+			return;
+		}
+		
+		Postgres.query(`SELECT derpibooru_pics.* FROM derpibooru_pics, derpibooru_search WHERE derpibooru_search.phrase = ${Postgres.escape(hash)} AND derpibooru_pics.id = ANY(derpibooru_search.pics)`, (err, data) => {
+			callback(data.rawRows);
+		});
+	});
+};
+
+const getRandomImage = function(callback) {
 	let options = url.parse('https://www.derpibooru.org/search?q=*&random_image=y.json');
 	
 	let req = http.request(options, function(response) {
@@ -68,7 +142,7 @@ let getRandomImage = function(callback) {
 			for (let i in response.rawHeaders) {
 				let opt = response.rawHeaders[i];
 				
-				if (opt == 'Location' || opt == 'location') {
+				if (opt === 'Location' || opt === 'location') {
 					location = response.rawHeaders[Number(i) + 1];
 					break;
 				}
@@ -90,7 +164,7 @@ let getRandomImage = function(callback) {
 	});
 	
 	req.end();
-}
+};
 
 let bannedChars = [
 	'||',
@@ -98,7 +172,7 @@ let bannedChars = [
 	'OR',
 	'&&',
 	'!',
-	'NOT',
+	'NOT'
 ];
 
 module.exports = {
@@ -143,21 +217,25 @@ module.exports = {
 				
 				getRandomImage(function(parse, myID) {
 					if (msg.checkAbort()) return;
-					if (myID == -1) {
+					if (myID === -1) {
 						msg.channel.stopTyping();
 						msg.reply('Derpibooru is down! Oh fuck.');
 						return;
 					}
 					
-					if (!parse || !parse.representations) {
+					if (!parse) {
 						msg.channel.stopTyping();
 						msg.reply('Derpibooru is down!');
 						return;
 					}
 					
-					let target = parse.representations.medium || parse.representations.small || parse.image;
-					let itags = parse.tags;
-					let split = itags.split(', ');
+					let target = parse.medium || parse.small || parse.full || parse.image;
+					let split;
+					
+					if (typeof parse.tags === 'object')
+						split = parse.tags;
+					else
+						split = parse.tags.split(', ');
 					
 					for (let i in split) {
 						if (!(msg.channel.name || 'private').match('nsfw') && (ClientTags.isBanned(split[i]) || ServerTags && ServerTags.isBanned(split[i]) || ChannelTags && ChannelTags.isBanned(split[i]))) {
@@ -167,9 +245,9 @@ module.exports = {
 					}
 					
 					msg.channel.stopTyping();
-					msg.reply('Tags: ' + itags + '\n<https://www.derpibooru.org/' + myID +'>\nhttps:' + target);
+					msg.reply('Tags: ' + split.join(', ') + '\n<https://www.derpibooru.org/' + myID +'>\nhttps:' + target);
 				});
-			}
+			};
 			
 			searchFunc();
 		} else if (num) {
@@ -184,15 +262,19 @@ module.exports = {
 					return;
 				}
 				
-				if (!data || !data.representations) {
+				if (!data) {
 					msg.channel.stopTyping();
 					msg.reply('Derpibooru is down, or told me invalid phrase');
 					return;
 				}
 				
-				let target = data.representations.medium || data.representations.small || data.image;
-				let itags = data.tags;
-				let split = itags.split(', ');
+				let target = data.medium || data.small || data.full || data.image;
+				let split;
+				
+				if (typeof data.tags === 'object')
+					split = data.tags;
+				else
+					split = data.tags.split(', ');
 				
 				for (let i in split) {
 					if (!(msg.channel.name || 'private').match('nsfw') && (ClientTags.isBanned(split[i]) || ServerTags && ServerTags.isBanned(split[i]) || ChannelTags && ChannelTags.isBanned(split[i]))) {
@@ -203,12 +285,9 @@ module.exports = {
 				}
 				
 				msg.channel.stopTyping();
-				msg.reply('Tags: ' + itags + '\n<https://www.derpibooru.org/' + ID +'>\nhttps:' + target);
+				msg.reply('Tags: ' + split.join(', ') + '\n<https://www.derpibooru.org/' + ID +'>\nhttps:' + target);
 			});
 		} else {
-			let encode = '';
-			let first = true;
-			
 			for (let i in args) {
 				let str = args[i];
 				
@@ -223,32 +302,33 @@ module.exports = {
 						return;
 					}
 				}
-				
-				if (first) {
-					first = false;
-					encode = encodeURIComponent(str);
-				} else {
-					encode += ' AND ' + encodeURIComponent(str);
-				}
 			}
-			
-			let path = DBot.WebRoot + '/derpibooru/search/' + String.hash(encode) + '.json';
 			
 			msg.channel.startTyping();
 			
-			let continueLoad = function(parsed, isCached) {
+			const continueLoad = function(parsed) {
 				if (msg.checkAbort()) return;
+				
+				if (!parsed) {
+					msg.channel.stopTyping();
+					msg.reply('Derpibooru is down! Onoh!');
+					return;
+				}
+				
 				let valids = [];
 				
-				for (let k in parsed.search) {
-					let data = parsed.search[k];
-					let itags = data.tags;
+				for (const data of parsed) {
+					let split;
 					
-					let split = itags.split(', ');
+					if (typeof data.tags === 'object')
+						split = data.tags;
+					else
+						split = data.tags.split(', ');
+					
 					let hit = false;
 					
-					for (let i in split) {
-						if (ClientTags.isBanned(split[i]) || ServerTags && ServerTags.isBanned(split[i]) || ChannelTags && ChannelTags.isBanned(split[i])) {
+					for (const tag of split) {
+						if (ClientTags.isBanned(tag) || ServerTags && ServerTags.isBanned(tag) || ChannelTags && ChannelTags.isBanned(tag)) {
 							hit = true;
 							break;
 						}
@@ -259,11 +339,7 @@ module.exports = {
 				}
 				
 				if (!valids[0]) {
-					if (isCached)
-						msg.reply('(cached) Sorry, no results');
-					else
-						msg.reply('Sorry, no results');
-					
+					msg.reply('Sorry, no results');
 					msg.channel.stopTyping();
 					
 					return;
@@ -280,7 +356,7 @@ module.exports = {
 						let hit = false;
 						
 						for (let i in previousStuff) {
-							if (previousStuff[i] == valids[i2].id) {
+							if (previousStuff[i] === valids[i2].id) {
 								hit = true;
 								break;
 							}
@@ -298,53 +374,17 @@ module.exports = {
 				}
 				
 				let data = Array.Random(valids2);
-				let target = data.representations.medium || data.representations.small || data.image;
+				let target = data.medium || data.small || data.full;
 				
 				if (previousStuff)
 					previousStuff.push(data.id);
 				
-				if (isCached)
-					msg.reply('(cached results)\nTags: ' + data.tags + '\n<https://www.derpibooru.org/' + data.id + '>\nhttps:' + target);
-				else
-					msg.reply('Tags: ' + data.tags + '\n<https://www.derpibooru.org/' + data.id + '>\nhttps:' + target);
+				msg.reply('Tags: ' + data.tags + '\n<https://www.derpibooru.org/' + data.id + '>\nhttps:' + target);
 				
 				msg.channel.stopTyping();
-			}
+			};
 			
-			fs.stat(path, function(err, stat) {
-				if (msg.checkAbort()) return;
-				if (stat && ((stat.ctime.getTime() / 1000) > (UnixStamp() - 3600))) {
-					try {
-						fs.readFile(path, 'utf8', function(err, data) {
-							continueLoad(JSON3.parse(data), true);
-						});
-					} catch(err) {
-						console.log(err);
-						msg.channel.stopTyping();
-						msg.reply('Uh oh, i broke for now');
-					}
-				} else {
-					unirest.get('https://www.derpibooru.org/search.json?q=' + encode)
-					.end(function (response) {
-						if (msg.checkAbort()) return;
-						try {
-							let parsed = response.body;
-							if (!parsed) {
-								msg.reply('Derpibooru is down! Onoh!');
-								msg.channel.stopTyping();
-								return;
-							}
-							
-							continueLoad(parsed);
-							fs.writeFile(path, response.raw_body);
-						} catch(err) {
-							console.log(err);
-							msg.reply('Uh oh, i broke for now');
-							msg.channel.stopTyping();
-						}
-					});
-				}
-			});
+			searchImages(args, continueLoad);
 		}
-	},
-}
+	}
+};

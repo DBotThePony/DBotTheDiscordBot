@@ -21,6 +21,24 @@ class SQLResult {
 		for (let i in this.rawRows) {
 			this[i] = this.rawRows[i];
 		}
+		
+		this.currentSeek = 0;
+	}
+	
+	throw() {
+		if (this.err) throw this.err;
+	}
+	
+	seek() {
+		const seeked = this.rawRows[this.currentSeek];
+		this.currentSeek++;
+		return seeked;
+	}
+	
+	empty(callback) {
+		const status = this.rawRows.length === 0 || (this.err !== undefined && this.err !== null);
+		if (status && callback) callback();
+		return status;
 	}
 	
 	getConnection() {

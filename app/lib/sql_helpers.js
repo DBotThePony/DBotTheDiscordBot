@@ -34,11 +34,11 @@ sql.Role = function(obj) {
 
 sql.escape = Postgres.escape;
 
-let concatNames = function(tab) {
+const concatNames = function(tab) {
 	return '"' + tab.join('", "') + '"';
 };
 
-let concatValues = function(tab) {
+const concatValues = function(tab) {
 	let output = [];
 	
 	for (let v of tab) {
@@ -135,3 +135,4 @@ sql.UConcat = function() {
 	
 	return output;
 };
+
