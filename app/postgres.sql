@@ -925,6 +925,27 @@ CREATE TABLE IF NOT EXISTS translate_cache (
 	PRIMARY KEY ("source")
 );
 
+CREATE TABLE IF NOT EXISTS tumblr_bcache (
+	"blog" VARCHAR(64) NOT NULL PRIMARY KEY,
+	"id" SERIAL NOT NULL UNIQUE,
+	"stamp" INTEGER NOT NULL DEFAULT currtime()
+);
+
+CREATE TABLE IF NOT EXISTS tumblr_cache (
+	"id" INTEGER NOT NULL REFERENCES tumblr_bcache ("id"),
+	"order" INTEGER NOT NULL,
+	"url" VARCHAR(255) NOT NULL,
+	"surl" VARCHAR(63) NOT NULL,
+	"date" VARCHAR(63) NOT NULL,
+	"summary" VARCHAR(511),
+	"author" VARCHAR(127) NOT NULL,
+	"text" TEXT,
+	"images" VARCHAR(255)[] NOT NULL,
+	"tags" VARCHAR(127)[] NOT NULL,
+	"image_permalink" VARCHAR(255),
+	PRIMARY KEY ("id", "order")
+);
+
 -----------------------------------
 --- Functions
 -----------------------------------

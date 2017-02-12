@@ -165,6 +165,9 @@ class SQLConnectionDispatcher {
 	}
 	
 	escape(str) {
+		if (typeof str === 'undefined')
+			return 'null';
+		
 		if (typeof str === 'boolean')
 			return str && "true" || "false";
 
