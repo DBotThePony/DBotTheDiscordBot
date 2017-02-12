@@ -51,7 +51,7 @@ module.exports = {
 				if (isPrivate) {
 					msg.author.sendMessage('```Server variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
 				} else {
-					msg.channel.sendMessage('```Server variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
+					msg.sendMessage('```Server variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
 				}
 			}
 		}
@@ -176,7 +176,7 @@ DBot.RegisterCommand({
 				if (isPrivate) {
 					msg.author.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
 				} else {
-					msg.channel.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
+					msg.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
 				}
 			}
 		}
@@ -248,7 +248,7 @@ DBot.RegisterCommand({
 				if (isPrivate) {
 					msg.author.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
 				} else {
-					channel.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
+					msg.sendMessage('```Channel variable "' + cvar.name + '" has changed to "' + cvar.getFormatedString() + '"```');
 				}
 			}
 		}
