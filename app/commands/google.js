@@ -1,13 +1,9 @@
 
-/* global DBot */
+/* global DBot, Util, Postgres */
 
 if (!DBot.cfg.google_enable) return;
 
 const unirest = DBot.js.unirest;
-const JSON3 = DBot.js.json3;
-const fs = DBot.js.fs;
-
-Util.mkdir(DBot.WebRoot + '/google');
 
 const Search = 'https://www.googleapis.com/customsearch/v1?key=' + DBot.cfg.google + '&cx=011142896060985630711:sibr51l3m7a&safe=medium&q=';
 
@@ -29,7 +25,7 @@ DBot.CreateTagsSpace('google', [
 	'scum',
 	'r34',
 	'rule34',
-	'pornhub',
+	'pornhub'
 ]);
 
 let fn = function(prefix) {
@@ -37,7 +33,6 @@ let fn = function(prefix) {
 		let enc = encodeURIComponent(prefix + cmd.toLowerCase());
 		let url = Search + enc;
 		let hash = String.hash(enc);
-		let cachePath = DBot.WebRoot + '/google/' + hash + '.json';
 		
 		let ServerTags;
 		let ClientTags = DBot.UserTags(msg.author, 'google');
@@ -62,13 +57,11 @@ let fn = function(prefix) {
 		
 		msg.channel.startTyping();
 		
-		let continueSearch = function(data, isCached) {
+		let continueSearch = function(items, isCached) {
 			if (msg.checkAbort()) return;
 			msg.channel.stopTyping();
 			
 			try {
-				let items = data.items;
-				
 				if (!items || !items[0])
 					return msg.reply('None found ;n;');
 				
@@ -83,7 +76,7 @@ let fn = function(prefix) {
 						let hit = false;
 						
 						for (let i in previousStuff) {
-							if (previousStuff[i] == items[i2].link) {
+							if (previousStuff[i] === items[i2].link) {
 								hit = true;
 								break;
 							}
@@ -119,12 +112,11 @@ let fn = function(prefix) {
 				msg.reply('<internal pony error>');
 				console.error(err);
 			}
-		}
+		};
 		
-		fs.stat(cachePath, function(err, stat) {
-			if (msg.checkAbort()) return;
-			let getFunc = function() {
-				if (msg.checkAbort()) return;
+		Postgres.query(`SELECT google_search_results.* FROM google_search, google_search_results WHERE "phrase" = '${hash}' AND google_search_results."id" = google_search."id" AND "stamp" > currtime() - 3600 ORDER BY "order" ASC`, function(err, data) {
+			if (err) throw err;
+			const getFunc = function() {
 				unirest.get(url)
 				.end(function(result) {
 					if (msg.checkAbort()) return;
@@ -134,31 +126,31 @@ let fn = function(prefix) {
 						return;
 					}
 					
-					continueSearch(result.body);
-					
-					fs.writeFile(cachePath, result.raw_body);
+					Postgres.query(`INSERT INTO google_search ("phrase", "stamp") VALUES ('${hash}', currtime()) ON CONFLICT (phrase) DO UPDATE SET stamp = currtime() RETURNING id`, function(err, data) {
+						data.throw();
+						
+						let output = [];
+						const uid = data.seek().id;
+						let i = 0;
+						
+						for (const item of result.body.items) {
+							if (!item.cacheId) continue;
+							i++;
+							output.push(`(${uid}, ${Postgres.escape(item.cacheId)}, ${Postgres.escape(item.title || 'No title avaliable')}, ${Postgres.escape(item.snippet || 'No data avaliable')}, ${Postgres.escape(item.link || 'No link avaliable')}, ${i})`);
+						}
+						
+						Postgres.query(`INSERT INTO google_search_results VALUES ${output.join(',')} ON CONFLICT ("id", "cacheId") DO UPDATE SET title = excluded.title, snippet = excluded.snippet, link = excluded.link;`);
+
+						continueSearch(result.body.items);
+					});
 				});
-			}
+			};
 			
-			if (stat) {
-				fs.readFile(cachePath, 'utf8', function(err, data) {
-					if (msg.checkAbort()) return;
-					if (!data || data == '') 
-						return getFunc();
-					
-					try {
-						continueSearch(JSON3.parse(data), true);
-					} catch(err) {
-						msg.channel.stopTyping();
-						msg.reply('wtf with google');
-					}
-				});
-			} else {
-				getFunc();
-			}
+			if (data.empty(getFunc)) return;
+			continueSearch(data.rawRows);
 		});
-	}
-}
+	};
+};
 
 module.exports = {
 	name: 'google',
@@ -171,8 +163,8 @@ module.exports = {
 	help_args: '<phrase>',
 	desc: 'Search a site in google',
 	
-	func: fn(''),
-}
+	func: fn('')
+};
 
 DBot.RegisterCommand({
 	name: 'wiki',
@@ -185,7 +177,7 @@ DBot.RegisterCommand({
 	help_args: '<phrase>',
 	desc: 'Search stuff in Wikipedia.\nThis uses Google tag ban space.',
 	
-	func: fn('site:wikipedia.org '),
+	func: fn('site:wikipedia.org ')
 });
 
 DBot.RegisterCommand({
@@ -199,5 +191,5 @@ DBot.RegisterCommand({
 	help_args: '<phrase>',
 	desc: 'Search stuff in YouTube.\nThis uses Google tag ban space.',
 	
-	func: fn('site:youtube.com '),
+	func: fn('site:youtube.com ')
 });
