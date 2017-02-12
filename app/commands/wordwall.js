@@ -13,8 +13,8 @@ module.exports = {
 		if (!args[0])
 			return 'Need first phrase ;w;' + Util.HighlightHelp(['wordwall'], 2, args);
 		
-		if (cmd.length > 50)
-			return 'Bigg. Use `iwordwall`';
+		if (cmd.length > 1000)
+			return 'the fuck?';
 		
 		let len = cmd.length;
 		let build = '\n';
@@ -39,7 +39,7 @@ DBot.RegisterCommand({
 			return 'Need first phrase ;w;' + Util.HighlightHelp(['wordwall'], 2, args);
 		
 		if (cmd.length > 400)
-			return 'Bigg fukk';
+			return 'the fuck? Try usual `wordwall`';
 		
 		let len = cmd.length;
 		let build = '';
