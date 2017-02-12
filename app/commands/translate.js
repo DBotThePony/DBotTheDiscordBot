@@ -1,5 +1,5 @@
 
-/* global DBot */
+/* global DBot, Util, Postgres */
 
 if (!DBot.cfg.yandex_tr_enable) return;
 
@@ -11,10 +11,10 @@ const apiKey = DBot.cfg.yandex_tr;
 let validLangs = [];
 let validLangsNames = [];
 
-let alias = {
+const alias = {
 	rus: 'ru',
 	eng: 'en',
-	deu: 'de',
+	deu: 'de'
 };
 
 Util.mkdir(DBot.WebRoot + '/translate', function() {
@@ -36,7 +36,7 @@ Util.mkdir(DBot.WebRoot + '/translate', function() {
 			unirest.post('https://translate.yandex.net/api/v1.5/tr.json/getLangs')
 			.send({
 				key: apiKey,
-				ui: 'en',
+				ui: 'en'
 			})
 			.end(function(result) {
 				if (result.body.code) {
@@ -67,9 +67,8 @@ module.exports = {
 	delay: 5,
 	
 	func: function(args, cmd, msg) {
-		if (!args[0]) {
-			return 'No target language' + Util.HighlightHelp(['translate'], 2, args);
-		}
+		if (!args[0])
+			return DBot.CommandError('Invalid target language\nTo list all languages type }languages', 'translate', args, 1);
 		
 		args[0] = args[0].toLowerCase();
 		
@@ -80,23 +79,20 @@ module.exports = {
 		let hit = false;
 		
 		for (let i in validLangs) {
-			if (validLangs[i] == args[0]) {
+			if (validLangs[i] === args[0]) {
 				hit = true;
 				break;
 			}
 		}
 		
-		if (!hit) {
-			return 'Invalid target language\nTo list all languages type }languages' + Util.HighlightHelp(['translate'], 2, args);
-		}
+		if (!hit)
+			return DBot.CommandError('Invalid target language\nTo list all languages type }languages', 'translate', args, 1);
 		
-		if (!args[1]) {
-			return 'There must be at least one phrase' + Util.HighlightHelp(['translate'], 3, args);
-		}
+		if (!args[1])
+			return DBot.CommandError('There must be at least one phrase', 'translate', args, 2);
 		
-		if (cmd.length > 200) {
+		if (cmd.length > 200)
 			return 'Too long text! You hurt me ;n;';
-		}
 		
 		let toCheck = '';
 		let toTranslate = '';
@@ -113,35 +109,24 @@ module.exports = {
 		}
 		
 		let sha = String.hash(cmd);
-		let fpath = DBot.WebRoot + '/translate/' + sha + '.json';
 		
-		let continueFunc = function(data) {
+		const continueFunc = function(text) {
 			msg.channel.stopTyping();
-			msg.reply('\n```' + data.text + '```')
-		}
+			msg.reply('\n```' + text + '```');
+		};
 		
 		msg.channel.startTyping();
 		
-		fs.stat(fpath, function(err, stat) {
-			if (stat) {
-				fs.readFile(fpath, 'utf8', function(err, data) {
-					if (err || !data) {
-						msg.channel.stopTyping();
-						msg.reply('Something went wrong...');
-						return;
-					}
-					
-					continueFunc(JSON3.parse(data));
-				});
-			} else {
+		Postgres.query(`SELECT "translation" FROM translate_cache WHERE "source" = '${sha}'`, function(err, data) {
+			const getFunc = function() {
 				unirest.post('https://translate.yandex.net/api/v1.5/tr.json/detect')
 				.send({
 					key: apiKey,
 					text: toCheck,
-					hint: 'ru,en,es,it,de',
+					hint: 'ru,en,es,it,de'
 				})
 				.end(function(result) {
-					if (result.body.code != 200) {
+					if (result.body.code !== 200) {
 						msg.channel.stopTyping();
 						msg.reply('Something went wrong...');
 						return;
@@ -153,24 +138,26 @@ module.exports = {
 					.send({
 						key: apiKey,
 						text: toTranslate,
-						lang: lang + '-' + args[0],
+						lang: lang + '-' + args[0]
 					})
 					.end(function(result) {
-						if (result.body.code != 200) {
+						if (result.body.code !== 200) {
 							msg.channel.stopTyping();
 							msg.reply('Something went wrong...');
 							return;
 						}
 						
-						fs.writeFile(fpath, result.raw_body, function(err) {
-							continueFunc(result.body);
-						});
+						Postgres.query(`INSERT INTO translate_cache VALUES('${sha}', ${Postgres.escape(result.body.text)})`);
+						continueFunc(result.body.text);
 					});
 				});
-			}
+			};
+			
+			if (data.empty(getFunc)) return;
+			continueFunc(data.seek().translation);
 		});
-	},
-}
+	}
+};
 
 DBot.RegisterCommand({
 	name: 'languages',
@@ -191,6 +178,6 @@ DBot.RegisterCommand({
 		msg.author.sendMessage(output);
 		
 		if (!DBot.IsPM(msg))
-			return 'Sended over PM';
+			return 'Sent over PM';
 	}
 });

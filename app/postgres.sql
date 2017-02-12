@@ -919,6 +919,12 @@ CREATE TABLE IF NOT EXISTS google_picture_results (
 	PRIMARY KEY ("id", "order")
 );
 
+CREATE TABLE IF NOT EXISTS translate_cache (
+	"source" VARCHAR(64) NOT NULL,
+	"translation" VARCHAR(511) NOT NULL,
+	PRIMARY KEY ("source")
+);
+
 -----------------------------------
 --- Functions
 -----------------------------------
