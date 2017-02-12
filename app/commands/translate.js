@@ -17,45 +17,43 @@ const alias = {
 	deu: 'de'
 };
 
-Util.mkdir(DBot.WebRoot + '/translate', function() {
-	fs.stat(DBot.WebRoot + '/translate/langs.json', function(err, stat) {
-		if (stat) {
-			fs.readFile(DBot.WebRoot + '/translate/langs.json' , 'utf8', function(err, data) {
-				let dt = JSON3.parse(data);
-				
-				for (let lID in dt.langs) {
-					let lName = dt.langs[lID];
-					
-					validLangs.push(lID);
-					validLangsNames.push(lName);
-				}
-				
-				console.log('Loaded avaliable translation languages');
-			});
-		} else {
-			unirest.post('https://translate.yandex.net/api/v1.5/tr.json/getLangs')
-			.send({
-				key: apiKey,
-				ui: 'en'
-			})
-			.end(function(result) {
-				if (result.body.code) {
-					return;
-				}
-				
-				console.log('Fetched avaliable translation languages');
-				
-				for (let lID in result.body.langs) {
-					let lName = result.body.langs[lID];
-					
-					validLangs.push(lID);
-					validLangsNames.push(lName);
-				}
-				
-				fs.writeFile(DBot.WebRoot + '/translate/langs.json', result.raw_body);
-			});
-		}
-	});
+fs.stat(DBot.WebRoot + '/yandex_langs.json', function(err, stat) {
+	if (stat) {
+		fs.readFile(DBot.WebRoot + '/yandex_langs.json' , 'utf8', function(err, data) {
+			let dt = JSON3.parse(data);
+
+			for (let lID in dt.langs) {
+				let lName = dt.langs[lID];
+
+				validLangs.push(lID);
+				validLangsNames.push(lName);
+			}
+
+			console.log('Loaded avaliable translation languages');
+		});
+	} else {
+		unirest.post('https://translate.yandex.net/api/v1.5/tr.json/getLangs')
+		.send({
+			key: apiKey,
+			ui: 'en'
+		})
+		.end(function(result) {
+			if (result.body.code) {
+				return;
+			}
+
+			console.log('Fetched avaliable translation languages');
+
+			for (let lID in result.body.langs) {
+				let lName = result.body.langs[lID];
+
+				validLangs.push(lID);
+				validLangsNames.push(lName);
+			}
+
+			fs.writeFile(DBot.WebRoot + '/yandex_langs.json', result.raw_body);
+		});
+	}
 });
 
 module.exports = {
