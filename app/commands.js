@@ -1,4 +1,6 @@
 
+/* global DBot, Util */
+
 const fs = DBot.js.fs;
 
 DBot.Commands = {};
@@ -16,7 +18,7 @@ DBot.RegisterCommand = function(command) {
 	DBot.Commands[id] = command;
 	
 	return command;
-}
+};
 
 DBot.RegisterPipe = function(pipe) {
 	if (pipe.alias) {
@@ -30,13 +32,13 @@ DBot.RegisterPipe = function(pipe) {
 	DBot.CommandsPipes[id] = pipe;
 	
 	return pipe;
-}
+};
 
 DBot.RegisterCommandPipe = function(command) {
 	DBot.RegisterCommand(command);
 	DBot.RegisterPipe(command);
 	return command;
-}
+};
 
 DBot.js.filesystem.readdirSync('./app/commands/').forEach(function(file) {
 	let sp = file.split('.');
@@ -95,7 +97,7 @@ let BuildCommands = function() {
 	let III2 = 0;
 	
 	for (let k in DBot.Commands) {
-		if (k != DBot.Commands[k].id && k != DBot.Commands[k].name)
+		if (k !== DBot.Commands[k].id && k !== DBot.Commands[k].name)
 			continue;
 		
 		if (DBot.Commands[k].help_hide)
@@ -113,7 +115,7 @@ let BuildCommands = function() {
 	
 	for (let k in DBot.Commands) {
 		let item = DBot.Commands[k];
-		if (k != item.id && k != item.name)
+		if (k !== item.id && k !== item.name)
 			continue;
 		
 		if (item.help_hide)
@@ -164,7 +166,7 @@ let BuildCommands = function() {
 	
 	for (let k in DBot.Commands) {
 		let item = DBot.Commands[k];
-		if (k != item.id && k != item.name)
+		if (k !== item.id && k !== item.name)
 			continue;
 		
 		if (item.help_hide)
@@ -179,7 +181,7 @@ let BuildCommands = function() {
 	
 	for (let k in DBot.CommandsPipes) {
 		let item = DBot.CommandsPipes[k];
-		if (k != item.id && k != item.name)
+		if (k !== item.id && k !== item.name)
 			continue;
 		
 		if (item.help_hide)
@@ -192,7 +194,7 @@ let BuildCommands = function() {
 	
 	for (let k in DBot.Commands) {
 		let item = DBot.Commands[k];
-		if (k != item.id && k != item.name)
+		if (k !== item.id && k !== item.name)
 			continue;
 		
 		if (item.help_hide)
@@ -227,7 +229,7 @@ let BuildCommands = function() {
 	
 	for (let k in DBot.CommandsPipes) {
 		let item = DBot.CommandsPipes[k];
-		if (k != item.id && k != item.name)
+		if (k !== item.id && k !== item.name)
 			continue;
 		
 		if (item.help_hide)
@@ -259,7 +261,7 @@ let BuildCommands = function() {
 	
 	stream.write('</span></body></html>');
 	stream.end();
-}
+};
 
 DBot.BuildHelpString = function(page) {
 	if (!BuildHelp[1]) {
@@ -267,7 +269,7 @@ DBot.BuildHelpString = function(page) {
 	}
 	
 	return BuildHelp[page] || BuildHelp[1];
-}
+};
 
 DBot.BuildHelpStringForCommand = function(command) {
 	command.toLowerCase();
@@ -278,7 +280,7 @@ DBot.BuildHelpStringForCommand = function(command) {
 	let output = '';
 	let data = DBot.Commands[command];
 	
-	if (data.id == command)
+	if (data.id === command)
 		output = 'Usage: ' + command;
 	else
 		output = 'Usage: ' + data.id;
@@ -302,7 +304,7 @@ DBot.BuildHelpStringForCommand = function(command) {
 		output += data.desc_full;
 	
 	return output;
-}
+};
 
 DBot.RegisterCommand({
 	name: 'help',
@@ -331,7 +333,7 @@ DBot.RegisterCommand({
 		} else {
 			return DBot.BuildHelpStringForCommand(args[0]);
 		}
-	},
+	}
 });
 
 DBot.RegisterCommand({
@@ -342,5 +344,5 @@ DBot.RegisterCommand({
 	
 	func: function(args, cmd, msg) {
 		return 'Link https://discordapp.com/api/oauth2/authorize?client_id=' + DBot.bot.user.id + '&scope=bot&permissions=0\nPlease don\'t invite bot to heavy (>600 users) servers, bot runs on home desktop PC with limited resources and internet\nDon\'t spam heavy commands (pleeease!)\nYou can join DBot\'s Discord Server https://discord.gg/HG9eS79';
-	},
+	}
 });
