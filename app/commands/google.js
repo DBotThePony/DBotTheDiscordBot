@@ -57,7 +57,7 @@ let fn = function(prefix) {
 		
 		msg.channel.startTyping();
 		
-		let continueSearch = function(items, isCached) {
+		const continueSearch = function(items, isCached) {
 			if (msg.checkAbort()) return;
 			msg.channel.stopTyping();
 			

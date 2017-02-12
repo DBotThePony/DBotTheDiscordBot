@@ -903,6 +903,22 @@ CREATE TABLE IF NOT EXISTS google_search_results (
 	PRIMARY KEY ("id", "cacheId")
 );
 
+CREATE TABLE IF NOT EXISTS google_picture (
+	"phrase" VARCHAR(64) NOT NULL PRIMARY KEY,
+	"stamp" INTEGER NOT NULL DEFAULT currtime(),
+	"id" SERIAL NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS google_picture_results (
+	"id" INTEGER NOT NULL REFERENCES google_picture ("id"),
+	"title" VARCHAR(255) NOT NULL,
+	"snippet" VARCHAR(4095) NOT NULL,
+	"link" VARCHAR(255) NOT NULL,
+	"contextLink" VARCHAR(255) NOT NULL,
+	"order" SMALLINT NOT NULL,
+	PRIMARY KEY ("id", "order")
+);
+
 -----------------------------------
 --- Functions
 -----------------------------------

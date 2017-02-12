@@ -1,14 +1,9 @@
 
-/* global DBot */
+/* global DBot, Postgres */
 
 if (!DBot.cfg.google_enable) return;
 
 const unirest = DBot.js.unirest;
-const JSON3 = DBot.js.json3;
-const fs = DBot.js.fs;
-
-Util.mkdir(DBot.WebRoot + '/google_images')
-
 const Search = 'https://www.googleapis.com/customsearch/v1?key=' + DBot.cfg.google + '&cx=011142896060985630711:sibr51l3m7a&safe=medium&searchType=image&q=';
 
 module.exports = {
@@ -26,7 +21,6 @@ module.exports = {
 		let enc = encodeURIComponent(cmd.toLowerCase());
 		let url = Search + enc;
 		let hash = String.hash(enc);
-		let cachePath = DBot.WebRoot + '/google_images/' + hash + '.json';
 		
 		let ServerTags;
 		let ClientTags = DBot.UserTags(msg.author, 'google');
@@ -51,14 +45,12 @@ module.exports = {
 		
 		msg.channel.startTyping();
 		
-		let continueSearch = function(data, isCached) {
+		const continueSearch = function(items, isCached) {
 			if (msg.checkAbort()) return;
 			msg.channel.stopTyping();
-			let items = data.items;
 			
 			if (!items || !items[0])
 				return msg.reply('None found ;n;');
-			
 			
 			let items2;
 			
@@ -71,7 +63,7 @@ module.exports = {
 					let hit = false;
 					
 					for (let i in previousStuff) {
-						if (previousStuff[i] == items[i2].link) {
+						if (previousStuff[i] === items[i2].link) {
 							hit = true;
 							break;
 						}
@@ -94,49 +86,49 @@ module.exports = {
 			else
 				result = items2[0];
 			
-			let output = '<' + result.image.contextLink + '>\n' + result.link;
+			let output = '<' + result.contextLink + '>\n' + result.link;
 			
 			if (isCached) {
 				output = '(results are cached)\n' + output;
 			}
 			
 			msg.reply(output);
-		}
+		};
 		
-		fs.stat(cachePath, function(err, stat) {
-			if (msg.checkAbort()) return;
-			let getFunc = function() {
-				if (msg.checkAbort()) return;
+		Postgres.query(`SELECT google_picture_results.* FROM google_picture, google_picture_results WHERE "phrase" = '${hash}' AND google_picture_results."id" = google_picture."id" AND "stamp" > currtime() - 3600 ORDER BY "order" ASC`, function(err, data) {
+			if (err) throw err;
+			const getFunc = function() {
 				unirest.get(url)
 				.end(function(result) {
+					if (msg.checkAbort()) return;
 					if (!result.body) {
 						msg.channel.stopTyping();
 						msg.reply('wtf with google');
 						return;
 					}
 					
-					continueSearch(result.body);
-					
-					fs.writeFile(cachePath, result.raw_body);
+					Postgres.query(`INSERT INTO google_picture ("phrase", "stamp") VALUES ('${hash}', currtime()) ON CONFLICT (phrase) DO UPDATE SET stamp = currtime() RETURNING id`, function(err, data) {
+						data.throw();
+						
+						let output = [];
+						const uid = data.seek().id;
+						let i = 0;
+						
+						for (const item of result.body.items) {
+							i++;
+							item.contextLink = item.image.contextLink;
+							output.push(`(${uid}, ${Postgres.escape(item.title || 'No title avaliable')}, ${Postgres.escape(item.snippet || 'No data avaliable')}, ${Postgres.escape(item.link || 'No link avaliable')}, ${Postgres.escape(item.image.contextLink || 'No link avaliable')}, ${i})`);
+						}
+						
+						Postgres.query(`INSERT INTO google_picture_results VALUES ${output.join(',')} ON CONFLICT ("id", "order") DO UPDATE SET title = excluded.title, snippet = excluded.snippet, link = excluded.link, "contextLink" = excluded."contextLink";`);
+
+						continueSearch(result.body.items);
+					});
 				});
-			}
+			};
 			
-			if (stat) {
-				fs.readFile(cachePath, 'utf8', function(err, data) {
-					if (msg.checkAbort()) return;
-					if (!data || data == '') 
-						return getFunc();
-					
-					try {
-						continueSearch(JSON3.parse(data), true);
-					} catch(err) {
-						msg.channel.stopTyping();
-						msg.reply('wtf with google');
-					}
-				});
-			} else {
-				getFunc();
-			}
+			if (data.empty(getFunc)) return;
+			continueSearch(data.rawRows);
 		});
 	}
-}
+};
