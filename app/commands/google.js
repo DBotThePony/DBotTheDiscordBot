@@ -134,12 +134,11 @@ let fn = function(prefix) {
 						let i = 0;
 						
 						for (const item of result.body.items) {
-							if (!item.cacheId) continue;
 							i++;
-							output.push(`(${uid}, ${Postgres.escape(item.cacheId)}, ${Postgres.escape(item.title || 'No title avaliable')}, ${Postgres.escape(item.snippet || 'No data avaliable')}, ${Postgres.escape(item.link || 'No link avaliable')}, ${i})`);
+							output.push(`(${uid}, ${Postgres.escape(i)}, ${Postgres.escape(item.title || 'No title avaliable')}, ${Postgres.escape(item.snippet || 'No data avaliable')}, ${Postgres.escape(item.link || 'No link avaliable')})`);
 						}
 						
-						Postgres.query(`INSERT INTO google_search_results VALUES ${output.join(',')} ON CONFLICT ("id", "cacheId") DO UPDATE SET title = excluded.title, snippet = excluded.snippet, link = excluded.link;`);
+						Postgres.query(`DELETE FROM google_search_results WHERE id = ${uid}; INSERT INTO google_search_results VALUES ${output.join(',')};`);
 
 						continueSearch(result.body.items);
 					});
