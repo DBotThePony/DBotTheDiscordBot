@@ -129,18 +129,29 @@ let fn = function(prefix) {
 					Postgres.query(`INSERT INTO google_search ("phrase", "stamp") VALUES ('${hash}', currtime()) ON CONFLICT (phrase) DO UPDATE SET stamp = currtime() RETURNING id`, function(err, data) {
 						data.throw();
 						
-						let output = [];
-						const uid = data.seek().id;
-						let i = 0;
-						
-						for (const item of result.body.items) {
-							i++;
-							output.push(`(${uid}, ${Postgres.escape(i)}, ${Postgres.escape(item.title || 'No title avaliable')}, ${Postgres.escape(item.snippet || 'No data avaliable')}, ${Postgres.escape(item.link || 'No link avaliable')})`);
+						if (!result.body.items) {
+							msg.channel.stopTyping();
+							msg.reply('wtf with google');
+							return;
 						}
 						
-						Postgres.query(`DELETE FROM google_search_results WHERE id = ${uid}; INSERT INTO google_search_results VALUES ${output.join(',')};`);
+						try {
+							let output = [];
+							const uid = data.seek().id;
+							let i = 0;
 
-						continueSearch(result.body.items);
+							for (const item of result.body.items) {
+								i++;
+								output.push(`(${uid}, ${Postgres.escape(i)}, ${Postgres.escape(item.title || 'No title avaliable')}, ${Postgres.escape(item.snippet || 'No data avaliable')}, ${Postgres.escape(item.link || 'No link avaliable')})`);
+							}
+
+							Postgres.query(`DELETE FROM google_search_results WHERE id = ${uid}; INSERT INTO google_search_results VALUES ${output.join(',')};`);
+
+							continueSearch(result.body.items);
+						} catch(err) {
+							msg.channel.stopTyping();
+							msg.reply('wtf with google');
+						}
 					});
 				});
 			};
