@@ -62,8 +62,10 @@ module.exports = {
 
 	// This is array of owners IDs
 	// Owners has no restriction for executing commands
+	// To add an owner, duplicate line below, and insert your Discord UserID
+	// And remove two slashes (//)
 	owners: [
-		'141004095145115648', // DBot
-		'130070621034905600', // NotSoSuper
+		// '141004095145115648', // DBot
+		// '130070621034905600', // NotSoSuper
 	],
 }
