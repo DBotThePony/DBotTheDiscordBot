@@ -159,7 +159,7 @@ sql.fetchMembers = function(server) {
 	server.fetchMembers()
 	.then(function() {
 		massiveMemberLoad--;
-		let userCollection = new sql.MemberSQLCollection();
+		let userCollection = new sql.UserSQLCollection();
 		let collection = new sql.MemberSQLCollection();
 
 		for (const member of server.members.values()) {
