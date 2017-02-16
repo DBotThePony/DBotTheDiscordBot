@@ -89,10 +89,14 @@ hook.RegisterEvents = function() {
 	});
 };
 
-// For now Discord.js emits only guild member update, not user update
 hook.Add('MemberChanges', 'events', function(oldM, newM) {
 	if (oldM.nickname !== newM.nickname)
 		hook.Run('MemberNicknameChanges', newM, oldM);
+});
+
+hook.Add('UserChanges', 'events', function(oldM, newM) {
+	if (oldM.nickname !== newM.nickname)
+		hook.Run('UserNicknameChanges', newM, oldM);
 });
 
 hook.Add('ClientJoinsServer', 'Default', function(client) {

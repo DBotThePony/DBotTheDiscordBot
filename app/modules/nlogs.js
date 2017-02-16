@@ -1,4 +1,6 @@
 
+/* global cvars, hook, DBot, Postgres */
+
 const moment = require('moment');
 const utf8 = require('utf8');
 const fs = require('fs');
@@ -34,47 +36,40 @@ hook.Add('MemberNicknameChanges', 'MemberNameLogs', function(member, oldMember) 
 	}
 });
 
+hook.Add('UserNicknameChanges', 'MemberNameLogs', function(user, oldUser) {
+	if (!DBot.SQLReady()) return;
+	
+	try {
+		let name = user.username;
+		let uid = DBot.GetUserIDSoft(user);
+		if (!uid) return;
+		if (!name) return;
+
+		let oldName = oldUser.username;
+
+		for (let server of DBot.GetUserServers(user)) {
+			let notifications = cvars.Server(server).getVar('notifications').getBool();
+			let name_notify = cvars.Server(server).getVar('name_notify').getBool();
+
+			if (notifications && name_notify) {
+				let channel = DBot.GetNotificationChannel(server);
+
+				if (channel) {
+					channel.sendMessage('```\nUser @' + oldName + ' has changes his username to @' + name + ' (<@' + user.id + '>)\n```');
+				}
+			}
+		}
+
+		Postgres.query('UPDATE users SET "NAME" = ' + Postgres.escape(name) + ' WHERE "ID" = ' + uid + ';');
+	} catch(err) {
+		console.error(err);
+	}
+});
+
 setInterval(function() {
 	if (!DBot.SQLReady()) return;
 	
-	let finalQuery = '';
-	
-	for (let user of DBot.GetUsers()) {
-		try {
-			let name = user.username;
-			let uid = DBot.GetUserIDSoft(user);
-			if (!uid) continue;
-			if (!name) continue;
-			
-			user.oldUName = user.oldUName || name;
-			
-			if (user.oldUName != name) {
-				for (let server of DBot.GetUserServers(user)) {
-					let member = server.member(user);
-					let notifications = cvars.Server(server).getVar('notifications').getBool();
-					let name_notify = cvars.Server(server).getVar('name_notify').getBool();
-					
-					if (notifications && name_notify) {
-						let channel = DBot.GetNotificationChannel(server);
-						
-						if (channel) {
-							channel.sendMessage('```\nUser @' + member.oldUName + ' (@' + member.user.username + ') has changes his username to @' + name + '\n```');
-						}
-					}
-				}
-				
-				finalQuery += 'UPDATE users SET "NAME" = ' + Postgres.escape(name) + ' WHERE "ID" = ' + uid + ';';
-			}
-			
-			user.oldUName = name;
-		} catch(err) {
-			console.error(err);
-		}
-	}
-	
-	finalQuery += 'SELECT update_nicknames_stats(' + Math.floor(CurTime()) + ');';
-	
-	Postgres.query(finalQuery, function(err) {
+	Postgres.query('SELECT update_nicknames_stats(' + Math.floor(CurTime()) + ');', function(err) {
 		if (err) {
 			console.error(err);
 			console.error('OOPS, unable to update nicknames!');
