@@ -2,6 +2,7 @@
 /* global DBot, Util */
 
 const fs = DBot.js.fs;
+const pug = DBot.js.pug;
 
 DBot.Commands = {};
 DBot.CommandsPipes = {};
@@ -83,11 +84,56 @@ try {
 }
 
 let BuildHelp = [];
-
 let ParseMarkdown = Util.ParseMarkdown;
+const helpPath = DBot.WebRoot + '/help.html';
 
 let BuildCommands = function() {
-	// Build help pages
+	// HTML help
+	
+	let commData = [];
+	let pipeData = [];
+	
+	for (let k in DBot.Commands) {
+		const item = DBot.Commands[k];
+		if (k !== item.id && k !== item.name || item.help_hide) continue;
+		let str = k;
+		
+		let cData = {};
+		cData.name = k;
+		
+		cData.alias = item.alias && '(aliases: ' + item.alias.join(', ') + ')' || '';
+		cData.args = item.help_args || '';
+		cData.help = item.desc && ParseMarkdown(item.desc) || '';
+		cData.fhelp = item.descFull && ParseMarkdown(item.descFull) || '';
+		
+		commData.push(cData);
+	}
+	
+	for (let k in DBot.CommandsPipes) {
+		const item = DBot.CommandsPipes[k];
+		if (k !== item.id && k !== item.name || item.help_hide) continue;
+		let str = k;
+		
+		let cData = {};
+		cData.name = k;
+		
+		cData.alias = item.alias && '(aliases: ' + item.alias.join(', ') + ')' || '';
+		cData.args = item.help_args || '';
+		cData.help = item.desc && ParseMarkdown(item.desc) || '';
+		cData.fhelp = item.descFull && ParseMarkdown(item.descFull) || '';
+		
+		pipeData.push(cData);
+	}
+	
+	const rendered = pug.renderFile('./app/templates/help.pug', {
+		commData: commData,
+		pipeData: pipeData,
+		title: 'Bot Help'
+	});
+	
+	fs.writeFile(helpPath, rendered);
+	
+	// Usual help
 	
 	let III = 0;
 	let cPage = 1;
@@ -145,121 +191,6 @@ let BuildCommands = function() {
 	
 	output += '```To list a page: help <page>\nTo get help with specified command, type help <command>';
 	BuildHelp[cPage] = output;
-	
-	// Building HTML helps
-	
-	let stream = fs.createWriteStream(DBot.WebRoot + '/help.html');
-	
-	stream.write("<!DOCTYPE HTML>\
-<html>\
-<head>\
-<title>NotDBot's command list</title>\
-<meta charset='utf-8' />\
-<link href='generic.css' rel='stylesheet' type='text/css' />\
-<link href='help.css' rel='stylesheet' type='text/css' />\
-</head>\
-<body>\
-<span id='commlist'>\
-<span id='commlist_header'>Command List</span>\
-<span id='commlist_start'>");
-	
-	for (let k in DBot.Commands) {
-		let item = DBot.Commands[k];
-		if (k !== item.id && k !== item.name)
-			continue;
-		
-		if (item.help_hide)
-			continue;
-		
-		stream.write("  <a href='#command_" + k + "'>" + k + "</a>");
-	}
-	
-	stream.write("</span></span><span id='pipelist'>\
-<span id='pipelist_header'>Pipes List</span>\
-<span id='pipelist_start'>");
-	
-	for (let k in DBot.CommandsPipes) {
-		let item = DBot.CommandsPipes[k];
-		if (k !== item.id && k !== item.name)
-			continue;
-		
-		if (item.help_hide)
-			continue;
-		
-		stream.write("  <a href='#pipe_" + k + "'>" + k + "</a>");
-	}
-	
-	stream.write("</span></span><span id='commands'>");
-	
-	for (let k in DBot.Commands) {
-		let item = DBot.Commands[k];
-		if (k !== item.id && k !== item.name)
-			continue;
-		
-		if (item.help_hide)
-			continue;
-		
-		let str = k;
-		
-		stream.write("</a><span class='command' id='command_" + k + "'><span class='command_header' name='command_" + k + "'>" + str + "</span>");
-		
-		let help = 'Usage: ' + item.id;
-		
-		if (item.alias) {
-			help = '(aliases: ' + item.alias.join(', ') + ')\n' + help;
-		}
-		
-		if (item.help_args)
-			help += ' ' + item.help_args + '\n';
-		else
-			help += '\n';
-		
-		if (item.desc)
-			help += item.desc + '\n';
-		
-		if (item.descFull)
-			output += item.descFull;
-		
-		stream.write("<span class='command_desc'>" + ParseMarkdown(help) + "</span></span>");
-	}
-	
-	stream.write('</span>');
-	stream.write("<span id='pipelist_header2'>Pipes</span><span id='pipes'>");
-	
-	for (let k in DBot.CommandsPipes) {
-		let item = DBot.CommandsPipes[k];
-		if (k !== item.id && k !== item.name)
-			continue;
-		
-		if (item.help_hide)
-			continue;
-		
-		let str = k;
-		
-		stream.write("</a><span class='command' id='pipe_" + k + "'><span class='command_header' name='pipe_" + k + "'>" + str + "</span>");
-		
-		let help = 'Usage: ' + item.id;
-		
-		if (item.alias) {
-			help = '(aliases: ' + item.alias.join(', ') + ')\n' + help;
-		}
-		
-		if (item.help_args)
-			help += ' ' + item.help_args + '\n';
-		else
-			help += '\n';
-		
-		if (item.desc)
-			help += item.desc + '\n';
-		
-		if (item.descFull)
-			output += item.descFull;
-		
-		stream.write("<span class='pipe_desc'>" + ParseMarkdown(help) + "</span></span>");
-	}
-	
-	stream.write('</span></body></html>');
-	stream.end();
 };
 
 DBot.BuildHelpString = function(page) {

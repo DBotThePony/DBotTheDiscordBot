@@ -1,0 +1,14 @@
+
+//- Generic template
+doctype html
+head
+	title #{title} - NotDBot
+	block header
+body
+	span(class='header')
+		p#htext Not DBot
+		span(class='pagename') #{title}
+		block hat
+	span(class='wrapper')
+		span(class='contents')
+			block contents

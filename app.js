@@ -51,6 +51,7 @@ DBot.js = {};
 DBot.js.child_process = require('child_process');
 DBot.js.unirest = require('unirest');
 DBot.js.fs = require('fs');
+DBot.js.pug = require('pug');
 DBot.js.filesystem = DBot.js.fs;
 DBot.js.json3 = require('json3');
 DBot.js.moment = require('moment');

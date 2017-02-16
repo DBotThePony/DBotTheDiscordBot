@@ -64,7 +64,7 @@
 	padding-bottom: 20px;
 }
 
-.command {
+.container {
 	display: block;
 	border: solid 1px black;
 	margin-left: 10px;
@@ -76,18 +76,38 @@
 	transition: .3s;
 }
 
-.command:hover {
+.container:hover {
 	border-left: solid 7px rgb(0, 200, 200);
 }
 
-.command_header {
+.generic_header {
 	display: block;
 	font-size: 20px;
 	font-family: Hack;
 }
 
-.command_desc {
+.generic_desc {
 	display: block;
 	margin-top: 6px;
 	padding-left: 30px;
+}
+
+.generic_aliases {
+	display: block;
+	height: auto;
+}
+
+.generic_usage {
+	display: block;
+	height: auto;
+}
+
+.generic_help {
+	display: block;
+	height: auto;
+}
+
+.generic_fhelp {
+	display: block;
+	height: auto;
 }

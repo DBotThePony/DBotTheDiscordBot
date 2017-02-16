@@ -1,0 +1,41 @@
+
+extends generic
+
+block header
+	link(rel='stylesheet', href='generic.css')
+	link(rel='stylesheet', href='fonts.css')
+	link(rel='stylesheet', href='help.css')
+
+block contents
+	span#commlist
+		span(id='commlist_header') Commands List
+		span(id='commlist_start')
+			each obj in commData
+				a(href=`#command_${obj.name}`) #{obj.name}  
+	
+	span#pipelist
+		span(id='pipelist_header') Pipes List
+		span(id='pipelist_start')
+			each obj in pipeData
+				a(href=`#pipe_${obj.name}`) #{obj.name}  
+	
+	span#commands
+		each obj in commData
+			span(class='container', id=`command_${obj.name}`)
+				span(class='generic_header', name=`command_${obj.name}`)= obj.name
+				span(class='generic_desc')
+					span(class='generic_aliases')= obj.alias
+					span(class='generic_usage') Usage: #{obj.name} #{obj.args}
+					span(class='generic_help')!= obj.help
+					span(class='generic_fhelp')!= obj.fhelp
+	
+	span#pipelist_header2 Pipes
+	span#pipes
+		each obj in pipeData
+			span(class='container', id=`pipe_${obj.name}`)
+				span(class='generic_header', name=`pipe_${obj.name}`)= obj.name
+				span(class='generic_desc')
+					span(class='generic_aliases')= obj.alias
+					span(class='generic_usage') Usage: #{obj.name} #{obj.args}
+					span(class='generic_help')!= obj.help
+					span(class='generic_fhelp')!= obj.fhelp
