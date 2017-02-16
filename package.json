@@ -19,6 +19,7 @@
     "unirest": "latest",
     "ping": "latest",
     "sprintf-js": "latest",
+    "pug": "latest",
     "utf8": "latest"
   }
 }
