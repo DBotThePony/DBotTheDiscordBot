@@ -1,13 +1,10 @@
 
-Util.SafeCopy('./node_modules/moment/moment.js', DBot.WebRoot + '/moment.js');
-Util.SafeCopy('./node_modules/numeral/numeral.js', DBot.WebRoot + '/numeral.js');
-Util.SafeCopy('./resource/files/jquery-3.0.0.min.js', DBot.WebRoot + '/jquery-3.0.0.min.js');
-Util.SafeCopy('./resource/files/noavatar.jpg', DBot.WebRoot + '/no_avatar.jpg');
-Util.SafeCopy('./resource/files/users.css', DBot.WebRoot + '/users.css');
+/* global Util, DBot */
+
 Util.mkdir(DBot.WebRoot + '/users');
 
-let crypto = DBot.js.crypto;
-let fs = DBot.js.fs;
+const crypto = DBot.js.crypto;
+const fs = DBot.js.fs;
 
 let PERM_ENUMS = [
 	'CREATE_INSTANT_INVITE',
@@ -72,7 +69,7 @@ module.exports = {
 			
 			let stream = fs.createWriteStream(DBot.WebRoot + '/users/' + sha + '.html');
 			
-			stream.write("<!DOCTYPE HTML><html><head><title>Users Report</title><link href='../users.css' type='text/css' rel='stylesheet' /></head><body><span id='totalusers'>Total users: " + (!msg.channel.guild.large && users.length || '~' + users.length) + "</span><table><tr id='top'><td>AVATAR</td><td>USERNAME</td><td>USER ID</td><td>TEXT TO MENTION USER</td><td>ROLES AND PERMISSIONS</td></tr>");
+			stream.write("<!DOCTYPE HTML><html><head><title>Users Report</title><link href='../generic.css' type='text/css' rel='stylesheet' /><link href='../users.css' type='text/css' rel='stylesheet' /></head><body><span id='totalusers'>Total users: " + (!msg.channel.guild.large && users.length || '~' + users.length) + "</span><table><tr id='top'><td>AVATAR</td><td>USERNAME</td><td>USER ID</td><td>TEXT TO MENTION USER</td><td>ROLES AND PERMISSIONS</td></tr>");
 			
 			for (let i in users) {
 				let member = users[i];

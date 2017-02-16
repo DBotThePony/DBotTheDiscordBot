@@ -86,8 +86,6 @@ let BuildHelp = [];
 
 let ParseMarkdown = Util.ParseMarkdown;
 
-Util.SafeCopy('./resource/help.css', DBot.WebRoot + '/help.css');
-
 let BuildCommands = function() {
 	// Build help pages
 	
@@ -157,6 +155,7 @@ let BuildCommands = function() {
 <head>\
 <title>NotDBot's command list</title>\
 <meta charset='utf-8' />\
+<link href='generic.css' rel='stylesheet' type='text/css' />\
 <link href='help.css' rel='stylesheet' type='text/css' />\
 </head>\
 <body>\
@@ -172,7 +171,7 @@ let BuildCommands = function() {
 		if (item.help_hide)
 			continue;
 		
-		stream.write(" • <a href='#command_" + k + "'>" + k + "</a>");
+		stream.write("  <a href='#command_" + k + "'>" + k + "</a>");
 	}
 	
 	stream.write("</span></span><span id='pipelist'>\
@@ -187,7 +186,7 @@ let BuildCommands = function() {
 		if (item.help_hide)
 			continue;
 		
-		stream.write(" • <a href='#pipe_" + k + "'>" + k + "</a>");
+		stream.write("  <a href='#pipe_" + k + "'>" + k + "</a>");
 	}
 	
 	stream.write("</span></span><span id='commands'>");

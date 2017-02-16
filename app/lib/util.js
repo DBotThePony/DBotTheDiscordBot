@@ -16,6 +16,10 @@ Util.SafeCopy = function(path, to) {
 	});
 };
 
+Util.Copy = function(path, to) {
+	fs.createReadStream(path).pipe(fs.createWriteStream(to));
+};
+
 TimezoneOffset = function() {
 	return (new Date()).getTimezoneOffset() * 60;
 };

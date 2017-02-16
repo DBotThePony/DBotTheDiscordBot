@@ -1,13 +1,9 @@
 
-body {
-	font-family: Arial;
-	background: rgb(240, 240, 240);
-}
-
 #commlist {
 	display: block;
 	width: 900px;
 	margin: 0 auto;
+	text-align: justify;
 }
 
 #commlist_header {
@@ -35,6 +31,7 @@ body {
 	display: block;
 	width: 900px;
 	margin: 0 auto;
+	text-align: justify;
 }
 
 #pipelist_header {
@@ -86,18 +83,11 @@ body {
 .command_header {
 	display: block;
 	font-size: 20px;
+	font-family: Hack;
 }
 
 .command_desc {
 	display: block;
 	margin-top: 6px;
 	padding-left: 30px;
-}
-
-.codeblock {
-	
-}
-
-.codeblock_s {
-	
 }

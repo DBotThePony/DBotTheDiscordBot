@@ -1,16 +1,31 @@
 
 /* global DBot, cvars, FCVAR_CHANNELONLY, hook, Util */
 
+Util.SafeCopy('./node_modules/moment/moment.js', DBot.WebRoot + '/moment.js');
+Util.SafeCopy('./node_modules/numeral/numeral.js', DBot.WebRoot + '/numeral.js');
+Util.SafeCopy('./resource/files/jquery-3.0.0.min.js', DBot.WebRoot + '/jquery-3.0.0.min.js');
+Util.SafeCopy('./resource/files/noavatar.jpg', DBot.WebRoot + '/no_avatar.jpg');
+
 const crypto = DBot.js.crypto;
 const fs = DBot.js.fs;
 
-UnixStamp = function() {
+for (const file of fs.readdirSync('./app/webroot')) {
+	Util.Copy('./app/webroot/' + file, DBot.WebRoot + '/' + file);
+}
+
+Util.mkdir(DBot.WebRoot + '/fonts', function() {
+	for (const file of fs.readdirSync('./resource/webfonts')) {
+		Util.SafeCopy('./resource/webfonts/' + file, DBot.WebRoot + '/fonts/' + file);
+	}
+});
+
+global.UnixStamp = function() {
 	return (new Date()).getTime() / 1000;
 };
 
-CurTime = UnixStamp;
-Systime = UnixStamp;
-RealTime = UnixStamp;
+global.CurTime = global.UnixStamp;
+global.Systime = global.UnixStamp;
+global.RealTime = global.UnixStamp;
 
 let cooldown = 0;
 let statusTimerID;
