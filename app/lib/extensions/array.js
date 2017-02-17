@@ -45,6 +45,25 @@ Array.Copy = function(Source) {
 	return Dest;
 };
 
+Array.MapDiff = function(newMap, oldMap) {
+	let added = [];
+	let removed = [];
+	
+	for (const key of oldMap.keys()) {
+		if (!newMap.has(key)) {
+			removed.push(oldMap.get(key));
+		}
+	}
+	
+	for (const key of newMap.keys()) {
+		if (!oldMap.has(key)) {
+			added.push(newMap.get(key));
+		}
+	}
+	
+	return [added, removed];
+};
+
 Array.random = Array.Random;
 Array.Concat = Array.concat;
 Array.append = Array.Append;
