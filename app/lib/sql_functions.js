@@ -207,10 +207,12 @@ DBot.DefineServer = function(guild) {
 		
 		usersCollection.updateMap();
 		usersCollection.load(function() {
+			usersCollection.updateMap();
 			hook.Run('MultiUsersInitialized', usersCollection);
 			
 			membersCollection.updateMap();
 			membersCollection.load(() => {
+				membersCollection.updateMap();
 				hook.Run('MultiMembersInitialized', membersCollection);
 			});
 		});
