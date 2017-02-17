@@ -67,6 +67,7 @@ MathHelper = require('./app/lib/mathhelper.js');
 require('./app/lib/extensions/array.js');
 require('./app/lib/extensions/number.js');
 require('./app/lib/extensions/string.js');
+require('./app/lib/extensions/console.js');
 
 let LEVEL_OF_CONNECTION = 0;
 let TimeoutID = null;
