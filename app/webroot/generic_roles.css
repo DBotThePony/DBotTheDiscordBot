@@ -18,3 +18,19 @@ td.permission {
 td.status_rm {
 	color: red;
 }
+
+td.old {
+	width: 60px;
+}
+
+td.true_col {
+	color: blue;
+}
+
+td.new {
+	width: 60px;
+}
+
+td.false_col {
+	color: red;
+}

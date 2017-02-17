@@ -252,3 +252,7 @@ Util.WrapText = function(text, limit) {
 	
 	return lines.join('\n');
 };
+
+Util.formatStamp = function(stamp) {
+	return DBot.js.moment.unix(stamp).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + DBot.js.hDuration(Math.floor(CurTime() - stamp) * 1000) + ' ago)';
+};

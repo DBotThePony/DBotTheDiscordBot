@@ -42,3 +42,14 @@ tr.tabheader {
 	font-family: Roboto;
 	font-weight: 300;
 }
+
+tr {
+	background: none;
+	transition: .2s;
+	padding-left: 10px;
+}
+
+tr:hover {
+	background: rgb(220, 220, 220);
+	transition: .0s;
+}
