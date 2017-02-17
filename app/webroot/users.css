@@ -1,57 +1,87 @@
 
 table {
-	width: 100%;
-	text-align: center;
-	border: solid 1px black;
 	border-collapse: collapse;
+	margin: 0 auto;
 }
 
-#top {
-	font-size: 24px;
+span.avatar {
+	width: 32px;
+	height: 32px;
+	float: left;
+	display: block;
+}
+
+img.avatar {
+	width: 32px;
+	height: 32px;
+	float: left;
+	display: block;
+}
+
+td.username {
+	width: 600px;
+}
+
+td.job {
+	width: 130px;
+	text-align: center;
 }
 
 tr {
-	width: 100%;
-	margin: 0;
-	border: solid 1px black;
-	border-collapse: collapse;
+	padding: 3px;
 }
 
-td {
-	border: solid 1px black;
-	border-collapse: collapse;
-	margin: 0;
+td.joinedat {
+	width: 350px;
 }
 
-#totalusers {
-	font-size: 26px;
-	display: block;
-	margin-bottom: 20px;
-}
-
-.perms {
-	text-align: left;
-	font-size: 14px;
-	display: block;
+.username_wrap {
+	font-size: 18px;
+	font-weight: 500;
 	margin-left: 20px;
+	padding-top: 5px;
+	display: inline-block;
 }
 
-.permstat {
-	display: block;
-	float: right;
-	margin-right: 20px;
+.userrow .job {
+	font-size: 16px;
+	font-weight: 500;
 }
 
-.oddline {
-	display: block;
-	background: rgb(200, 200, 200);
-}
-
-.eddline {
+.rolename {
 	display: block;
 }
 
-.avatar img {
-	max-width: 200px;
-	max-height: 200px;
+.job .hint {
+	margin-left: 140px;
+	margin-top: -40px;
+}
+
+img.avatar_hint {
+	display: none;
+	width: 256px;
+	margin-left: 80px;
+}
+
+span.avatar:hover .avatar_hint {
+	display: block;
+	position: absolute;
+}
+
+.username .hint {
+	margin-left: 200px;
+	margin-top: -30px;
+}
+
+.perm {
+	display: block;
+}
+
+td.perms .hint {
+	margin-left: -400px;
+	margin-top: -30px;
+}
+
+td.immunity {
+	width: 140px;
 }

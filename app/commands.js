@@ -131,7 +131,7 @@ let BuildCommands = function() {
 		title: 'Bot Help'
 	});
 	
-	fs.writeFile(helpPath, rendered);
+	fs.writeFile(helpPath, rendered, console.errHandler);
 	
 	// Usual help
 	

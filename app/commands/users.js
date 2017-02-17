@@ -5,50 +5,84 @@ Util.mkdir(DBot.WebRoot + '/users');
 
 const crypto = DBot.js.crypto;
 const fs = DBot.js.fs;
+const moment = DBot.js.moment;
+const hDuration = DBot.js.hDuration;
 
-let PERM_ENUMS = [
+const Perms = [
 	'CREATE_INSTANT_INVITE',
 	'KICK_MEMBERS',
 	'BAN_MEMBERS',
 	'ADMINISTRATOR',
 	'MANAGE_CHANNELS',
 	'MANAGE_GUILD',
+	'ADD_REACTIONS', // add reactions to messages
+	'READ_MESSAGES',
+	'SEND_MESSAGES',
+	'SEND_TTS_MESSAGES',
 	'MANAGE_MESSAGES',
 	'EMBED_LINKS',
 	'ATTACH_FILES',
+	'READ_MESSAGE_HISTORY',
 	'MENTION_EVERYONE',
 	'EXTERNAL_EMOJIS', // use external emojis
+	'CONNECT', // connect to voice
 	'SPEAK', // speak on voice
 	'MUTE_MEMBERS', // globally mute members on voice
 	'DEAFEN_MEMBERS', // globally deafen members on voice
 	'MOVE_MEMBERS', // move member's voice channels
 	'USE_VAD', // use voice activity detection
+	'CHANGE_NICKNAME',
 	'MANAGE_NICKNAMES', // change nicknames of others
 	'MANAGE_ROLES_OR_PERMISSIONS',
-	'ADD_REACTIONS'
+	'MANAGE_WEBHOOKS',
+	'MANAGE_EMOJIS'
 ];
 
-let PERM_ENUMS_TEXT = [
-	'Create instant invite',
-	'Kick members',
-	'Ban members',
-	'Administrator (full rights to everything)',
-	'Manipulate channels',
-	'Manipulate server',
-	'Manipulate messages',
-	'Embed links',
-	'Attach files to messages',
-	'Mention @everyone',
-	'Use external emoji', // use external emojis
-	'SPEAK', // speak on voice
-	'Mute member\'s voice', // globally mute members on voice
-	'Deafen members', // globally deafen members on voice
-	'Manipulate voice members', // move member's voice channels
-	'Use voice activity detection', // use voice activity detection
-	'Manipulate nicknames', // change nicknames of others
-	'Manipulate roles',
-	'React to messages'
+const PermsNames = [
+	'Create instant invations',
+	'Kick users',
+	'Ban users',
+	'Is Administrator of the server',
+	'Can manipulate channels settings',
+	'Can manipulate server settings',
+	'Can react to messages', // add reactions to messages
+	'Can read messages',
+	'Can send messages',
+	'Can send Text-To-Speech messages',
+	'Can manipulate messages',
+	'Can embed links to messages',
+	'Can attach files',
+	'Can read message history',
+	'Can mention everyone (@everyone)',
+	'Can use external emoji', // use external emojis
+	'Can connect to a voice channel', // connect to voice
+	'Can speak in voice channel', // speak on voice
+	'Can mute members in voice chats', // globally mute members on voice
+	'Can deafen members in voice chats', // globally deafen members on voice
+	'Can move members in voice chats', // move member's voice channels
+	'Can use VoiceActivityDetection', // use voice activity detection
+	'Can change nickname',
+	'Can manipulate nicknames', // change nicknames of others
+	'Can manipulate roles',
+	'Can manipulate Web Hooks',
+	'Can change custom server emoji'
 ];
+
+const sorter = function(a, b) {
+	if (a.immunity === 'lol')
+		return -1;
+	
+	if (b.immunity === 'lol')
+		return 1;
+	
+	if (a.immunity > b.immunity)
+		return -1;
+	
+	if (a.immunity < b.immunity)
+		return 1;
+	
+	return 0;
+};
 
 module.exports = {
 	name: 'users',
@@ -60,87 +94,66 @@ module.exports = {
 		if (DBot.IsPM(msg))
 			return 'Onoh! It is PM! ;n;';
 		
-		msg.channel.startTyping();
+		const sha = String.hash(CurTime() + '_' + msg.channel.guild.id);
+		const path = DBot.WebRoot + '/users/' + sha + '.html';
+		const pathU = DBot.URLRoot + '/users/' + sha + '.html';
 		
-		try {
-			let users = msg.channel.guild.members.array();
+		let data = [];
+		
+		for (const member of msg.channel.guild.members.values()) {
+			let cData = {};
 			
-			let sha = String.hash(CurTime() + '_' + msg.channel.guild.id);
+			cData.name = member.user.username;
+			cData.nname = member.nickname;
+			cData.avatar = member.user.avatarURL || '../no_avatar.jpg';
+			cData.roles = member.roles.array();
+			let max = 0;
+			let hexColor;
+			let roleName;
 			
-			let stream = fs.createWriteStream(DBot.WebRoot + '/users/' + sha + '.html');
-			
-			stream.write("<!DOCTYPE HTML><html><head><title>Users Report</title><link href='../generic.css' type='text/css' rel='stylesheet' /><link href='../users.css' type='text/css' rel='stylesheet' /></head><body><span id='totalusers'>Total users: " + (!msg.channel.guild.large && users.length || '~' + users.length) + "</span><table><tr id='top'><td>AVATAR</td><td>USERNAME</td><td>USER ID</td><td>TEXT TO MENTION USER</td><td>ROLES AND PERMISSIONS</td></tr>");
-			
-			for (let i in users) {
-				let member = users[i];
-				let user = users[i].user;
-				let perms = users[i].permissions;
-				
-				let av;
-				
-				if (user.avatarURL)
-					av = '<img src="' + user.avatarURL + '" />';
-				else
-					av = '<img src="../no_avatar.jpg" />';
-				
-				stream.write('<tr id="user_' + user.id + '">');
-				
-				let uname = member.nickname || user.username;
-				
-				if (uname != user.username)
-					uname += ' (' + user.username + ')';
-				
-				stream.write('<td class="avatar">' + av + '</td><td class="username">' + uname + '</td><td class="userid">' + user.id + '</td><td class="userid_mention"><@' + user.id + '></td><td class="roles">');
-				
-				let roles = member.roles.array();
-				let roleHit = false;
-				
-				for (let roleID in roles) {
-					let role = roles[roleID];
-					if (role.name == '@everyone')
-						continue;
-					
-					if (!roleHit) {
-						stream.write('ROLES:');
-						roleHit = true;
-					}
-					
-					stream.write('<span class="rolename" style="color: ' + role.hexColor + '">' + role.name + '</span> ');
+			for (const role of member.roles.values()) {
+				if (role.position > max) {
+					max = role.position;
+					hexColor = role.hexColor;
+					roleName = role.name;
 				}
-				
-				stream.write('<br><span class="perms">');
-				
-				let line = false;
-				
-				for (let i in PERM_ENUMS) {
-					if (line) {
-						stream.write('<span class="oddline">');
-					} else {
-						stream.write('<span class="eddline">');
-					}
-					
-					line = !line;
-					
-					if (member.hasPermission(PERM_ENUMS[i])) {
-						stream.write(PERM_ENUMS_TEXT[i] + ': <span class="permstat">Yes</span></span>');
-					} else {
-						stream.write(PERM_ENUMS_TEXT[i] + ': <span class="permstat">No</span></span>');
-					}
-				}
-				
-				stream.write('</span></td></tr>');
 			}
 			
-			stream.write('</table></body></html>');
-			stream.end();
+			cData.role = roleName;
+			cData.hexcolor = hexColor;
+			cData.joinedat = moment(member.joinedTimestamp).format('dddd, MMMM Do YYYY, HH:mm');
+			cData.join_duration = hDuration(Math.floor(CurTime() - member.joinedTimestamp / 1000) * 1000) + ' ago';
 			
-			stream.on('finish', function() {
-				msg.channel.stopTyping();
-				msg.reply(DBot.URLRoot + '/users/' + sha + '.html');
-			});
-		} catch(err) {
-			msg.channel.stopTyping();
-			throw err;
+			if (member.id === member.guild.owner.id)
+				cData.immunity = 'lol';
+			else
+				cData.immunity = max;
+			
+			cData.perms = [];
+			for (const i in Perms) {
+				const id = Perms[i];
+				const desc = PermsNames[i];
+				
+				if (member.hasPermission(id))
+					cData.perms.push(desc);
+			}
+			
+			data.push(cData);
 		}
-	},
-}
+		
+		data.sort(sorter);
+		
+		fs.writeFile(path, DBot.pugRender('users.pug', {
+			data: data,
+			total: msg.channel.guild.memberCount,
+			listed: msg.channel.guild.members.size,
+			date: moment().format('dddd, MMMM Do YYYY, HH:mm:ss'),
+			username: msg.author.username,
+			server: msg.channel.guild.name,
+			title: 'Users on ' + msg.channel.guild.name
+		}), console.errHandler);
+		
+		msg.reply(pathU);
+		msg.channel.stopTyping();
+	}
+};

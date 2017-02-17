@@ -1,0 +1,42 @@
+
+extends report_base
+
+block append header
+	link(rel='stylesheet', href='../users.css')
+
+block append contents
+	span#additional_info
+		span.total Total users on this server: #{total}
+		span.listed Listed users: #{listed}
+	table#users
+		tr.tabheader
+			td.username Username
+			td.job Main role
+			td.joinedat Joined at
+			td.immunity Immunity
+			td.perms Permissions
+		each user in data
+			tr.userrow
+				td.username.hintp
+					span.username_wrap= user.name
+					if user.nname
+						span.hint= user.nname
+					else
+						span.hint User has no nickname
+					span.avatar
+						img.avatar(src=user.avatar)
+						img.avatar_hint(src=user.avatar)
+				
+				td.job.hintp(style=`color:${user.hexcolor};`)= user.role
+					span.hint
+						for role in user.roles
+							span.rolename(style=`color:${role.hexColor};`)= role.name
+				
+				td.joinedat.hintp= user.joinedat
+					span.hint= user.join_duration
+				
+				td.immunity= user.immunity
+				td.perms.hintp Hover here
+					span.hint
+						for perm in user.perms
+							span.perm= perm
