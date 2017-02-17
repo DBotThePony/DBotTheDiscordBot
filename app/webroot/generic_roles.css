@@ -34,3 +34,11 @@ td.new {
 td.false_col {
 	color: red;
 }
+
+td.up_col {
+	color: green;
+}
+
+td.down_col {
+	color: red;
+}

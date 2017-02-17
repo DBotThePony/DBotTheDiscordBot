@@ -475,29 +475,26 @@ DBot.RegisterCommand({
 			Postgres.query(funckingQuery, function(err, data) {
 				if (handleExc(err, data)) return;
 				
-				let output = '```\n' + Util.AppendSpaces('Role', roleSpace) + Util.AppendSpaces('Old', roleSpace) + Util.AppendSpaces('New', roleSpace) + Util.AppendSpaces('Time', 30) + '\n';
+				let data2 = [];
 				
 				for (let row of data) {
-					let date = moment.unix(row.STAMP);
-					let old = row.OLD;
-					let newVal = row.NEW;
-					let rname = row.ROLENAME;
-					
-					output += Util.AppendSpaces(rname, roleSpace) + Util.AppendSpaces(old, roleSpace) + Util.AppendSpaces(newVal, roleSpace) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
+					data2.push({
+						name: row.ROLENAME,
+						old: row.OLD,
+						new: row.NEW,
+						date: Util.formatStamp(row.STAMP)
+					});
 				}
 				
-				output += '\n```';
-				
-				if (!isFull) {
-					msg.channel.stopTyping();
-					msg.reply(output);
-				} else {
-					let stream = fs.createWriteStream(path);
-					stream.write(output);
-					stream.end();
-					msg.reply(pathU);
-					msg.channel.stopTyping();
-				}
+				fs.writeFile(path, DBot.pugRender('roles_position.pug', {
+					data: data2,
+					date: moment().format('dddd, MMMM Do YYYY, HH:mm:ss'),
+					username: msg.author.username,
+					server: msg.channel.guild.name,
+					title: 'Roles position log'
+				}), console.errHandler);
+				msg.reply(pathU);
+				msg.channel.stopTyping();
 			});
 		} else if (mode === 'mention') {
 			let funckingQuery = 'SELECT\
@@ -572,30 +569,26 @@ DBot.RegisterCommand({
 			Postgres.query(funckingQuery, function(err, data) {
 				if (handleExc(err, data)) return;
 				
-				let output = '```\n' + Util.AppendSpaces('Role', roleSpace) + Util.AppendSpaces('Old', 15) + Util.AppendSpaces('New', 15) + Util.AppendSpaces('Time', 30) + '\n';
+				let data2 = [];
 				
 				for (let row of data) {
-					let date = moment.unix(row.STAMP);
-					let old = row.OLD;
-					let newVal = row.NEW;
-					let rname = row.ROLENAME;
-					let perm = row.PERM;
-					
-					output += Util.AppendSpaces(rname, roleSpace) + Util.AppendSpaces(old, 15) + Util.AppendSpaces(newVal, 15) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
+					data2.push({
+						name: row.ROLENAME,
+						old: row.OLD,
+						new: row.NEW,
+						date: Util.formatStamp(row.STAMP)
+					});
 				}
 				
-				output += '\n```';
-				
-				if (!isFull) {
-					msg.channel.stopTyping();
-					msg.reply(output);
-				} else {
-					let stream = fs.createWriteStream(path);
-					stream.write(output);
-					stream.end();
-					msg.reply(pathU);
-					msg.channel.stopTyping();
-				}
+				fs.writeFile(path, DBot.pugRender('roles_color.pug', {
+					data: data2,
+					date: moment().format('dddd, MMMM Do YYYY, HH:mm:ss'),
+					username: msg.author.username,
+					server: msg.channel.guild.name,
+					title: 'Roles color log'
+				}), console.errHandler);
+				msg.reply(pathU);
+				msg.channel.stopTyping();
 			});
 		} else {
 			return DBot.CommandError('Unknown subcommand', 'rolelogs', args, 1);

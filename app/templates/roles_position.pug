@@ -1,0 +1,23 @@
+
+extends report_base
+
+block append header
+	link(rel='stylesheet', href='../generic_roles.css')
+
+block append contents
+	table#perms
+		tr.tabheader
+			td.rolename Rolename
+			td.old old
+			td.new new
+			td.date Date
+		each row in data
+			tr
+				if row.new > row.old
+					td.rolename.up_col= row.name
+				else
+					td.rolename.down_col= row.name
+
+				td.old= row.old
+				td.new= row.new
+				td.date= row.date
