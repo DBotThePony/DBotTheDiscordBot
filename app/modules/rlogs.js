@@ -202,7 +202,9 @@ DBot.RegisterCommand({
 		let mode = args[0] || 'users';
 		mode = mode.toLowerCase();
 		
-		let isFull = args[1] && (args[1].toLowerCase() === 'full' || args[1].toLowerCase() === 'f' || args[1].toLowerCase() === 'all');
+		let isFull =
+				typeof args[1] === 'string' && (args[1].toLowerCase() === 'full' || args[1].toLowerCase() === 'f' || args[1].toLowerCase() === 'all')
+				|| typeof args[2] === 'string' && (args[2].toLowerCase() === 'full' || args[2].toLowerCase() === 'f' || args[1].toLowerCase() === 'all');
 		let limitStr = !isFull && '20' || '300';
 		let sha = String.hash(CurTime() + '_roles_' + msg.channel.guild.id);
 		let path = DBot.WebRoot + '/rlogs/' + sha + '.html';
@@ -266,29 +268,26 @@ DBot.RegisterCommand({
 			Postgres.query(funckingQuery, function(err, data) {
 				if (handleExc(err, data)) return;
 				
-				let output = '```\n' + Util.AppendSpaces('User', userSpace) + Util.AppendSpaces('Role', roleSpace) + Util.AppendSpaces('Type', 5) + Util.AppendSpaces('Time', 30) + '\n';
+				let data2 = [];
 				
 				for (let row of data) {
-					let date = moment.unix(row.STAMP);
-					let status = row.TYPE;
-					let name = row.MEMBERNAME;
-					let rname = row.ROLENAME;
-					
-					output += Util.AppendSpaces(name, userSpace) + Util.AppendSpaces(rname, roleSpace) + Util.AppendSpaces(status && 'A' || 'D', 5) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
+					data2.push({
+						username: row.MEMBERNAME,
+						name: row.ROLENAME,
+						status: row.TYPE,
+						date: Util.formatStamp(row.STAMP)
+					});
 				}
 				
-				output += '\n```';
-				
-				if (!isFull) {
-					msg.reply(output);
-					msg.channel.stopTyping();
-				} else {
-					let stream = fs.createWriteStream(path);
-					stream.write(output);
-					stream.end();
-					msg.reply(pathU);
-					msg.channel.stopTyping();
-				}
+				fs.writeFile(path, DBot.pugRender('roles_generic.pug', {
+					data: data2,
+					date: moment().format('dddd, MMMM Do YYYY, HH:mm:ss'),
+					username: msg.author.username,
+					server: msg.channel.guild.name,
+					title: 'Roles log'
+				}), console.errHandler);
+				msg.reply(pathU);
+				msg.channel.stopTyping();
 			});
 		} else if (mode === 'user') {
 			if (typeof args[1] !== 'object') {
@@ -330,29 +329,28 @@ DBot.RegisterCommand({
 			Postgres.query(funckingQuery, function(err, data) {
 				if (handleExc(err, data)) return;
 				
-				let output = '```\n' + Util.AppendSpaces('Role', roleSpace) + Util.AppendSpaces('Type', 5) + Util.AppendSpaces('Time', 30) + '\n';
+				let data2 = [];
 				
 				for (let row of data) {
-					let date = moment.unix(row.STAMP);
-					let status = row.TYPE;
-					let name = row.MEMBERNAME;
-					let rname = row.ROLENAME;
-					
-					output += Util.AppendSpaces(rname, roleSpace) + Util.AppendSpaces(status && 'A' || 'D', 5) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
+					data2.push({
+						name: row.ROLENAME,
+						status: row.TYPE,
+						date: Util.formatStamp(row.STAMP)
+					});
 				}
 				
-				output += '\n```';
-				
-				if (!isFull) {
-					msg.channel.stopTyping();
-					msg.reply(output);
-				} else {
-					let stream = fs.createWriteStream(path);
-					stream.write(output);
-					stream.end();
-					msg.reply(pathU);
-					msg.channel.stopTyping();
-				}
+				fs.writeFile(path, DBot.pugRender('roles_user.pug', {
+					data: data2,
+					date: moment().format('dddd, MMMM Do YYYY, HH:mm:ss'),
+					username: msg.author.username,
+					username1: getUser.user.username,
+					nickname1: getUser.nickname || '<no nickname>',
+					userid1: getUser.id,
+					server: msg.channel.guild.name,
+					title: 'Roles log'
+				}), console.errHandler);
+				msg.reply(pathU);
+				msg.channel.stopTyping();
 			});
 		} else if (mode === 'permissions' || mode === 'perms') {
 			let funckingQuery = 'SELECT\

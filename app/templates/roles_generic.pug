@@ -1,0 +1,26 @@
+
+extends report_base
+
+block append header
+	link(rel='stylesheet', href='../generic_roles.css')
+
+block append contents
+	table#perms
+		tr.tabheader
+			td.username Username
+			td.status Type
+			td.rolename Rolename
+			td.date Date
+		each row in data
+			tr
+				td.username= row.username
+
+				if row.status
+					td.status.status_added ADDED
+				else
+					td.status.status_rm REMOVED
+
+				td.rolename= row.name
+				td.date= row.date
+
+

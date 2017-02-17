@@ -8,11 +8,15 @@ td.status_added {
 }
 
 td.rolename {
-	width: 30%;
+	width: 300px;
 }
 
 td.permission {
 	width: 300px;
+}
+
+td.username {
+	width: 500px;
 }
 
 td.status_rm {
@@ -41,4 +45,19 @@ td.up_col {
 
 td.down_col {
 	color: red;
+}
+
+span#role_user_info {
+	display: block;
+	padding: 5px;
+	background: rgb(220, 220, 220);
+	text-align: center;
+	color: grey;
+	font-size: 18px;
+}
+
+span#role_user_info span {
+	display: inline-block;
+	margin-left: 10px;
+	margin-right: 10px;
 }

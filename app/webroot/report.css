@@ -3,6 +3,7 @@ table {
 	display: block;
 	margin: 0 auto;
 	padding-left: 20px;
+	margin-top: 10px;
 }
 
 span.hint {
@@ -20,7 +21,6 @@ span.hint {
 span#reportinfo {
 	display: block;
 	padding: 5px;
-	margin-bottom: 10px;
 	background: rgb(230, 230, 230);
 	text-align: center;
 	color: grey;
