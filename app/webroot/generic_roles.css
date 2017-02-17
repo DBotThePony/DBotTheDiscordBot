@@ -1,0 +1,20 @@
+
+td.status {
+	width: 100px;
+}
+
+td.status_added {
+	color: green;
+}
+
+td.rolename {
+	width: 30%;
+}
+
+td.permission {
+	width: 300px;
+}
+
+td.status_rm {
+	color: red;
+}

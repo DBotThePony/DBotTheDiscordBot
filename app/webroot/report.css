@@ -1,0 +1,44 @@
+
+table {
+	display: block;
+	margin: 0 auto;
+	padding-left: 20px;
+}
+
+span.hint {
+	display: none;
+	background: white;
+	color: black;
+	padding: 10px;
+}
+
+.hintp:hover .hint {
+	display: block;
+	position: absolute;
+}
+
+span#reportinfo {
+	display: block;
+	padding: 5px;
+	margin-bottom: 10px;
+	background: rgb(230, 230, 230);
+	text-align: center;
+	color: grey;
+	font-size: 18px;
+}
+
+span#reportinfo span {
+	display: inline-block;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+span.header {
+	margin-bottom: 0px;
+}
+
+tr.tabheader {
+	font-size: 24px;
+	font-family: Roboto;
+	font-weight: 300;
+}

@@ -1,77 +1,32 @@
 
-const moment = require('moment');
-const utf8 = require('utf8');
-const hDuration = require('humanize-duration');
-const fs = require('fs');
+/* global hook, sql, Postgres, DBot, Util */
+
+const moment = DBot.js.moment;
+const hDuration = DBot.js.hDuration;
+const fs = DBot.js.fs;
+const pug = DBot.js.pug;
 
 Util.mkdir(DBot.WebRoot + '/rlogs');
 
 let updating = {};
 let INIT = false;
 
-let updateRoleRules = function(role) {
-	if (role.name == '@everyone')
-		return;
-	
-	if (!INIT)
-		return;
-	
-	let members = role.members.array();
-	let sRole = role.uid;
-	
-	let continueFunc = function(err, data) {
-		if (err) throw err;
-		
-		for (let member of members) {
-			let hit = false;
-			
-			for (let row of data) {
-				if (row.USER == member.id) {
-					hit = true;
-					break;
-				}
-			}
-			
-			if (!hit) {
-				Postgres.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (' + sql.Member(member) + ', ' + sRole + ', true, ' + Postgres.escape(Math.floor(CurTime())) + ')');
-				Postgres.query('INSERT INTO member_roles VALUES (' + sql.Member(member) + ', ' + sRole + ') ON CONFLICT DO NOTHING');
-			}
-		}
-		
-		for (let row of data) {
-			let hit = false;
-			
-			for (let member of members) {
-				if (row.USER == member.id) {
-					hit = true;
-					break;
-				}
-			}
-			
-			if (!hit) {
-				Postgres.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (\'' + row.MEMBER + '\', ' + sRole + ', false, ' + Postgres.escape(Math.floor(CurTime())) + ')');
-				Postgres.query('DELETE FROM member_roles WHERE "MEMBER" = \'' + row.MEMBER + '\' AND "ROLE" = ' + sRole);
-			}
-		}
-	}
-	
-	let q = 'SELECT "member_roles"."MEMBER", "users"."UID" as "USER" FROM "member_roles", "users", "members" WHERE "member_roles"."ROLE" = ' + sRole + ' AND "members"."ID" = "member_roles"."MEMBER" AND "users"."ID" = "members"."USER"';
-	
-	if (!sRole)
-		return DBot.DefineRole(role, function(role, newuid) {
-			sRole = newuid;
-			q = 'SELECT "member_roles"."MEMBER", "users"."UID" as "USER" FROM "member_roles", "users", "members" WHERE "member_roles"."ROLE" = ' + sRole + ' AND "members"."ID" = "member_roles"."MEMBER" AND "users"."ID" = "members"."USER"';
-			Postgres.query(q, continueFunc);
-		});
-	else
-		Postgres.query(q, continueFunc);
-}
+hook.Add('MemberRoleAdded', 'RoleLogs', function(member, role) {
+	if (!INIT) return;
+	Postgres.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (' + sql.Member(member) + ', ' + sql.Role(role) + ', true, ' + Postgres.escape(Math.floor(CurTime())) + ')');
+	Postgres.query('INSERT INTO member_roles VALUES (' + sql.Member(member) + ', ' + sql.Role(role) + ') ON CONFLICT DO NOTHING');
+});
+
+hook.Add('MemberRoleRemoved', 'RoleLogs', function(member, role) {
+	if (!INIT) return;
+	Postgres.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (' + sql.Member(member) + ', ' + sql.Role(role) + ', true, ' + Postgres.escape(Math.floor(CurTime())) + ')');
+	Postgres.query('INSERT INTO member_roles VALUES (' + sql.Member(member) + ', ' + sql.Role(role) + ') ON CONFLICT DO NOTHING');
+});
 
 hook.Add('UpdateLoadingLevel', 'RoleLogs', function(callFunc) {
 	callFunc(true, 1);
 });
 
-hook.Add('RoleInitialized', 'RoleLogs', updateRoleRules);
 hook.Add('RolesInitialized', 'RoleLogs', function(roleCollection) {
 	INIT = true;
 	
@@ -110,7 +65,7 @@ hook.Add('RolesInitialized', 'RoleLogs', function(roleCollection) {
 				let hit = false;
 				
 				for (let userid of usersArray) {
-					if (userid == member.id) {
+					if (userid === member.id) {
 						hit = true;
 						break;
 					}
@@ -127,7 +82,7 @@ hook.Add('RolesInitialized', 'RoleLogs', function(roleCollection) {
 				let memberid = 0;
 				
 				for (let member of members) {
-					if (userid == member.id) {
+					if (userid === member.id) {
 						hit = true;
 						break;
 					}
@@ -150,16 +105,71 @@ hook.Add('RolesInitialized', 'RoleLogs', function(roleCollection) {
 	});
 });
 
-hook.Add('MemberChanges', 'RoleLogs', function(oldM, newM) {
-	for (let role of oldM.roles.array()) {
-		updateRoleRules(role);
-	}
-	
-	for (let role of newM.roles.array()) {
-		updateRoleRules(role);
-	}
-});
+const Perms = [
+	'CREATE_INSTANT_INVITE',
+	'KICK_MEMBERS',
+	'BAN_MEMBERS',
+	'ADMINISTRATOR',
+	'MANAGE_CHANNELS',
+	'MANAGE_GUILD',
+	'ADD_REACTIONS', // add reactions to messages
+	'READ_MESSAGES',
+	'SEND_MESSAGES',
+	'SEND_TTS_MESSAGES',
+	'MANAGE_MESSAGES',
+	'EMBED_LINKS',
+	'ATTACH_FILES',
+	'READ_MESSAGE_HISTORY',
+	'MENTION_EVERYONE',
+	'EXTERNAL_EMOJIS', // use external emojis
+	'CONNECT', // connect to voice
+	'SPEAK', // speak on voice
+	'MUTE_MEMBERS', // globally mute members on voice
+	'DEAFEN_MEMBERS', // globally deafen members on voice
+	'MOVE_MEMBERS', // move member's voice channels
+	'USE_VAD', // use voice activity detection
+	'CHANGE_NICKNAME',
+	'MANAGE_NICKNAMES', // change nicknames of others
+	'MANAGE_ROLES_OR_PERMISSIONS',
+	'MANAGE_WEBHOOKS',
+	'MANAGE_EMOJIS'
+];
 
+const PermsNames = [
+	'Create instant invations',
+	'Kick users',
+	'Ban users',
+	'Is Administrator of the server',
+	'Can manipulate channels settings',
+	'Can manipulate server settings',
+	'Can react to messages', // add reactions to messages
+	'Can read messages',
+	'Can send messages',
+	'Can send Text-To-Speech messages',
+	'Can manipulate messages',
+	'Can embed links to messages',
+	'Can attach files',
+	'Can read message history',
+	'Can mention everyone (@everyone)',
+	'Can use external emoji', // use external emojis
+	'Can connect to a voice channel', // connect to voice
+	'Can speak in voice channel', // speak on voice
+	'Can mute members in voice chats', // globally mute members on voice
+	'Can deafen members in voice chats', // globally deafen members on voice
+	'Can move members in voice chats', // move member's voice channels
+	'Can use VoiceActivityDetection', // use voice activity detection
+	'Can change nickname',
+	'Can manipulate nicknames', // change nicknames of others
+	'Can manipulate roles',
+	'Can manipulate Web Hooks',
+	'Can change custom server emoji'
+];
+
+const roleMappedTexts = {};
+
+for (const i in Perms) {
+	roleMappedTexts[Perms[i]] = PermsNames[i];
+}
 
 let fullDesc = `
 Sub commands are:
@@ -192,15 +202,15 @@ DBot.RegisterCommand({
 		let mode = args[0] || 'users';
 		mode = mode.toLowerCase();
 		
-		let isFull = args[1] && (args[1].toLowerCase() == 'full' || args[1].toLowerCase() == 'f' || args[1].toLowerCase() == 'all');
-		let limitStr = !isFull && '10' || '200';
+		let isFull = args[1] && (args[1].toLowerCase() === 'full' || args[1].toLowerCase() === 'f' || args[1].toLowerCase() === 'all');
+		let limitStr = !isFull && '20' || '300';
 		let sha = String.hash(CurTime() + '_roles_' + msg.channel.guild.id);
-		let path = DBot.WebRoot + '/rlogs/' + sha + '.txt';
-		let pathU = DBot.URLRoot + '/rlogs/' + sha + '.txt';
+		let path = DBot.WebRoot + '/rlogs/' + sha + '.html';
+		let pathU = DBot.URLRoot + '/rlogs/' + sha + '.html';
 		
-		if (mode == 'full' || mode == 'f' || mode == 'all') {
+		if (mode === 'full' || mode === 'f' || mode === 'all') {
 			mode = 'users';
-			limitStr = '200';
+			limitStr = '300';
 			isFull = true;
 		}
 		
@@ -210,7 +220,24 @@ DBot.RegisterCommand({
 		
 		msg.channel.startTyping();
 		
-		if (mode == 'users') {
+		const handleExc = function(err, data) {
+			if (err) {
+				msg.channel.stopTyping();
+				msg.reply('WTF');
+				console.error(err);
+				return true;
+			}
+
+			if (!data || !data[0]) {
+				msg.channel.stopTyping();
+				msg.reply('No data was returned in query');
+				return true;
+			}
+			
+			return false;
+		};
+		
+		if (mode === 'users') {
 			let funckingQuery = 'SELECT\
 				roles_log."ID" AS "ENTRY",\
 				roles_log."ROLE",\
@@ -237,18 +264,7 @@ DBot.RegisterCommand({
 			LIMIT ' + limitStr;
 			
 			Postgres.query(funckingQuery, function(err, data) {
-				if (err) {
-					msg.channel.stopTyping();
-					msg.reply('WTF');
-					console.error(err);
-					return;
-				}
-				
-				if (!data || !data[0]) {
-					msg.channel.stopTyping();
-					msg.reply('No data was returned in query');
-					return;
-				}
+				if (handleExc(err, data)) return;
 				
 				let output = '```\n' + Util.AppendSpaces('User', userSpace) + Util.AppendSpaces('Role', roleSpace) + Util.AppendSpaces('Type', 5) + Util.AppendSpaces('Time', 30) + '\n';
 				
@@ -269,13 +285,13 @@ DBot.RegisterCommand({
 				} else {
 					let stream = fs.createWriteStream(path);
 					stream.write(output);
-					stream.end()
+					stream.end();
 					msg.reply(pathU);
 					msg.channel.stopTyping();
 				}
 			});
-		} else if (mode == 'user') {
-			if (typeof args[1] != 'object') {
+		} else if (mode === 'user') {
+			if (typeof args[1] !== 'object') {
 				msg.channel.stopTyping();
 				return DBot.CommandError('Must be user', 'rolelog', args, 2);
 			}
@@ -312,18 +328,7 @@ DBot.RegisterCommand({
 			LIMIT ' + limitStr;
 			
 			Postgres.query(funckingQuery, function(err, data) {
-				if (err) {
-					msg.channel.stopTyping();
-					msg.reply('WTF');
-					console.error(err);
-					return;
-				}
-				
-				if (!data || !data[0]) {
-					msg.channel.stopTyping();
-					msg.reply('No data was returned in query');
-					return;
-				}
+				if (handleExc(err, data)) return;
 				
 				let output = '```\n' + Util.AppendSpaces('Role', roleSpace) + Util.AppendSpaces('Type', 5) + Util.AppendSpaces('Time', 30) + '\n';
 				
@@ -344,12 +349,12 @@ DBot.RegisterCommand({
 				} else {
 					let stream = fs.createWriteStream(path);
 					stream.write(output);
-					stream.end()
+					stream.end();
 					msg.reply(pathU);
 					msg.channel.stopTyping();
 				}
 			});
-		} else if (mode == 'permissions' || mode == 'perms') {
+		} else if (mode === 'permissions' || mode === 'perms') {
 			let funckingQuery = 'SELECT\
 				roles_changes_perms."ID" AS "ENTRY",\
 				roles_changes_perms."ROLEID",\
@@ -373,44 +378,31 @@ DBot.RegisterCommand({
 			LIMIT ' + limitStr;
 			
 			Postgres.query(funckingQuery, function(err, data) {
-				if (err) {
-					msg.channel.stopTyping();
-					msg.reply('WTF');
-					console.error(err);
-					return;
-				}
+				if (handleExc(err, data)) return;
 				
-				if (!data || !data[0]) {
-					msg.channel.stopTyping();
-					msg.reply('No data was returned in query');
-					return;
-				}
-				
-				let output = '```\n' + Util.AppendSpaces('Role', roleSpace) + Util.AppendSpaces('Permission', permSpace) + Util.AppendSpaces('Type', 5) + Util.AppendSpaces('Time', 30) + '\n';
+				let data2 = [];
 				
 				for (let row of data) {
-					let date = moment.unix(row.STAMP);
-					let status = row.TYPE;
-					let rname = row.ROLENAME;
-					let perm = row.PERM;
-					
-					output += Util.AppendSpaces(rname, roleSpace) + Util.AppendSpaces(perm, permSpace) + Util.AppendSpaces(status && 'A' || 'D', 5) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)', 30) + '\n';
+					data2.push({
+						name: row.ROLENAME,
+						perm_help: roleMappedTexts[row.PERM],
+						perm: row.PERM,
+						status: row.TYPE,
+						date: moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)'
+					});
 				}
 				
-				output += '\n```';
-				
-				if (!isFull) {
-					msg.channel.stopTyping();
-					msg.reply(output);
-				} else {
-					let stream = fs.createWriteStream(path);
-					stream.write(output);
-					stream.end()
-					msg.reply(pathU);
-					msg.channel.stopTyping();
-				}
+				fs.writeFile(path, DBot.pugRender('roles_perms.pug', {
+					data: data2,
+					date: moment().format('dddd, MMMM Do YYYY, HH:mm:ss'),
+					username: msg.author.username,
+					server: msg.channel.guild.name,
+					title: 'Roles Permission log'
+				}), console.errHandler);
+				msg.reply(pathU);
+				msg.channel.stopTyping();
 			});
-		} else if (mode == 'hoist') {
+		} else if (mode === 'hoist') {
 			let funckingQuery = 'SELECT\
 				roles_changes_hoist."ID" AS "ENTRY",\
 				roles_changes_hoist."ROLEID",\
@@ -435,18 +427,7 @@ DBot.RegisterCommand({
 			LIMIT ' + limitStr;
 			
 			Postgres.query(funckingQuery, function(err, data) {
-				if (err) {
-					msg.channel.stopTyping();
-					msg.reply('WTF');
-					console.error(err);
-					return;
-				}
-				
-				if (!data || !data[0]) {
-					msg.channel.stopTyping();
-					msg.reply('No data was returned in query');
-					return;
-				}
+				if (handleExc(err, data)) return;
 				
 				let output = '```\n' + Util.AppendSpaces('Role', roleSpace) + Util.AppendSpaces('Old', roleSpace) + Util.AppendSpaces('New', roleSpace) + Util.AppendSpaces('Time', 30) + '\n';
 				
@@ -468,12 +449,12 @@ DBot.RegisterCommand({
 				} else {
 					let stream = fs.createWriteStream(path);
 					stream.write(output);
-					stream.end()
+					stream.end();
 					msg.reply(pathU);
 					msg.channel.stopTyping();
 				}
 			});
-		} else if (mode == 'position') {
+		} else if (mode === 'position') {
 			let funckingQuery = 'SELECT\
 				roles_changes_position."ID" AS "ENTRY",\
 				roles_changes_position."ROLEID",\
@@ -497,18 +478,7 @@ DBot.RegisterCommand({
 			LIMIT ' + limitStr;
 			
 			Postgres.query(funckingQuery, function(err, data) {
-				if (err) {
-					msg.channel.stopTyping();
-					msg.reply('WTF');
-					console.error(err);
-					return;
-				}
-				
-				if (!data || !data[0]) {
-					msg.channel.stopTyping();
-					msg.reply('No data was returned in query');
-					return;
-				}
+				if (handleExc(err, data)) return;
 				
 				let output = '```\n' + Util.AppendSpaces('Role', roleSpace) + Util.AppendSpaces('Old', roleSpace) + Util.AppendSpaces('New', roleSpace) + Util.AppendSpaces('Time', 30) + '\n';
 				
@@ -530,12 +500,12 @@ DBot.RegisterCommand({
 				} else {
 					let stream = fs.createWriteStream(path);
 					stream.write(output);
-					stream.end()
+					stream.end();
 					msg.reply(pathU);
 					msg.channel.stopTyping();
 				}
 			});
-		} else if (mode == 'mention') {
+		} else if (mode === 'mention') {
 			let funckingQuery = 'SELECT\
 				roles_changes_mention."ID" AS "ENTRY",\
 				roles_changes_mention."ROLEID",\
@@ -559,18 +529,7 @@ DBot.RegisterCommand({
 			LIMIT ' + limitStr;
 			
 			Postgres.query(funckingQuery, function(err, data) {
-				if (err) {
-					msg.channel.stopTyping();
-					msg.reply('WTF');
-					console.error(err);
-					return;
-				}
-				
-				if (!data || !data[0]) {
-					msg.channel.stopTyping();
-					msg.reply('No data was returned in query');
-					return;
-				}
+				if (handleExc(err, data)) return;
 				
 				let output = '```\n' + Util.AppendSpaces('Role', roleSpace) + Util.AppendSpaces('Old', roleSpace) + Util.AppendSpaces('New', roleSpace) + Util.AppendSpaces('Time', 30) + '\n';
 				
@@ -592,12 +551,12 @@ DBot.RegisterCommand({
 				} else {
 					let stream = fs.createWriteStream(path);
 					stream.write(output);
-					stream.end()
+					stream.end();
 					msg.reply(pathU);
 					msg.channel.stopTyping();
 				}
 			});
-		} else if (mode == 'color') {
+		} else if (mode === 'color') {
 			let funckingQuery = 'SELECT\
 				roles_changes_color."ID" AS "ENTRY",\
 				roles_changes_color."ROLEID",\
@@ -621,18 +580,7 @@ DBot.RegisterCommand({
 			LIMIT ' + limitStr;
 			
 			Postgres.query(funckingQuery, function(err, data) {
-				if (err) {
-					msg.channel.stopTyping();
-					msg.reply('WTF');
-					console.error(err);
-					return;
-				}
-				
-				if (!data || !data[0]) {
-					msg.channel.stopTyping();
-					msg.reply('No data was returned in query');
-					return;
-				}
+				if (handleExc(err, data)) return;
 				
 				let output = '```\n' + Util.AppendSpaces('Role', roleSpace) + Util.AppendSpaces('Old', 15) + Util.AppendSpaces('New', 15) + Util.AppendSpaces('Time', 30) + '\n';
 				
@@ -654,7 +602,7 @@ DBot.RegisterCommand({
 				} else {
 					let stream = fs.createWriteStream(path);
 					stream.write(output);
-					stream.end()
+					stream.end();
 					msg.reply(pathU);
 					msg.channel.stopTyping();
 				}

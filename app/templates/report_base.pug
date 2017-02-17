@@ -1,0 +1,11 @@
+
+extends layout
+
+block append header
+	link(rel='stylesheet', href='../report.css')
+
+block append contents
+	span#reportinfo
+		span#reportserver Server name: #{server}
+		span#reportuser Username: #{username}
+		span#reportdate Date of report: #{date}

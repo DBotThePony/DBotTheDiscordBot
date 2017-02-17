@@ -1,0 +1,24 @@
+
+extends report_base
+
+block append header
+	link(rel='stylesheet', href='../generic_roles.css')
+
+block append contents
+	table#perms
+		tr.tabheader
+			td.rolename Rolename
+			td.status Status
+			td.permission Permission code
+			td.date Date
+		each row in data
+			tr
+				td.rolename= row.name
+				if row.status
+					td.status_added.status ADDED
+				else
+					td.status_rm.status REMOVED
+				
+				td.permission.hintp= row.perm
+					span.permhelp.hint= row.perm_help
+				td.date= row.date

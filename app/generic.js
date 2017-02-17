@@ -52,6 +52,10 @@ DBot.Status = function(newStatus) {
 	DBot.bot.user.setGame(newStatus);
 };
 
+DBot.pugRender = function(path, data) {
+	return DBot.js.pug.renderFile('./app/templates/' + path, data);
+};
+
 DBot.IsMyMessage = function(msg) {
 	return msg.author.id === DBot.bot.user.id;
 };

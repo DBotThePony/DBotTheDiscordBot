@@ -47,3 +47,15 @@ span.pagename {
 	width: 700px;
 	text-align: left;
 }
+
+::selection {
+	text-shadow: none;
+	background: #def;
+	color: rgb(140, 140, 140);
+}
+
+::-moz-selection {
+	text-shadow: none;
+	background: #def;
+	color: rgb(140, 140, 140);
+}
