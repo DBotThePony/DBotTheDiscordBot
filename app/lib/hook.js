@@ -1,5 +1,5 @@
 
-/* global hook */
+/* global hook, DBot */
 
 hook = {};
 events = hook;
@@ -19,14 +19,14 @@ hook.Add = function(event, id, func) {
 		hook.Table[event] = {};
 	
 	hook.Table[event][id] = func;
-}
+};
 
 hook.Remove = function(event, id) {
 	if (!hook.Table[event])
 		return;
 	
 	hook.Table[event][id] = undefined;
-}
+};
 
 hook.Call = function(event, A, B, C, D, E, F, G) {
 	if (!hook.Table[event]) {
@@ -40,13 +40,13 @@ hook.Call = function(event, A, B, C, D, E, F, G) {
 		if (reply !== undefined)
 			return reply;
 	}
-}
+};
 
 hook.Run = hook.Call;
 
 hook.GetTable = function() {
 	return hook.Table;
-}
+};
 
 const botHooks = [
 	['guildCreate', 'OnJoinedServer'],
@@ -71,7 +71,7 @@ const botHooks = [
 	['channelUpdate', 'ChannelUpdates'],
 	['userUpdate', 'UserChanges'],
 	['typingStart', 'ChatStart'],
-	['typingStop', 'ChatFinish'],
+	['typingStop', 'ChatFinish']
 ];
 
 let REGISTERED_HOOKS = false;
@@ -89,55 +89,6 @@ hook.RegisterEvents = function() {
 	});
 };
 
-hook.Add('MemberChanges', 'events', function(oldM, newM) {
-	if (oldM.nickname !== newM.nickname)
-		hook.Run('MemberNicknameChanges', newM, oldM);
-});
-
-hook.Add('UserChanges', 'events', function(oldM, newM) {
-	if (oldM.nickname !== newM.nickname)
-		hook.Run('UserNicknameChanges', newM, oldM);
-});
-
-hook.Add('ClientJoinsServer', 'Default', function(client) {
-	if (client.user.id == DBot.client.id)
-		return;
-	
-	hook.Run('ValidClientJoinsServer', client.user, client.guild, client);
-	
-	if (client.user.bot) {
-		hook.Run('BotJoinsServer', client.user, client.guild, client);
-	} else {
-		hook.Run('HumanJoinsServer', client.user, client.guild, client);
-	}
-});
-
-hook.Add('ClientAvaliable', 'Default', function(client) {
-	if (client.user.id == DBot.client.id)
-		return;
-	
-	hook.Run('ValidClientAvaliable', client.user, client.guild, client);
-	
-	if (client.user.bot) {
-		hook.Run('BotAvaliable', client.user, client.guild, client);
-	} else {
-		hook.Run('HumanAvaliable', client.user, client.guild, client);
-	}
-});
-
-hook.Add('ClientLeftServer', 'Default', function(client) {
-	if (client.user.id == DBot.client.id)
-		return;
-	
-	hook.Run('ValidClientLeftServer', client.user, client.guild, client);
-	
-	if (client.user.bot) {
-		hook.Run('BotLeftServer', client.user, client.guild, client);
-	} else {
-		hook.Run('HumanLeftServer', client.user, client.guild, client);
-	}
-});
-
 const URL = require('url');
 let URLMessages = {};
 let URLMessagesImages = {};
@@ -146,17 +97,17 @@ let URLMessagesImages2 = {};
 DBot.LastURLInChannel = function(channel) {
 	let cid = channel.id;
 	return URLMessages[cid];
-}
+};
 
 DBot.LastURLImageInChannel = function(channel) {
 	let cid = channel.id;
 	return URLMessagesImages[cid];
-}
+};
 
 DBot.LastURLImageInChannel2 = function(channel) {
 	let cid = channel.id;
 	return URLMessagesImages2[cid];
-}
+};
 
 const imageExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd|webp)(\?|\/)?/i;
 const imageExtExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd|gif|webp)(\?|\/)?/i;
@@ -178,7 +129,7 @@ DBot.CheckURLImage = function(m) {
 		return true;
 	else
 		return false;
-}
+};
 
 DBot.CheckURLImage2 = function(m) {
 	if (!m)
@@ -195,7 +146,7 @@ DBot.CheckURLImage2 = function(m) {
 		return true;
 	else
 		return false;
-}
+};
 
 let messageParseFunc = function(msg) {
 	let cid = msg.channel.id;
@@ -231,7 +182,7 @@ let messageParseFunc = function(msg) {
 		
 		URLMessages[cid] = url;
 	}
-}
+};
 
 hook.Add('OnMessage', 'LastURLInChannel', messageParseFunc);
 
@@ -248,7 +199,7 @@ let usersCache = [];
 
 hook.Add('UserInitialized', 'UpdateUserVars', function(user) {
 	for (let u of usersCache)
-		if (u.id == user.id) return;
+		if (u.id === user.id) return;
 	
 	usersCache.push(user);
 });
@@ -261,7 +212,7 @@ let UpdateUserVars = function() {
 		return;
 	
 	let total = usersCache.length;
-	if (total == 0)
+	if (total === 0)
 		return;
 	
 	let timered = Math.floor(20000 / total);
@@ -306,10 +257,73 @@ let UpdateUserVars = function() {
 			hook.Run('UpdateMemberVars', Members[i]);
 		}, timeredMembers * i);
 	}
-}
+};
 
 setInterval(UpdateUserVars, 20000);
 
 hook.Add('BotOnline', 'UpdateUserVars', function() {
 	setTimeout(UpdateUserVars, 3000);
+});
+
+/* Custom Events */
+
+hook.Add('RoleChanged', 'events', function(oldRole, newRole) {
+	let diff = Array.MapDiff(newRole.members, oldRole.members);
+	
+	for (const member of diff[0]) {
+		hook.Run('MemberRoleAdded', member, newRole);
+	}
+	
+	for (const member of diff[1]) {
+		hook.Run('MemberRoleRemoved', member, newRole);
+	}
+});
+
+hook.Add('MemberChanges', 'events', function(oldM, newM) {
+	if (oldM.nickname !== newM.nickname)
+		hook.Run('MemberNicknameChanges', newM, oldM);
+});
+
+hook.Add('UserChanges', 'events', function(oldM, newM) {
+	if (oldM.nickname !== newM.nickname)
+		hook.Run('UserNicknameChanges', newM, oldM);
+});
+
+hook.Add('ClientJoinsServer', 'Default', function(client) {
+	if (client.user.id === DBot.client.id)
+		return;
+	
+	hook.Run('ValidClientJoinsServer', client.user, client.guild, client);
+	
+	if (client.user.bot) {
+		hook.Run('BotJoinsServer', client.user, client.guild, client);
+	} else {
+		hook.Run('HumanJoinsServer', client.user, client.guild, client);
+	}
+});
+
+hook.Add('ClientAvaliable', 'Default', function(client) {
+	if (client.user.id === DBot.client.id)
+		return;
+	
+	hook.Run('ValidClientAvaliable', client.user, client.guild, client);
+	
+	if (client.user.bot) {
+		hook.Run('BotAvaliable', client.user, client.guild, client);
+	} else {
+		hook.Run('HumanAvaliable', client.user, client.guild, client);
+	}
+});
+
+hook.Add('ClientLeftServer', 'Default', function(client) {
+	if (client.user.id === DBot.client.id)
+		return;
+	
+	hook.Run('ValidClientLeftServer', client.user, client.guild, client);
+	
+	if (client.user.bot) {
+		hook.Run('BotLeftServer', client.user, client.guild, client);
+	} else {
+		hook.Run('HumanLeftServer', client.user, client.guild, client);
+	}
 });
