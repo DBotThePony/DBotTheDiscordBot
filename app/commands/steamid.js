@@ -1,5 +1,5 @@
 
-/* global DBot */
+/* global DBot, Util, Postgres */
 
 if (!DBot.cfg.steam_enable) return;
 
@@ -24,7 +24,7 @@ let SteamIDTo64 = function(id) {
 	let three = new BigNumber(server);
 	
 	return one.plus(two).plus(three).toString(10);
-}
+};
 
 let SteamIDFrom64 = function(id) {
 	let newNum = new BigNumber(id);
@@ -34,7 +34,7 @@ let SteamIDFrom64 = function(id) {
 	num = num - server;
 	
 	return 'STEAM_0:' + server + ':' + (num / 2);
-}
+};
 
 let SteamIDTo3 = function(id) {
 	let server = 0;
@@ -46,7 +46,7 @@ let SteamIDTo3 = function(id) {
 	AuthID = Number.from(split[2]);
 	
 	return '[U:1:' + (AuthID * 2 + server) + ']';
-}
+};
 
 let SteamIDFrom3 = function(id) {
 	let sub = id.substr(1, id.length - 2);
@@ -60,7 +60,7 @@ let SteamIDFrom3 = function(id) {
 	uid = uid - server;
 	
 	return 'STEAM_0:' + server + ':' + (uid / 2);
-}
+};
 
 let manipulateRegExp = new RegExp('/', 'g');
 
@@ -73,7 +73,7 @@ module.exports = {
 	
 	func: function(args, cmd, msg) {
 		if (!args[0])
-			return 'Argument must be a valid SteamID, SteamID3, SteamID64 or Custom profile URL' + Util.HighlightHelp(['steamid'], 2, args);
+			return DBot.CommandError('Argument must be a valid SteamID, SteamID3, SteamID64 or Custom profile URL','steamid', args, 1);
 		
 		let toManipulate = args[0];
 		toManipulate = toManipulate
@@ -102,7 +102,7 @@ module.exports = {
 			output += 'Player Profile URL: https://steamcommunity.com/id/' + CustomProfileURL + '\n';
 			
 			msg.reply(output);
-		}
+		};
 		
 		let getFunc = function(id) {
 			Postgres.query('SELECT * FROM steamid_fail WHERE "STEAMID64" = ' + Postgres.escape(id) + '', function(err, data2) {
@@ -115,7 +115,7 @@ module.exports = {
 				if (data2[0]) {
 					msg.channel.stopTyping();
 					msg.reply('No such Steam account: ' + id);
-					return
+					return;
 				}
 				
 				Postgres.query('SELECT * FROM steamid WHERE "STEAMID64" = ' + Postgres.escape(id) + '', function(err, data) {
@@ -161,13 +161,13 @@ module.exports = {
 					}
 				});
 			});
-		}
+		};
 		
-		if (toManipulate.substr(0, 2) == '[U') {
+		if (toManipulate.substr(0, 2) === '[U') {
 			// assume this is SteamID3
-			let steamid = SteamIDFrom3(toManipulate);
+			let steamid = SteamIDTo64(SteamIDFrom3(toManipulate));
 			getFunc(steamid);
-		} else if (toManipulate.substr(0, 7) == 'STEAM_0') {
+		} else if (toManipulate.substr(0, 7) === 'STEAM_0') {
 			// assume this is SteamID
 			let steamid = SteamIDTo64(toManipulate);
 			getFunc(steamid);
@@ -181,7 +181,7 @@ module.exports = {
 				if (data2[0]) {
 					msg.channel.stopTyping();
 					msg.reply('No such Steam account: ' + toManipulate);
-					return
+					return;
 				}
 				
 				Postgres.query('SELECT * FROM steamid WHERE "CUSTOMID" = ' + Postgres.escape(toManipulate), function(err, data) {
@@ -196,7 +196,7 @@ module.exports = {
 						.end(function(result) {
 							let res = result.body;
 							
-							if (!res.response || res.response.success == 42) {
+							if (!res.response || res.response.success === 42) {
 								Postgres.query('INSERT INTO steamid_fail ("CUSTOMID") VALUES (' + Postgres.escape(toManipulate) + ')');
 								msg.reply('No such Steam account: ' + toManipulate);
 								msg.channel.stopTyping();
