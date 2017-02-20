@@ -1,4 +1,6 @@
 
+/* global Postgres, hook, DBot */
+
 const toGet = 'https://api.imgflip.com/get_memes';
 const unirest = DBot.js.unirest;
 const fs = DBot.js.fs;
@@ -27,7 +29,7 @@ let UpdateMemes = function() {
 			Postgres.query('INSERT INTO meme_cache ("ID", "URL", "NAME") VALUES (' + Postgres.escape(val.id) + ', ' + Postgres.escape(val.url) + ', ' + Postgres.escape(val.name) + ') ON CONFLICT ("ID") DO UPDATE SET "URL" = ' + Postgres.escape(val.url) + ', "NAME" = ' + Postgres.escape(val.name));
 		}
 	});
-}
+};
 
 hook.Add('BotOnline', 'UpdateMemes', function() {
 	if (INITIALIZED)
@@ -56,4 +58,4 @@ module.exports = {
 			msg.reply('\n' + meme.NAME + '\n' + meme.URL);
 		});
 	}
-}
+};

@@ -1,11 +1,11 @@
 
 /* global Postgres, DBot, hook */
 
-DBot.commBanCache = {};
-let cache = DBot.commBanCache;
-cache.server = {};
-cache.channel = {};
-cache.member = {};
+DBot.commBanCache = DBot.commBanCache || {};
+const cache = DBot.commBanCache;
+cache.server = cache.server || {};
+cache.channel = cache.channel || {};
+cache.member = cache.member || {};
 
 DBot.DisallowCommandManipulate = [
 	'invite', 'cban', 'ucban',
@@ -54,7 +54,7 @@ class CommandBanClass {
 	
 	removeCommand(command) {
 		for (let i in this.bans) {
-			if (this.bans[i] == command) {
+			if (this.bans[i] === command) {
 				this.bans.splice(i, 1);
 				this.onUnBanned(command);
 				return true;
@@ -128,7 +128,7 @@ DBot.ServerCBans = function(server) {
 	cache.server[server.uid] = new CommandBanClass(server, 'server', DBot.GetServerID);
 	cache.server[server.uid].fetch();
 	return cache.server[server.uid];
-}
+};
 
 DBot.ChannelCBans = function(channel) {
 	if (cache.channel[channel.uid])
@@ -137,7 +137,7 @@ DBot.ChannelCBans = function(channel) {
 	cache.channel[channel.uid] = new CommandBanClass(channel, 'channel', DBot.GetChannelID);
 	cache.channel[channel.uid].fetch();
 	return cache.channel[channel.uid];
-}
+};
 
 DBot.MemberCBans = function(member) {
 	if (cache.member[member.uid])
@@ -146,7 +146,7 @@ DBot.MemberCBans = function(member) {
 	cache.member[member.uid] = new CommandBanClass(member, 'member', DBot.GetMemberID);
 	cache.member[member.uid].fetch();
 	return cache.member[member.uid];
-}
+};
 
 hook.Add('PreDeleteChannel', 'ChannelBans', function(obj) {
 	cache.channel[obj.uid] = undefined;
@@ -219,7 +219,7 @@ let addMethods = function(obj) {
 		this.totalMute = false;
 		
 		Postgres.query('DELETE FROM command_banned_member WHERE "UID" = ' + this.uid);
-	}
+	};
 	
 	obj.muteBot = function() {
 		if (this.totalMute)
@@ -229,7 +229,7 @@ let addMethods = function(obj) {
 		
 		Postgres.query('INSERT INTO command_banned_member VALUES (' + this.uid + ')');
 		return true;
-	}
+	};
 	
 	obj.checkBotMute = function(channel) {
 		if (this.totalMute)
@@ -239,14 +239,14 @@ let addMethods = function(obj) {
 			return true;
 		
 		return false;
-	}
+	};
 	
 	obj.unMuteChannel = function(channel) {
 		let uid = DBot.GetChannelID(channel);
 		let hit = false;
 		
 		for (let i in this.channelBans) {
-			if (this.channelBans[i] == uid) {
+			if (this.channelBans[i] === uid) {
 				this.channelBans = this.channelBans.splice(i, 1);
 				hit = true;
 				break;
@@ -259,7 +259,7 @@ let addMethods = function(obj) {
 		Postgres.query('DELETE FROM command_banned_cmember WHERE "UID" = ' + this.uid + ' AND "CHANNEL" = ' + DBot.GetChannelID(channel));
 		
 		return true;
-	}
+	};
 	
 	obj.muteChannel = function(channel) {
 		let uid = DBot.GetChannelID(channel);
@@ -271,10 +271,10 @@ let addMethods = function(obj) {
 		this.channelBans.push(uid);
 		
 		return true;
-	}
+	};
 	
 	return obj;
-}
+};
 
 hook.Add('MembersFetched', 'MemberCommandBans', function(members, server, oldHashMap, collection) {
 	for (const member of members) {

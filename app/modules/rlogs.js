@@ -9,16 +9,15 @@ const pug = DBot.js.pug;
 Util.mkdir(DBot.WebRoot + '/rlogs');
 
 let updating = {};
-let INIT = false;
 
 hook.Add('MemberRoleAdded', 'RoleLogs', function(member, role) {
-	if (!INIT) return;
+	if (!DBot.IsReady()) return;
 	Postgres.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (' + sql.Member(member) + ', ' + sql.Role(role) + ', true, ' + Postgres.escape(Math.floor(CurTime())) + ')');
 	Postgres.query('INSERT INTO member_roles VALUES (' + sql.Member(member) + ', ' + sql.Role(role) + ') ON CONFLICT DO NOTHING');
 });
 
 hook.Add('MemberRoleRemoved', 'RoleLogs', function(member, role) {
-	if (!INIT) return;
+	if (!DBot.IsReady()) return;
 	Postgres.query('INSERT INTO roles_log ("MEMBER", "ROLE", "TYPE", "STAMP") VALUES (' + sql.Member(member) + ', ' + sql.Role(role) + ', true, ' + Postgres.escape(Math.floor(CurTime())) + ')');
 	Postgres.query('INSERT INTO member_roles VALUES (' + sql.Member(member) + ', ' + sql.Role(role) + ') ON CONFLICT DO NOTHING');
 });
@@ -28,8 +27,6 @@ hook.Add('UpdateLoadingLevel', 'RoleLogs', function(callFunc) {
 });
 
 hook.Add('RolesInitialized', 'RoleLogs', function(roleCollection) {
-	INIT = true;
-	
 	let q = 'SELECT\
 		"member_roles"."ROLE",\
 		array_to_string(array_agg("member_roles"."MEMBER"), \',\') AS "MEMBER",\

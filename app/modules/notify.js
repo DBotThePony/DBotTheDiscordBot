@@ -1,4 +1,6 @@
 
+/* global cvars, FCVAR_BOOLONLY, hook, DBot */
+
 cvars.ServerVar('notifications', '0', [FCVAR_BOOLONLY], 'Notifications main power switch');
 
 cvars.ServerVar('notify_jl', 'false', [FCVAR_BOOLONLY], 'Enable join/leave notifications');

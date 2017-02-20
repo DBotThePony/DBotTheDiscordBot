@@ -746,8 +746,6 @@ DBot.RegisterCommand({
 	}
 });
 
-let INIT = false;
-
 hook.Add('PreOnValidMessage', 'ModerationCommands', function(msg) {
 	if (DBot.IsPM(msg))
 		return;
@@ -860,7 +858,7 @@ hook.Add('ValidClientAvaliable', 'ModerationCommands', function(user, server, me
 });
 
 hook.Add('MemberInitialized', 'ModerationCommands', function(member, uid, isCascade) {
-	if (!INIT || isCascade) return;
+	if (!DBot.IsReady() || isCascade) return;
 	
 	member.offs = [];
 	

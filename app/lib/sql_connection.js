@@ -213,6 +213,9 @@ mainConnection.connect(function(err) {
 	
 	mainConnection.query(sqlPg, function(err) {
 		if (err) throw err;
+		
+		if (DBot.SQL_FILE_LOADED) return;
+		DBot.SQL_FILE_LOADED = true;
 
 		let db_rev = 0;
 		let last_rev = DBot.js.filesystem.readdirSync('./app/dbrevisions/').length;

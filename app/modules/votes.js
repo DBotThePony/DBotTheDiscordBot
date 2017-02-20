@@ -1,4 +1,6 @@
 
+/* global DBot, Util */
+
 const utf8 = require('utf8');
 
 DBot.RegisterCommand({

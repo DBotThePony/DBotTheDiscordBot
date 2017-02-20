@@ -1,5 +1,5 @@
 
-/* global Util, DBot, hook, Postgres */
+/* global Util, DBot, hook, Postgres, IMagick */
 
 const fs = DBot.js.fs;
 const child_process = DBot.js.child_process;
@@ -12,11 +12,11 @@ Util.mkdir(DBot.WebRoot + '/imtmp', function() {
 
 Util.mkdir(DBot.WebRoot + '/textdraw');
 
-IMagick = {};
-Imagick = IMagick;
-ImageMagick = IMagick;
-ImageMagic = IMagick;
-ImageMagik = IMagick;
+global.IMagick = global.IMagick || {};
+global.Imagick = IMagick;
+global.ImageMagick = IMagick;
+global.ImageMagic = IMagick;
+global.ImageMagik = IMagick;
 
 const Match = /Font: ([^\r\n]+)/;
 const MatchGlobal = /Font: ([^\r\n]+)/gi;

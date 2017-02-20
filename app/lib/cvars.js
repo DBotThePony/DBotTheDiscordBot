@@ -1,31 +1,33 @@
 
+/* global cvars, FCVAR_PRINTABLEONLY, FCVAR_PROTECTED, FCVAR_CHANNELONLY, FCVAR_NUMERSONLY, FCVAR_SERVERONLY, FCVAR_BOOLONLY, FCVAR_USERONLY, FCVAR_NUMERSONLY_INT, FCVAR_NUMERSONLY_UINT, FCVAR_ONECHAR_ONLY, FCVAR_NOTNULL, FCVAR_ROLE, FCVAR_ROLE_NOT_INTIALIZED, FCVAR_ERROR_TOOLONG, DBot, Postgres, Util, hook */
+
 // Users can't grab convar value
 // Always printed in PM
-FCVAR_PROTECTED 			= 1;
-FCVAR_PRIVATE	 			= 1;
-FCVAR_PRINTABLEONLY 		= 2;
-FCVAR_PRINTABLE		 		= 2;
-FCVAR_NUMERSONLY 			= 3;
-FCVAR_NUMERS	 			= 3;
-FCVAR_CHANNELONLY			= 4;
-FCVAR_CHANNEL				= 4;
-FCVAR_USERONLY 				= 5;
-FCVAR_USER	 				= 5;
-FCVAR_SERVERONLY 			= 6; // No use?
-FCVAR_BOOLONLY 				= 7;
-FCVAR_BOOL	 				= 7;
-FCVAR_NUMERSONLY_INT 		= 8;
-FCVAR_NUMERS_INT 			= 8;
-FCVAR_NUMERSONLY_UINT 		= 9;
-FCVAR_NUMERS_UINT 			= 9;
-FCVAR_ONECHAR_ONLY 			= 10;
-FCVAR_ONECHAR	 			= 10;
-FCVAR_NOTNULL 				= 11;
-FCVAR_ROLE	 				= 12;
-FCVAR_ERROR_TOOLONG 		= 255;
-FCVAR_ROLE_NOT_INTIALIZED	= 256;
+global.FCVAR_PROTECTED 			= 1;
+global.FCVAR_PRIVATE	 			= 1;
+global.FCVAR_PRINTABLEONLY 		= 2;
+global.FCVAR_PRINTABLE		 		= 2;
+global.FCVAR_NUMERSONLY 			= 3;
+global.FCVAR_NUMERS	 			= 3;
+global.FCVAR_CHANNELONLY			= 4;
+global.FCVAR_CHANNEL				= 4;
+global.FCVAR_USERONLY 				= 5;
+global.FCVAR_USER	 				= 5;
+global.FCVAR_SERVERONLY 			= 6; // No use?
+global.FCVAR_BOOLONLY 				= 7;
+global.FCVAR_BOOL	 				= 7;
+global.FCVAR_NUMERSONLY_INT 		= 8;
+global.FCVAR_NUMERS_INT 			= 8;
+global.FCVAR_NUMERSONLY_UINT 		= 9;
+global.FCVAR_NUMERS_UINT 			= 9;
+global.FCVAR_ONECHAR_ONLY 			= 10;
+global.FCVAR_ONECHAR	 			= 10;
+global.FCVAR_NOTNULL 				= 11;
+global.FCVAR_ROLE	 				= 12;
+global.FCVAR_ERROR_TOOLONG 		= 255;
+global.FCVAR_ROLE_NOT_INTIALIZED	= 256;
 
-cvars = {};
+global.cvars = global.cvars || {};
 
 cvars.Strings = [];
 cvars.Strings[FCVAR_PROTECTED] = 'FCVAR_PROTECTED';
@@ -110,7 +112,7 @@ class ConVar {
 	
 	haveFlag(flag) {
 		for (let flagZ of this.flags) {
-			if (flagZ == flag)
+			if (flagZ === flag)
 				return true;
 		}
 		
@@ -136,23 +138,23 @@ class ConVar {
 	}
 	
 	setValue(val, msg) {
-		if (typeof val != 'string')
+		if (typeof val !== 'string')
 			throw new TypeError('Value must be a string');
 		
 		if (val.length > 200)
 			return [false, FCVAR_ERROR_TOOLONG];
 		
 		for (let flag of this.flags) {
-			if (flag == FCVAR_PRINTABLEONLY) {
+			if (flag === FCVAR_PRINTABLEONLY) {
 				if (!val.match(/^([a-zA-Zа-яА-Я0-9]+)$/))
 					return [false, FCVAR_PRINTABLEONLY];
-			} else if (flag == FCVAR_NUMERSONLY) {
+			} else if (flag === FCVAR_NUMERSONLY) {
 				if (!val.match(/^([0-9]+)$/))
 					return [false, FCVAR_NUMERSONLY];
 				
 				if (!Number.from(val))
 					return [false, FCVAR_NUMERSONLY];
-			} else if (flag == FCVAR_NUMERSONLY_INT) {
+			} else if (flag === FCVAR_NUMERSONLY_INT) {
 				if (!val.match(/^([0-9]+)$/))
 					return [false, FCVAR_NUMERSONLY_INT];
 				
@@ -160,7 +162,7 @@ class ConVar {
 					return [false, FCVAR_NUMERSONLY_INT];
 				
 				val = String(Math.floor(Number.from(val)));
-			} else if (flag == FCVAR_NUMERSONLY_UINT) {
+			} else if (flag === FCVAR_NUMERSONLY_UINT) {
 				if (!val.match(/^([0-9]+)$/))
 					return [false, FCVAR_NUMERSONLY_UINT];
 				
@@ -169,8 +171,8 @@ class ConVar {
 					return [false, FCVAR_NUMERSONLY_UINT];
 				
 				val = String(Math.floor(num));
-			} else if (flag == FCVAR_CHANNELONLY) {
-				if (val == '')
+			} else if (flag === FCVAR_CHANNELONLY) {
+				if (val === '')
 					continue;
 				
 				let channelID2 = Number.from(val);
@@ -193,17 +195,17 @@ class ConVar {
 					return [false, FCVAR_CHANNELONLY];
 				
 				val = DBot.GetChannelID(find);
-			} else if (flag == FCVAR_BOOLONLY) {
-				if (val != '1' && val != '0' && val != 'true' && val != 'false')
+			} else if (flag === FCVAR_BOOLONLY) {
+				if (val !== '1' && val !== '0' && val !== 'true' && val !== 'false')
 					return [false, FCVAR_BOOLONLY];
-			} else if (flag == FCVAR_ONECHAR_ONLY) {
-				if (val.length != 1)
+			} else if (flag === FCVAR_ONECHAR_ONLY) {
+				if (val.length !== 1)
 					return [false, FCVAR_ONECHAR_ONLY];
-			} else if (flag == FCVAR_NOTNULL) {
-				if (val.length == 0)
+			} else if (flag === FCVAR_NOTNULL) {
+				if (val.length === 0)
 					return [false, FCVAR_NOTNULL];
-			} else if (flag == FCVAR_USERONLY) {
-				if (val == '')
+			} else if (flag === FCVAR_USERONLY) {
+				if (val === '')
 					continue;
 				
 				let user2 = Number.from(val);
@@ -213,7 +215,7 @@ class ConVar {
 					let users = DBot.client.users.array();
 					
 					for (let k in users) {
-						if (users[k].id == user2) {
+						if (users[k].id === user2) {
 							find = users[k];
 							break;
 						}
@@ -235,15 +237,15 @@ class ConVar {
 					return [false, FCVAR_USERONLY];
 				
 				val = DBot.GetUserID(find);
-			} else if (flag == FCVAR_ROLE) {
-				if (val == '')
+			} else if (flag === FCVAR_ROLE) {
+				if (val === '')
 					continue;
 				
 				let role;
 				let find = val.toLowerCase();
 				
 				for (let rl of msg.channel.guild.roles.array()) {
-					if (rl.name.toLowerCase() == find) {
+					if (rl.name.toLowerCase() === find) {
 						role = rl;
 						break;
 					}
@@ -290,23 +292,23 @@ class ConVar {
 	
 	getFormatedString() {
 		for (let flag of this.flags) {
-			if (flag == FCVAR_BOOLONLY) {
+			if (flag === FCVAR_BOOLONLY) {
 				return this.getBool() && 'true' || 'false';
-			} else if (flag == FCVAR_CHANNELONLY) {
+			} else if (flag === FCVAR_CHANNELONLY) {
 				let find = this.getChannel();
 				
 				if (!find)
 					return 'INVALID CHANNEL';
 				else
 					return '#' + find.name;
-			} else if (flag == FCVAR_USERONLY) {
+			} else if (flag === FCVAR_USERONLY) {
 				let find = this.getUser();
 				
 				if (!find)
 					return 'INVALID USER';
 				else
 					return '@' + find.username;
-			} else if (flag == FCVAR_ROLE) {
+			} else if (flag === FCVAR_ROLE) {
 				let find = this.getRole();
 				
 				if (!find)
@@ -333,7 +335,7 @@ class ConVar {
 		let output = '';
 		let concatFlags = this.joinFlags();
 		
-		output += ' "' + this.name + '" = "' + this.getFormatedString() + '"' + (this.value != this.defValue && ' (default "' + this.defValue + '")' || '');
+		output += ' "' + this.name + '" = "' + this.getFormatedString() + '"' + (this.value !== this.defValue && ' (default "' + this.defValue + '")' || '');
 		output += '\n  ' + concatFlags;
 		output += '\n    --- ' + this.desc;
 		
@@ -351,7 +353,7 @@ class ConVar {
 	}
 	
 	getBool() {
-		if (this.value == '' || this.value == '0' || this.value == 'false' || this.value == 'lie')
+		if (this.value === '' || this.value === '0' || this.value === 'false' || this.value === 'lie')
 			return false;
 		
 		let num = Number.from(this.value);
@@ -363,14 +365,14 @@ class ConVar {
 	}
 	
 	getChannel() {
-		if (this.value == '')
+		if (this.value === '')
 			return false;
 		
 		return DBot.GetChannel(this.value);
 	}
 	
 	getUser() {
-		if (this.value == '')
+		if (this.value === '')
 			return false;
 		
 		return DBot.GetUser(this.value);
@@ -393,7 +395,7 @@ class ConVar {
 		let findRole = null;
 		
 		for (let role of srv.roles.array()) {
-			if (role.uid == this.value) {
+			if (role.uid === this.value) {
 				findRole = role;
 				break;
 			}
@@ -877,7 +879,7 @@ cvars.Server = function(server) {
 	}
 	
 	return cvars.SERVERS[DBot.GetServerID(server)];
-}
+};
 
 cvars.Channel = function(channel) {
 	if (!cvars.CHANNELS[DBot.GetChannelID(channel)] && DBot.SQLReady()) {
@@ -886,7 +888,7 @@ cvars.Channel = function(channel) {
 	}
 	
 	return cvars.CHANNELS[DBot.GetChannelID(channel)];
-}
+};
 
 cvars.Client = function(user) {
 	if (!cvars.SERVERS[DBot.GetChannelID(user)] && DBot.SQLReady()) {
@@ -895,7 +897,7 @@ cvars.Client = function(user) {
 	}
 	
 	return cvars.CLIENTS[DBot.GetUserID(user)];
-}
+};
 
 cvars.User = cvars.Client;
 
@@ -909,11 +911,11 @@ cvars.ServerVar = function(cvar, defaultValue, flags, description) {
 		val: String(defaultValue),
 		idFunc: DBot.GetServerID,
 		realm: 'server',
-		id: cvar,
-	}
+		id: cvar
+	};
 	
 	return cvars.CONVARS_SERVER[cvar];
-}
+};
 
 cvars.ClientVar = function(cvar, defaultValue, flags, description) {
 	flags = flags || [];
@@ -925,11 +927,11 @@ cvars.ClientVar = function(cvar, defaultValue, flags, description) {
 		val: String(defaultValue),
 		idFunc: DBot.GetClientID,
 		realm: 'client',
-		id: cvar,
-	}
+		id: cvar
+	};
 	
 	return cvars.CONVARS_USER[cvar];
-}
+};
 
 cvars.ChannelVar = function(cvar, defaultValue, flags, description) {
 	flags = flags || [];
@@ -941,9 +943,9 @@ cvars.ChannelVar = function(cvar, defaultValue, flags, description) {
 		val: String(defaultValue),
 		idFunc: DBot.GetChannelID,
 		realm: 'channel',
-		id: cvar,
-	}
+		id: cvar
+	};
 	
 	return cvars.CONVARS_CHANNEL[cvar];
-}
+};
 

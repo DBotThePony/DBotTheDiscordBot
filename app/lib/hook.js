@@ -1,8 +1,8 @@
 
 /* global hook, DBot */
 
-hook = {};
-events = hook;
+global.hook = global.hook || {};
+global.events = hook;
 hook.Table = {};
 
 hook.Add = function(event, id, func) {

@@ -3,26 +3,31 @@
 
 const fs = DBot.js.fs;
 
-sql = {};
+global.sql = global.sql || {};
 DBot.sql = sql;
-DBot.ChannelIDs = {};
-DBot.ServersIDs = {};
-DBot.UsersIDs = {};
-DBot.MemberIDs = {};
+DBot.ChannelIDs = DBot.ChannelIDs || {};
+DBot.ServersIDs = DBot.ServersIDs || {};
+DBot.UsersIDs = DBot.UsersIDs || {};
+DBot.MemberIDs = DBot.MemberIDs || {};
 
-DBot.ChannelIDs_R = {};
-DBot.ServersIDs_R = {};
-DBot.UsersIDs_R = {};
-DBot.MemberIDs_R = {};
+DBot.ChannelIDs_R = DBot.ChannelIDs_R || {};
+DBot.ServersIDs_R = DBot.ServersIDs_R || {};
+DBot.UsersIDs_R = DBot.UsersIDs_R || {};
+DBot.MemberIDs_R = DBot.MemberIDs_R || {};
 
 require('./sql_connection.js');
 require('./sql_functions.js');
 require('./sql_classes.js');
 require('./sql_helpers.js');
 
-DBot.LOADING_LEVEL = 0;
-DBot.SQL_START = false;
-DBot.maximalLoadingValue = 0;
+if (DBot.SQL_START === undefined)
+	DBot.SQL_START = 0;
+
+if (DBot.SQL_START === undefined)
+	DBot.SQL_START = false;
+
+if (DBot.maximalLoadingValue === undefined)
+	DBot.maximalLoadingValue = 0;
 
 DBot.SQLReady = function() {
 	return DBot.LOADING_LEVEL <= 0 && DBot.SQL_START;

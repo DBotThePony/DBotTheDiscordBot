@@ -1,5 +1,5 @@
 
-/* global cvars, hook, DBot, Postgres */
+/* global cvars, hook, DBot, Postgres, FCVAR_BOOLONLY, Util, sql */
 
 const moment = require('moment');
 const utf8 = require('utf8');
@@ -85,13 +85,7 @@ hook.Add('MemberInitialized', 'MemberNameLogs', function(member, uid, isCascade)
 	if (!DBot.SQLReady() || isCascade) return;
 	
 	let name = Postgres.escape(member.nickname || member.user.username);
-	Postgres.query('UPDATE members SET "NAME" = ' + name + ' WHERE "ID" = ' + member.uid, function(err) {
-		if (!err)
-			return;
-		
-		console.error('Failed to save nickname for user ' + id + ' (' + user.username + ')!');
-		console.error(err);
-	});
+	Postgres.query('UPDATE members SET "NAME" = ' + name + ' WHERE "ID" = ' + member.uid, console.errHandler);
 });
 
 hook.Add('MembersFetched', 'MemberNameLogs', function(members, server, oldHashMap, collection) {
@@ -195,7 +189,7 @@ DBot.RegisterCommand({
 		if (DBot.IsPM(msg))
 			return 'Onoh! It is PM ;n;';
 		
-		if (typeof args[0] == 'object') {
+		if (typeof args[0] === 'object') {
 			let member = msg.channel.guild.member(args[0]);
 			if (!member)
 				return DBot.CommandError('Must be valid user', 'namelog', args, 1);
@@ -264,7 +258,7 @@ DBot.RegisterCommand({
 				let output = '\n```\n';
 				
 				for (let row of data) {
-					output += row.OLD + '  --->   ' + row.NEW + '   (' + moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ', ' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)\n'
+					output += row.OLD + '  --->   ' + row.NEW + '   (' + moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ', ' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)\n';
 				}
 				
 				msg.channel.stopTyping();
@@ -286,7 +280,7 @@ DBot.RegisterCommand({
 		if (DBot.IsPM(msg))
 			return 'Onoh! It is PM ;n;';
 		
-		if (typeof args[0] == 'object') {
+		if (typeof args[0] === 'object') {
 			let member = msg.channel.guild.member(args[0]);
 			if (!member)
 				return DBot.CommandError('Must be valid user', 'namelog', args, 1);
@@ -310,7 +304,7 @@ DBot.RegisterCommand({
 				let pth = '/namelog/' + String.hash(CurTime()) + '.txt';
 				let stream = fs.createWriteStream(DBot.WebRoot + pth);
 				
-				stream.write('\n' + Util.AppendSpaces('Nickname', 40) + Util.AppendSpaces('Total time in use', 40) + Util.AppendSpaces('Last use', 30) + '\n')
+				stream.write('\n' + Util.AppendSpaces('Nickname', 40) + Util.AppendSpaces('Total time in use', 40) + Util.AppendSpaces('Last use', 30) + '\n');
 				
 				for (let row of data) {
 					let date = moment.unix(row.LASTUSE);
@@ -387,7 +381,7 @@ DBot.RegisterCommand({
 	argNeeded: true,
 	
 	func: function(args, cmd, msg) {
-		if (typeof args[0] != 'object')
+		if (typeof args[0] !== 'object')
 			return 'Must be an user ;n;';
 		
 		msg.channel.startTyping();

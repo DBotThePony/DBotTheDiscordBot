@@ -1,14 +1,14 @@
 
+/* global Util, DBot, hook, Postgres */
+
 Util.SafeCopy('./node_modules/moment/moment.js', DBot.WebRoot + '/moment.js');
 Util.SafeCopy('./node_modules/numeral/numeral.js', DBot.WebRoot + '/numeral.js');
 Util.SafeCopy('./resource/files/jquery-3.0.0.min.js', DBot.WebRoot + '/jquery-3.0.0.min.js');
 Util.mkdir(DBot.WebRoot + '/countdown');
 
-let INIT = false;
 let NOTIFY = {};
 
 hook.Add('BotOnline', 'Timers', function() {
-	INIT = true;
 	Postgres.query('SELECT "ID", "STAMP" FROM timers_ids WHERE "NOTIFY" = false', function(err, data) {
 		for (let row of data) {
 			NOTIFY[row.ID] = row.STAMP;
@@ -17,7 +17,7 @@ hook.Add('BotOnline', 'Timers', function() {
 });
 
 setInterval(function() {
-	if (!INIT)
+	if (!DBot.IsReady())
 		return;
 	
 	let curr = CurTime();
@@ -165,18 +165,18 @@ module.exports = {
 			let seconds = time.match(/[0-9]+(s|seconds)/);
 			
 			if (hours) {
-				parsed += Numer.fromWeak(hours[0]) * 3600;
+				parsed += Number.fromWeak(hours[0]) * 3600;
 			}
 			
 			if (minutes) {
-				parsed += Numer.fromWeak(minutes[0]) * 60;
+				parsed += Number.fromWeak(minutes[0]) * 60;
 			}
 			
 			if (seconds) {
-				parsed += Numer.fromWeak(seconds[0]);
+				parsed += Number.fromWeak(seconds[0]);
 			}
 			
-			if (parsed == 0) {
+			if (parsed === 0) {
 				let M;
 				
 				try {
@@ -248,7 +248,7 @@ module.exports = {
 			}
 		});
 	}
-}
+};
 
 DBot.RegisterCommand({
 	name: 'timerlist',
@@ -264,7 +264,7 @@ DBot.RegisterCommand({
 			let timerz = [];
 			
 			let continueFunc = function() {
-				if (timerz.length == 0) {
+				if (timerz.length === 0) {
 					msg.reply('None timers found.');
 					return;
 				}
@@ -277,7 +277,7 @@ DBot.RegisterCommand({
 				
 				output += '```';
 				msg.reply(output);
-			}
+			};
 			
 			let count = 0;
 			
@@ -291,7 +291,7 @@ DBot.RegisterCommand({
 					if (data && data[0])
 						timerz.push(data[0]);
 					
-					if (count == 0)
+					if (count === 0)
 						continueFunc();
 				});
 			}

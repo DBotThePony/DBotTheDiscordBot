@@ -1,5 +1,5 @@
 
-/* global hook */
+/* global hook, DBot */
 
 sprintf = require('sprintf-js').sprintf;
 
@@ -30,7 +30,7 @@ stdin.addListener('data', function(data) {
 	}
 });
 
-DBot = {};
+global.DBot = global.DBot || {};
 
 try {
 	DBot.cfg = require('./config.js');
@@ -63,7 +63,7 @@ DBot.js.os = require('os');
 DBot.js.Discord = Discord;
 DBot.js.sprintf = sprintf;
 
-MathHelper = require('./app/lib/mathhelper.js');
+global.MathHelper = require('./app/lib/mathhelper.js');
 require('./app/lib/extensions/array.js');
 require('./app/lib/extensions/number.js');
 require('./app/lib/extensions/string.js');

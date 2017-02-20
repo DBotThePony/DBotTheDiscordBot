@@ -35,13 +35,10 @@ setInterval(function() {
 	Postgres.query(finalQuery);
 }, 5000);
 
-let INIT_BOT = false;
-let INIT = false;
-
 hook.Add('UserInitialized', 'LastSeen', function(user) {
 	usersCache.push(user);
 	
-	if (!INIT)
+	if (!DBot.IsReady())
 		return;
 	
 	Postgres.query('INSERT INTO uptime ("ID") VALUES (' + user.uid + ') ON CONFLICT ("ID") DO NOTHING', function(err, data) {
@@ -58,8 +55,6 @@ hook.Add('UpdateLoadingLevel', 'LastSeen', function(callFunc) {
 });
 
 hook.Add('UsersInitialized', 'LastSeen', function() {
-	INIT = true;
-	
 	let users = DBot.GetUsers();
 	
 	let updateStr;
