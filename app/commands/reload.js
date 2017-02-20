@@ -7,6 +7,7 @@ const filesToReload = [
 	'../lib/sql_helpers.js',
 	'../lib/imagick.js',
 	'../lib/confirm.js',
+	'../lib/util.js',
 	'../commands.js'
 ];
 

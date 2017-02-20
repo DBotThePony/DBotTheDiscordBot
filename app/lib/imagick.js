@@ -27,11 +27,11 @@ const CharsExp = new RegExp('(' + CharsExprStr + ')', 'g');
 const CharsExp2 = new RegExp('(' + CharsExprStr + '|\n)', 'g');
 const fontSizes = [14, 24, 28, 48, 56, 72, 100];
 
-IMagick.AvaliableFonts = [];
-IMagick.PrecacheFonts = [];
-IMagick.PrecacheFontsData = {};
-IMagick.PrecacheFontsDataHeight = {};
-IMagick.FontIDs = {};
+IMagick.AvaliableFonts = IMagick.AvaliableFonts || [];
+IMagick.PrecacheFonts = IMagick.PrecacheFonts || [];
+IMagick.PrecacheFontsData = IMagick.PrecacheFontsData || {};
+IMagick.PrecacheFontsDataHeight = IMagick.PrecacheFontsDataHeight || {};
+IMagick.FontIDs = IMagick.FontIDs || {};
 
 let SQLInit = false;
 let FontsInit = false;
@@ -482,23 +482,33 @@ IMagick.DrawText = function(data, callback) {
 					'-fill', 'black'
 				];
 				
-				let buildDraw = '';
-				
 				magikArgs.push('-draw');
 				
 				const height = IMagick.GetFontHeight(font, rFontSize);
+				let currentBuild = '';
 				
-				for (let i in splitLines) {
-					let line = splitLines[i];
-					
-					buildDraw += ' text 0,' + (i * height) + ' "' + line.replace(/"/g, '\\"').replace(/\\/g, "\\\\") + '"';
+				for (const line of splitLines) {
+					currentBuild += ' text 0,' + (i * height) + ' "' + line.replace(/"/g, '\\"').replace(/\\/g, "\\\\") + '"';
+					if (currentBuild.length > 800) {
+						magikArgs.push(currentBuild);
+						currentBuild = '';
+					}
 				}
 				
-				magikArgs.push(buildDraw);
+				if (currentBuild !== '')
+					magikArgs.push(currentBuild);
 				
 				magikArgs.push(fpath);
 				
-				let magik = spawn('convert', magikArgs);
+				let magik;
+					
+				try {
+					magik = spawn('convert', magikArgs);
+				} catch(err) {
+					console.error(err);
+					callback(127, err);
+					return;
+				}
 				
 				Util.Redirect(magik);
 				
@@ -570,8 +580,15 @@ IMagick.DrawText = function(data, callback) {
 					}
 					
 					outputArgs.push('-append', fpath);
+					let magik;
 					
-					let magik = spawn('convert', outputArgs);
+					try {
+						magik = spawn('convert', outputArgs);
+					} catch(err) {
+						console.error(err);
+						callback(127, err);
+						return;
+					}
 					
 					Util.Redirect(magik);
 					
@@ -594,7 +611,16 @@ IMagick.DrawText = function(data, callback) {
 					let newArgs = Array.Append(Array.Copy(magikArgs), magikLines[line]);
 					
 					newArgs.push(DBot.WebRoot + '/textdraw/' + sha + '_tmp_' + line + '.png');
-					let magik = spawn('convert', newArgs);
+					
+					let magik;
+					
+					try {
+						magik = spawn('convert', newArgs);
+					} catch(err) {
+						console.error(err);
+						callback(127, err);
+						return;
+					}
 					
 					Util.Redirect(magik);
 					

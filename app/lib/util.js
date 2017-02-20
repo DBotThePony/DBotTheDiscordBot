@@ -1,8 +1,8 @@
 
-/* global DBot */
+/* global DBot, Util */
 
-Util = {};
-util = Util;
+global.Util = global.Util || {};
+global.util = Util;
 
 const fs = DBot.js.fs;
 const utf8 = require('utf8');
@@ -140,6 +140,9 @@ Util.HighlightHelp = function(args, pos, toMerge, noTilds) {
 Util.output = function(process2) {
 	process2.stderr.pipe(process.stdout);
 	process2.stdout.pipe(process.stdout);
+	process2.on('error', err => {
+		console.error(err);
+	});
 };
 
 Util.Redirectstd = Util.output;
