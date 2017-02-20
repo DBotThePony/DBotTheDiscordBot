@@ -1761,6 +1761,38 @@ BEGIN
 	RETURN QUERY SELECT members."ID", members."USER", members."SERVER" FROM members WHERE members."USER" = ANY (sID) AND members."SERVER" = ANY (sID2);
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION get_members_id(sID INTEGER, users_uids INTEGER[])
+RETURNS TABLE ("ID" INTEGER, "USER" INTEGER, "SERVER" INTEGER) AS $$
+BEGIN
+	WITH missing_tab AS (
+		WITH missing AS (
+			SELECT
+				UNNEST(users_uids) AS "MISSING_USER",
+				sID AS "MISSING_SERVER"
+		)
+		
+		SELECT
+			missing."MISSING_USER",
+			missing."MISSING_SERVER"
+		FROM
+			missing
+		WHERE NOT EXISTS (
+			SELECT
+				missing."MISSING_USER",
+				missing."MISSING_SERVER"
+			FROM
+				members
+			WHERE
+				missing."MISSING_USER" = members."USER" AND
+				missing."MISSING_SERVER" = members."SERVER"
+		)
+	)
+	
+	INSERT INTO "members" ("USER", "SERVER") SELECT * FROM missing_tab WHERE missing_tab."MISSING_USER" IS NOT NULL AND missing_tab."MISSING_SERVER" IS NOT NULL;
+	
+	RETURN QUERY SELECT members."ID", members."USER", members."SERVER" FROM members WHERE members."USER" = ANY (users_uids) AND members."SERVER" = sID;
+END; $$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION get_user_id(sID VARCHAR(64))
 RETURNS INTEGER AS $$
 DECLARE last_id INTEGER;

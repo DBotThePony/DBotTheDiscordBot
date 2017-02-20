@@ -399,6 +399,7 @@ class MemberSQLCollection extends SQLCollectionBase {
 		super();
 		this.serveruids = [];
 		this.users_ids = [];
+		this.mapped_array = [];
 		this.members_map = new Map();
 		
 		this.sids_array = null;
@@ -417,6 +418,15 @@ class MemberSQLCollection extends SQLCollectionBase {
 		this.serveruids.splice(id, 1);
 		this.users_ids.splice(id, 1);
 		this.members_map.delete(this.getInternalID(obj));
+		
+		if (this.mapped_array[obj.guild.uid]) {
+			for (const i in this.mapped_array[obj.guild.uid]) {
+				if (this.mapped_array[obj.guild.uid][i] === obj.user.uid) {
+					this.mapped_array[obj.guild.uid][i].splice(i, 1);
+					break;
+				}
+			}
+		}
 	}
 	
 	getMemberHash(str) {
@@ -431,6 +441,7 @@ class MemberSQLCollection extends SQLCollectionBase {
 	updateMapPre() {
 		this.serveruids = new Array(this.objects.length);
 		this.users_ids = new Array(this.objects.length);
+		this.mapped_array = [];
 		this.members_map.clear();
 		this.sids_array = null;
 		this.uids_array = null;
@@ -441,6 +452,8 @@ class MemberSQLCollection extends SQLCollectionBase {
 		this.serveruids[i] = obj.guild.uid;
 		this.users_ids[i] = obj.user.uid;
 		this.members_map.set(this.getInternalID(obj), obj);
+		this.mapped_array[obj.guild.uid] = this.mapped_array[obj.guild.uid] || [];
+		this.mapped_array[obj.guild.uid].push(obj.user.uid);
 	}
 	
 	getServerIDsArray() {
@@ -464,8 +477,45 @@ class MemberSQLCollection extends SQLCollectionBase {
 		if (this.ids_request)
 			return this.ids_request;
 		
-		this.ids_request = 'get_members_id(' + this.getUsersIDsArray() + '::INTEGER[],' + this.getServerIDsArray() + '::INTEGER[]) AS "RESULT"';
+		this.ids_request = [];
+		
+		for (const sUID in this.mapped_array) {
+			this.ids_request.push('SELECT get_members_id(' + sUID + ',' + sql.Array(this.mapped_array[sUID]) + '::INTEGER[]) AS "RESULT";');
+		}
+		
 		return this.ids_request;
+	}
+	
+	load(callback) {
+		this.cleanup();
+		
+		if (this.length === 0) {
+			if (callback) callback(this);
+			return;
+		};
+		
+		let self = this;
+		const build = this.buildIDsRequest();
+		
+		if (build.length === 0) {
+			if (callback) callback(self);
+			return;
+		};
+		
+		let finished = 0;
+		
+		for (const sqlStr of this.ids_request) {
+			Postgres.query(sqlStr, function(err, data) {
+				if (err) throw err;
+				self.parseRows(data);
+				
+				finished++;
+				
+				if (finished === build.length)
+					if (callback)
+						callback(self);
+			});
+		}
 	}
 	
 	isRubbish(obj) {
