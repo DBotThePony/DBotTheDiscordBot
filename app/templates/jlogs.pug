@@ -1,0 +1,31 @@
+
+extends report_base
+
+block append header
+	style.
+		td.username {
+			width: 300px;
+		}
+
+		td.status {
+			width: 130px;
+		}
+
+block append contents
+	table#perms
+		tr.tabheader
+			td.username Username
+			td.status Type
+			td.date Date
+		each row in data
+			tr
+				td.username= row.username
+
+				if row.status
+					td.status.status_added JOIN
+				else
+					td.status.status_rm LEAVE
+
+				td.date= row.date
+
+

@@ -9,7 +9,9 @@ const filesToReload = [
 	'../lib/confirm.js',
 	'../lib/util.js',
 	'../lib/member_storage.js',
-	'../commands.js'
+	'../commands.js',
+	'../generic.js',
+	'../modules/jlogs.js'
 ];
 
 module.exports = {
@@ -39,13 +41,13 @@ module.exports = {
 				
 				require(file);
 			} catch(err) {
-				msg.channel.stopTyping();
+				// msg.channel.stopTyping();
 				msg.sendMessage('```' + err.stack + '```');
-				return;
+				// return;
 			}
 		}
 		
 		msg.channel.stopTyping();
-		return 'Reload successfull. Done in ' + Math.floor((CurTime() - cTime) * 1000) + ' milliseconds.';
+		return 'Reload finished in ' + Math.floor((CurTime() - cTime) * 1000) + ' milliseconds.';
 	}
 };

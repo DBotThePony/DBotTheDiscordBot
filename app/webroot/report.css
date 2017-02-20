@@ -68,3 +68,11 @@ span#additional_info span {
 	margin-left: 10px;
 	margin-right: 10px;
 }
+
+td.status_rm {
+	color: red;
+}
+
+td.status_added {
+	color: green;
+}

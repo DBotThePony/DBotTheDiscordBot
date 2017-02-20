@@ -53,7 +53,12 @@ DBot.Status = function(newStatus) {
 };
 
 DBot.pugRender = function(path, data) {
-	return DBot.js.pug.renderFile('./app/templates/' + path, data);
+	try {
+		return DBot.js.pug.renderFile('./app/templates/' + path, data);
+	} catch(err) {
+		console.error(err);
+		return '';
+	}
 };
 
 DBot.IsMyMessage = function(msg) {

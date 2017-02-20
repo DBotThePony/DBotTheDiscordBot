@@ -3,10 +3,6 @@ td.status {
 	width: 100px;
 }
 
-td.status_added {
-	color: green;
-}
-
 td.rolename {
 	width: 300px;
 }
@@ -17,10 +13,6 @@ td.permission {
 
 td.username {
 	width: 500px;
-}
-
-td.status_rm {
-	color: red;
 }
 
 td.old {
