@@ -1,4 +1,6 @@
 
+/* global DBot */
+
 let defAction = function(name, text) {
 	return function(args, cmd, msg) {
 		let actor;
@@ -7,7 +9,7 @@ let defAction = function(name, text) {
 		if (!args[0]) {
 			actor = DBot.bot.user;
 			target = msg.author;
-		} else if (typeof args[0] == 'object') {
+		} else if (typeof args[0] === 'object') {
 			actor = msg.author;
 			target = args[0];
 		} else {
@@ -15,8 +17,8 @@ let defAction = function(name, text) {
 		}
 		
 		msg.sendMessage('<@' + actor.id + '> *' + text + '* <@' + target.id + '>');
-	}
-}
+	};
+};
 
 module.exports = {
 	name: 'hug',
@@ -25,8 +27,8 @@ module.exports = {
 	desc: 'Hugs? ^w^',
 	allowUserArgument: true,
 	
-	func: defAction('hug', 'hugs'),
-}
+	func: defAction('hug', 'hugs')
+};
 
 DBot.RegisterCommand({
 	name: 'poke',
@@ -35,7 +37,7 @@ DBot.RegisterCommand({
 	desc: 'Pokes',
 	allowUserArgument: true,
 	
-	func: defAction('poke', 'pokes'),
+	func: defAction('poke', 'pokes')
 });
 
 DBot.RegisterCommand({
@@ -45,7 +47,7 @@ DBot.RegisterCommand({
 	desc: 'Punches',
 	allowUserArgument: true,
 	
-	func: defAction('punch', 'punches'),
+	func: defAction('punch', 'punches')
 });
 
 DBot.RegisterCommand({
@@ -55,7 +57,7 @@ DBot.RegisterCommand({
 	desc: 'Squeezes',
 	allowUserArgument: true,
 	
-	func: defAction('squeeze', 'hugs tight'),
+	func: defAction('squeeze', 'hugs tight')
 });
 
 DBot.RegisterCommand({
@@ -65,7 +67,7 @@ DBot.RegisterCommand({
 	desc: 'Cuddles',
 	allowUserArgument: true,
 	
-	func: defAction('cuddle', 'cuddles'),
+	func: defAction('cuddle', 'cuddles')
 });
 
 DBot.RegisterCommand({
@@ -75,7 +77,7 @@ DBot.RegisterCommand({
 	desc: 'Rubs',
 	allowUserArgument: true,
 	
-	func: defAction('rub', 'rubs body of'),
+	func: defAction('rub', 'rubs body of')
 });
 
 DBot.RegisterCommand({
@@ -85,7 +87,7 @@ DBot.RegisterCommand({
 	desc: 'Strokes',
 	allowUserArgument: true,
 	
-	func: defAction('stroke', 'slowly strokes'),
+	func: defAction('stroke', 'slowly strokes')
 });
 
 DBot.RegisterCommand({
@@ -99,7 +101,7 @@ DBot.RegisterCommand({
 			msg.sendMessage('<@' + msg.author.id + '> *sits on ' + args[0] + ' *');
 		else
 			msg.sendMessage('<@' + msg.author.id + '> *sits*');
-	},
+	}
 });
 
 DBot.RegisterCommand({
@@ -113,7 +115,7 @@ DBot.RegisterCommand({
 			msg.sendMessage('<@' + msg.author.id + '> *jumps on ' + args[0] + ' *');
 		else
 			msg.sendMessage('<@' + msg.author.id + '> *jumps around*');
-	},
+	}
 });
 
 DBot.RegisterCommand({
@@ -127,7 +129,7 @@ DBot.RegisterCommand({
 			msg.sendMessage('<@' + msg.author.id + '> *sleeps on ' + args[0] + ' *');
 		else
 			msg.sendMessage('<@' + msg.author.id + '> *sleeps on a bed*');
-	},
+	}
 });
 
 DBot.RegisterCommand({
@@ -142,7 +144,7 @@ DBot.RegisterCommand({
 			msg.sendMessage('<@' + msg.author.id + '> *lays on ' + args[0] + ' *');
 		else
 			msg.sendMessage('<@' + msg.author.id + '> *lays*');
-	},
+	}
 });
 
 DBot.RegisterCommand({
@@ -152,7 +154,7 @@ DBot.RegisterCommand({
 	desc: 'Slaps',
 	allowUserArgument: true,
 	
-	func: defAction('slap', 'softly slaps'),
+	func: defAction('slap', 'softly slaps')
 });
 
 DBot.RegisterCommand({
@@ -166,7 +168,7 @@ DBot.RegisterCommand({
 	
 	func: function(args, cmd, msg) {
 		return 'You aren\'t better';
-	},
+	}
 });
 
 DBot.RegisterCommand({
@@ -181,11 +183,11 @@ DBot.RegisterCommand({
 	func: function(args, cmd, msg) {
 		if (!args[0])
 			return 'What';
-		else if (args[0] == 'bot')
+		else if (args[0] === 'bot')
 			return 'fuck you';
 		else
 			return 'i don\'t care';
-	},
+	}
 });
 
 DBot.RegisterCommand({
