@@ -16,6 +16,9 @@ sql.LoadingUser = LoadingUser;
 DBot.GetUserID = function(obj) {
 	let id = obj.id;
 	
+	if (id === DBot.bot.user.id)
+		return -999;
+	
 	if (!DBot.UsersIDs[id]) {
 		DBot.DefineUser(obj);
 		throw new Error('Initialize user first (' + (obj && obj.username || 'null') + ')');
