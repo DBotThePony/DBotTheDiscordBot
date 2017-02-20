@@ -857,6 +857,14 @@ CREATE TABLE IF NOT EXISTS kick_logs (
 	"SERVER" INTEGER NOT NULL REFERENCES servers ("ID")
 );
 
+CREATE TABLE IF NOT EXISTS rp_actions (
+	"ACTOR" INTEGER NOT NULL,
+	"ACTION" SMALLINT NOT NULL,
+	"TARGET" INTEGER NOT NULL,
+	"COUNT" INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY ("ACTOR", "ACTION", "TARGET")
+);
+
 -----------------------------------
 --- Search results cache tables
 -----------------------------------

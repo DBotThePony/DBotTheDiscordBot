@@ -1,22 +1,48 @@
 
-/* global DBot */
+/* global DBot, Postgres */
 
-let defAction = function(name, text) {
+let nextActionID = 0;
+
+let defAction = function(name, data) {
+	data = data || {};
+	let cActionID = nextActionID;
+	nextActionID++;
+	
 	return function(args, cmd, msg) {
 		let actor;
 		let target;
+		let actorUID;
 		
-		if (!args[0]) {
-			actor = DBot.bot.user;
-			target = msg.author;
-		} else if (typeof args[0] === 'object') {
-			actor = msg.author;
-			target = args[0];
+		if (!data.self) {
+			if (!args[0]) {
+				actor = DBot.bot.user;
+				target = msg.author;
+				actorUID = -999;
+			} else if (typeof args[0] === 'object') {
+				actor = msg.author;
+				target = args[0];
+				actorUID = DBot.GetUserID(actor);
+			} else {
+				return DBot.CommandError('Oh?', name, args, 1);
+			}
+			
+			Postgres.query(`INSERT INTO rp_actions VALUES (${actorUID}, ${cActionID}, ${DBot.GetUserID(target)}, 1) ON CONFLICT ("ACTOR", "ACTION", "TARGET") DO UPDATE SET "COUNT" = rp_actions."COUNT" + 1 RETURNING "COUNT"`, (err, sdata) =>
+				msg.sendMessage(`_ <@${actor.id}> ${data.text} <@${target.id}> (it is ${sdata[0] && sdata[0].COUNT || 1} times now) _`));
 		} else {
-			return DBot.CommandError('Oh?', 'hug', args, 1);
+			if (typeof args[0] === 'object')
+				target = args[0];
+			
+			actor = msg.author;
+			actorUID = DBot.GetUserID(actor);
+			
+			if (target) {
+				Postgres.query(`INSERT INTO rp_actions VALUES (${actorUID}, ${cActionID}, ${DBot.GetUserID(target)}, 1) ON CONFLICT ("ACTOR", "ACTION", "TARGET") DO UPDATE SET "COUNT" = rp_actions."COUNT" + 1 RETURNING "COUNT"`, (err, sdata) =>
+					msg.sendMessage(`_ <@${actor.id}> ${data.text} <@${target.id}> (it is ${sdata[0] && sdata[0].COUNT || 1} times now) _`));
+			} else {
+				Postgres.query(`INSERT INTO rp_actions VALUES (${actorUID}, ${cActionID}, -1, 1) ON CONFLICT ("ACTOR", "ACTION", "TARGET") DO UPDATE SET "COUNT" = rp_actions."COUNT" + 1 RETURNING "COUNT"`, (err, sdata) =>
+					msg.sendMessage(`_ <@${actor.id}> ${data.textSelf} (it is ${sdata[0] && sdata[0].COUNT || 1} times now) _`));
+			}
 		}
-		
-		msg.sendMessage('<@' + actor.id + '> *' + text + '* <@' + target.id + '>');
 	};
 };
 
@@ -27,7 +53,7 @@ module.exports = {
 	desc: 'Hugs? ^w^',
 	allowUserArgument: true,
 	
-	func: defAction('hug', 'hugs')
+	func: defAction('hug', {text: 'hugs'})
 };
 
 DBot.RegisterCommand({
@@ -37,7 +63,7 @@ DBot.RegisterCommand({
 	desc: 'Pokes',
 	allowUserArgument: true,
 	
-	func: defAction('poke', 'pokes')
+	func: defAction('poke', {text: 'pokes'})
 });
 
 DBot.RegisterCommand({
@@ -47,7 +73,7 @@ DBot.RegisterCommand({
 	desc: 'Punches',
 	allowUserArgument: true,
 	
-	func: defAction('punch', 'punches')
+	func: defAction('punch', {text: 'punches'})
 });
 
 DBot.RegisterCommand({
@@ -57,7 +83,7 @@ DBot.RegisterCommand({
 	desc: 'Squeezes',
 	allowUserArgument: true,
 	
-	func: defAction('squeeze', 'hugs tight')
+	func: defAction('squeeze', {text: 'hugs tight'})
 });
 
 DBot.RegisterCommand({
@@ -67,7 +93,7 @@ DBot.RegisterCommand({
 	desc: 'Cuddles',
 	allowUserArgument: true,
 	
-	func: defAction('cuddle', 'cuddles')
+	func: defAction('cuddle', {text: 'cuddles'})
 });
 
 DBot.RegisterCommand({
@@ -77,7 +103,7 @@ DBot.RegisterCommand({
 	desc: 'Rubs',
 	allowUserArgument: true,
 	
-	func: defAction('rub', 'rubs body of')
+	func: defAction('rub', {text: 'rubs body of'})
 });
 
 DBot.RegisterCommand({
@@ -87,7 +113,7 @@ DBot.RegisterCommand({
 	desc: 'Strokes',
 	allowUserArgument: true,
 	
-	func: defAction('stroke', 'slowly strokes')
+	func: defAction('stroke', {text: 'slowly strokes'})
 });
 
 DBot.RegisterCommand({
@@ -96,12 +122,7 @@ DBot.RegisterCommand({
 	help_args: '',
 	desc: 'Sits',
 	
-	func: function(args, cmd, msg) {
-		if (args[0])
-			msg.sendMessage('<@' + msg.author.id + '> *sits on ' + args[0] + ' *');
-		else
-			msg.sendMessage('<@' + msg.author.id + '> *sits*');
-	}
+	func: defAction('stroke', {text: 'sits on', textSelf: 'sits', self: true})
 });
 
 DBot.RegisterCommand({
@@ -110,12 +131,7 @@ DBot.RegisterCommand({
 	help_args: '',
 	desc: 'Jumps',
 	
-	func: function(args, cmd, msg) {
-		if (args[0])
-			msg.sendMessage('<@' + msg.author.id + '> *jumps on ' + args[0] + ' *');
-		else
-			msg.sendMessage('<@' + msg.author.id + '> *jumps around*');
-	}
+	func: defAction('stroke', {text: 'jumps on', textSelf: 'jumps around', self: true})
 });
 
 DBot.RegisterCommand({
@@ -124,12 +140,7 @@ DBot.RegisterCommand({
 	help_args: '',
 	desc: 'Sleeps',
 	
-	func: function(args, cmd, msg) {
-		if (args[0])
-			msg.sendMessage('<@' + msg.author.id + '> *sleeps on ' + args[0] + ' *');
-		else
-			msg.sendMessage('<@' + msg.author.id + '> *sleeps on a bed*');
-	}
+	func: defAction('stroke', {text: 'sleeps on', textSelf: 'sleeps on a bed', self: true})
 });
 
 DBot.RegisterCommand({
@@ -139,12 +150,7 @@ DBot.RegisterCommand({
 	help_args: '',
 	desc: 'Lays',
 	
-	func: function(args, cmd, msg) {
-		if (args[0])
-			msg.sendMessage('<@' + msg.author.id + '> *lays on ' + args[0] + ' *');
-		else
-			msg.sendMessage('<@' + msg.author.id + '> *lays*');
-	}
+	func: defAction('stroke', {text: 'lays on', textSelf: 'lays', self: true})
 });
 
 DBot.RegisterCommand({
@@ -154,7 +160,7 @@ DBot.RegisterCommand({
 	desc: 'Slaps',
 	allowUserArgument: true,
 	
-	func: defAction('slap', 'softly slaps')
+	func: defAction('slap', {text: 'softly slaps'})
 });
 
 DBot.RegisterCommand({
