@@ -41,47 +41,34 @@ DBot.RegisterCommandPipe = function(command) {
 	return command;
 };
 
-DBot.js.filesystem.readdirSync('./app/commands/').forEach(function(file) {
+for (const file of DBot.js.filesystem.readdirSync('./app/commands/')) {
 	let sp = file.split('.');
-	if (!sp[1])
-		return;
+	if (!sp[1]) continue;
 	
 	let id = sp[0];
-	
+	delete require.cache[require.resolve('./commands/' + file)];
 	let command = require('./commands/' + file);
 	
-	if (!command)
-		return;
-	
-	if (!command.name)
-		return;
+	if (!command || !command.name) continue;
 	
 	command.id = id;
 	DBot.RegisterCommand(command);
-});
+};
 
-try {
-	DBot.js.filesystem.readdirSync('./app/pipes/').forEach(function(file) {
-		let sp = file.split('.');
-		if (!sp[1])
-			return;
-		
-		let id = sp[0];
-		
-		let pipe = require('./pipes/' + file);
-		
-		if (!pipe)
-			return;
-		
-		if (!pipe.name)
-			return;
-		
-		pipe.id = id;
-		DBot.RegisterPipe(pipe);
-	});
-} catch(err) {
-	
-}
+for (const file of DBot.js.filesystem.readdirSync('./app/pipes/')) {
+	let sp = file.split('.');
+	if (!sp[1]) continue;
+
+	let id = sp[0];
+	delete require.cache[require.resolve('./pipes/' + file)];
+	let pipe = require('./pipes/' + file);
+
+	if (!pipe || !pipe.name) continue;
+
+	pipe.id = id;
+	DBot.RegisterPipe(pipe);
+};
+
 
 let BuildHelp = [];
 let ParseMarkdown = Util.ParseMarkdown;
