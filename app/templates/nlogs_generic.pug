@@ -1,0 +1,21 @@
+
+extends report_base
+
+block append header
+	link(rel='stylesheet', href='../nlogs.css')
+
+block append contents
+	table#perms
+		tr.tabheader
+			td.old_username Old Username
+			td.just_arrow
+			td.new_username New Username
+			td.date Date
+		each row in data
+			tr
+				td.old_username= row.uold
+				td.just_arrow ---->
+				td.new_username= row.unew
+				td.date= row.date
+
+

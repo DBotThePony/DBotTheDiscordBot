@@ -177,26 +177,23 @@ hook.Add('UsersInitialized', 'MemberNameLogs', function() {
 
 Util.mkdir(DBot.WebRoot + '/namelog');
 
-DBot.RegisterCommand({
-	name: 'namelog',
-	alias: ['membernamelog', 'membernames', 'mnames', 'menamemeslog', 'namelogs'],
-	
-	help_args: '[user]',
-	desc: 'Lists all known nicks (**server nicknames**) used by specified user\nIf not user specified, lists all nicks changed in the past',
-	allowUserArgument: true,
-	
-	func: function(args, cmd, msg) {
+const fn = function(name, lim) {
+	return function(args, cmd, msg) {
 		if (DBot.IsPM(msg))
 			return 'Onoh! It is PM ;n;';
+		
+		const sha = String.hash(CurTime() + '_nlogs_' + msg.channel.guild.id + '___' + msg.author.id);
+		const path = DBot.WebRoot + '/namelog/' + sha + '.html';
+		const pathU = DBot.URLRoot + '/namelog/' + sha + '.html';
 		
 		if (typeof args[0] === 'object') {
 			let member = msg.channel.guild.member(args[0]);
 			if (!member)
-				return DBot.CommandError('Must be valid user', 'namelog', args, 1);
+				return DBot.CommandError('Must be a valid user', name, args, 1);
 			
 			msg.channel.startTyping();
 			
-			Postgres.query('SELECT "NAME", "LASTUSE", "TIME" FROM name_logs WHERE "MEMBER" = ' + sql.Member(member) + ' ORDER BY "LASTUSE" DESC LIMIT 10', function(err, data) {
+			Postgres.query('SELECT "NAME", "LASTUSE", "TIME", "FIRSTUSED" FROM name_logs WHERE "MEMBER" = ' + sql.Member(member) + ' ORDER BY "LASTUSE" DESC LIMIT ' + lim, function(err, data) {
 				if (err) {
 					msg.channel.stopTyping();
 					msg.reply('WTF');
@@ -210,20 +207,29 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				let output = '```\n' + Util.AppendSpaces('Nickname', 20) + Util.AppendSpaces('Total time in use', 40) + Util.AppendSpaces('Last use', 30) + '\n';
+				let data2 = [];
 				
-				for (let row of data) {
-					let date = moment.unix(row.LASTUSE);
-					let total = row.TIME;
-					let name = row.NAME;
-					
-					output += Util.AppendSpaces(name, 20) + Util.AppendSpaces(hDuration(Math.floor(total) * 1000), 40) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.LASTUSE) * 1000) + ' ago)', 30) + '\n';
+				for (const row of data) {
+					data2.push({
+						last_used: Util.formatStamp(row.LASTUSE),
+						username: row.NAME,
+						first_used: Util.formatStamp(row.FIRSTUSED),
+						total_used: hDuration(Math.floor(row.TIME) * 1000)
+					});
 				}
-				
-				output += '\nLast use and Total time updates about every 20 seconds\n```';
+
+				fs.writeFile(path, DBot.pugRender('nlogs_user.pug', {
+					data: data2,
+					date: moment().format('dddd, MMMM Do YYYY, HH:mm:ss'),
+					username: msg.author.username,
+					server: msg.channel.guild.name,
+					name: member.user.username,
+					nick: member.nickname || member.user.username,
+					title: 'Nickname changes of ' + (member.nickname || member.user.username)
+				}), console.errHandler);
 				
 				msg.channel.stopTyping();
-				msg.reply(output);
+				msg.reply(pathU);
 			});
 		} else {
 			let fuckingQuery = `
@@ -238,7 +244,7 @@ DBot.RegisterCommand({
 					members."SERVER" = ${msg.channel.guild.uid} AND
 					name_logs_list."MEMBER" = members."ID"
 				ORDER BY name_logs_list."STAMP" DESC
-				LIMIT 10`;
+				LIMIT ${lim}`;
 			
 			msg.channel.startTyping();
 			
@@ -255,17 +261,40 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				let output = '\n```\n';
+				let data2 = [];
 				
-				for (let row of data) {
-					output += row.OLD + '  --->   ' + row.NEW + '   (' + moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ', ' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)\n';
+				for (const row of data) {
+					data2.push({
+						date: Util.formatStamp(row.STAMP),
+						uold: row.OLD,
+						unew: row.NEW
+					});
 				}
+
+				fs.writeFile(path, DBot.pugRender('nlogs_generic.pug', {
+					data: data2,
+					date: moment().format('dddd, MMMM Do YYYY, HH:mm:ss'),
+					username: msg.author.username,
+					server: msg.channel.guild.name,
+					title: 'Nickname changes logs'
+				}), console.errHandler);
 				
 				msg.channel.stopTyping();
-				msg.reply(output + '\n```');
+				msg.reply(pathU);
 			});
 		}
-	}
+	};
+};
+
+DBot.RegisterCommand({
+	name: 'namelog',
+	alias: ['membernamelog', 'membernames', 'mnames', 'menamemeslog', 'namelogs'],
+	
+	help_args: '[user]',
+	desc: 'Lists all known nicks (**server nicknames**) used by specified user (up to 40)\nIf not user specified, lists nicks changed in the past (up to 40)',
+	allowUserArgument: true,
+	
+	func: fn('namelog', 40)
 });
 
 DBot.RegisterCommand({
@@ -276,99 +305,7 @@ DBot.RegisterCommand({
 	desc: 'Lists last (up to 200) nickname changes',
 	allowUserArgument: true,
 	
-	func: function(args, cmd, msg) {
-		if (DBot.IsPM(msg))
-			return 'Onoh! It is PM ;n;';
-		
-		if (typeof args[0] === 'object') {
-			let member = msg.channel.guild.member(args[0]);
-			if (!member)
-				return DBot.CommandError('Must be valid user', 'namelog', args, 1);
-			
-			msg.channel.startTyping();
-			
-			Postgres.query('SELECT "NAME", "LASTUSE", "TIME" FROM name_logs WHERE "MEMBER" = ' + sql.Member(member) + ' ORDER BY "LASTUSE"', function(err, data) {
-				if (err) {
-					msg.channel.stopTyping();
-					msg.reply('WTF');
-					console.error(err);
-					return;
-				}
-				
-				if (!data || !data[0]) {
-					msg.channel.stopTyping();
-					msg.reply('No data was returned');
-					return;
-				}
-				
-				let pth = '/namelog/' + String.hash(CurTime()) + '.txt';
-				let stream = fs.createWriteStream(DBot.WebRoot + pth);
-				
-				stream.write('\n' + Util.AppendSpaces('Nickname', 40) + Util.AppendSpaces('Total time in use', 40) + Util.AppendSpaces('Last use', 30) + '\n');
-				
-				for (let row of data) {
-					let date = moment.unix(row.LASTUSE);
-					let total = row.TIME;
-					let name = row.NAME;
-					
-					stream.write(Util.AppendSpaces(name, 40) + Util.AppendSpaces(hDuration(Math.floor(total) * 1000), 40) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.LASTUSE) * 1000) + ' ago)', 30) + '\n');
-				}
-				
-				stream.write('\nLast use and Total time updates about every 20 seconds\n');
-				stream.end();
-				
-				stream.on('finish', function() {
-					msg.reply(DBot.URLRoot + pth);
-					msg.channel.stopTyping();
-				});
-			});
-		} else {
-			let fuckingQuery = `
-				SELECT
-					name_logs_list."OLD",
-					name_logs_list."NEW",
-					name_logs_list."STAMP"
-				FROM
-					name_logs_list,
-					members
-				WHERE
-					members."SERVER" = ${msg.channel.guild.uid} AND
-					name_logs_list."MEMBER" = members."ID"
-				ORDER BY name_logs_list."STAMP" DESC
-				LIMIT 200`;
-			
-			msg.channel.startTyping();
-			
-			Postgres.query(fuckingQuery, function(err, data) {
-				if (err) {
-					msg.channel.stopTyping();
-					msg.reply('WTF');
-					return;
-				}
-				
-				if (!data[0]) {
-					msg.channel.stopTyping();
-					msg.reply('No data was returned in query');
-					return;
-				}
-				
-				let pth = '/namelog/' + String.hash(CurTime() + '_' + msg.channel.guild.id) + '.txt';
-				let stream = fs.createWriteStream(DBot.WebRoot + pth);
-				stream.write('\n\n');
-				
-				for (let row of data) {
-					stream.write(Util.AppendSpaces(row.OLD, 50) + '  --->   ' + Util.AppendSpaces(row.NEW, 50) + ' (' + moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ', ' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ' ago)\n');
-				}
-				
-				stream.end();
-				
-				stream.on('finish', function() {
-					msg.channel.stopTyping();
-					msg.reply(DBot.URLRoot + pth);
-				});
-			});
-		}
-	}
+	func: fn('fnamelog', 400)
 });
 
 DBot.RegisterCommand({
@@ -386,7 +323,11 @@ DBot.RegisterCommand({
 		
 		msg.channel.startTyping();
 		
-		Postgres.query('SELECT "NAME", "LASTUSE", "TIME" FROM uname_logs WHERE "USER" = ' + sql.User(args[0]) + ' ORDER BY "LASTUSE" DESC', function(err, data) {
+		const sha = String.hash(CurTime() + '_nlogs_' + msg.author.id + '___' + args[0].id);
+		const path = DBot.WebRoot + '/namelog/' + sha + '.html';
+		const pathU = DBot.URLRoot + '/namelog/' + sha + '.html';
+		
+		Postgres.query('SELECT "NAME", "LASTUSE", "TIME", "FIRSTUSED" FROM uname_logs WHERE "USER" = ' + sql.User(args[0]) + ' ORDER BY "LASTUSE" DESC', function(err, data) {
 			if (err) {
 				msg.channel.stopTyping();
 				msg.reply('WTF');
@@ -400,20 +341,28 @@ DBot.RegisterCommand({
 				return;
 			}
 			
-			let output = '```\n' + Util.AppendSpaces('Username', 20) + Util.AppendSpaces('Total time in use', 40) + Util.AppendSpaces('Last use', 30) + '\n';
-			
-			for (let row of data) {
-				let date = moment.unix(row.LASTUSE);
-				let total = row.TIME;
-				let name = row.NAME;
-				
-				output += Util.AppendSpaces(name, 20) + Util.AppendSpaces(hDuration(Math.floor(total) * 1000), 40) + Util.AppendSpaces(date.format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.LASTUSE) * 1000) + ' ago)', 30) + '\n';
+			let data2 = [];
+
+			for (const row of data) {
+				data2.push({
+					last_used: Util.formatStamp(row.LASTUSE),
+					username: row.NAME,
+					first_used: Util.formatStamp(row.FIRSTUSED),
+					total_used: hDuration(Math.floor(row.TIME) * 1000)
+				});
 			}
-			
-			output += '\nLast use and Total time updates about every 20 seconds\n```';
-			
+
+			fs.writeFile(path, DBot.pugRender('nlogs_user_u.pug', {
+				data: data2,
+				date: moment().format('dddd, MMMM Do YYYY, HH:mm:ss'),
+				username: msg.author.username,
+				server: msg.channel.guild && msg.channel.guild.name || 'DM Channel',
+				name: args[0].username,
+				title: 'Username changes of ' + (args[0].username)
+			}), console.errHandler);
+
 			msg.channel.stopTyping();
-			msg.reply(output);
+			msg.reply(pathU);
 		});
 	}
 });

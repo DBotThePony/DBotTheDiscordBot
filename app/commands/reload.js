@@ -11,7 +11,8 @@ const filesToReload = [
 	'../lib/member_storage.js',
 	'../commands.js',
 	'../generic.js',
-	'../modules/jlogs.js'
+	'../modules/jlogs.js',
+	'../modules/nlogs.js'
 ];
 
 module.exports = {

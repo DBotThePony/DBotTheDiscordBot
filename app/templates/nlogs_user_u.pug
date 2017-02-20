@@ -1,0 +1,23 @@
+
+extends report_base
+
+block append header
+	link(rel='stylesheet', href='../nlogs.css')
+
+block append contents
+	span#additional_info
+		span.cusername Current username: #{name}
+	table#perms
+		tr.tabheader
+			td.username Username
+			td.total_used Time in use
+			td.last_used Last time used
+			td.first_used First used
+		each row in data
+			tr
+				td.username= row.username
+				td.total_used= row.total_used
+				td.last_used= row.last_used
+				td.first_used= row.first_used
+
+
