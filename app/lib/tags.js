@@ -1,27 +1,31 @@
 
-DBot.tags = {};
-DBot.tagCache = {};
-let cache = DBot.tagCache;
+/* global DBot, sql, Postgres, hook */
 
-cache.server = {};
-cache.client = {};
-cache.channel = {};
+DBot.tags = DBot.tags || {};
+DBot.tagCache = DBot.tagCache || {};
+const cache = DBot.tagCache;
+
+cache.server = cache.server || {};
+cache.client = cache.client || {};
+cache.channel = cache.channel || {};
 
 let finalInitQuery = '';
 
 DBot.CreateTagsSpace = function(space, defBans) {
+	if (DBot.tags[space]) return;
+	
 	DBot.tags[space] = {
 		bans: defBans || [],
-		name: space,
-	}
+		name: space
+	};
 	
 	DBot.tagCache.server[space] = {};
 	DBot.tagCache.client[space] = {};
 	DBot.tagCache.channel[space] = {};
 	let b = sql.Array(defBans);
 	
-	Postgre.query('INSERT INTO tags_defbans VALUES (' + Postgres.escape(space) + ', ' + b + ') ON CONFLICT ("SPACE") DO UPDATE SET "TAG" = ' + b);
-}
+	Postgres.query('INSERT INTO tags_defbans VALUES (' + Postgres.escape(space) + ', ' + b + ') ON CONFLICT ("SPACE") DO UPDATE SET "TAG" = ' + b);
+};
 
 class TagBase {
 	onBanned(tag) {
@@ -34,7 +38,7 @@ class TagBase {
 	update() {
 		let b = sql.Array(this.bans);
 		
-		Postgre.query('UPDATE tags_list SET "TAG" = ' + b + ' WHERE "SPACE" = ' + Postgres.escape(this.space) + ' AND "REALM" = ' + Postgres.escape(this.realm) + ' AND "UID" = ' + this.uid);
+		Postgres.query('UPDATE tags_list SET "TAG" = ' + b + ' WHERE "SPACE" = ' + Postgres.escape(this.space) + ' AND "REALM" = ' + Postgres.escape(this.realm) + ' AND "UID" = ' + this.uid);
 	}
 	
 	onUnBanned(tag) {
@@ -63,7 +67,7 @@ class TagBase {
 	
 	removeTag(tag) {
 		for (let i in this.bans) {
-			if (this.bans[i] == tag) {
+			if (this.bans[i] === tag) {
 				this.bans.splice(i, 1);
 				this.onUnBanned(tag);
 				return true;
@@ -125,7 +129,7 @@ class TagBase {
 		
 		this.ready = true;
 		hook.Run('TagsInitialized', this.realm, this.obj, this.space, this);
-	}
+	};
 	
 	constructor(obj, space, realm, IDFunc, noInitChecks, noSelect) {
 		this.bans = [];
@@ -195,7 +199,7 @@ DBot.UserTags = function(user, space) {
 	
 	cache.client[space][user.uid] = new TagBase(user, space, 'client', DBot.GetUserID);
 	return cache.client[space][user.uid];
-}
+};
 
 DBot.ServerTags = function(server, space) {
 	if (cache.server[space][server.uid])
@@ -203,7 +207,7 @@ DBot.ServerTags = function(server, space) {
 	
 	cache.server[space][server.uid] = new TagBase(server, space, 'server', DBot.GetServerID);
 	return cache.server[space][server.uid];
-}
+};
 
 DBot.ChannelTags = function(channel, space) {
 	if (cache.channel[space][channel.uid])
@@ -211,7 +215,7 @@ DBot.ChannelTags = function(channel, space) {
 	
 	cache.channel[space][channel.id] = new TagBase(channel, space, 'channel', DBot.GetChannelID);
 	return cache.channel[space][channel.uid];
-}
+};
 
 DBot.ValidTagSpaces = function() {
 	let output;
@@ -224,19 +228,19 @@ DBot.ValidTagSpaces = function() {
 	}
 	
 	return output;
-}
+};
 
 DBot.UnloadUserTags = function(user, space) {
 	cache.client[space][user.uid] = undefined;
-}
+};
 
 DBot.UnloadServerTags = function(server, space) {
 	cache.server[space][server.uid] = undefined;
-}
+};
 
 DBot.UnloadChannelTags = function(channel, space) {
 	cache.channel[space][channel.uid] = undefined;
-}
+};
 
 hook.Add('PreDeleteUser', 'UserTags', function(obj) {
 	for (let i in DBot.tags) {
@@ -272,13 +276,13 @@ hook.Add('UsersInitialized', 'UserTags', function() {
 	let callbackFunc = function(err, data) {
 		if (err) {
 			console.error(err);
-			Postgre.query('SELECT init_tags();', callbackFunc);
+			Postgres.query('SELECT init_tags();', callbackFunc);
 			return;
 		};
 		
 		let q = 'SELECT tags_list."UID", tags_list."SPACE", UNNEST("TAG") AS "TAG" FROM tags_list, users WHERE tags_list."REALM" = \'client\' AND users."TIME" > currtime() - 120 AND users."ID" = tags_list."UID"';
 		
-		Postgre.query(q, function(err, data) {
+		Postgres.query(q, function(err, data) {
 			if (err) throw err;
 			DBot.updateLoadingLevel(false);
 			
@@ -304,9 +308,9 @@ hook.Add('UsersInitialized', 'UserTags', function() {
 					}
 			}
 		});
-	}
+	};
 	
-	Postgre.query('SELECT init_tags();', callbackFunc);
+	Postgres.query('SELECT init_tags();', callbackFunc);
 });
 
 hook.Add('ServerInitialized', 'ServerTags', function(obj) {
@@ -321,13 +325,13 @@ hook.Add('ServersInitialized', 'UserTags', function() {
 	let callbackFunc = function(err, data) {
 		if (err) {
 			console.error(err);
-			Postgre.query('SELECT init_tags_servers();', callbackFunc);
+			Postgres.query('SELECT init_tags_servers();', callbackFunc);
 			return;
 		};
 		
 		let q = 'SELECT tags_list."UID", tags_list."SPACE", UNNEST("TAG") AS "TAG" FROM tags_list, servers WHERE tags_list."REALM" = \'server\' AND servers."TIME" > currtime() - 120 AND servers."ID" = tags_list."UID"';
 		
-		Postgre.query(q, function(err, data) {
+		Postgres.query(q, function(err, data) {
 			if (err) throw err;
 			DBot.updateLoadingLevel(false);
 			
@@ -353,9 +357,9 @@ hook.Add('ServersInitialized', 'UserTags', function() {
 					}
 			}
 		});
-	}
+	};
 	
-	Postgre.query('SELECT init_tags_servers();', callbackFunc);
+	Postgres.query('SELECT init_tags_servers();', callbackFunc);
 });
 
 hook.Add('ChannelInitialized', 'ChannelTags', function(obj) {
@@ -370,13 +374,13 @@ hook.Add('ChannelsInitialized', 'UserTags', function() {
 	let callbackFunc = function(err, data) {
 		if (err) {
 			console.error(err);
-			Postgre.query('SELECT init_tags_channels();', callbackFunc);
+			Postgres.query('SELECT init_tags_channels();', callbackFunc);
 			return;
 		};
 		
 		let q = 'SELECT tags_list."UID", tags_list."SPACE", UNNEST("TAG") AS "TAG" FROM tags_list, channels WHERE tags_list."REALM" = \'channel\' AND channels."TIME" > currtime() - 120 AND channels."ID" = tags_list."UID"';
 		
-		Postgre.query(q, function(err, data) {
+		Postgres.query(q, function(err, data) {
 			if (err) throw err;
 			DBot.updateLoadingLevel(false);
 			
@@ -404,5 +408,5 @@ hook.Add('ChannelsInitialized', 'UserTags', function() {
 		});
 	};
 	
-	Postgre.query('SELECT init_tags_channels();', callbackFunc);
+	Postgres.query('SELECT init_tags_channels();', callbackFunc);
 });

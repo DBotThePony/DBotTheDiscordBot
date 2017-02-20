@@ -74,13 +74,11 @@ const botHooks = [
 	['typingStop', 'ChatFinish']
 ];
 
-let REGISTERED_HOOKS = false;
+hook.REGISTERED_HOOKS = false;
 
 hook.RegisterEvents = function() {
-	if (REGISTERED_HOOKS)
-		return;
-	
-	REGISTERED_HOOKS = true;
+	if (hook.REGISTERED_HOOKS) return;
+	hook.REGISTERED_HOOKS = true;
 	
 	botHooks.forEach(function(item) {
 		DBot.bot.on(item[0], function(a, b, c, d, e) {

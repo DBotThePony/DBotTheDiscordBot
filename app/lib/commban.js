@@ -9,7 +9,8 @@ cache.member = cache.member || {};
 
 DBot.DisallowCommandManipulate = [
 	'invite', 'cban', 'ucban',
-	'cuban', 'help', 'clist'
+	'cuban', 'help', 'clist',
+	'eval', 'reload'
 ];
 
 class CommandBanClass {

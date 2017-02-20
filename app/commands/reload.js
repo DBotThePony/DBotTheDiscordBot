@@ -5,6 +5,8 @@ const filesToReload = [
 	'../lib/sql_classes.js',
 	'../lib/sql_functions.js',
 	'../lib/sql_helpers.js',
+	'../lib/imagick.js',
+	'../lib/confirm.js',
 	'../commands.js'
 ];
 

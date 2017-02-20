@@ -320,7 +320,8 @@ const loadingStage3 = function() {
 	}
 };
 
-let loadingStage2 = function() {
+const loadingStage2 = function() {
+	IMagick.FONTS_LOADED = true;
 	let total = 0;
 	
 	for (let font of IMagick.AvaliableFonts) {
@@ -342,11 +343,12 @@ let loadingStage2 = function() {
 };
 
 hook.Add('SQLInitialize', 'IMagick', function() {
+	if (IMagick.FONTS_LOADED) return;
 	SQLInit = true;
 	if (FontsInit) loadingStage2();
 });
 
-{
+if (!IMagick.FONTS_LOADED) {
 	let magik = spawn('convert', ['-list', 'font']);
 	
 	let output = '';
@@ -378,7 +380,7 @@ hook.Add('SQLInitialize', 'IMagick', function() {
 }
 
 // Simple text
-DrawText = function(text, callback, rFontSize) {
+global.DrawText = function(text, callback, rFontSize) {
 	rFontSize = rFontSize || 48;
 	let splitLines = text.replace(/\t/gi, '    ').split('\n');
 	

@@ -2,7 +2,7 @@
 // Confirm or Decline actions
 
 const fs = DBot.js.fs;
-let Pending = {};
+DBot.PendingConfirm = DBot.PendingConfirm || {};
 
 class Confirm {
 	constructor(user, channel) {
@@ -13,8 +13,8 @@ class Confirm {
 		this.uid = user.id;
 		this.cuid = channel.id;
 		
-		Pending[this.uid] = Pending[this.uid] || {};
-		Pending[this.uid][this.cuid] = this;
+		DBot.PendingConfirm[this.uid] = DBot.PendingConfirm[this.uid] || {};
+		DBot.PendingConfirm[this.uid][this.cuid] = this;
 	}
 	
 	echo() {
@@ -86,16 +86,16 @@ class Confirm {
 		if (this.then)
 			this.then();
 		
-		Pending[this.uid] = Pending[this.uid] || {};
-		Pending[this.uid][this.cuid] = undefined;
+		DBot.PendingConfirm[this.uid] = DBot.PendingConfirm[this.uid] || {};
+		DBot.PendingConfirm[this.uid][this.cuid] = undefined;
 	}
 	
 	onDeclined() {
 		if (this.catch)
 			this.catch();
 		
-		Pending[this.uid] = Pending[this.uid] || {};
-		Pending[this.uid][this.cuid] = undefined;
+		DBot.PendingConfirm[this.uid] = DBot.PendingConfirm[this.uid] || {};
+		DBot.PendingConfirm[this.uid][this.cuid] = undefined;
 	}
 }
 
@@ -103,13 +103,13 @@ hook.Add('CanExecuteCommand', 'Confirm', function(user, command, msg) {
 	let uid = user.id;
 	let cuid = msg.channel.id;
 	
-	if (!Pending[uid])
+	if (!DBot.PendingConfirm[uid])
 		return;
 	
-	if (!Pending[uid][cuid])
+	if (!DBot.PendingConfirm[uid][cuid])
 		return;
 	
-	if (command != 'yes' && command != 'no' && command != 'y' && command != 'n') {
+	if (command !== 'yes' && command !== 'no' && command !== 'y' && command !== 'n') {
 		msg.reply('Confirm previous action Y/N');
 		return false;
 	}
@@ -128,14 +128,14 @@ DBot.RegisterCommand({
 		let uid = msg.author.id;
 		let cuid = msg.channel.id;
 		
-		if (!Pending[uid])
+		if (!DBot.PendingConfirm[uid])
 			return 'No command to confirm at all';
 		
-		if (!Pending[uid][cuid])
+		if (!DBot.PendingConfirm[uid][cuid])
 			return 'No command to confirm at this channel';
 		
-		Pending[uid][cuid].msgCommand = msg;
-		Pending[uid][cuid].onConfirmed();
+		DBot.PendingConfirm[uid][cuid].msgCommand = msg;
+		DBot.PendingConfirm[uid][cuid].onConfirmed();
 	}
 });
 
@@ -150,13 +150,13 @@ DBot.RegisterCommand({
 		let uid = msg.author.id;
 		let cuid = msg.channel.id;
 		
-		if (!Pending[uid])
+		if (!DBot.PendingConfirm[uid])
 			return 'No command to cancel at all';
 		
-		if (!Pending[uid][cuid])
+		if (!DBot.PendingConfirm[uid][cuid])
 			return 'No command to cancel at this channel';
 		
-		Pending[uid][cuid].msgCommand = msg;
-		Pending[uid][cuid].onDeclined();
+		DBot.PendingConfirm[uid][cuid].msgCommand = msg;
+		DBot.PendingConfirm[uid][cuid].onDeclined();
 	}
 });
