@@ -36,6 +36,10 @@ class AbstractMemberMethods {
 			this['constructor_' + key] = value;
 		}
 	}
+	
+	toString() {
+		return '<@' + this.id + '>';
+	}
 }
 
 DBot.RegisterMemberMethod = function(name, func) {

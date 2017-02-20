@@ -8,6 +8,7 @@ const filesToReload = [
 	'../lib/imagick.js',
 	'../lib/confirm.js',
 	'../lib/util.js',
+	'../lib/member_storage.js',
 	'../commands.js'
 ];
 
