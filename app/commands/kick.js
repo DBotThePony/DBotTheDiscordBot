@@ -81,7 +81,7 @@ module.exports = {
 					if (total === 0) {
 						msg.channel.stopTyping();
 						msg.reply('Kicked ;n;');
-						if (finalQuery !== '') Postgres.query(finalQuery, (err) => {if (err) console.log(err)});
+						if (finalQuery !== '') Postgres.query(finalQuery, (err) => {if (err) console.log(err);});
 					}
 				})
 				.catch(function() {
@@ -90,7 +90,7 @@ module.exports = {
 					if (total === 0) {
 						msg.channel.stopTyping();
 						msg.reply('Kicked ;n;');
-						if (finalQuery !== '') Postgres.query(finalQuery, (err) => {if (err) console.log(err)});
+						if (finalQuery !== '') Postgres.query(finalQuery, (err) => {if (err) console.log(err);});
 					}
 				});
 			}
@@ -182,7 +182,7 @@ DBot.RegisterCommand({
 					if (total === 0) {
 						msg.channel.stopTyping();
 						msg.reply('Softbanned ;n;');
-						if (finalQuery !== '') Postgres.query(finalQuery, (err) => {if (err) console.log(err)});
+						if (finalQuery !== '') Postgres.query(finalQuery, (err) => {if (err) console.log(err);});
 					}
 				})
 				
@@ -192,7 +192,7 @@ DBot.RegisterCommand({
 					if (total === 0) {
 						msg.channel.stopTyping();
 						msg.reply('Softbanned ;n;');
-						if (finalQuery !== '') Postgres.query(finalQuery, (err) => {if (err) console.log(err)});
+						if (finalQuery !== '') Postgres.query(finalQuery, (err) => {if (err) console.log(err);});
 					}
 				});
 			}
@@ -325,7 +325,7 @@ DBot.RegisterCommand({
 					if (total === 0) {
 						msg.channel.stopTyping();
 						msg.reply('BANNed ;n;');
-						if (finalQuery !== '') Postgres.query(finalQuery, (err) => {if (err) console.log(err)});
+						if (finalQuery !== '') Postgres.query(finalQuery, (err) => {if (err) console.log(err);});
 					}
 				})
 				.catch(function() {
@@ -334,7 +334,7 @@ DBot.RegisterCommand({
 					if (total === 0) {
 						msg.channel.stopTyping();
 						msg.reply('BANNed ;n;');
-						if (finalQuery !== '') Postgres.query(finalQuery, (err) => {if (err) console.log(err)});
+						if (finalQuery !== '') Postgres.query(finalQuery, (err) => {if (err) console.log(err);});
 					}
 				});
 			}
@@ -753,12 +753,13 @@ hook.Add('PreOnValidMessage', 'ModerationCommands', function(msg) {
 	if (!msg.member)
 		return;
 	
-	if (!msg.member.offs)
+	let offs = DBot.IMember(msg.member).offs;
+	if (!offs)
 		return;
 	
 	let member = msg.member;
 	
-	if (member.offs.includes(msg.channel.uid)) {
+	if (offs.includes(msg.channel.uid)) {
 		let me = msg.channel.guild.member(DBot.bot.user);
 		
 		if (!me)
@@ -860,11 +861,11 @@ hook.Add('ValidClientAvaliable', 'ModerationCommands', function(user, server, me
 hook.Add('MemberInitialized', 'ModerationCommands', function(member, uid, isCascade) {
 	if (!DBot.IsReady() || isCascade) return;
 	
-	member.offs = [];
+	let offs = DBot.IMember(member).offs;
 	
 	Postgres.query('SELECT "CHANNEL" FROM off_users WHERE off_users."ID" = ' + member.uid, function(err, data) {
 		for (let row of data) {
-			member.offs.push(row.CHANNEL);
+			offs.push(row.CHANNEL);
 		}
 	});
 	
@@ -891,8 +892,8 @@ hook.Add('UpdateLoadingLevel', 'ModerationCommands', function(callFunc) {
 	callFunc(true, 2);
 });
 
-hook.Add('CopyMemberProperties', 'ModerationCommands', function(oldMember, member) {
-	member.offs = oldMember.offs;
+DBot.RegisterMemberConstructor('ModerationCommands', function(self) {
+	self.offs = [];
 });
 
 hook.Add('MembersFetched', 'ModerationCommands', function(members, server, hashMap, collection) {
@@ -908,8 +909,7 @@ hook.Add('MembersFetched', 'ModerationCommands', function(members, server, hashM
 			
 			if (!member) continue;
 			
-			member.offs = member.offs || [];
-			member.offs.push(row.CHANNEL);
+			DBot.IMember(member).offs.push(row.CHANNEL);
 		}
 	});
 	
@@ -929,7 +929,7 @@ hook.Add('MultiMembersInitialized', 'ModerationCommands', function(collection) {
 	const join = collection.joinUID();
 	
 	for (const member of collection) {
-		member.offs = member.offs || [];
+		DBot.IMember(member).offs = DBot.IMember(member).offs || [];
 	}
 	
 	Postgres.query('SELECT off_users.* FROM off_users WHERE off_users."ID" IN (' + join + ')', function(err, data) {
@@ -941,8 +941,7 @@ hook.Add('MultiMembersInitialized', 'ModerationCommands', function(collection) {
 			
 			if (!member) continue;
 			
-			member.offs = member.offs || [];
-			member.offs.push(row.CHANNEL);
+			DBot.IMember(member).offs.push(row.CHANNEL);
 		}
 	});
 	
@@ -977,8 +976,7 @@ hook.Add('MembersInitialized', 'ModerationCommands', function() {
 			if (!member)
 				continue;
 			
-			member.offs = member.offs || [];
-			member.offs.push(row.CHANNEL);
+			DBot.IMember(member).offs.push(row.CHANNEL);
 		}
 	});
 	

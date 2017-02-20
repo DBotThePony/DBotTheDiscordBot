@@ -213,79 +213,68 @@ hook.Add('ChannelsInitialized', 'ServerBans', function(channels) {
 	});
 });
 
-let addMethods = function(obj) {
-	obj.channelBans = obj.channelBans || [];
-	
-	obj.unMuteBot = function() {
-		this.totalMute = false;
-		
-		Postgres.query('DELETE FROM command_banned_member WHERE "UID" = ' + this.uid);
-	};
-	
-	obj.muteBot = function() {
-		if (this.totalMute)
-			return false;
-		
-		this.totalMute = true;
-		
-		Postgres.query('INSERT INTO command_banned_member VALUES (' + this.uid + ')');
-		return true;
-	};
-	
-	obj.checkBotMute = function(channel) {
-		if (this.totalMute)
-			return true;
-		
-		if (this.channelBans.includes(DBot.GetChannelID(channel)))
-			return true;
-		
+DBot.RegisterMemberConstructor('CommandBans', function(self) {
+	self.channelBans = [];
+});
+
+DBot.RegisterMemberMethod('unMuteBot', function() {
+	this.totalMute = false;
+	Postgres.query('DELETE FROM command_banned_member WHERE "UID" = ' + this.uid);
+});
+
+DBot.RegisterMemberMethod('muteBot', function() {
+	if (this.totalMute)
 		return false;
-	};
-	
-	obj.unMuteChannel = function(channel) {
-		let uid = DBot.GetChannelID(channel);
-		let hit = false;
-		
-		for (let i in this.channelBans) {
-			if (this.channelBans[i] === uid) {
-				this.channelBans = this.channelBans.splice(i, 1);
-				hit = true;
-				break;
-			}
+
+	this.totalMute = true;
+
+	Postgres.query('INSERT INTO command_banned_member VALUES (' + this.uid + ')');
+	return true;
+});
+
+DBot.RegisterMemberMethod('checkBotMute', function(channel) {
+	if (this.totalMute)
+		return true;
+
+	if (this.channelBans.includes(DBot.GetChannelID(channel)))
+		return true;
+
+	return false;
+});
+
+DBot.RegisterMemberMethod('unMuteChannel', function(channel) {
+	let uid = DBot.GetChannelID(channel);
+	let hit = false;
+
+	for (let i in this.channelBans) {
+		if (this.channelBans[i] === uid) {
+			this.channelBans = this.channelBans.splice(i, 1);
+			hit = true;
+			break;
 		}
-		
-		if (!hit)
-			return false;
-		
-		Postgres.query('DELETE FROM command_banned_cmember WHERE "UID" = ' + this.uid + ' AND "CHANNEL" = ' + DBot.GetChannelID(channel));
-		
-		return true;
-	};
-	
-	obj.muteChannel = function(channel) {
-		let uid = DBot.GetChannelID(channel);
-		
-		if (this.channelBans.includes(uid))
-			return false;
-		
-		Postgres.query('INSERT INTO command_banned_cmember VALUES (' + this.uid + ', ' + uid + ')');
-		this.channelBans.push(uid);
-		
-		return true;
-	};
-	
-	return obj;
-};
+	}
+
+	if (!hit)
+		return false;
+
+	Postgres.query('DELETE FROM command_banned_cmember WHERE "UID" = ' + this.uid + ' AND "CHANNEL" = ' + DBot.GetChannelID(channel));
+
+	return true;
+});
+
+DBot.RegisterMemberMethod('muteChannel', function(channel) {
+	let uid = DBot.GetChannelID(channel);
+
+	if (this.channelBans.includes(uid))
+		return false;
+
+	Postgres.query('INSERT INTO command_banned_cmember VALUES (' + this.uid + ', ' + uid + ')');
+	this.channelBans.push(uid);
+
+	return true;
+});
 
 hook.Add('MembersFetched', 'MemberCommandBans', function(members, server, oldHashMap, collection) {
-	for (const member of members) {
-		addMethods(member);
-		const getMember = oldHashMap.get(member.id);
-		if (!getMember) continue;
-		member.totalMute = getMember.totalMute;
-		member.channelBans = getMember.channelBans;
-	}
-	
 	if (collection === 0) return;
 	const join = collection.joinUID();
 	
@@ -295,7 +284,7 @@ hook.Add('MembersFetched', 'MemberCommandBans', function(members, server, oldHas
 		for (let row of data) {
 			let get = DBot.GetMember(row.UID);
 			if (!get) continue;
-			get.channelBans.push(Number(row.CHANNEL));
+			DBot.IMember(get).channelBans.push(Number(row.CHANNEL));
 		}
 	});
 	
@@ -305,7 +294,7 @@ hook.Add('MembersFetched', 'MemberCommandBans', function(members, server, oldHas
 		for (let row of data) {
 			let get = DBot.GetMember(row.UID);
 			if (!get) continue;
-			get.totalMute = true;
+			DBot.IMember(get).totalMute = true;
 		}
 	});
 	
@@ -323,10 +312,6 @@ hook.Add('MembersFetched', 'MemberCommandBans', function(members, server, oldHas
 });
 
 hook.Add('MultiMembersInitialized', 'MemberCommandBans', function(collection) {
-	for (const member of collection) {
-		addMethods(member);
-	}
-	
 	if (collection === 0) return;
 	const join = collection.joinUID();
 	
@@ -336,7 +321,7 @@ hook.Add('MultiMembersInitialized', 'MemberCommandBans', function(collection) {
 		for (let row of data) {
 			let get = DBot.GetMember(row.UID);
 			if (!get) continue;
-			get.channelBans.push(Number(row.CHANNEL));
+			DBot.IMember(get).channelBans.push(Number(row.CHANNEL));
 		}
 	});
 	
@@ -346,7 +331,7 @@ hook.Add('MultiMembersInitialized', 'MemberCommandBans', function(collection) {
 		for (let row of data) {
 			let get = DBot.GetMember(row.UID);
 			if (!get) continue;
-			get.totalMute = true;
+			DBot.IMember(get).totalMute = true;
 		}
 	});
 	
@@ -364,21 +349,21 @@ hook.Add('MultiMembersInitialized', 'MemberCommandBans', function(collection) {
 });
 
 const MemberInitialized = function(obj, uid, isCascade) {
-	addMethods(obj);
-	
 	if (!DBot.SQLReady() || isCascade) return;
+	
+	let myObj = DBot.IMember(obj);
 	
 	DBot.MemberCBans(obj);
 	
 	Postgres.query('SELECT * FROM command_banned_cmember WHERE "UID" = ' + obj.uid, function(err, data) {
 		for (let row of data) {
-			obj.channelBans.push(Number(row.CHANNEL));
+			myObj.channelBans.push(Number(row.CHANNEL));
 		}
 	});
 	
 	Postgres.query('SELECT * FROM command_banned_member WHERE "UID" = ' + obj.uid, function(err, data) {
 		if (data && data[0]) {
-			obj.totalMute = true;
+			myObj.totalMute = true;
 		}
 	});
 };
@@ -390,10 +375,6 @@ hook.Add('UpdateLoadingLevel', 'MemberCommandBans', function(callFunc) {
 });
 
 hook.Add('MembersInitialized', 'MemberCommandBans', function(members) {
-	for (let member of members) {
-		addMethods(member);
-	}
-	
 	Postgres.query('SELECT command_banned_cmember."UID", command_banned_cmember."CHANNEL" FROM command_banned_cmember, users WHERE users."TIME" > currtime() - 120 AND command_banned_cmember."UID" = users."ID"', function(err, data) {
 		if (err) throw err;
 		DBot.updateLoadingLevel(false);
@@ -404,7 +385,7 @@ hook.Add('MembersInitialized', 'MemberCommandBans', function(members) {
 			if (!get)
 				continue;
 			
-			get.channelBans.push(Number(row.CHANNEL));
+			DBot.IMember(get).channelBans.push(Number(row.CHANNEL));
 		}
 	});
 	
@@ -418,7 +399,7 @@ hook.Add('MembersInitialized', 'MemberCommandBans', function(members) {
 			if (!get)
 				continue;
 			
-			get.totalMute = true;
+			DBot.IMember(get).totalMute = true;
 		}
 	});
 	
@@ -442,7 +423,7 @@ hook.Add('MembersInitialized', 'MemberCommandBans', function(members) {
 	});
 });
 
-let disallow = [
+const disallow = [
 	'mute', 'unmute', 'cmute', 'cunmute'
 ];
 
@@ -454,17 +435,18 @@ hook.Add('CanExecuteValidCommand', 'MemberCommandBans', function(user, command, 
 		return;
 	
 	let member = msg.member;
+	let obj = DBot.IMember(msg.member);
 	let cid = DBot.GetChannelID(msg.channel);
 	
-	if (member.totalMute)
+	if (obj.totalMute)
 		return false;
 	
-	if (!member.channelBans) {
+	if (!obj.channelBans) {
 		MemberInitialized(member, member.uid, false);
 		console.error('Member ' + member.user.username + ' on server ' + member.guild.name + ' has missing methods');
 	}
 	
-	if (member.channelBans.includes(cid))
+	if (obj.channelBans.includes(cid))
 		return false;
 });
 
@@ -473,17 +455,18 @@ hook.Add('CanReply', 'MemberCommandBans', function(msg) {
 		return;
 	
 	let member = msg.member;
+	let obj = DBot.IMember(msg.member);
 	let cid = DBot.GetChannelID(msg.channel);
 	
-	if (member.totalMute)
+	if (obj.totalMute)
 		return false;
 	
-	if (!member.channelBans) {
+	if (!obj.channelBans) {
 		MemberInitialized(member, member.uid, false);
 		console.error('Member ' + member.user.username + ' on server ' + member.guild.name + ' has missing methods');
 	}
 	
-	if (member.channelBans.includes(cid))
+	if (obj.channelBans.includes(cid))
 		return false;
 });
 

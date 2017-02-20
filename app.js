@@ -87,6 +87,7 @@ DBot.fs = DBot.js.fs;
 require('./app/lib/util.js');
 require('./app/lib/hook.js');
 require('./app/lib/sql.js');
+require('./app/lib/member_storage.js');
 require('./app/lib/imagick.js');
 require('./app/lib/emoji.js');
 
