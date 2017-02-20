@@ -419,6 +419,7 @@ class MemberSQLCollection extends SQLCollectionBase {
 		this.users_ids.splice(id, 1);
 		this.members_map.delete(this.getInternalID(obj));
 		
+		if (!obj.guild || !obj.user || !obj.guild.uid) return;
 		if (this.mapped_array[obj.guild.uid]) {
 			for (const i in this.mapped_array[obj.guild.uid]) {
 				if (this.mapped_array[obj.guild.uid][i] === obj.user.uid) {
