@@ -449,12 +449,14 @@ class MemberSQLCollection extends SQLCollectionBase {
 	}
 	
 	mapEntryUpdate(obj, i) {
-		if (!obj.guild || !obj.user) return false;
+		if (!obj.guild || !obj.guild.uid || !obj.user) return false;
 		this.serveruids[i] = obj.guild.uid;
 		this.users_ids[i] = obj.user.uid;
 		this.members_map.set(this.getInternalID(obj), obj);
 		this.mapped_array[obj.guild.uid] = this.mapped_array[obj.guild.uid] || [];
-		this.mapped_array[obj.guild.uid].push(obj.user.uid);
+		
+		if (obj.user.uid)
+			this.mapped_array[obj.guild.uid].push(obj.user.uid);
 	}
 	
 	getServerIDsArray() {
