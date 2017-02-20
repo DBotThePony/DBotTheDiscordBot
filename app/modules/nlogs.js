@@ -66,16 +66,20 @@ hook.Add('UserNicknameChanges', 'MemberNameLogs', function(user, oldUser) {
 	}
 });
 
-setInterval(function() {
-	if (!DBot.SQLReady()) return;
+if (!DBot.NLOGS_INIT) {
+	DBot.NLOGS_INIT = true;
 	
-	Postgres.query('SELECT update_nicknames_stats(' + Math.floor(CurTime()) + ');', function(err) {
-		if (err) {
-			console.error(err);
-			console.error('OOPS, unable to update nicknames!');
-		}
-	});
-}, 10000);
+	setInterval(function() {
+		if (!DBot.SQLReady()) return;
+
+		Postgres.query('SELECT update_nicknames_stats(' + Math.floor(CurTime()) + ');', function(err) {
+			if (err) {
+				console.error(err);
+				console.error('OOPS, unable to update nicknames!');
+			}
+		});
+	}, 10000);
+}
 
 hook.Add('UpdateLoadingLevel', 'NameLogs', function(callFunc) {
 	callFunc(true, 2);
@@ -172,7 +176,12 @@ hook.Add('UsersInitialized', 'MemberNameLogs', function() {
 		return;
 	}
 	
-	Postgres.query('UPDATE users SET "NAME" = "VALUES"."NAME" FROM (VALUES ' + finalQuery + ') AS "VALUES" ("ID", "NAME") WHERE users."ID" = "VALUES"."ID";',  function() {DBot.updateLoadingLevel(false);});
+	Postgres.query(`WITH name_data AS (SELECT * FROM (VALUES ${finalQuery}) AS tm ("ID", "NAME")),
+		insert_uname_logs AS (INSERT INTO uname_logs ("USER", "NAME", "LASTUSE", "TIME") (SELECT name_data."ID", name_data."NAME", currtime(), 0 FROM name_data) ON CONFLICT ("USER", "NAME") DO NOTHING)
+		UPDATE users SET "NAME" = name_data."NAME" FROM name_data WHERE users."ID" = name_data."ID";`, err => {
+			if (err) throw err;
+			DBot.updateLoadingLevel(false);
+	});
 });
 
 Util.mkdir(DBot.WebRoot + '/namelog');
