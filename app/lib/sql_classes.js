@@ -423,7 +423,7 @@ class MemberSQLCollection extends SQLCollectionBase {
 		if (this.mapped_array[obj.guild.uid]) {
 			for (const i in this.mapped_array[obj.guild.uid]) {
 				if (this.mapped_array[obj.guild.uid][i] === obj.user.uid) {
-					this.mapped_array[obj.guild.uid][i].splice(i, 1);
+					this.mapped_array[obj.guild.uid].splice(i, 1);
 					break;
 				}
 			}
