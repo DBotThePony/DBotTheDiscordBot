@@ -1,4 +1,6 @@
 
+/* global Util */
+
 let initMessage = [
 	'Bleh', 'Pne?', 'Ponies are coming for you', 'Ponis everiwhere!', 'gnignip', 'k', 'Am I a bot?',
 	'It is so fun!', 'Lookin\' for something interesting', '*Jumps*', 'pew pew', 'vroom'
@@ -34,5 +36,5 @@ module.exports = {
 			else
 				nmsg.edit('It takes *' + Math.floor(delta * 1000) + '* milliseconds to ping **' + Array.Random(finishMessage) + '**');
 		});
-	},
-}
+	}
+};
