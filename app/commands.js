@@ -4,8 +4,8 @@
 const fs = DBot.js.fs;
 const pug = DBot.js.pug;
 
-DBot.Commands = {};
-DBot.CommandsPipes = {};
+DBot.Commands = DBot.Commands || {};
+DBot.CommandsPipes = DBot.CommandsPipes || {};
 
 DBot.RegisterCommand = function(command) {
 	if (command.alias) {
