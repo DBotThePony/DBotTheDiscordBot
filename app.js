@@ -141,6 +141,21 @@ DBot.disconnectEvent = function(event) {
 	DBot.SQL_START = false;
 	console.log('Disconnected from servers!');
 	hook.Run('OnDisconnected');
+	
+	if (event.code === 1000) { // CLOSE_NORMAL
+		// On this case, Discord.js doesn't do auto reconnect
+		// Reconnect by ourselves
+		// That happens when bot was online too long, and
+		// nginx keepalive_requests was exhausted on discord side
+		
+		console.log('Reconnecting manually');
+		
+		setTimeout(() => {
+			bot.login(token)
+			.then(() => console.log('Reconnected manually'))
+			.catch(err => {console.error('Unable to login.'); console.error(err);});
+		}, 6000);
+	}
 };
 
 DBot.readyEvent = function() {
