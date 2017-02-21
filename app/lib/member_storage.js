@@ -12,6 +12,7 @@ class AbstractMemberMethods {
 		this.guildid = member.guild.id;
 		this.roles = member.roles;
 		this.member = member;
+		this.user = member.user;
 		
 		this.updateMethods();
 		this.callConstructors();
