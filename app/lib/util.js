@@ -259,3 +259,18 @@ Util.WrapText = function(text, limit) {
 Util.formatStamp = function(stamp) {
 	return DBot.js.moment.unix(stamp).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + DBot.js.hDuration(Math.floor(CurTime() - stamp) * 1000) + ' ago)';
 };
+
+const parsedTextReplaceRules = [
+	new RegExp('\\*\\*', 'gi'),
+	new RegExp('```', 'gi'),
+	new RegExp('_', 'gi'),
+	new RegExp('`', 'gi')
+];
+
+Util.nonParsedText = function(text) {
+	for (const e of parsedTextReplaceRules) {
+		text = text.replace(e, '');
+	}
+	
+	return text;
+};

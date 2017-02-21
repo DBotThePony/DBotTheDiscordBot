@@ -30,7 +30,7 @@ module.exports = {
 			let delta = newTime - stamp;
 			
 			if (cmd)
-				nmsg.edit('It takes *' + Math.floor(delta * 1000) + '* milliseconds to ping **' + cmd + '**');
+				nmsg.edit('It takes *' + Math.floor(delta * 1000) + '* milliseconds to ping **' + Util.nonParsedText(cmd) + '**');
 			else
 				nmsg.edit('It takes *' + Math.floor(delta * 1000) + '* milliseconds to ping **' + Array.Random(finishMessage) + '**');
 		});
