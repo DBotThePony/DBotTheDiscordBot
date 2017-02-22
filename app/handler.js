@@ -1007,7 +1007,7 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 			msg.channel.cooldown = CurTime() + 1;
 		};
 		
-		let output = 'I don\'t know what to do with that :\\';
+		let output = 'No such a command';
 		let related = findRelated(command);
 		
 		if (related[0] && related[0][1] > 1) {
