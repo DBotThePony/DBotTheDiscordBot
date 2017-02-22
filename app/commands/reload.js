@@ -60,8 +60,8 @@ module.exports = {
 		
 		for (const file of globalReload) {
 			try {
-				requireReload(file);
-				global[file[1]] = require(file[1]);
+				requireReload(file[0]);
+				global[file[1]] = require(file[0]);
 			} catch(err) {
 				console.error(err);
 				msg.sendMessage('```' + err.stack + '```');
