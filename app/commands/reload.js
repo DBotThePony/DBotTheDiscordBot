@@ -15,6 +15,11 @@ const filesToReload = [
 	'../modules/nlogs.js'
 ];
 
+const globalReload = [
+	['../lib/mathhelper.js', 'MathHelper'],
+	['../lib/commandhelper.js', 'CommandHelper']
+];
+
 function requireReload(file) {
 	const recursiveFunc = function(data) {
 		if (data === undefined) return;
@@ -47,9 +52,19 @@ module.exports = {
 				requireReload(file);
 				require(file);
 			} catch(err) {
-				// msg.channel.stopTyping();
+				console.error(err);
 				msg.sendMessage('```' + err.stack + '```');
-				// return;
+			}
+		}
+		
+		
+		for (const file of globalReload) {
+			try {
+				requireReload(file);
+				global[file[1]] = require(file[1]);
+			} catch(err) {
+				console.error(err);
+				msg.sendMessage('```' + err.stack + '```');
 			}
 		}
 		

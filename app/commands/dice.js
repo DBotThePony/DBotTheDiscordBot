@@ -16,7 +16,7 @@ module.exports = {
 	delay: 5,
 	
 	func: function(args, cmd, msg) {
-		let url = DBot.CombinedURL(args[0], msg.channel);
+		let url = CommandHelper.CombinedURL(args[0], msg.channel);
 		
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'dice', args, 1);
@@ -108,7 +108,7 @@ DBot.RegisterCommand({
 	delay: 5,
 	
 	func: function(args, cmd, msg) {
-		let url = DBot.CombinedURL(args[0], msg.channel);
+		let url = CommandHelper.CombinedURL(args[0], msg.channel);
 		
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'scramble', args, 1);
@@ -204,7 +204,7 @@ DBot.RegisterCommand({
 	delay: 5,
 	
 	func: function(args, cmd, msg) {
-		let url = DBot.CombinedURL(args[0], msg.channel);
+		let url = CommandHelper.CombinedURL(args[0], msg.channel);
 		
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'scramble2', args, 1);
@@ -300,7 +300,7 @@ DBot.RegisterCommand({
 	delay: 5,
 	
 	func: function(args, cmd, msg) {
-		const url = DBot.CombinedURL(args[0], msg.channel);
+		const url = CommandHelper.CombinedURL(args[0], msg.channel);
 		
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'multi', args, 1);
@@ -452,7 +452,7 @@ DBot.RegisterCommand({
 	delay: 5,
 	
 	func: function(args, cmd, msg) {
-		let url = DBot.CombinedURL(args[0], msg.channel);
+		let url = CommandHelper.CombinedURL(args[0], msg.channel);
 		
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'spinned', args, 1);

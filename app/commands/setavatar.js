@@ -11,7 +11,7 @@ module.exports = {
 		if (!DBot.owners.includes(msg.author.id))
 			return 'Nope.avi';
 		
-		let url = DBot.CombinedURL(args[0], msg.channel);
+		let url = CommandHelper.CombinedURL(args[0], msg.channel);
 		
 		if (!url)
 			return DBot.CommandError('Nu URL ;n;', 'setavatar', args, 1);

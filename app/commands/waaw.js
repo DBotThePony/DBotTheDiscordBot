@@ -17,7 +17,7 @@ const allowed = [
 
 let fn = function(name, toUse) {
 	return function(args, cmd, msg) {
-		let url = DBot.CombinedURL(args[0], msg.channel);
+		let url = CommandHelper.CombinedURL(args[0], msg.channel);
 		
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
@@ -110,7 +110,7 @@ DBot.RegisterCommand({
 
 let fn2 = function(name, toUse, dir) {
 	return function(args, cmd, msg) {
-		let url = DBot.CombinedURL(args[0], msg.channel);
+		let url = CommandHelper.CombinedURL(args[0], msg.channel);
 		
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);
@@ -182,7 +182,7 @@ DBot.RegisterCommand({
 
 let fn3 = function(name) {
 	return function(args, cmd, msg) {
-		let url = DBot.CombinedURL(args[0], msg.channel);
+		let url = CommandHelper.CombinedURL(args[0], msg.channel);
 		
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', name, args, 1);

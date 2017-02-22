@@ -236,73 +236,6 @@ Util.mkdir(DBot.WebRoot + '/img_cache');
 const unirest = require('unirest');
 const URL = require('url');
 
-const imageExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd|webp)(\?|\/)?/i;
-const imageExtExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd|gif|webp)(\?|\/)?/i;
-const expr = new RegExp('^https?://' + DBot.URLRootBare + '/(.*)');
-const cover = new RegExp('\\.\\./', 'gi');
-const cover2 = new RegExp('\\./', 'gi');
-const insideBotFolder = new RegExp('^\\./resource/', '');
-
-DBot.ExtraxtExt = function(url) {
-	return url.match(imageExtExt)[1];
-};
-
-DBot.CombinedURL = function(url, channel) {
-	if (typeof(url) === 'object') {
-		url = url.avatarURL;
-		
-		if (!url)
-			return false;
-	}
-	
-	url = url || DBot.LastURLImageInChannel(channel);
-	
-	if (!url)
-		return false;
-	
-	if (url.match(cover) || url.match(cover2) || url.match(/^\//))
-		return false;
-	
-	if (!DBot.CheckURLImage(url)) {
-		let emojiMatch = url.match(DBot.emojiRegExpWeak);
-		
-		if (!emojiMatch)
-			return false;
-		else
-			return DBot.FindEmojiURL(url);
-	}
-	
-	return url;
-};
-
-DBot.CombinedURL2 = function(url, channel) {
-	if (typeof(url) === 'object') {
-		url = url.avatarURL;
-		
-		if (!url)
-			return false;
-	}
-	
-	url = url || DBot.LastURLImageInChannel2(channel);
-	
-	if (!url)
-		return false;
-	
-	if (url.match(cover) || url.match(cover2) || url.match(/^\//))
-		return false;
-	
-	if (!DBot.CheckURLImage2(url)) {
-		let emojiMatch = url.match(DBot.emojiRegExpWeak);
-		
-		if (!emojiMatch)
-			return false;
-		else
-			return DBot.FindEmojiURL(url);
-	}
-	
-	return url;
-};
-
 DBot.LoadImageURL = function(url, callback, callbackError) {
 	let hash = String.hash(url);
 	let matchExt = url.match(imageExtExt);
@@ -355,16 +288,10 @@ DBot.LoadImageURL = function(url, callback, callbackError) {
 const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
 
-DBot.EasySpan = function(process, arguments, callback) {
+DBot.EasySpawn = function(process, arguments, callback) {
 	let cpu = spawn(process, arguments);
 	
-	cpu.stderr.on('data', function(data) {
-		console.error(data.toString());
-	});
-	
-	cpu.stdout.on('data', function(data) {
-		console.log(data.toString());
-	});
+	Util.redirect(cpu);
 	
 	cpu.on('close', function(code) {
 		callback(code);

@@ -23,7 +23,7 @@ module.exports = {
 	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
-		let url = DBot.CombinedURL(args[0], msg.channel);
+		let url = CommandHelper.CombinedURL(args[0], msg.channel);
 		
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'wasted', args, 1);

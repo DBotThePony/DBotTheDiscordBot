@@ -17,7 +17,7 @@ module.exports = {
 	desc: '<vibrating ponies>',
 	
 	func: function(args, cmd, msg) {
-		const url = DBot.CombinedURL(args[0], msg.channel);
+		const url = CommandHelper.CombinedURL(args[0], msg.channel);
 		
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'vibrate', args, 1);
@@ -129,7 +129,7 @@ DBot.RegisterCommand({
 	delay: 4,
 	
 	func: function(args, cmd, msg) {
-		const url = DBot.CombinedURL(args[0], msg.channel);
+		const url = CommandHelper.CombinedURL(args[0], msg.channel);
 		
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'vibrate', args, 1);

@@ -14,7 +14,7 @@ module.exports = {
 	desc: '<TRIGGERED>',
 	
 	func: function(args, cmd, msg) {
-		let url = DBot.CombinedURL(args[0], msg.channel);
+		let url = CommandHelper.CombinedURL(args[0], msg.channel);
 		
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered', args, 1);
@@ -156,7 +156,7 @@ DBot.RegisterCommand({
 	desc: '<TRIGGERED>',
 	
 	func: function(args, cmd, msg) {
-		let url = DBot.CombinedURL(args[0], msg.channel);
+		let url = CommandHelper.CombinedURL(args[0], msg.channel);
 		
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered', args, 1);
@@ -213,7 +213,7 @@ DBot.RegisterCommand({
 	desc: '<TRIGGERED> variation 2',
 	
 	func: function(args, cmd, msg) {
-		let url = DBot.CombinedURL(args[0], msg.channel);
+		let url = CommandHelper.CombinedURL(args[0], msg.channel);
 		
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered2', args, 1);
@@ -270,7 +270,7 @@ DBot.RegisterCommand({
 	desc: '<TRIGGERED> variation 3',
 	
 	func: function(args, cmd, msg) {
-		let url = DBot.CombinedURL(args[0], msg.channel);
+		let url = CommandHelper.CombinedURL(args[0], msg.channel);
 		
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'triggered3', args, 1);

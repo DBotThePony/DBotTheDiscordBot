@@ -64,6 +64,7 @@ DBot.js.Discord = Discord;
 DBot.js.sprintf = sprintf;
 
 global.MathHelper = require('./app/lib/mathhelper.js');
+global.CommandHelper = require('./app/lib/commandhelper.js');
 require('./app/lib/extensions/array.js');
 require('./app/lib/extensions/number.js');
 require('./app/lib/extensions/string.js');

@@ -29,7 +29,7 @@ module.exports = {
 		if (quality < 1)
 			quality = 1;
 		
-		let url = DBot.CombinedURL(args[1], msg.channel);
+		let url = CommandHelper.CombinedURL(args[1], msg.channel);
 		
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'jpeg', args, 2);
