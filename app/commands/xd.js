@@ -8,8 +8,18 @@ module.exports = {
 	desc: 'XD',
 	
 	func: function(args, cmd, msg) {
-		if (args.length !== 3)
-			return 'You need exactly 3 arguments';
+		if (args.length > 3)
+			return 'Max 3 arguments';
+		else {
+			if (args[0] === undefined)
+				return DBot.CommandError('You need at least one argument', 'xd', args, 1);
+			
+			if (args[1] === undefined)
+				args[1] = args[0];
+			
+			if (args[2] === undefined)
+				args[2] = args[1];
+		}
 		
 		for (const i in args) {
 			const arg = args[i];
@@ -24,7 +34,7 @@ module.exports = {
 			middleSpaces = 11 - (3 - args[0].length);
 		} else if (args[0].length > 3) {
 			preMiddleSpaces += Math.floor((args[0].length - 3) / 3) + 1;
-			middleSpaces += Math.floor((args[0].length - 3) / 2 + .5);
+			middleSpaces += Math.floor((args[0].length - 3) / 3 + .5);
 		}
 		
 		let build = `${args[0]}           ${args[0]}    ${args[1]} ${args[2]}
