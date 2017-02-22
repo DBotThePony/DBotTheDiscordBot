@@ -15,6 +15,20 @@ const filesToReload = [
 	'../modules/nlogs.js'
 ];
 
+function requireReload(file) {
+	const recursiveFunc = function(data) {
+		if (data === undefined) return;
+		delete require.cache[data.id];
+
+		for (const ch of data.children)
+			recursiveFunc(ch);
+	};
+
+	recursiveFunc(require.cache[require.resolve(file)]);
+}
+
+global.requireReload = requireReload;
+
 module.exports = {
 	name: 'reload',
 	
@@ -30,16 +44,7 @@ module.exports = {
 		
 		for (const file of filesToReload) {
 			try {
-				let recursiveFunc = function(data) {
-					if (data === undefined) return;
-					delete require.cache[data.id];
-					
-					for (const ch of data.children)
-						recursiveFunc(ch);
-				};
-				
-				recursiveFunc(require.cache[require.resolve(file)]);
-				
+				requireReload(file);
 				require(file);
 			} catch(err) {
 				// msg.channel.stopTyping();
