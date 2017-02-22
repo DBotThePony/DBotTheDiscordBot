@@ -47,7 +47,14 @@ for (const file of DBot.js.filesystem.readdirSync('./app/commands/')) {
 	
 	let id = sp[0];
 	delete require.cache[require.resolve('./commands/' + file)];
-	let command = require('./commands/' + file);
+	let command;
+	
+	try {
+		command = require('./commands/' + file);
+	} catch(err) {
+		console.error(err);
+		continue;
+	}
 	
 	if (!command || !command.name) continue;
 	
