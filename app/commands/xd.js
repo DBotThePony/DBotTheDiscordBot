@@ -45,7 +45,7 @@ module.exports = {
     ${args[0]}   ${args[0]}        ${args[1]}     ${args[2]}
 ${String.spaces(preMiddleSpaces)}${args[0]}${String.spaces(middleSpaces)}${args[1]}     ${args[2]}
     ${args[0]}   ${args[0]}        ${args[1]}     ${args[2]}
-  ${args[0]}       ${args[0]}      ${args[1]}   ${args[2]}
+  ${args[0]}       ${args[0]}      ${args[1]}    ${args[2]}
 ${args[0]}           ${args[0]}    ${args[1]} ${args[2]}`;
 		
 		return '```\n' + build + '\n```';
