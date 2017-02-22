@@ -1,4 +1,6 @@
 
+/* global DBot, Util, CommandHelper */
+
 const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
 const unirest = DBot.js.unirest;
@@ -7,6 +9,7 @@ const URL = DBot.js.url;
 
 Util.mkdir(DBot.WebRoot + '/waw');
 Util.mkdir(DBot.WebRoot + '/wave');
+Util.mkdir(DBot.WebRoot + '/oil');
 
 const combinations = [
 	[150, 50, -25],
@@ -24,7 +27,7 @@ const combinations = [
 	[25, 25, 50],
 	[65, 10, 10],
 	[100, 25, 0],
-	[135, 35, -10],
+	[135, 35, -10]
 ];
 
 module.exports = {
@@ -38,20 +41,20 @@ module.exports = {
 	desc: 'Spooks',
 	
 	func: function(args, cmd, msg) {
-		let url = CommandHelper.CombinedURL(args[0], msg.channel);
+		const url = CommandHelper.CombinedURL(args[0], msg.channel);
 		
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'waw', args, 1);
 		
-		let sha = String.hash(url);
+		const sha = String.hash(url);
 		
 		let fpath;
-		let fpathProcessed = DBot.WebRoot + '/waw/' + sha + '.gif';
-		let fpathU = DBot.URLRoot + '/waw/' + sha + '.gif';
+		const fpathProcessed = DBot.WebRoot + '/waw/' + sha + '.gif';
+		const fpathU = DBot.URLRoot + '/waw/' + sha + '.gif';
 		
 		msg.channel.startTyping();
 		
-		let ContinueFunc = function() {
+		const ContinueFunc = function() {
 			if (msg.checkAbort()) return;
 			fs.stat(fpathProcessed, function(err, stat) {
 				if (msg.checkAbort()) return;
@@ -85,7 +88,7 @@ module.exports = {
 					magik.on('close', function(code) {
 						msg.channel.stopTyping();
 						
-						if (code == 0) {
+						if (code === 0) {
 							msg.reply(fpathU);
 						} else {
 							msg.reply('I am cracked up ;w;');
@@ -93,7 +96,7 @@ module.exports = {
 					});
 				}
 			});
-		}
+		};
 		
 		DBot.LoadImageURL(url, function(newPath) {
 			fpath = newPath;
@@ -102,8 +105,8 @@ module.exports = {
 			msg.channel.stopTyping();
 			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
 		});
-	},
-}
+	}
+};
 
 DBot.RegisterCommand({
 	name: 'wave',
@@ -115,20 +118,20 @@ DBot.RegisterCommand({
 	desc: 'Ripple',
 	
 	func: function(args, cmd, msg) {
-		let url = CommandHelper.CombinedURL(args[0], msg.channel);
+		const url = CommandHelper.CombinedURL(args[0], msg.channel);
 		
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'wave', args, 1);
 		
-		let sha = String.hash(url);
+		const sha = String.hash(url);
 		
 		let fpath;
-		let fpathProcessed = DBot.WebRoot + '/wave/' + sha + '.gif';
-		let fpathU = DBot.URLRoot + '/wave/' + sha + '.gif';
+		const fpathProcessed = DBot.WebRoot + '/wave/' + sha + '.gif';
+		const fpathU = DBot.URLRoot + '/wave/' + sha + '.gif';
 		
 		msg.channel.startTyping();
 		
-		let ContinueFunc = function() {
+		const ContinueFunc = function() {
 			if (msg.checkAbort()) return;
 			fs.stat(fpathProcessed, function(err, stat) {
 				if (msg.checkAbort()) return;
@@ -171,7 +174,7 @@ DBot.RegisterCommand({
 					magik.on('close', function(code) {
 						msg.channel.stopTyping();
 						
-						if (code == 0) {
+						if (code === 0) {
 							msg.reply(fpathU);
 						} else {
 							msg.reply('I am cracked up ;w;');
@@ -179,7 +182,7 @@ DBot.RegisterCommand({
 					});
 				}
 			});
-		}
+		};
 		
 		DBot.LoadImageURL(url, function(newPath) {
 			fpath = newPath;
@@ -188,5 +191,92 @@ DBot.RegisterCommand({
 			msg.channel.stopTyping();
 			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
 		});
-	},
+	}
+});
+
+DBot.RegisterCommand({
+	name: 'oil',
+	alias: ['paint'],
+	
+	allowUserArgument: true,
+	delay: 10,
+	
+	help_args: '<url or user>',
+	desc: 'Paint',
+	
+	func: function(args, cmd, msg) {
+		const url = CommandHelper.CombinedURL(args[0], msg.channel);
+		
+		if (!url)
+			return DBot.CommandError('Invalid url maybe? ;w;', 'oil', args, 1);
+		
+		const sha = String.hash(url);
+		
+		let fpath;
+		const fpathProcessed = DBot.WebRoot + '/oil/' + sha + '.gif';
+		const fpathU = DBot.URLRoot + '/oil/' + sha + '.gif';
+		
+		msg.channel.startTyping();
+		
+		const ContinueFunc = function() {
+			if (msg.checkAbort()) return;
+			fs.stat(fpathProcessed, function(err, stat) {
+				if (msg.checkAbort()) return;
+				if (stat) {
+					msg.channel.stopTyping();
+					msg.reply(fpathU);
+				} else {
+					let magikArgs = ['-alpha', 'on', fpath, '-resize', '256x256>', '-background', 'none'];
+					
+					for (let amp = 0; amp < 20; amp += 5) {
+						magikArgs.push(
+							'(',
+								'-clone', '0',
+								'-paint', amp,
+							')'
+						);
+					}
+					
+					for (let amp = 20; amp >= 0; amp -= 5) {
+						magikArgs.push(
+							'(',
+								'-clone', '0',
+								'-paint', amp,
+							')'
+						);
+					}
+					
+					magikArgs.push(
+						'-delete', '0',
+						'-delay', '4',
+						'-set', 'delay', '4',
+						'-loop', '0',
+						fpathProcessed
+					);
+					
+					let magik = spawn('convert', magikArgs);
+					
+					Util.Redirect(magik);
+					
+					magik.on('close', function(code) {
+						msg.channel.stopTyping();
+						
+						if (code === 0) {
+							msg.reply(fpathU);
+						} else {
+							msg.reply('I am cracked up ;w;');
+						}
+					});
+				}
+			});
+		};
+		
+		DBot.LoadImageURL(url, function(newPath) {
+			fpath = newPath;
+			ContinueFunc();
+		}, function(result) {
+			msg.channel.stopTyping();
+			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
+		});
+	}
 });
