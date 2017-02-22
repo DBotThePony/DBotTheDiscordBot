@@ -225,3 +225,13 @@ DBot.RegisterCommand({
 			msg.sendMessage('Fuck you <@' + msg.author.id + '>');
 	}
 });
+
+DBot.RegisterCommand({
+	name: 'boop',
+	
+	help_args: '[user]',
+	desc: 'Pokes',
+	allowUserArgument: true,
+	
+	func: defAction('boop', {text: 'just booped'})
+});
