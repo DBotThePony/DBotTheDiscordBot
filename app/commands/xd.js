@@ -30,7 +30,10 @@ module.exports = {
 		let middleSpaces = 11;
 		let preMiddleSpaces = 7;
 		
-		if (args[0].length < 3) {
+		if (args[0].length === 1) {
+			preMiddleSpaces = 6;
+			middleSpaces = 10;
+		} else if (args[0].length === 2) {
 			middleSpaces = 11 - (3 - args[0].length);
 		} else if (args[0].length > 3) {
 			preMiddleSpaces += Math.floor((args[0].length - 3) / 3) + 1;
@@ -41,7 +44,7 @@ module.exports = {
   ${args[0]}       ${args[0]}      ${args[1]}    ${args[2]}
     ${args[0]}   ${args[0]}        ${args[1]}     ${args[2]}
 ${String.spaces(preMiddleSpaces)}${args[0]}${String.spaces(middleSpaces)}${args[1]}     ${args[2]}
-     ${args[0]} ${args[0]}         ${args[1]}     ${args[2]}
+    ${args[0]}   ${args[0]}        ${args[1]}     ${args[2]}
   ${args[0]}       ${args[0]}      ${args[1]}   ${args[2]}
 ${args[0]}           ${args[0]}    ${args[1]} ${args[2]}`;
 		
