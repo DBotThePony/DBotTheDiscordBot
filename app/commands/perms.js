@@ -73,7 +73,7 @@ module.exports = {
 		}
 		
 		for (let i in Perms) {
-			output += Util.AppendSpaces(PermsNames[i] + ':', 35) + (usr.hasPermission(Perms[i]) && 'yes' || 'no') + '\n';
+			output += String.appendSpaces(PermsNames[i] + ':', 35) + (usr.hasPermission(Perms[i]) && 'yes' || 'no') + '\n';
 		}
 		
 		return output + '```';
@@ -114,7 +114,7 @@ DBot.RegisterCommand({
 				if (i > 20) {
 					more++;
 				} else {
-					output += Util.AppendSpaces('@' + (member.nickname || member.user.username), 30) + '<@' + member.user.id + '>\n';
+					output += String.appendSpaces('@' + (member.nickname || member.user.username), 30) + '<@' + member.user.id + '>\n';
 				}
 			}
 		}

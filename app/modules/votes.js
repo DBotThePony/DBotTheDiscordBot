@@ -468,7 +468,7 @@ let Bar = function(perc, votes) {
 		output += ' ';
 	}
 	
-	output += '] ' + Util.AppendSpaces(Math.floor(perc).toString() + '%', 5) + '(' + votes + ' votes)';
+	output += '] ' + String.appendSpaces(Math.floor(perc).toString() + '%', 5) + '(' + votes + ' votes)';
 	
 	return output;
 }
@@ -528,9 +528,9 @@ DBot.RegisterCommand({
 						
 						for (let row of data) {
 							if (total == 0) {
-								output += '\n #' + Util.AppendSpaces(row.CHOICEID, 3) + ' - ' + Util.AppendSpaces(utf8.decode(row.NAME), 20) + ' - ' + Bar(0, 0);
+								output += '\n #' + String.appendSpaces(row.CHOICEID, 3) + ' - ' + String.appendSpaces(utf8.decode(row.NAME), 20) + ' - ' + Bar(0, 0);
 							} else {
-								output += '\n #' + Util.AppendSpaces(row.CHOICEID, 3) + ' - ' + Util.AppendSpaces(utf8.decode(row.NAME), 20) + ' - ' + Bar(row.VOTES / total, row.VOTES);
+								output += '\n #' + String.appendSpaces(row.CHOICEID, 3) + ' - ' + String.appendSpaces(utf8.decode(row.NAME), 20) + ' - ' + Bar(row.VOTES / total, row.VOTES);
 							}
 						}
 						
@@ -591,9 +591,9 @@ DBot.RegisterCommand({
 						
 						for (let row of data) {
 							if (total == 0) {
-								output += '\n #' + Util.AppendSpaces(row.CHOICEID, 3) + ' - ' + Util.AppendSpaces(utf8.decode(row.NAME), 20) + ' - ' + Bar(0, 0);
+								output += '\n #' + String.appendSpaces(row.CHOICEID, 3) + ' - ' + String.appendSpaces(utf8.decode(row.NAME), 20) + ' - ' + Bar(0, 0);
 							} else {
-								output += '\n #' + Util.AppendSpaces(row.CHOICEID, 3) + ' - ' + Util.AppendSpaces(utf8.decode(row.NAME), 20) + ' - ' + Bar(row.VOTES / total, row.VOTES);
+								output += '\n #' + String.appendSpaces(row.CHOICEID, 3) + ' - ' + String.appendSpaces(utf8.decode(row.NAME), 20) + ' - ' + Bar(row.VOTES / total, row.VOTES);
 							}
 						}
 						

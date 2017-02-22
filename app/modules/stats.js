@@ -190,10 +190,10 @@ DBot.RegisterCommand({
 				return;
 			}
 			
-			let output = '```\n' + Util.AppendSpaces('Server name', 60) + Util.AppendSpaces('Total phrases', 15) + Util.AppendSpaces('Chars printed', 15) + Util.AppendSpaces('Total commands executed', 10) + '\n';
+			let output = '```\n' + String.appendSpaces('Server name', 60) + String.appendSpaces('Total phrases', 15) + String.appendSpaces('Chars printed', 15) + String.appendSpaces('Total commands executed', 10) + '\n';
 			
 			for (let row of data) {
-				output += Util.AppendSpaces('<' + row.UID.trim() + '> ' + row.NAME, 60) + Util.AppendSpaces(numeral(row.TOTAL_PHRASES).format('0,0'), 15) + Util.AppendSpaces(numeral(row.TOTAL_CHARS).format('0,0'), 15) + Util.AppendSpaces(numeral(row.TOTAL_COMMANDS).format('0,0'), 10) + '\n';
+				output += String.appendSpaces('<' + row.UID.trim() + '> ' + row.NAME, 60) + String.appendSpaces(numeral(row.TOTAL_PHRASES).format('0,0'), 15) + String.appendSpaces(numeral(row.TOTAL_CHARS).format('0,0'), 15) + String.appendSpaces(numeral(row.TOTAL_COMMANDS).format('0,0'), 10) + '\n';
 			}
 			
 			msg.reply(output + '```');
@@ -266,9 +266,9 @@ let top10fn = function(name, order) {
 				
 				let i = 0;
 				for (let row of data) {
-					output += Util.AppendSpaces(Number(i) + 1 + (page - 1) * 20, 4)
-						+ Util.AppendSpaces(row.USERNAME, 20) + ' --- '
-						+ Util.AppendSpaces(numeral(row.COUNT).format('0,0')
+					output += String.appendSpaces(Number(i) + 1 + (page - 1) * 20, 4)
+						+ String.appendSpaces(row.USERNAME, 20) + ' --- '
+						+ String.appendSpaces(numeral(row.COUNT).format('0,0')
 						+ ' phrases', 15) + ' (' + numeral(row.TOTAL_WORDS).format('0,0')
 						+ ' total words said; ' + numeral(row.TOTAL_UNIQUE_WORDS).format('0,0')
 						+ ' unique words)\n';
@@ -375,9 +375,9 @@ let gtop10fn = function(name, order) {
 				
 				let i = 0;
 				for (let row of data) {
-					output += Util.AppendSpaces(Number(i) + 1 + (page - 1) * 20, 4)
-						+ Util.AppendSpaces(row.USERNAME, 20) + ' --- '
-						+ Util.AppendSpaces(numeral(row.COUNT).format('0,0')
+					output += String.appendSpaces(Number(i) + 1 + (page - 1) * 20, 4)
+						+ String.appendSpaces(row.USERNAME, 20) + ' --- '
+						+ String.appendSpaces(numeral(row.COUNT).format('0,0')
 						+ ' phrases', 15) + ' (' + numeral(row.TOTAL_WORDS).format('0,0')
 						+ ' total words said; ' + numeral(row.TOTAL_UNIQUE_WORDS).format('0,0')
 						+ ' unique words)\n';
@@ -495,9 +495,9 @@ let ctop10fn = function(name, order) {
 				
 				let i = 0;
 				for (let row of data) {
-					output += Util.AppendSpaces(Number(i) + 1 + (page - 1) * 20, 4)
-						+ Util.AppendSpaces(row.USERNAME, 20) + ' --- '
-						+ Util.AppendSpaces(numeral(row.COUNT).format('0,0')
+					output += String.appendSpaces(Number(i) + 1 + (page - 1) * 20, 4)
+						+ String.appendSpaces(row.USERNAME, 20) + ' --- '
+						+ String.appendSpaces(numeral(row.COUNT).format('0,0')
 						+ ' phrases', 15) + ' (' + numeral(row.TOTAL_WORDS).format('0,0')
 						+ ' total words said; ' + numeral(row.TOTAL_UNIQUE_WORDS).format('0,0')
 						+ ' unique words)\n';
@@ -582,7 +582,7 @@ DBot.RegisterCommand({
 				stream.write('Table of users\n');
 				
 				for (let row of data) {
-					stream.write('\t <@' + row.USERID + '> ' + Util.AppendSpaces(row.MEMBERNAME, 60) + '(' + row.USERNAME + ')\n');
+					stream.write('\t <@' + row.USERID + '> ' + String.appendSpaces(row.MEMBERNAME, 60) + '(' + row.USERNAME + ')\n');
 				}
 				
 				stream.write('\n\nArray of users\n\t');
@@ -777,10 +777,10 @@ let getsfn = function(name, num) {
 					return;
 				}
 				
-				let output = '```' + Util.AppendSpaces('Username', 30) + Util.AppendSpaces('Get', 10) + Util.AppendSpaces('Date', 10) + '\n';
+				let output = '```' + String.appendSpaces('Username', 30) + String.appendSpaces('Get', 10) + String.appendSpaces('Date', 10) + '\n';
 				
 				for (let row of data) {
-					output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * 1000).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ')', 10) + '\n';
+					output += String.appendSpaces(row.NAME, 30) + String.appendSpaces(numeral(row.NUMBER * 1000).format('0,0'), 10) + String.appendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ')', 10) + '\n';
 				}
 				
 				msg.reply(output + '```');
@@ -816,10 +816,10 @@ let getsfn = function(name, num) {
 					return;
 				}
 				
-				let output = '```' + Util.AppendSpaces('Username', 30) + Util.AppendSpaces('Get', 10) + Util.AppendSpaces('Date', 10) + '\n';
+				let output = '```' + String.appendSpaces('Username', 30) + String.appendSpaces('Get', 10) + String.appendSpaces('Date', 10) + '\n';
 				
 				for (let row of data) {
-					output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * 100).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 100) + ')', 10) + '\n';
+					output += String.appendSpaces(row.NAME, 30) + String.appendSpaces(numeral(row.NUMBER * 100).format('0,0'), 10) + String.appendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 100) + ')', 10) + '\n';
 				}
 				
 				msg.reply(output + '```');
@@ -856,10 +856,10 @@ let getsfn = function(name, num) {
 					return;
 				}
 				
-				let output = '```' + Util.AppendSpaces('Username', 30) + Util.AppendSpaces('Get', 10) + Util.AppendSpaces('Date', 10) + '\n';
+				let output = '```' + String.appendSpaces('Username', 30) + String.appendSpaces('Get', 10) + String.appendSpaces('Date', 10) + '\n';
 				
 				for (let row of data) {
-					output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * 1000).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ')', 10) + '\n';
+					output += String.appendSpaces(row.NAME, 30) + String.appendSpaces(numeral(row.NUMBER * 1000).format('0,0'), 10) + String.appendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * 1000) + ')', 10) + '\n';
 				}
 				
 				msg.reply(output + '```');
@@ -896,10 +896,10 @@ let getsfn = function(name, num) {
 					return;
 				}
 				
-				let output = '```' + Util.AppendSpaces('Username', 30) + Util.AppendSpaces('Get', 10) + Util.AppendSpaces('Date', 10) + '\n';
+				let output = '```' + String.appendSpaces('Username', 30) + String.appendSpaces('Get', 10) + String.appendSpaces('Date', 10) + '\n';
 				
 				for (let row of data) {
-					output += Util.AppendSpaces(row.NAME, 30) + Util.AppendSpaces(numeral(row.NUMBER * num * 100).format('0,0'), 10) + Util.AppendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * num * 100) + ')', 10) + '\n';
+					output += String.appendSpaces(row.NAME, 30) + String.appendSpaces(numeral(row.NUMBER * num * 100).format('0,0'), 10) + String.appendSpaces(moment.unix(row.STAMP).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - row.STAMP) * num * 100) + ')', 10) + '\n';
 				}
 				
 				msg.reply(output + '```');
@@ -1083,18 +1083,18 @@ DBot.RegisterCommand({
 						return;
 					}
 					
-					let output = Util.AppendSpaces('Word', 25) + Util.AppendSpaces('Count', 6) + '\n```\n';
+					let output = String.appendSpaces('Word', 25) + String.appendSpaces('Count', 6) + '\n```\n';
 					
 					output += '----- Server\n';
 					
 					for (let row of gdata) {
-						output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
+						output += String.appendSpaces(row.WORD.substr(0, 20), 25) + String.appendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
 					}
 					
 					output += '----- Your\n';
 					
 					for (let row of udata) {
-						output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
+						output += String.appendSpaces(row.WORD.substr(0, 20), 25) + String.appendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
 					}
 					
 					msg.reply(output + '\n```');
@@ -1110,12 +1110,12 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				let output = Util.AppendSpaces('Word', 25) + Util.AppendSpaces('Count', 6) + '\n```\n';
+				let output = String.appendSpaces('Word', 25) + String.appendSpaces('Count', 6) + '\n```\n';
 				
 				output += '----- His\n';
 				
 				for (let row of udata) {
-					output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
+					output += String.appendSpaces(row.WORD.substr(0, 20), 25) + String.appendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
 				}
 				
 				msg.reply(output + '\n```');
@@ -1158,18 +1158,18 @@ DBot.RegisterCommand({
 						return;
 					}
 					
-					let output = Util.AppendSpaces('Word', 25) + Util.AppendSpaces('Count', 6) + '\n```\n';
+					let output = String.appendSpaces('Word', 25) + String.appendSpaces('Count', 6) + '\n```\n';
 					
 					output += '----- Channel\n';
 					
 					for (let row of gdata) {
-						output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
+						output += String.appendSpaces(row.WORD.substr(0, 20), 25) + String.appendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
 					}
 					
 					output += '----- Your\n';
 					
 					for (let row of udata) {
-						output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
+						output += String.appendSpaces(row.WORD.substr(0, 20), 25) + String.appendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
 					}
 					
 					msg.reply(output + '\n```');
@@ -1185,12 +1185,12 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				let output = Util.AppendSpaces('Word', 25) + Util.AppendSpaces('Count', 6) + '\n```\n';
+				let output = String.appendSpaces('Word', 25) + String.appendSpaces('Count', 6) + '\n```\n';
 				
 				output += '----- His\n';
 				
 				for (let row of udata) {
-					output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
+					output += String.appendSpaces(row.WORD.substr(0, 20), 25) + String.appendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
 				}
 				
 				msg.reply(output + '\n```');
@@ -1230,18 +1230,18 @@ DBot.RegisterCommand({
 						return;
 					}
 					
-					let output = Util.AppendSpaces('Word', 25) + Util.AppendSpaces('Count', 6) + '\n```\n';
+					let output = String.appendSpaces('Word', 25) + String.appendSpaces('Count', 6) + '\n```\n';
 					
 					output += '----- Global\n';
 					
 					for (let row of gdata) {
-						output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
+						output += String.appendSpaces(row.WORD.substr(0, 20), 25) + String.appendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
 					}
 					
 					output += '----- Your\n';
 					
 					for (let row of udata) {
-						output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
+						output += String.appendSpaces(row.WORD.substr(0, 20), 25) + String.appendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
 					}
 					
 					msg.reply(output + '\n```');
@@ -1257,12 +1257,12 @@ DBot.RegisterCommand({
 					return;
 				}
 				
-				let output = Util.AppendSpaces('Word', 25) + Util.AppendSpaces('Count', 6) + '\n```\n';
+				let output = String.appendSpaces('Word', 25) + String.appendSpaces('Count', 6) + '\n```\n';
 				
 				output += '----- His\n';
 				
 				for (let row of udata) {
-					output += Util.AppendSpaces(row.WORD.substr(0, 20), 25) + Util.AppendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
+					output += String.appendSpaces(row.WORD.substr(0, 20), 25) + String.appendSpaces(numeral(row.SUM).format('0,0'), 6) + '\n';
 				}
 				
 				msg.reply(output + '\n```');
@@ -1921,14 +1921,14 @@ DBot.RegisterCommand({
 				output += '\n------ Global command usage statistics';
 				
 				for (let row of data) {
-					output += '\n' + Util.AppendSpaces(row.COMMAND, 20) + formatNumberFunc(row.CALLED_TIMES);
+					output += '\n' + String.appendSpaces(row.COMMAND, 20) + formatNumberFunc(row.CALLED_TIMES);
 				}
 			}
 			
 			output += '\n------ @' + nick + ' command usage statistics';
 			
 			for (let row of userData) {
-				output += '\n' + Util.AppendSpaces(row.COMMAND, 20) + formatNumberFunc(row.CALLED_TIMES);
+				output += '\n' + String.appendSpaces(row.COMMAND, 20) + formatNumberFunc(row.CALLED_TIMES);
 			}
 			
 			msg.channel.stopTyping();
@@ -2034,14 +2034,14 @@ DBot.RegisterCommand({
 				output += '\n------ Server command usage statistics';
 				
 				for (let row of data) {
-					output += '\n' + Util.AppendSpaces(row.COMMAND, 20) + formatNumberFunc(row.CALLED_TIMES);
+					output += '\n' + String.appendSpaces(row.COMMAND, 20) + formatNumberFunc(row.CALLED_TIMES);
 				}
 			}
 			
 			output += '\n------ @' + nick + ' command usage statistics on this server';
 			
 			for (let row of userData) {
-				output += '\n' + Util.AppendSpaces(row.COMMAND, 20) + formatNumberFunc(row.CALLED_TIMES);
+				output += '\n' + String.appendSpaces(row.COMMAND, 20) + formatNumberFunc(row.CALLED_TIMES);
 			}
 			
 			msg.channel.stopTyping();
@@ -2147,14 +2147,14 @@ DBot.RegisterCommand({
 				output += '\n------ Channel command usage statistics';
 				
 				for (let row of data) {
-					output += '\n' + Util.AppendSpaces(row.COMMAND, 20) + formatNumberFunc(row.CALLED_TIMES);
+					output += '\n' + String.appendSpaces(row.COMMAND, 20) + formatNumberFunc(row.CALLED_TIMES);
 				}
 			}
 			
 			output += '\n------ @' + nick + ' command usage statistics on this channel';
 			
 			for (let row of userData) {
-				output += '\n' + Util.AppendSpaces(row.COMMAND, 20) + formatNumberFunc(row.CALLED_TIMES);
+				output += '\n' + String.appendSpaces(row.COMMAND, 20) + formatNumberFunc(row.CALLED_TIMES);
 			}
 			
 			msg.channel.stopTyping();

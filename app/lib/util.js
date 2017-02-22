@@ -66,20 +66,6 @@ Util.truncate = function(path, callback) {
 Util.mkdir = Util.CreateDirectory;
 Util.CreateDir = Util.CreateDirectory;
 
-Util.Spaces = function(num) {
-	let output = '';
-	
-	for (let i = 0; i < num; i++) {
-		output += ' ';
-	}
-	
-	return output;
-};
-
-Util.AppendSpaces = function(str, target) {
-	return str.toString() + String.repeat(' ', target - str.toString().length);
-};
-
 Util.HighlightHelp = function(args, pos, toMerge, noTilds) {
 	let output;
 	let output2 = '';

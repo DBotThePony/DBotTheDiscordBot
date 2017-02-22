@@ -487,7 +487,7 @@ class UserVarSession {
 		
 		for (let id in this.cvars) {
 			let cvar = this.cvars[id];
-			output += Util.AppendSpaces(id, 15) + ' = "' + Util.AppendSpaces(cvar.getFormatedString() + '"', 10) + '; ' + cvar.joinFlags() + '\n';
+			output += String.appendSpaces(id, 15) + ' = "' + String.appendSpaces(cvar.getFormatedString() + '"', 10) + '; ' + cvar.joinFlags() + '\n';
 		}
 		
 		return output;
@@ -567,7 +567,7 @@ class ServerVarSession {
 		
 		for (let id in this.cvars) {
 			let cvar = this.cvars[id];
-			output += Util.AppendSpaces(id, 15) + ' = "' + Util.AppendSpaces((!cvar.haveFlag(FCVAR_PROTECTED) && (cvar.getFormatedString() || 'NULL') || '[REDACTED]') + '"', 10) + '; ' + cvar.joinFlags() + '\n';
+			output += String.appendSpaces(id, 15) + ' = "' + String.appendSpaces((!cvar.haveFlag(FCVAR_PROTECTED) && (cvar.getFormatedString() || 'NULL') || '[REDACTED]') + '"', 10) + '; ' + cvar.joinFlags() + '\n';
 		}
 		
 		return output;
@@ -646,7 +646,7 @@ class ChannelVarSession {
 		
 		for (let id in this.cvars) {
 			let cvar = this.cvars[id];
-			output += Util.AppendSpaces(id, 15) + ' = "' + Util.AppendSpaces((!cvar.haveFlag(FCVAR_PROTECTED) && (cvar.getFormatedString() || 'NULL') || '[REDACTED]') + '"', 10) + '; ' + cvar.joinFlags() + '\n';
+			output += String.appendSpaces(id, 15) + ' = "' + String.appendSpaces((!cvar.haveFlag(FCVAR_PROTECTED) && (cvar.getFormatedString() || 'NULL') || '[REDACTED]') + '"', 10) + '; ' + cvar.joinFlags() + '\n';
 		}
 		
 		return output;

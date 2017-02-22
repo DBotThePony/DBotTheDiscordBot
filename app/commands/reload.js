@@ -9,6 +9,7 @@ const filesToReload = [
 	'../lib/confirm.js',
 	'../lib/util.js',
 	'../lib/member_storage.js',
+	'../lib/extensions/string.js',
 	'../commands.js',
 	'../generic.js',
 	'../modules/jlogs.js',

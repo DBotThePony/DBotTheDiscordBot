@@ -433,7 +433,7 @@ DBot.RegisterCommand({
 					if (!stream)
 						stream = fs.createWriteStream(path);
 					
-					stream.write('<@' + member.user.id + '>     ' + Util.AppendSpaces(member.nickname || member.user.username, 60) + ' (' + member.user.username + ')\n');
+					stream.write('<@' + member.user.id + '>     ' + String.appendSpaces(member.nickname || member.user.username, 60) + ' (' + member.user.username + ')\n');
 					
 					member.offs.push(msg.channel.uid);
 					Postgres.query('INSERT INTO off_users VALUES (' + sql.Member(member) + ', ' + msg.channel.uid + ') ON CONFLICT ("ID", "CHANNEL") DO NOTHING');
@@ -481,7 +481,7 @@ DBot.RegisterCommand({
 				if (!stream)
 					stream = fs.createWriteStream(path);
 				
-				stream.write('<@' + member.user.id + '>     ' + Util.AppendSpaces(member.nickname || member.user.username, 60) + ' (' + member.user.username + ')\n');
+				stream.write('<@' + member.user.id + '>     ' + String.appendSpaces(member.nickname || member.user.username, 60) + ' (' + member.user.username + ')\n');
 			}
 		}
 		
@@ -726,7 +726,7 @@ DBot.RegisterCommand({
 				if (!stream)
 					stream = fs.createWriteStream(path);
 				
-				stream.write('<@' + member.user.id + '>     ' + Util.AppendSpaces(member.nickname || member.user.username, 60) + ' (' + member.user.username + ')\n');
+				stream.write('<@' + member.user.id + '>     ' + String.appendSpaces(member.nickname || member.user.username, 60) + ' (' + member.user.username + ')\n');
 				
 				hit = true;
 				Postgres.query('DELETE FROM off_users WHERE "ID" =' + sql.Member(member) + ' AND "CHANNEL" = ' + msg.channel.uid);

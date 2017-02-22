@@ -62,7 +62,7 @@ let Actions = {
 					if (!tags[i])
 						break;
 					
-					output += Util.AppendSpaces(tags[i][0], 20) + tags[i][1] + ' Users\n';
+					output += String.appendSpaces(tags[i][0], 20) + tags[i][1] + ' Users\n';
 				}
 				
 				return output + '```';
@@ -108,7 +108,7 @@ let Actions = {
 				if (!servers[i])
 					break;
 				
-				output += Util.AppendSpaces(servers[i][0], 60) + (!servers[i][3] && servers[i][1] || '~' + servers[i][1]) + ' Users (Internal ID: ' + servers[i][2] + ')\n';
+				output += String.appendSpaces(servers[i][0], 60) + (!servers[i][3] && servers[i][1] || '~' + servers[i][1]) + ' Users (Internal ID: ' + servers[i][2] + ')\n';
 			}
 			
 			return output + '```';
