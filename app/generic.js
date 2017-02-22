@@ -1,5 +1,5 @@
 
-/* global DBot, cvars, FCVAR_CHANNELONLY, hook, Util */
+/* global DBot, cvars, FCVAR_CHANNELONLY, hook, Util, CommandHelper */
 
 Util.SafeCopy('./node_modules/moment/moment.js', DBot.WebRoot + '/moment.js');
 Util.SafeCopy('./node_modules/numeral/numeral.js', DBot.WebRoot + '/numeral.js');
@@ -238,18 +238,18 @@ const URL = require('url');
 
 DBot.LoadImageURL = function(url, callback, callbackError) {
 	let hash = String.hash(url);
-	let matchExt = url.match(imageExtExt);
-	let match = url.match(expr);
+	let matchExt = url.match(CommandHelper.imageExtExt);
+	let match = url.match(CommandHelper.urlExpression);
 
 	let fPath = DBot.WebRoot + '/img_cache/' + hash + '.' + matchExt[1];
 	
-	let matchInternal = url.match(insideBotFolder);
+	let matchInternal = url.match(CommandHelper.internalResource);
 	if (matchInternal) {
 		callback(url);
 		return;
 	}
 	
-	if (match && !url.match(cover)) {
+	if (match && !url.match(CommandHelper.imCover)) {
 		fPath = DBot.WebRoot + '/' + match[1];
 	}
 	

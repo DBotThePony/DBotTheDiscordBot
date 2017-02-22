@@ -13,24 +13,36 @@ DBot.ExtraxtExt = function(url) {
 };
 
 const CommandHelper = {
+	imageExt: imageExt,
+	imageExtExt: imageExtExt,
+	imCover: cover,
+	imCover2: cover2,
+	internalResource: insideBotFolder,
+	urlExpression: expr,
+	
 	switchImageArgs: function(channel, args, defNum) {
+		const url1 = CommandHelper.identifyURL(args[0]);
 		const num1 = Number.from(args[0]);
+		const url2 = CommandHelper.identifyURL(args[1]);
 		const num2 = Number.from(args[1]);
-		const url1 = CommandHelper.CombinedURL(args[0], channel);
-		const url2 = CommandHelper.CombinedURL(args[1], channel);
 		
-		if (num1 === undefined && num2 === undefined) {
-			num1 = defNum;
-			num2 = defNum;
-		}
+		let num = defNum;
 		
-		if (num1 !== undefined && url2 !== undefined) {
-			return [num1, url2];
-		} else if (num2 !== undefined && url1 !== undefined) {
-			return [num2, url1];
-		} else {
-			return [defNum, null];
-		} 
+		if (num1 !== undefined)
+			num = num1;
+		else if (num2 !== undefined)
+			num = num2;
+		
+		let url = null;
+		
+		if (url1 === null && url2 === null)
+			url = CommandHelper.CombinedURL(undefined, channel);
+		else if (url1 !== null)
+			url = url1;
+		else
+			url = url2;
+		
+		return [num, url];
 	},
 	
 	CombinedURL2: function(url, channel) {
@@ -82,6 +94,28 @@ const CommandHelper = {
 
 			if (!emojiMatch)
 				return false;
+			else
+				return DBot.FindEmojiURL(url);
+		}
+
+		return url;
+	},
+	
+	identifyURL: function(url) {
+		if (url === undefined || url === null) return null;
+		if (typeof(url) === 'object') {
+			url = url.avatarURL;
+			if (!url) return null;
+		}
+
+		if (url.match(cover) || url.match(cover2) || url.match(/^\//))
+			return null;
+
+		if (!DBot.CheckURLImage(url)) {
+			let emojiMatch = url.match(DBot.emojiRegExpWeak);
+
+			if (!emojiMatch)
+				return null;
 			else
 				return DBot.FindEmojiURL(url);
 		}
