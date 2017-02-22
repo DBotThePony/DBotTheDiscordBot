@@ -24,7 +24,7 @@ module.exports = {
 		for (const i in args) {
 			const arg = args[i];
 			if (arg.length > 10)
-				return DBot.CommandError('Argument is too long', 'xd', args, i + 1);
+				return DBot.CommandError('Argument is too long', 'xd', args, Number(i) + 1);
 		}
 		
 		let middleSpaces = 11;
@@ -37,7 +37,11 @@ module.exports = {
 			middleSpaces = 11 - (3 - args[0].length);
 		} else if (args[0].length > 3) {
 			preMiddleSpaces += Math.floor((args[0].length - 3) / 3) + 1;
-			middleSpaces += Math.floor((args[0].length - 3) / 3 + .5);
+			middleSpaces += Math.floor((args[0].length - 3) / 2.2 + .5);
+		}
+		
+		if (args[0].length === 10) {
+			preMiddleSpaces++;
 		}
 		
 		let build = `${args[0]}           ${args[0]}    ${args[1]} ${args[2]}
