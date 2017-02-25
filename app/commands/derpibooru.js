@@ -4,6 +4,7 @@
 const http = require('https');
 const unirest = DBot.js.unirest;
 const url = DBot.js.url;
+const urlBase = 'www.trixiebooru.org';
 
 DBot.CreateTagsSpace('derpibooru', [
 	'anthro',
@@ -38,7 +39,7 @@ ${sql.Array(data.tags.split(', '))}, '${data.representations.thumb_tiny}', '${da
 const GetImage = function(ID, callback) {
 	Postgres.query('SELECT * FROM derpibooru_pics WHERE id = ' + ID, function(err, data) {
 		if (data.empty()) {
-			unirest.get('https://www.derpibooru.org/' + ID + '.json')
+			unirest.get('https://' + urlBase + '/' + ID + '.json')
 			.end(function(reply) {
 				if (reply.status !== 200) {
 					callback({}, ID);
@@ -83,7 +84,7 @@ const searchImages = function(keywords, callback) {
 		data.throw();
 		
 		const getFunc = function() {
-			unirest.get('https://www.derpibooru.org/search.json?q=' + encode)
+			unirest.get('https://' + urlBase + '/search.json?q=' + encode)
 			.end(function(response) {
 				try {
 					let data = response.body;
@@ -133,7 +134,7 @@ const searchImages = function(keywords, callback) {
 };
 
 const getRandomImage = function(callback) {
-	let options = url.parse('https://www.derpibooru.org/search?q=*&random_image=y.json');
+	let options = url.parse('https://' + urlBase + '/search?q=*&random_image=y.json');
 	
 	let req = http.request(options, function(response) {
 		try {
@@ -177,7 +178,7 @@ let bannedChars = [
 
 module.exports = {
 	name: 'derpibooru',
-	alias: ['pbooru', 'dbooru'],
+	alias: ['pbooru', 'dbooru', 'derpi'],
 	
 	argNeeded: false,
 	delay: 3,
@@ -245,7 +246,7 @@ module.exports = {
 					}
 					
 					msg.channel.stopTyping();
-					msg.reply('Tags: ' + split.join(', ') + '\n<https://www.derpibooru.org/' + myID +'>\nhttps:' + target);
+					msg.reply('Tags: ' + split.join(', ') + '\n<https://' + urlBase + '/' + myID +'>\nhttps:' + target);
 				});
 			};
 			
@@ -285,7 +286,7 @@ module.exports = {
 				}
 				
 				msg.channel.stopTyping();
-				msg.reply('Tags: ' + split.join(', ') + '\n<https://www.derpibooru.org/' + ID +'>\nhttps:' + target);
+				msg.reply('Tags: ' + split.join(', ') + '\n<https://' + urlBase + '/' + ID +'>\nhttps:' + target);
 			});
 		} else {
 			for (let i in args) {
@@ -379,7 +380,7 @@ module.exports = {
 				if (previousStuff)
 					previousStuff.push(data.id);
 				
-				msg.reply('Tags: ' + data.tags + '\n<https://www.derpibooru.org/' + data.id + '>\nhttps:' + target);
+				msg.reply('Tags: ' + data.tags + '\n<https://' + urlBase + '/' + data.id + '>\nhttps:' + target);
 				
 				msg.channel.stopTyping();
 			};
