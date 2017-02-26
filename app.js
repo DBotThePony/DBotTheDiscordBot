@@ -1,8 +1,6 @@
 
 /* global hook, DBot */
 
-sprintf = require('sprintf-js').sprintf;
-
 process.env['PATH'] = './bin;' + process.env['PATH'];
 const stamp = (new Date()).getTime();
 const Discord = require('discord.js');
@@ -30,6 +28,7 @@ stdin.addListener('data', function(data) {
 	}
 });
 
+global.sprintf = require('sprintf-js').sprintf;
 global.DBot = global.DBot || {};
 
 try {
@@ -70,7 +69,7 @@ require('./app/lib/extensions/number.js');
 require('./app/lib/extensions/string.js');
 require('./app/lib/extensions/console.js');
 
-let LEVEL_OF_CONNECTION = 0;
+let IS_CONNECTED = false;
 let TimeoutID = null;
 let sqlRun = false;
 let shouldRunAfterSQL = false;
@@ -113,12 +112,21 @@ DBot.START_STAMP = (new Date()).getTime() / 1000;
 
 hook.RegisterEvents();
 
+const Status = {
+	READY: 0,
+	CONNECTING: 1,
+	RECONNECTING: 2,
+	IDLE: 3,
+	NEARLY: 4,
+	DISCONNECTED: 5
+};
+
 DBot.IsOnline = function() {
-	return LEVEL_OF_CONNECTION > 0;
+	return bot.status === Status.READY;
 };
 
 const timerOnlineFunc = function() {
-	if (!sqlRun || LEVEL_OF_CONNECTION === 0) return;
+	if (!sqlRun || bot.status !== Status.READY) return;
 	console.log('Initializing stuff');
 	hook.Run('BotOnline', DBot.bot);
 };
@@ -129,12 +137,9 @@ hook.Add('SQLInitialize', 'Core', function() {
 });
 
 DBot.disconnectEvent = function(event) {
-	LEVEL_OF_CONNECTION--;
-	
-	if (LEVEL_OF_CONNECTION > 0) return;
-	
-	if (LEVEL_OF_CONNECTION < 0)
-		LEVEL_OF_CONNECTION = 0;
+	if (!IS_CONNECTED) return;
+	if (bot.status === Status.READY) return;
+	IS_CONNECTED = false;
 	
 	if (TimeoutID) clearTimeout(TimeoutID);
 	TimeoutID = null;
@@ -160,12 +165,7 @@ DBot.disconnectEvent = function(event) {
 };
 
 DBot.readyEvent = function() {
-	LEVEL_OF_CONNECTION++;
-	
-	if (LEVEL_OF_CONNECTION >= 2) {
-		console.log('Connection was duplicated! WTF?');
-		return;
-	}
+	if (IS_CONNECTED) return;
 	
 	console.log('Connection established');
 	DBot.InitVars();
