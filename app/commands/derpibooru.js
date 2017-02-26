@@ -380,7 +380,12 @@ module.exports = {
 				if (previousStuff)
 					previousStuff.push(data.id);
 				
-				msg.reply('Tags: ' + data.tags + '\n<https://' + urlBase + '/' + data.id + '>\nhttps:' + target);
+				let tagStr = data.tags;
+				
+				if (typeof tagStr === 'object')
+					tagStr = data.tags.join(', ');
+				
+				msg.reply('Tags: ' + tagStr + '\n<https://' + urlBase + '/' + data.id + '>\nhttps:' + target);
 				
 				msg.channel.stopTyping();
 			};
