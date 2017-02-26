@@ -485,17 +485,23 @@ IMagick.DrawText = function(data, callback) {
 				magikArgs.push('-draw');
 				
 				const height = IMagick.GetFontHeight(font, rFontSize);
-				let currentBuild = '';
+				let currentBuild = null;
 				
-				for (const line of splitLines) {
-					currentBuild += ' text 0,' + (i * height) + ' "' + line.replace(/"/g, '\\"').replace(/\\/g, "\\\\") + '"';
+				for (const i in splitLines) {
+					const line = splitLines[i];
+					
+					if (currentBuild === null)
+						currentBuild = 'text 0,' + (i * height) + ' "' + line.replace(/"/g, '\\"').replace(/\\/g, "\\\\") + '"';
+					else
+						currentBuild += ' text 0,' + (i * height) + ' "' + line.replace(/"/g, '\\"').replace(/\\/g, "\\\\") + '"';
+					
 					if (currentBuild.length > 800) {
 						magikArgs.push(currentBuild);
-						currentBuild = '';
+						currentBuild = null;
 					}
 				}
 				
-				if (currentBuild !== '')
+				if (currentBuild !== '' && currentBuild !== null)
 					magikArgs.push(currentBuild);
 				
 				magikArgs.push(fpath);
