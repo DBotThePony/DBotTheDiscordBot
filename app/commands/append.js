@@ -1,4 +1,6 @@
 
+/* global DBot, Util, CommandHelper */
+
 const child_process = DBot.js.child_process;
 const spawn = child_process.spawn;
 const URL = DBot.js.url;
@@ -13,18 +15,9 @@ let fn = function(fName, i, resize, fName2) {
 		
 		for (let i in args) {
 			let arg = args[i];
-			let url;
+			let url = CommandHelper.identifyURL(arg);
 			
-			if (typeof arg == 'object') {
-				url = arg.avatarURL;
-				
-				if (!url)
-					return DBot.CommandError('User have nu avatar :<', fName2, args, Number(i) + 1);
-			} else {
-				url = arg;
-			}
-			
-			if (!DBot.CheckURLImage(url))
+			if (!url)
 				return DBot.CommandError('Invalid url maybe? ;w;', fName2, args, Number(i) + 1);
 			
 			urlBuild.push(url);
@@ -55,9 +48,9 @@ let fn = function(fName, i, resize, fName2) {
 					for (let ur of urlStrings) {
 						if (!resize)
 							magikArgs.push(ur);
-						else if (resize == 1)
+						else if (resize === 1)
 							magikArgs.push('(', ur, '-resize', '512', ')');
-						else if (resize == 2)
+						else if (resize === 2)
 							magikArgs.push('(', ur, '-resize', 'x512', ')');
 					}
 					
@@ -69,7 +62,7 @@ let fn = function(fName, i, resize, fName2) {
 					
 					magik.on('close', function(code) {
 						if (msg.checkAbort()) return;
-						if (code == 0) {
+						if (code === 0) {
 							msg.reply(fpathU);
 						} else {
 							msg.reply('<internal pony error>');
@@ -77,14 +70,14 @@ let fn = function(fName, i, resize, fName2) {
 						
 						msg.channel.stopTyping();
 					});
-				}
+				};
 				
 				for (let i in urlBuild) {
 					DBot.LoadImageURL(urlBuild[i], function(newPath) {
 						left--;
 						urlStrings[i] = newPath;
 						
-						if (left == 0) {
+						if (left === 0) {
 							continueFunc();
 						}
 					}, function(result) {
@@ -95,7 +88,7 @@ let fn = function(fName, i, resize, fName2) {
 			}
 		});
 	};
-}
+};
 
 module.exports = {
 	name: 'append',
@@ -105,8 +98,8 @@ module.exports = {
 	desc: 'Appends images at horisontal',
 	allowUserArgument: true,
 	
-	func: fn('+append', 1, null, '+append'),
-}
+	func: fn('+append', 1, null, '+append')
+};
 
 DBot.RegisterCommand({
 	name: 'vappend',
@@ -116,7 +109,7 @@ DBot.RegisterCommand({
 	desc: 'Appends images at vertical',
 	allowUserArgument: true,
 	
-	func: fn('-append', 2, null, '+append'),
+	func: fn('-append', 2, null, '+append')
 });
 
 DBot.RegisterCommand({
@@ -127,7 +120,7 @@ DBot.RegisterCommand({
 	desc: 'Appends images at horisontal. Rescales every image',
 	allowUserArgument: true,
 	
-	func: fn('+append', 3, 2, 'r+append'),
+	func: fn('+append', 3, 2, 'r+append')
 });
 
 DBot.RegisterCommand({
@@ -138,7 +131,7 @@ DBot.RegisterCommand({
 	desc: 'Appends images at vertical. Rescales every image',
 	allowUserArgument: true,
 	
-	func: fn('-append', 4, 1, 'r-append'),
+	func: fn('-append', 4, 1, 'r-append')
 });
 
 DBot.RegisterCommand({
@@ -150,5 +143,5 @@ DBot.RegisterCommand({
 	
 	func: function() {
 		return 'There is no command named `merge`, but instead you can use `-append` (appends images at vertical) and +append (appends images at horisontal)';
-	},
+	}
 });
