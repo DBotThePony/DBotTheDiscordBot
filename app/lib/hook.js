@@ -202,10 +202,6 @@ hook.Add('UserInitialized', 'UpdateUserVars', function(user) {
 	usersCache.push(user);
 });
 
-hook.Add('BotOnline', 'UpdateUserVars', function() {
-	setTimeout(UpdateUserVars, 3000);
-});
-
 /* Custom Events */
 
 hook.Add('RoleChanged', 'events', function(oldRole, newRole) {
