@@ -229,11 +229,59 @@ class SQLCollectionBase {
 			return;
 		};
 		
-		Postgres.query('SELECT ' + build, function(err, data) {
-			self.loadCallback(err, data);
+		if (typeof build === 'string') {
+			Postgres.query('SELECT ' + build, function(err, data) {
+				self.loadCallback(err, data);
+
+				if (callback) callback(self);
+			});
+		} else {
+			let done = 0;
+			let total = build.length;
 			
-			if (callback) callback(self);
-		});
+			for (const q of build) {
+				Postgres.query('SELECT ' + q, function(err, data) {
+					self.loadCallback(err, data);
+
+					done++;
+					
+					if (done === total)
+						if (callback)
+							callback(self);
+				});
+			}
+		}
+	}
+	
+	defaultIDsRequest() {
+		// Generic case
+		if (this.ids_request)
+			return this.ids_request;
+		
+		this.ids_request = [];
+		let cI = 0;
+		let cBuild;
+		
+		for (const id of this.ids) {
+			cI++;
+			
+			if (cBuild)
+				cBuild += ',\'' + id + '\'';
+			else
+				cBuild = '\'' + id + '\'';
+			
+			if (cI > 1000) {
+				this.ids_request.push(`${this.ids_function_name}(ARRAY [${cBuild}]::VARCHAR(64)[]) AS "RESULT";`);
+				cBuild = undefined;
+				cI = 0;
+			}
+		}
+		
+		if (cBuild !== undefined) {
+			this.ids_request.push(`${this.ids_function_name}(ARRAY [${cBuild}]::VARCHAR(64)[]) AS "RESULT";`);
+		}
+		
+		return this.ids_request;
 	}
 	
 	parseRows(data) {
@@ -252,14 +300,11 @@ class ServerSQLCollection extends SQLCollectionBase {
 	constructor() {
 		super();
 		this.preventDupes = {};
+		this.ids_function_name = 'get_servers_id';
 	}
 	
 	buildIDsRequest() {
-		if (this.ids_request)
-			return this.ids_request;
-		
-		this.ids_request = 'get_servers_id(' + this.getIDsArray() + '::VARCHAR(64)[]) AS "RESULT"';
-		return this.ids_request;
+		return this.defaultIDsRequest();
 	}
 	
 	isRubbish(obj) {
@@ -357,12 +402,13 @@ class ChannelSQLCollection extends SQLCollectionBase {
 };
 
 class UserSQLCollection extends SQLCollectionBase {
+	constructor() {
+		super();
+		this.ids_function_name = 'get_users_id';
+	}
+	
 	buildIDsRequest() {
-		if (this.ids_request)
-			return this.ids_request;
-		
-		this.ids_request = 'get_users_id(' + this.getIDsArray() + '::VARCHAR(64)[]) AS "RESULT"';
-		return this.ids_request;
+		return this.defaultIDsRequest();
 	}
 	
 	isRubbish(obj) {
@@ -483,7 +529,7 @@ class MemberSQLCollection extends SQLCollectionBase {
 		this.ids_request = [];
 		
 		for (const sUID in this.mapped_array) {
-			this.ids_request.push('SELECT get_members_id(' + sUID + ',' + sql.Array(this.mapped_array[sUID]) + '::INTEGER[]) AS "RESULT";');
+			this.ids_request.push(`SELECT get_members_id(${sUID},${sql.Array(this.mapped_array[sUID])}::INTEGER[]) AS "RESULT";`);
 		}
 		
 		return this.ids_request;
@@ -623,7 +669,7 @@ class RoleSQLCollection extends SQLCollectionBase {
 		
 		for (const [server, roles] of this.mapped) {
 			if (roles.length === 0) continue;
-			roleQuery += 'SELECT get_roles_id(' + server + ',' + sql.Array(roles) + '::VARCHAR(64)[]) AS "RESULT";';
+			roleQuery += `SELECT get_roles_id(${server},${sql.Array(roles)}::VARCHAR(64)[]) AS "RESULT";`;
 		}
 		
 		let self = this;
