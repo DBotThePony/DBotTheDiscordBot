@@ -202,63 +202,6 @@ hook.Add('UserInitialized', 'UpdateUserVars', function(user) {
 	usersCache.push(user);
 });
 
-let UpdateUserVars = function() {
-	if (!IsOnline())
-		return;
-	
-	if (!hook.Table['UpdateMemberVars'] && !hook.Table['UpdateUserVars'])
-		return;
-	
-	let total = usersCache.length;
-	if (total === 0)
-		return;
-	
-	let timered = Math.floor(20000 / total);
-	
-	for (let i = 0; i < total; i++) {
-		let user = usersCache[i];
-		
-		if (!DBot.UserIsInitialized(user)) {
-			DBot.DefineUser(user);
-			continue;
-		}
-		
-		setTimeout(function() {
-			hook.Run('UpdateUserVars',user );
-		}, timered * i);
-	}
-	
-	let servers = DBot.GetServers();
-	let Members = [];
-	
-	for (let sid in servers) {
-		let server = servers[sid];
-		let members = server.members.array();
-		
-		for (let member of members) {
-			let user = member.user;
-			
-			if (!DBot.UserIsInitialized(user)) {
-				DBot.DefineUser(user);
-				continue;
-			}
-			
-			Members.push(member);
-		}
-	}
-	
-	let totalMembers = Members.length;
-	let timeredMembers = Math.floor(20000 / totalMembers);
-	
-	for (let i = 0; i < totalMembers; i++) {
-		setTimeout(function() {
-			hook.Run('UpdateMemberVars', Members[i]);
-		}, timeredMembers * i);
-	}
-};
-
-setInterval(UpdateUserVars, 20000);
-
 hook.Add('BotOnline', 'UpdateUserVars', function() {
 	setTimeout(UpdateUserVars, 3000);
 });
