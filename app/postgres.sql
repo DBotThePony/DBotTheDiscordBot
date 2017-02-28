@@ -1699,6 +1699,39 @@ BEGIN
 	RETURN QUERY SELECT channels."ID", channels."UID" FROM channels WHERE channels."UID" = ANY (sID);
 END; $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION get_channels_id(sID VARCHAR(64)[], sID2 INTEGER)
+RETURNS TABLE ("CHANID" INTEGER, "UID" VARCHAR(64)) AS $$
+BEGIN
+	WITH missing_tab AS (
+		WITH missing AS (
+			SELECT
+				UNNEST(sID) AS "MISSING_CHANNEL",
+				sID2 AS "MISSING_SERVER"
+		)
+		
+		SELECT
+			missing."MISSING_CHANNEL",
+			missing."MISSING_SERVER"
+		FROM
+			missing
+		WHERE NOT EXISTS (
+			SELECT
+				missing."MISSING_CHANNEL",
+				missing."MISSING_SERVER"
+			FROM
+				channels
+			WHERE
+				missing."MISSING_CHANNEL" = channels."UID" AND
+				missing."MISSING_SERVER" = channels."SID"
+		)
+	)
+	
+	INSERT INTO "channels" ("UID", "SID") SELECT * FROM missing_tab WHERE missing_tab."MISSING_CHANNEL" IS NOT NULL;
+	UPDATE channels SET "TIME" = currtime() WHERE channels."UID" = ANY (sID);
+	
+	RETURN QUERY SELECT channels."ID", channels."UID" FROM channels WHERE channels."UID" = ANY (sID);
+END; $$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION get_roles_id(serverid INTEGER, rolesids VARCHAR(64)[])
 RETURNS TABLE ("ID" INTEGER, "UID" VARCHAR(64), "SERVER" INTEGER) AS $$
 BEGIN

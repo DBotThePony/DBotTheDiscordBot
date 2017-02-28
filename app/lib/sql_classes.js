@@ -339,6 +339,7 @@ class ChannelSQLCollection extends SQLCollectionBase {
 		super();
 		this.serverids = [];
 		this.serveruids = [];
+		this.associated = new Map();
 		
 		this.sids_array = null;
 	}
@@ -346,17 +347,38 @@ class ChannelSQLCollection extends SQLCollectionBase {
 	onSplice(id, obj) {
 		this.serverids.splice(id, 1);
 		this.serveruids.splice(id, 1);
+		
+		let sID = obj.guild.uid;
+		
+		if (!this.associated.has(sID)) return;
+		
+		let arr = this.associated.get(sID);
+		let comp = obj.id;
+		
+		for (const i in arr) {
+			if (comp === arr[i]) {
+				arr.splice(i, 1);
+				break;
+			}
+		}
 	}
 	
 	updateMapPre() {
 		this.serverids = new Array(this.objects.length);
 		this.serveruids = new Array(this.objects.length);
 		this.sids_array = null;
+		this.associated = new Map();
 	}
 	
 	mapEntryUpdate(channel, i) {
 		this.serverids[i] = channel.guild.id;
 		this.serveruids[i] = channel.guild.uid;
+		let sID = channel.guild.uid;
+		
+		if (!this.associated.has(sID))
+			this.associated.set(sID, []);
+		
+		this.associated.get(sID).push(channel.id);
 	}
 	
 	getServerIDsArray() {
@@ -371,7 +393,12 @@ class ChannelSQLCollection extends SQLCollectionBase {
 		if (this.ids_request)
 			return this.ids_request;
 		
-		this.ids_request = 'get_channels_id(' + this.getIDsArray() + '::VARCHAR(64)[],' + this.getServerIDsArray() + '::INTEGER[]) AS "RESULT"';
+		this.ids_request = [];
+		
+		for (const [serverID, channelsID] of this.associated) {
+			this.ids_request.push(`get_channels_id(${sql.Array(channelsID)}::VARCHAR(64)[],${serverID}) AS "RESULT";`);
+		}
+		
 		return this.ids_request;
 	}
 	
@@ -665,20 +692,29 @@ class RoleSQLCollection extends SQLCollectionBase {
 	
 	load(callback) {
 		this.cleanup();
-		let roleQuery = '';
+		let roleQuery = [];
 		
 		for (const [server, roles] of this.mapped) {
 			if (roles.length === 0) continue;
-			roleQuery += `SELECT get_roles_id(${server},${sql.Array(roles)}::VARCHAR(64)[]) AS "RESULT";`;
+			roleQuery.push(`SELECT get_roles_id(${server},${sql.Array(roles)}::VARCHAR(64)[]) AS "RESULT";`);
 		}
 		
 		let self = this;
+		let done = 0;
+		let total = roleQuery.length;
 		
-		Postgres.query(roleQuery, function(err, data) {
-			if (err) throw err;
-			self.parseRows(data);
-			if (callback) callback(self);
-		});
+		for (const q of roleQuery) {
+			Postgres.query(q, function(err, data) {
+				if (err) throw err;
+				self.parseRows(data);
+				
+				done++;
+				
+				if (done === total)
+					if (callback)
+						callback(self);
+			});
+		}
 	}
 	
 	isRubbish(obj) {
