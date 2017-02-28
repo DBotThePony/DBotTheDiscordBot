@@ -56,7 +56,7 @@ let baseMessageHandleFunc = function(self, str) {
 	}
 };
 
-let msgFuncs = [
+const msgFuncs = [
 	function(str) {
 		let baseReply = baseMessageHandleFunc(this, str);
 		if (typeof baseReply === 'object')
@@ -180,7 +180,7 @@ DBot.bot.on('message', function(msg) {
 	};
 });
 
-DBot.CommandsAntiSpam = {};
+DBot.CommandsAntiSpam = DBot.CommandsAntiSpam || {};
 
 DBot.ParseString = function(str, ignoreHandlers) {
 	let charset = str.split('');
@@ -316,20 +316,8 @@ DBot.ParseString = function(str, ignoreHandlers) {
 	return [output, handlers];
 };
 
-DBot.TrimArray = function(arr) {
-	let newArray = [];
-	
-	arr.forEach(function(item, i) {
-		if (item !== '') {
-			newArray.push(item);
-		};
-	});
-	
-	return newArray;
-};
-
-DBot.__LastMoreCommand = {};
-DBot.__LastRetryCommand = {};
+DBot.__LastMoreCommand = DBot.__LastMoreCommand || {};
+DBot.__LastRetryCommand = DBot.__LastRetryCommand || {};
 
 hook.Add('ChannelInitialized', 'LastMoreCommand', function(channel) {
 	DBot.__LastMoreCommand[channel.id] = {};
@@ -361,7 +349,7 @@ let CompareStrings = function(Str1, Str2) {
 	return result;
 };
 
-let findRelated = function(str) {
+const findRelated = function(str) {
 	let matches = [];
 	let len = str.length;
 	let minimum = len * .6;
@@ -409,12 +397,12 @@ let clearCommand;
 	};
 };
 
-let SpamScore = {};
+DBot.__SpamScore = DBot.__SpamScore || {};
 
 setInterval(function() {
-	for (let i in SpamScore) {
-		if (SpamScore[i] > 0) {
-			SpamScore[i]--;
+	for (let i in DBot.__SpamScore) {
+		if (DBot.__SpamScore[i] > 0) {
+			DBot.__SpamScore[i]--;
 		};
 	};
 }, 1000);
@@ -426,10 +414,10 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 		return;
 	};
 	
-	SpamScore[cCommand.id] = SpamScore[cCommand.id] || 0;
-	SpamScore[cCommand.id]++;
+	DBot.__SpamScore[cCommand.id] = DBot.__SpamScore[cCommand.id] || 0;
+	DBot.__SpamScore[cCommand.id]++;
 	
-	if (SpamScore[cCommand.id] > 8) {
+	if (DBot.__SpamScore[cCommand.id] > 8) {
 		if (msg.channel.cooldown && msg.channel.cooldown > CurTime()) {
 			msg.channel.cooldown = CurTime() + 1;
 			return;
@@ -858,7 +846,7 @@ DBot.IdentifyCommand = function(msg) {
 		return false;
 	};
 	
-	let splitted = DBot.TrimArray(rawmessage.split(' '));
+	let splitted = Array.Trim(rawmessage.split(' '));
 	
 	let prefix = '}';
 	
@@ -927,7 +915,7 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		return;
 	};
 	
-	let splitted = DBot.TrimArray(rawmessage.split(' '));
+	let splitted = Array.Trim(rawmessage.split(' '));
 	
 	let ServerBans;
 	let ChannelBans;

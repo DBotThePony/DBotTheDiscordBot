@@ -1,4 +1,18 @@
 
+/* global MathHelper */
+
+Array.Trim = function(arr) {
+	let newArray = [];
+	
+	arr.forEach(function(item, i) {
+		if (item !== '') {
+			newArray.push(item);
+		};
+	});
+	
+	return newArray;
+};
+
 Array.Random = function(arr) {
 	return arr[MathHelper.Random(0, arr.length - 1)];
 };
