@@ -108,7 +108,8 @@ const msgFuncs = [
 	}
 ];
 
-DBot.bot.on('message', function(msg) {
+DBot._oldMessageHandler = DBot.MessageHandler;
+DBot.MessageHandler = function(msg) {
 	msg.replies = msg.replies || [];
 	
 	msg.wasHandled = true;
@@ -178,7 +179,17 @@ DBot.bot.on('message', function(msg) {
 	} catch(err) {
 		console.error(err);
 	};
-});
+};
+
+if (DBot._oldMessageHandler) {
+	try {
+		DBot.bot.removeListener('message', DBot._oldMessageHandler);
+	} catch(err) {
+		console.error(err);
+	}
+}
+
+DBot.bot.on('message', DBot.MessageHandler);
 
 DBot.CommandsAntiSpam = DBot.CommandsAntiSpam || {};
 
@@ -915,8 +926,6 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		return;
 	};
 	
-	let splitted = Array.Trim(rawmessage.split(' '));
-	
 	let ServerBans;
 	let ChannelBans;
 	let MemberBans;
@@ -927,8 +936,8 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		ChannelBans = DBot.ChannelCBans(msg.channel);
 		MemberBans = DBot.MemberCBans(msg.member);
 		
-		let channelVars = cvars.Channel(msg.channel);
-		let serverVars = cvars.Server(msg.channel.guild);
+		const channelVars = cvars.Channel(msg.channel);
+		const serverVars = cvars.Server(msg.channel.guild);
 		
 		if (channelVars && serverVars) {
 			let sPrefix = serverVars.getVar('prefix').getString();
@@ -943,6 +952,9 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		}
 	};
 	
+	rawmessage = rawmessage.replace(new RegExp(`^${prefix}([ ]+)`, 'i'), prefix); // Trim spaces between prefix and command
+	
+	let splitted = Array.Trim(rawmessage.split(' '));
 	const startsWithPrefix = rawmessage.substr(0, prefix.length) === prefix;
 	
 	if (startsWithPrefix && !isPrivate) {
