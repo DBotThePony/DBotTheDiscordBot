@@ -896,35 +896,7 @@ DBot.RegisterMemberConstructor('ModerationCommands', function(self) {
 	self.offs = [];
 });
 
-hook.Add('MembersFetched', 'ModerationCommands', function(members, server, hashMap, collection) {
-	if (collection.length === 0) return;
-	const join = collection.joinUID();
-	
-	Postgres.query('SELECT off_users.* FROM off_users WHERE off_users."ID" IN (' + join + ')', function(err, data) {
-		if (err) throw err;
-		
-		for (let row of data) {
-			let member = collection.getByUID(row.ID);
-			console.log(member !== null);
-			
-			if (!member) continue;
-			
-			DBot.IMember(member).offs.push(row.CHANNEL);
-		}
-	});
-	
-	Postgres.query('SELECT member_softban."ID", member_softban."STAMP", member_softban."ADMIN", members."NAME" AS "ADMIN_NAME", users."NAME" AS "ADMIN_NAME_REAL" FROM member_softban, members, users WHERE member_softban."ID" IN (' + join + ') AND members."ID" = member_softban."ADMIN" AND users."ID" = members."USER"', function(err, data) {
-		if (err) throw err;
-		
-		for (let row of data) {
-			let member = collection.getByUID(row.ID);
-			if (!member) continue;
-			userBanHit(member, row);
-		}
-	});
-});
-
-hook.Add('MultiMembersInitialized', 'ModerationCommands', function(collection) {
+const MultiMembersInitialized = function(collection) {
 	if (collection.length === 0) return;
 	const join = collection.joinUID();
 	
@@ -954,7 +926,10 @@ hook.Add('MultiMembersInitialized', 'ModerationCommands', function(collection) {
 			userBanHit(member, row);
 		}
 	});
-});
+};
+
+hook.Add('MembersFetched', 'ModerationCommands', (members, server, oldHashMap, collection) => MultiMembersInitialized(collection));
+hook.Add('MultiMembersInitialized', 'ModerationCommands', MultiMembersInitialized);
 
 hook.Add('MembersInitialized', 'ModerationCommands', function() {
 	let memberMap = [];

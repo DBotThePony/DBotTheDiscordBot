@@ -653,8 +653,8 @@ class ChannelVarSession {
 	}
 }
 
-hook.Add('UserInitialized', 'CVars', function(obj) {
-	if (!DBot.SQLReady()) return;
+hook.Add('UserInitialized', 'CVars', function(obj, uid, isCascade) {
+	if (!DBot.SQLReady() || isCascade) return;
 	
 	if (cvars.CLIENTS[DBot.GetUserID(obj)])
 		return;
@@ -726,6 +726,70 @@ FROM
 WHERE
 	users."TIME" > currtime() - 120 AND
 	users."ID" = cvar_client."ID" AND
+	"CVAR" IN (SELECT vars_values."VAR" FROM vars_values)
+`;
+	
+	Postgres.query(query, function(err, data) {
+		if (err) throw err;
+		DBot.updateLoadingLevel(false);
+		
+		for (let row of data) {
+			let obj = DBot.GetUser(row.ID);
+			
+			if (!obj) continue;
+			if (!cvars.CLIENTS[row.ID])
+				cvars.CLIENTS[row.ID] = new UserVarSession(obj, true);
+			
+			let cv = cvars.CLIENTS[row.ID].getVar(row.CVAR);
+			if (!cv) continue;
+			cv.setValueRaw(row.VALUE);
+		}
+	});
+});
+
+hook.Add('MultiUsersInitialized', 'CVars', function(users) {
+	if (users.length === 0) return;
+	const join = users.joinUID();
+	let cVarsArray;
+	
+	for (let i in cvars.CONVARS_USER) {
+	if (!cVarsArray)
+			cVarsArray = '(' + Postgres.escape(i) + ',' + Postgres.escape(cvars.CONVARS_USER[i].val) + ')';
+		else
+			cVarsArray += ',(' + Postgres.escape(i) + ',' + Postgres.escape(cvars.CONVARS_USER[i].val) + ')';
+	}
+	
+	if (!cVarsArray) return DBot.updateLoadingLevel(false);
+	
+	let query = `
+WITH vars_values ("VAR", "VALUE") AS (
+	VALUES ${cVarsArray}
+),
+
+fake_insert_notexists AS (
+	INSERT INTO cvar_client (
+		SELECT
+			users."ID",
+			vars_values."VAR",
+			vars_values."VALUE"
+		FROM
+			vars_values,
+			users
+		WHERE
+			users."TIME" > currtime() - 120 AND
+			users."ID" NOT IN
+				(SELECT "ID" FROM cvar_client)
+	)
+)
+
+SELECT
+	cvar_client."ID",
+	cvar_client."CVAR",
+	cvar_client."VALUE"
+FROM
+	cvar_client
+WHERE
+	cvar_client."ID" IN (${join}) AND
 	"CVAR" IN (SELECT vars_values."VAR" FROM vars_values)
 `;
 	

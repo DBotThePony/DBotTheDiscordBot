@@ -92,7 +92,7 @@ hook.Add('MemberInitialized', 'MemberNameLogs', function(member, uid, isCascade)
 	Postgres.query('UPDATE members SET "NAME" = ' + name + ' WHERE "ID" = ' + member.uid, console.errHandler);
 });
 
-hook.Add('MembersFetched', 'MemberNameLogs', function(members, server, oldHashMap, collection) {
+const MultiMembersInitialized = function(collection) {
 	if (collection.length === 0) return;
 	let finalQuery;
 	
@@ -113,7 +113,10 @@ hook.Add('MembersFetched', 'MemberNameLogs', function(members, server, oldHashMa
 	}
 	
 	Postgres.query('UPDATE members SET "NAME" = m."NAME" FROM (VALUES ' + finalQuery + ') AS m ("ID", "NAME") WHERE members."ID" = m."ID"');
-});
+};
+
+hook.Add('MembersFetched', 'MemberNameLogs', (members, server, oldHashMap, collection) => MultiMembersInitialized(collection));
+hook.Add('MultiMembersInitialized', 'MemberNameLogs', MultiMembersInitialized);
 
 hook.Add('MembersInitialized', 'MemberNameLogs', function(members) {
 	let finalQuery;
