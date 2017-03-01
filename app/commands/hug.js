@@ -121,6 +121,7 @@ DBot.RegisterCommand({
 	
 	help_args: '',
 	desc: 'Sits',
+	allowUserArgument: true,
 	
 	func: defAction('stroke', {text: 'sits on', textSelf: 'sits', self: true})
 });
@@ -130,6 +131,7 @@ DBot.RegisterCommand({
 	
 	help_args: '',
 	desc: 'Jumps',
+	allowUserArgument: true,
 	
 	func: defAction('stroke', {text: 'jumps on', textSelf: 'jumps around', self: true})
 });
@@ -139,6 +141,7 @@ DBot.RegisterCommand({
 	
 	help_args: '',
 	desc: 'Sleeps',
+	allowUserArgument: true,
 	
 	func: defAction('stroke', {text: 'sleeps on', textSelf: 'sleeps on a bed', self: true})
 });
@@ -149,6 +152,7 @@ DBot.RegisterCommand({
 	
 	help_args: '',
 	desc: 'Lays',
+	allowUserArgument: true,
 	
 	func: defAction('stroke', {text: 'lays on', textSelf: 'lays', self: true})
 });
