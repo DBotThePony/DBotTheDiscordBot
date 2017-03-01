@@ -103,10 +103,7 @@ class SQLConnectionDispatcher {
 			newErrorMessage += '\n' + oldStack;
 			err.stack = newErrorMessage;
 
-			if (!callback) {
-				console.error(err);
-				throw err;
-			}
+			if (!callback) throw err;
 		}
 
 		if (!callback) return;
@@ -119,7 +116,6 @@ class SQLConnectionDispatcher {
 			let e = new Error(newErr);
 			e.stack = newErr.stack + '\n ------- \n' + oldStack.substr(6);
 			console.error(e);
-			throw e; // Rethrow
 		}
 	}
 	
@@ -149,10 +145,7 @@ class SQLConnectionDispatcher {
 				if (errDef) return;
 				
 				if (err) {
-					if (!callback) {
-						console.error(err);
-						throw err;
-					}
+					if (!callback) throw err;
 					
 					errDef = err;
 					callback(errDef);
@@ -217,10 +210,10 @@ DBot.secondarySQLConnection = secondaryConnection;
 const sqlPg = fs.readFileSync('./app/postgres.sql', 'utf8').replace(/\r/gi, '');
 
 mainConnection.connect(function(err) {
-	if (err) throw err;
+	if (err) {console.error(err); process.exit(1);}
 	
 	mainConnection.query(sqlPg, function(err) {
-		if (err) throw err;
+		if (err) {console.error(err); process.exit(1);}
 		
 		if (DBot.SQL_FILE_LOADED) return;
 		DBot.SQL_FILE_LOADED = true;
@@ -229,7 +222,7 @@ mainConnection.connect(function(err) {
 		let last_rev = DBot.js.filesystem.readdirSync('./app/dbrevisions/').length;
 
 		mainConnection.query('SELECT "VALUE" FROM db_info WHERE "KEY" = \'version\'', function(err, data) {
-			if (err) throw err;
+			if (err) {console.error(err); process.exit(1);}
 			if (data[0])
 				db_rev = Number(data[0].VALUE);
 			else
@@ -246,7 +239,8 @@ mainConnection.connect(function(err) {
 				let usualCallback = function(err) {
 					if (err) {
 						console.error('There is a problem with upgrading database');
-						throw err;
+						console.error(err);
+						process.exit(1);
 					}
 
 					current++;

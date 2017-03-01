@@ -28,6 +28,10 @@ stdin.addListener('data', function(data) {
 	}
 });
 
+process.on('uncaughtException', function(err) {
+	console.error('Uncaught Exception: ', err);
+});
+
 global.sprintf = require('sprintf-js').sprintf;
 global.DBot = global.DBot || {};
 
@@ -37,8 +41,8 @@ try {
 	console.error('---------------------------------------');
 	console.error('FATAL: Unable to open config file. Is it there? Is it valid?');
 	console.error('---------------------------------------');
-	
-	throw err;
+	console.error(err);
+	process.exit(1);
 }
 
 // Small safety stuff
