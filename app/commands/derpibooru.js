@@ -105,6 +105,11 @@ const searchImages = function(keywords, callback) {
 						im.full = im.representations.full;
 					}
 					
+					if (images.length === 0) {
+						callback([]);
+						return;
+					}
+					
 					Postgres.query(`INSERT INTO derpibooru_pics VALUES ${images.join(',')} ON CONFLICT (id) DO UPDATE
 										SET upvotes = excluded.upvotes, downvotes = excluded.downvotes, faves = excluded.faves`, (err) => {
 						if (err) throw err;
@@ -313,6 +318,12 @@ module.exports = {
 				if (!parsed) {
 					msg.channel.stopTyping();
 					msg.reply('Derpibooru is down! Onoh!');
+					return;
+				}
+				
+				if (parsed.length === 0) {
+					msg.reply('Sorry, no results');
+					msg.channel.stopTyping();
 					return;
 				}
 				
