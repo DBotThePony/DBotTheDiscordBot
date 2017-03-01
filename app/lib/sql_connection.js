@@ -103,7 +103,10 @@ class SQLConnectionDispatcher {
 			newErrorMessage += '\n' + oldStack;
 			err.stack = newErrorMessage;
 
-			if (!callback) throw err;
+			if (!callback) {
+				console.error(err);
+				throw err;
+			}
 		}
 
 		if (!callback) return;
@@ -115,6 +118,7 @@ class SQLConnectionDispatcher {
 		} catch(newErr) {
 			let e = new Error(newErr);
 			e.stack = newErr.stack + '\n ------- \n' + oldStack.substr(6);
+			console.error(e);
 			throw e; // Rethrow
 		}
 	}
@@ -145,7 +149,11 @@ class SQLConnectionDispatcher {
 				if (errDef) return;
 				
 				if (err) {
-					if (!callback) throw err;
+					if (!callback) {
+						console.error(err);
+						throw err;
+					}
+					
 					errDef = err;
 					callback(errDef);
 					return;
