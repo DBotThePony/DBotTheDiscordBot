@@ -140,7 +140,7 @@ DBot.RegisterCommand({
 			userName = target.username;
 			
 			Postgres.query(`SELECT * FROM rep_users WHERE "ID" = ${sql.User(target)}`, (err, data) => {
-				Postgres.query(`SELECT rep_history.*, users."NAME" as "username" FROM rep_history, members, users WHERE "REC" = ${sql.User(target)} AND members."ID" = "GIV" AND users."ID" = members."USER"`, (err, dataHist) => {
+				Postgres.query(`SELECT rep_history.*, users."NAME" as "username" FROM rep_history, members, users WHERE "REC" = ${sql.User(target)} AND members."ID" = "GIV" AND users."ID" = members."USER" ORDER BY "STAMP" DESC LIMIT 100`, (err, dataHist) => {
 					let dataRender = [];
 
 					for (const row of dataHist) {
@@ -176,7 +176,7 @@ DBot.RegisterCommand({
 			userName = target.username;
 			Postgres.query(`SELECT * FROM rep_users WHERE "ID" = ${sql.User(target)}`, (err, data) => {
 				Postgres.query(`SELECT * FROM rep_members WHERE "ID" = ${sql.User(target)}`, (err, data2) => {
-					Postgres.query(`SELECT rep_history.*, users."NAME" as "username" FROM rep_history, members, users WHERE "REC" = ${sql.User(target)} AND members."ID" = "GIV" AND users."ID" = members."USER"`, (err, dataHist) => {
+					Postgres.query(`SELECT rep_history.*, users."NAME" as "username" FROM rep_history, members, users WHERE "REC" = ${sql.User(target)} AND members."ID" = "GIV" AND users."ID" = members."USER" ORDER BY "STAMP" DESC LIMIT 100`, (err, dataHist) => {
 						let dataRender = [];
 						
 						for (const row of dataHist) {
