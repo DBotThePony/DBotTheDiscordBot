@@ -25,9 +25,9 @@ module.exports = {
 		const sha = String.hash(url);
 		
 		let fpath;
-		const fpathProcessed = DBot.WebRoot + '/vibrate/' + sha + '.gif';
+		const fpathProcessed = DBot.WebRoot + '/vibrate/' + sha + '_vib.gif';
 		const fpathProcessedPrepare = DBot.WebRoot + '/vibrate/' + sha + '_pre.png';
-		const fpathU = DBot.URLRoot + '/vibrate/' + sha + '.gif';
+		const fpathU = DBot.URLRoot + '/vibrate/' + sha + '_vib.gif';
 		
 		msg.channel.startTyping();
 		
