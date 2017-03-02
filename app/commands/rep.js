@@ -125,10 +125,15 @@ DBot.RegisterCommand({
 		let userName;
 		const pm = DBot.IsPM(msg);
 		
-		if (pm || typeof args[0] !== 'object')
+		if (pm)
 			target = msg.author;
-		else
-			target = args[0];
+		else if (!pm && typeof args[0] === 'object')
+			if (msg.channel.guild.member(args[0]))
+				target = msg.channel.guild.member(args[0]);
+			else
+				target = msg.member;
+		else if (!pm && typeof args[0] !== 'object')
+			target = msg.member;
 		
 		msg.channel.startTyping();
 		
@@ -173,10 +178,10 @@ DBot.RegisterCommand({
 				});
 			});
 		} else {
-			userName = target.username;
-			Postgres.query(`SELECT * FROM rep_users WHERE "ID" = ${sql.User(target)}`, (err, data) => {
-				Postgres.query(`SELECT * FROM rep_members WHERE "ID" = ${sql.User(target)}`, (err, data2) => {
-					Postgres.query(`SELECT rep_history.*, users."NAME" as "username" FROM rep_history, members, users WHERE "REC" = ${sql.User(target)} AND members."ID" = "GIV" AND users."ID" = members."USER" ORDER BY "STAMP" DESC LIMIT 100`, (err, dataHist) => {
+			userName = target.user.username;
+			Postgres.query(`SELECT * FROM rep_users WHERE "ID" = ${sql.User(target.user)}`, (err, data) => {
+				Postgres.query(`SELECT * FROM rep_members WHERE "ID" = ${sql.Member(target)}`, (err, data2) => {
+					Postgres.query(`SELECT rep_history.*, users."NAME" as "username" FROM rep_history, members, users WHERE "REC" = ${sql.User(target.user)} AND members."ID" = "GIV" AND users."ID" = members."USER" ORDER BY "STAMP" DESC LIMIT 100`, (err, dataHist) => {
 						let dataRender = [];
 						
 						for (const row of dataHist) {
@@ -203,9 +208,9 @@ DBot.RegisterCommand({
 								title: 'Reputation history'
 							}), console.errHandler);
 							
-							msg.reply(`**@${target.username}** global reputation is **${rep}** points, server reputation is **${rep2}**\nReputation history: ${pathU}`);
+							msg.reply(`**@${target.user.username}** global reputation is **${rep}** points, server reputation is **${rep2}**\nReputation history: ${pathU}`);
 						} else {
-							msg.reply(`**@${target.username}** global reputation is **${rep}** points, server reputation is **${rep2}**`);
+							msg.reply(`**@${target.user.username}** global reputation is **${rep}** points, server reputation is **${rep2}**`);
 						}
 					});
 				});
