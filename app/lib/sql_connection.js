@@ -17,6 +17,7 @@ class SQLResult {
 		}
 		
 		this.amountOfRows = this.rawRows.length;
+		this.length = this.rawRows.length;
 		
 		for (let i in this.rawRows) {
 			this[i] = this.rawRows[i];

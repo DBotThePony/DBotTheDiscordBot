@@ -1,0 +1,32 @@
+
+extends report_base
+
+block append header
+	style.
+		td.username {width: 250px;}
+		td.amount {width: 100px;}
+		td.comment {width: 400px;}
+		td.add {color: green;}
+		td.rm {color: red;}
+
+block append contents
+	table#perms
+		tr.tabheader
+			td.username Username
+			td.amount Amount
+			td.comment Commentary
+			td.date Date
+		each row in data
+			tr
+				td.username= row.username
+
+				if row.col
+					td.amount.add= row.amount
+				else
+					td.amount.rm= row.amount
+
+				td.comment= row.comm
+				td.date= row.date
+
+
+

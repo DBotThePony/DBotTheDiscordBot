@@ -395,7 +395,7 @@ const findRelated = function(str) {
 let clearCommand;
 
 {
-	let clearExpr = /[a-zа-я0-9]/gi;
+	let clearExpr = /[a-zа-я0-9\+\-\=]/gi;
 	
 	clearCommand = function(str) {
 		let output = '';

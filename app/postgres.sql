@@ -868,6 +868,32 @@ CREATE TABLE IF NOT EXISTS rp_actions (
 );
 
 -----------------------------------
+--- Reputation tables
+-----------------------------------
+
+CREATE TABLE IF NOT EXISTS rep_users (
+	"ID" INTEGER NOT NULL REFERENCES users ("ID"),
+	"REP" INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY ("ID")
+);
+
+CREATE TABLE IF NOT EXISTS rep_members (
+	"ID" INTEGER NOT NULL REFERENCES members ("ID"),
+	"REP" INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY ("ID")
+);
+
+CREATE TABLE IF NOT EXISTS rep_history (
+	"ENTRY" SERIAL NOT NULL PRIMARY KEY,
+	"REC" INTEGER NOT NULL REFERENCES users ("ID"),
+	"GIV" INTEGER NOT NULL REFERENCES users ("ID"),
+	"SERVER" INTEGER NOT NULL REFERENCES servers ("ID"),
+	"AMOUNT" INTEGER NOT NULL DEFAULT 0,
+	"STAMP" INTEGER NOT NULL DEFAULT currtime(),
+	"REASON" VARCHAR(255) NOT NULL DEFAULT '<no reason given>'
+);
+
+-----------------------------------
 --- Search results cache tables
 -----------------------------------
 
