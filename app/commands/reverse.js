@@ -7,6 +7,7 @@ const IMagick = myGlobals.IMagick;
 const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
+const CommandHelper = myGlobals.CommandHelper;
 
 let fix = function(str) {
 	return str.replace(/@everyone/gi, '@pne').replace(/@here/gi, '@pne').replace(/@[^ ]+/gi, '@pne');

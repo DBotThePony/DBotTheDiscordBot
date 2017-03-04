@@ -49,7 +49,6 @@ try {
 
 const token = DBot.cfg.token;
 
-global.CommandHelper = require('./app/lib/commandhelper.js');
 require('./app/lib/extensions/index.js');
 
 let IS_CONNECTED = false;
@@ -67,6 +66,7 @@ DBot.owners = DBot.cfg.owners;
 
 DBot.fs = DBot.js.fs;
 
+require('./app/lib/commandhelper.js');
 require('./app/lib/util.js');
 require('./app/lib/hook.js');
 require('./app/lib/sql.js');

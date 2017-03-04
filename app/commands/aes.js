@@ -7,6 +7,7 @@ const IMagick = myGlobals.IMagick;
 const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
+const CommandHelper = myGlobals.CommandHelper;
 
 // Chars to remap: qwertyuiopasdfghjklzxcvbnm1234567890[];'\,./?-=+!@#$%^&*()~"{}<>QWERTYUUIOPASDFGHJKKLZXCVBNM
 

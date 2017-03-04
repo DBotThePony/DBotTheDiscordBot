@@ -19,7 +19,7 @@ DBot.ExtraxtExt = function(url) {
 	return url.match(imageExtExt)[1];
 };
 
-const CommandHelper = {
+myGlobals.CommandHelper = {
 	imageExt: imageExt,
 	imageExtExt: imageExtExt,
 	imCover: cover,
@@ -130,5 +130,3 @@ const CommandHelper = {
 		return url;
 	}
 };
-
-module.exports = CommandHelper;

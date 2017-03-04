@@ -7,6 +7,7 @@ const IMagick = myGlobals.IMagick;
 const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
+const CommandHelper = myGlobals.CommandHelper;
 
 const child_process = require('child_process');
 const spawn = child_process.spawn;
