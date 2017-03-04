@@ -381,7 +381,7 @@ if (!IMagick.FONTS_LOADED) {
 }
 
 // Simple text
-global.DrawText = function(text, callback, rFontSize) {
+IMagick.DrawSimpleText = function(text, callback, rFontSize) {
 	rFontSize = rFontSize || 48;
 	let splitLines = text.replace(/\t/gi, '    ').split('\n');
 	

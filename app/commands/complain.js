@@ -69,7 +69,7 @@ DBot.RegisterCommand({
 				output += '\nMessage: \n\t' + row.CONTENT.replace(/\n/gi, '\n\t') + '\n\n';
 			}
 			
-			DrawText(output, function(err, fpath, fpathU) {
+			IMagick.DrawSimpleText(output, function(err, fpath, fpathU) {
 				if (err) {
 					msg.reply('Failed to draw complains!');
 					return;
