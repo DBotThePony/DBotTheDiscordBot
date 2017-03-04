@@ -1,6 +1,5 @@
 
 const myGlobals = require('./app/globals.js');
-const hook = myGlobals.hook;
 const DBot = myGlobals.DBot;
 const sql = myGlobals.sql;
 const IMagick = myGlobals.IMagick;
@@ -65,13 +64,15 @@ DBot.URLRootBare = DBot.cfg.webpath;
 DBot.URLRoot = DBot.cfg.protocol + '://' + DBot.cfg.webpath;
 DBot.owners = DBot.cfg.owners;
 
+require('./app/hook.js');
 require('./app/lib/commandhelper.js');
 require('./app/lib/util.js');
-require('./app/hook.js');
 require('./app/lib/sql.js');
 require('./app/lib/member_storage.js');
 require('./app/lib/imagick.js');
 require('./app/lib/emoji.js');
+
+const hook = myGlobals.hook;
 
 require('./app/lib/cvars.js');
 require('./app/generic.js');

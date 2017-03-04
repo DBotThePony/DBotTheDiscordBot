@@ -1,5 +1,5 @@
 
-const myGlobals = require('../globals.js');
+const myGlobals = require('./globals.js');
 const DBot = myGlobals.DBot;
 const sql = myGlobals.sql;
 const IMagick = myGlobals.IMagick;
