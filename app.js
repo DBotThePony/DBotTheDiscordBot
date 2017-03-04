@@ -67,7 +67,7 @@ DBot.owners = DBot.cfg.owners;
 
 require('./app/lib/commandhelper.js');
 require('./app/lib/util.js');
-require('./app/lib/hook.js');
+require('./app/hook.js');
 require('./app/lib/sql.js');
 require('./app/lib/member_storage.js');
 require('./app/lib/imagick.js');
@@ -91,8 +91,6 @@ for (const file of fs.readdirSync('./app/modules/')) {
 };
 
 DBot.START_STAMP = (new Date()).getTime() / 1000;
-
-hook.RegisterEvents();
 
 const Status = {
 	READY: 0,
