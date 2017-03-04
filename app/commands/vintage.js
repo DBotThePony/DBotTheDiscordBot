@@ -169,7 +169,7 @@ DBot.RegisterCommand({
 			url = url.avatarURL;
 		
 		if (!url) {
-			url = DBot.LastURLInChannel(msg.channel);
+			url = CommandHelper.lastURL(msg.channel);
 			
 			if (!url) {
 				return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['vintage3'], 2, args);

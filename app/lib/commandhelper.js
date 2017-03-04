@@ -7,25 +7,34 @@ const IMagick = myGlobals.IMagick;
 const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
+const URL = require('url');
+
+const URLMessages = {};
+const URLMessagesImages = {};
+const URLMessagesImages2 = {};
 
 const imageExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd|webp)(\?|\/)?/i;
-const imageExtExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd|gif|webp)(\?|\/)?/i;
-const expr = new RegExp('^https?://' + DBot.URLRootBare + '/(.*)');
-const cover = new RegExp('\\.\\./', 'gi');
-const cover2 = new RegExp('\\./', 'gi');
-const insideBotFolder = new RegExp('^\\./resource/', '');
+const imageExtExtended = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd|gif|webp)(\?|\/)?/i;
+const urlSelf = new RegExp('^https?://' + DBot.URLRootBare + '/(.*)');
+const url = new RegExp('https?://([^ "\n]*)', 'g');
+const urlStrong = new RegExp('^https?://([^ "\n]*)$');
+const check = new RegExp('\\.?\\./', 'gi');
+const internalResource = new RegExp('^\\./resource/', '');
 
 DBot.ExtraxtExt = function(url) {
-	return url.match(imageExtExt)[1];
+	return url.match(imageExtExtended)[1];
 };
 
 const CommandHelper = {
 	imageExt: imageExt,
-	imageExtExt: imageExtExt,
-	imCover: cover,
-	imCover2: cover2,
-	internalResource: insideBotFolder,
-	urlExpression: expr,
+	imageExtExt: imageExtExtended,
+	imageExtExtended: imageExtExtended,
+	imCover: check,
+	internalResource: internalResource,
+	urlExpression: url,
+	urlSelf: urlSelf,
+	url: url,
+	urlStrong: urlStrong,
 	
 	switchImageArgs: function(channel, args, defNum) {
 		const url1 = CommandHelper.identifyURL(args[0]);
@@ -65,7 +74,7 @@ const CommandHelper = {
 		if (!url)
 			return false;
 
-		if (url.match(cover) || url.match(cover2) || url.match(/^\//))
+		if (url.match(check) || url.match(/^\//))
 			return false;
 
 		if (!DBot.CheckURLImage2(url)) {
@@ -93,7 +102,7 @@ const CommandHelper = {
 		if (!url)
 			return false;
 
-		if (url.match(cover) || url.match(cover2) || url.match(/^\//))
+		if (url.match(check) || url.match(/^\//))
 			return false;
 
 		if (!DBot.CheckURLImage(url)) {
@@ -115,7 +124,7 @@ const CommandHelper = {
 			if (!url) return null;
 		}
 
-		if (url.match(cover) || url.match(cover2) || url.match(/^\//))
+		if (url.match(check) || url.match(/^\//))
 			return null;
 
 		if (!DBot.CheckURLImage(url)) {
@@ -128,7 +137,58 @@ const CommandHelper = {
 		}
 
 		return url;
+	},
+	
+	lastURL: function(channel) {
+		return URLMessages[channel.id];
+	},
+	
+	lastImageURL: function(channel) {
+		return URLMessagesImages[channel.id];
+	},
+	
+	lastImageURL2: function(channel) {
+		return URLMessagesImages2[channel.id];
+	},
+	
+	checkURL: function(url) {
+		return url && url.match(urlStrong) && url.match(imageExt);
+	},
+	
+	checkURL2: function(url) {
+		return url && url.match(urlStrong) && url.match(imageExtExtended);
 	}
 };
+
+CommandHelper.combinedURL = CommandHelper.CombinedURL;
+
+const messageParseFunc = function(msg) {
+	let cid = msg.channel.id;
+	
+	if (msg.attachments) {
+		for (const val of msg.attachments.values()) {
+			if (val.url && val.url.match(imageExt)) {
+				URLMessages[cid] = val.url;
+				URLMessagesImages[cid] = val.url;
+			}
+		}
+	}
+	
+	const Message = msg.content;
+	const get = Message.match(url);
+	if (!get) return;
+	
+	for (const url of get) {
+		if (url.match(imageExt)) URLMessagesImages[cid] = url;
+		if (url.match(imageExtExtended)) URLMessagesImages2[cid] = url;
+		URLMessages[cid] = url;
+	}
+};
+
+hook.Add('OnMessage', 'CommandHelper', messageParseFunc);
+
+hook.Add('OnMessageEdit', 'CommandHelper', function(omsg, nmsg) {
+	messageParseFunc(nmsg);
+});
 
 myGlobals.CommandHelper = CommandHelper;

@@ -48,7 +48,7 @@ module.exports = {
 			}
 		}
 		
-		url = url || DBot.LastURLImageInChannel2(msg.channel);
+		url = url || CommandHelper.lastImageURL2(msg.channel);
 		if (!DBot.CheckURLImage2(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', 'rotate', args, 2);
 		

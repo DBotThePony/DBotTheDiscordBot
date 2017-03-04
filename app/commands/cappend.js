@@ -122,7 +122,7 @@ DBot.RegisterCommand({
 			}
 		}
 		
-		url = url || DBot.LastURLImageInChannel(msg.channel);
+		url = url || CommandHelper.lastImageURL(msg.channel);
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'cappend', args, 1);
 		

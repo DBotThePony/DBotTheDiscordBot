@@ -29,7 +29,7 @@ module.exports = {
 		if (typeof(url) == 'object')
 			url = url.avatarURL;
 		
-		url = url || DBot.LastURLInChannel(msg.channel);
+		url = url || CommandHelper.lastURL(msg.channel);
 		if (!DBot.CheckURLImage(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', 'pixel', args, 1);
 		

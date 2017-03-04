@@ -172,7 +172,7 @@ DBot.RegisterCommand({
 		}
 		
 		if (!url) {
-			url = DBot.LastURLImageInChannel(msg.channel);
+			url = CommandHelper.lastImageURL(msg.channel);
 			
 			if (!url) {
 				return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['dead'], 2, args);
