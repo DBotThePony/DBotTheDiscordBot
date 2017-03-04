@@ -1,5 +1,12 @@
 
-/* global Util, Postgres, DBot, sql, hook */
+const myGlobals = require('../globals.js');
+const hook = myGlobals.hook;
+const DBot = myGlobals.DBot;
+const sql = myGlobals.sql;
+const IMagick = myGlobals.IMagick;
+const Util = myGlobals.Util;
+const cvars = myGlobals.cvars;
+const Postgres = myGlobals.Postgres;
 
 const numeral = require('numeral');
 const moment = require('moment');

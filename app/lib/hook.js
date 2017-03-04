@@ -1,8 +1,12 @@
 
-/* global hook, DBot */
+const myGlobals = require('../globals.js');
+const hook = myGlobals.hook;
+const DBot = myGlobals.DBot;
+const sql = myGlobals.sql;
+const IMagick = myGlobals.IMagick;
+const Util = myGlobals.Util;
+const cvars = myGlobals.cvars;
 
-global.hook = global.hook || {};
-global.events = hook;
 hook.Table = {};
 
 hook.Add = function(event, id, func) {

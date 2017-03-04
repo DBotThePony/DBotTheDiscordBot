@@ -1,5 +1,14 @@
 
-/* global cvars, FCVAR_PRINTABLEONLY, FCVAR_PROTECTED, FCVAR_CHANNELONLY, FCVAR_NUMERSONLY, FCVAR_SERVERONLY, FCVAR_BOOLONLY, FCVAR_USERONLY, FCVAR_NUMERSONLY_INT, FCVAR_NUMERSONLY_UINT, FCVAR_ONECHAR_ONLY, FCVAR_NOTNULL, FCVAR_ROLE, FCVAR_ROLE_NOT_INTIALIZED, FCVAR_ERROR_TOOLONG, DBot, Postgres, Util, hook */
+/* global FCVAR_PRINTABLEONLY, FCVAR_PROTECTED, FCVAR_CHANNELONLY, FCVAR_NUMERSONLY, FCVAR_SERVERONLY, FCVAR_BOOLONLY, FCVAR_USERONLY, FCVAR_NUMERSONLY_INT, FCVAR_NUMERSONLY_UINT, FCVAR_ONECHAR_ONLY, FCVAR_NOTNULL, FCVAR_ROLE, FCVAR_ROLE_NOT_INTIALIZED, FCVAR_ERROR_TOOLONG, DBot, Postgres */
+
+const myGlobals = require('../globals.js');
+const hook = myGlobals.hook;
+const DBot = myGlobals.DBot;
+const sql = myGlobals.sql;
+const IMagick = myGlobals.IMagick;
+const Util = myGlobals.Util;
+const cvars = myGlobals.cvars;
+const Postgres = myGlobals.Postgres;
 
 // Users can't grab convar value
 // Always printed in PM
@@ -26,8 +35,6 @@ global.FCVAR_NOTNULL 				= 11;
 global.FCVAR_ROLE	 				= 12;
 global.FCVAR_ERROR_TOOLONG 		= 255;
 global.FCVAR_ROLE_NOT_INTIALIZED	= 256;
-
-global.cvars = global.cvars || {};
 
 cvars.Strings = [];
 cvars.Strings[FCVAR_PROTECTED] = 'FCVAR_PROTECTED';

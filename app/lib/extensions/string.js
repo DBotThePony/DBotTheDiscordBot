@@ -1,5 +1,5 @@
 
-const crypto = DBot.js.crypto;
+const crypto = require('crypto');
 
 String.repeat = function(str, times) {
 	let output = '';

@@ -1,5 +1,12 @@
 
-/* global Postgres, hook, DBot */
+const myGlobals = require('../globals.js');
+const hook = myGlobals.hook;
+const DBot = myGlobals.DBot;
+const sql = myGlobals.sql;
+const IMagick = myGlobals.IMagick;
+const Util = myGlobals.Util;
+const cvars = myGlobals.cvars;
+const Postgres = myGlobals.Postgres;
 
 const toGet = 'https://api.imgflip.com/get_memes';
 const unirest = DBot.js.unirest;

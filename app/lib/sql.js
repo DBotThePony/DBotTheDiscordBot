@@ -1,9 +1,14 @@
 
-/* global hook, DBot, sql, Util, Symbol, Postgres, Postgres */
+const myGlobals = require('../globals.js');
+const hook = myGlobals.hook;
+const DBot = myGlobals.DBot;
+const sql = myGlobals.sql;
+const IMagick = myGlobals.IMagick;
+const Util = myGlobals.Util;
+const cvars = myGlobals.cvars;
 
 const fs = DBot.js.fs;
 
-global.sql = global.sql || {};
 DBot.sql = sql;
 DBot.ChannelIDs = DBot.ChannelIDs || {};
 DBot.ServersIDs = DBot.ServersIDs || {};
@@ -19,6 +24,8 @@ require('./sql_connection.js');
 require('./sql_functions.js');
 require('./sql_classes.js');
 require('./sql_helpers.js');
+
+const Postgres = myGlobals.Postgres;
 
 if (DBot.SQL_START === undefined)
 	DBot.SQL_START = 0;

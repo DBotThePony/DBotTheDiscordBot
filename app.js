@@ -1,5 +1,10 @@
 
-/* global hook, DBot */
+const myGlobals = require('./app/globals.js');
+const hook = myGlobals.hook;
+const DBot = myGlobals.DBot;
+const sql = myGlobals.sql;
+const IMagick = myGlobals.IMagick;
+const Util = myGlobals.Util;
 
 process.env['PATH'] = './bin;' + process.env['PATH'];
 const stamp = (new Date()).getTime();
@@ -32,9 +37,6 @@ process.on('uncaughtException', function(err) {
 	console.error('Uncaught Exception: ', err);
 });
 
-global.sprintf = require('sprintf-js').sprintf;
-global.DBot = global.DBot || {};
-
 try {
 	DBot.cfg = require('./config.js');
 } catch(err) {
@@ -64,7 +66,6 @@ DBot.js.crypto = require('crypto');
 DBot.js.hDuration = require('humanize-duration');
 DBot.js.os = require('os');
 DBot.js.Discord = Discord;
-DBot.js.sprintf = sprintf;
 
 global.MathHelper = require('./app/lib/mathhelper.js');
 global.CommandHelper = require('./app/lib/commandhelper.js');

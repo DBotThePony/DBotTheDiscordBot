@@ -1,4 +1,13 @@
 
+const myGlobals = require('../globals.js');
+const hook = myGlobals.hook;
+const DBot = myGlobals.DBot;
+const sql = myGlobals.sql;
+const IMagick = myGlobals.IMagick;
+const Util = myGlobals.Util;
+const cvars = myGlobals.cvars;
+const Postgres = myGlobals.Postgres;
+
 cvars.ServerVar('bot_hello', '1', [FCVAR_BOOLONLY], 'Say hello to joining bots');
 
 hook.Add('BotJoinsServer', 'HelloMessage', function(member, server) {

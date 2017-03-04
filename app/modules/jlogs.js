@@ -1,5 +1,12 @@
 
-/* global DBot, Util, hook, sql, Postgres, CurTime */
+const myGlobals = require('../globals.js');
+const hook = myGlobals.hook;
+const DBot = myGlobals.DBot;
+const sql = myGlobals.sql;
+const IMagick = myGlobals.IMagick;
+const Util = myGlobals.Util;
+const cvars = myGlobals.cvars;
+const Postgres = myGlobals.Postgres;
 
 const moment = require('moment');
 const fs = DBot.js.filesystem;

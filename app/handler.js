@@ -1,5 +1,16 @@
 
-/* global DBot, hook, cvars, FCVAR_NOTNULL, FCVAR_BOOLONLY, Util */
+
+/* global FCVAR_NOTNULL, FCVAR_BOOLONLY */
+
+const myGlobals = require('./globals.js');
+const hook = myGlobals.hook;
+const DBot = myGlobals.DBot;
+const sql = myGlobals.sql;
+const IMagick = myGlobals.IMagick;
+const Util = myGlobals.Util;
+const cvars = myGlobals.cvars;
+const Postgres = myGlobals.Postgres;
+
 
 Util.mkdir(DBot.WebRoot + '/msgs');
 

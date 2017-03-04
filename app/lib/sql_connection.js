@@ -1,5 +1,13 @@
 
-/* global DBot, Symbol, hook */
+/* global Symbol */
+
+const myGlobals = require('../globals.js');
+const hook = myGlobals.hook;
+const DBot = myGlobals.DBot;
+const sql = myGlobals.sql;
+const IMagick = myGlobals.IMagick;
+const Util = myGlobals.Util;
+const cvars = myGlobals.cvars;
 
 class SQLResult {
 	constructor(connection, dispatcher, rawData, err) {
@@ -202,8 +210,8 @@ const pgConfig = {
 const mainConnection = new SQLConnectionDispatcher(pgConfig);
 const secondaryConnection = new SQLConnectionDispatcher(pgConfig);
 
-Postgre = mainConnection;
-Postgres = mainConnection;
+myGlobals.Postgre = mainConnection;
+myGlobals.Postgres = mainConnection;
 DBot.Postgre = mainConnection;
 DBot.Postgres = mainConnection;
 DBot.secondarySQLConnection = secondaryConnection;

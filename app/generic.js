@@ -1,5 +1,13 @@
 
-/* global DBot, cvars, FCVAR_CHANNELONLY, hook, Util, CommandHelper */
+/* global FCVAR_CHANNELONLY */
+
+const myGlobals = require('./globals.js');
+const hook = myGlobals.hook;
+const DBot = myGlobals.DBot;
+const sql = myGlobals.sql;
+const IMagick = myGlobals.IMagick;
+const Util = myGlobals.Util;
+const cvars = myGlobals.cvars;
 
 Util.SafeCopy('./node_modules/moment/moment.js', DBot.WebRoot + '/moment.js');
 Util.SafeCopy('./node_modules/numeral/numeral.js', DBot.WebRoot + '/numeral.js');

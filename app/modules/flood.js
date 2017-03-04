@@ -1,4 +1,13 @@
 
+const myGlobals = require('../globals.js');
+const hook = myGlobals.hook;
+const DBot = myGlobals.DBot;
+const sql = myGlobals.sql;
+const IMagick = myGlobals.IMagick;
+const Util = myGlobals.Util;
+const cvars = myGlobals.cvars;
+const Postgres = myGlobals.Postgres;
+
 cvars.ChannelVar('noflood', '0', [FCVAR_BOOLONLY], 'Try to prevent channel flooding');
 cvars.ChannelVar('flood_newlines', '15', [FCVAR_NUMERSONLY_UINT], 'Limit of new lines in one messages');
 cvars.ChannelVar('flood_newlines_thersold', '75', [FCVAR_NUMERSONLY_UINT], 'Max of all new lines in all messages for last x seconds');

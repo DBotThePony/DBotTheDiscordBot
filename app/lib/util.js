@@ -1,9 +1,11 @@
 
-/* global DBot, Util */
-
-global.Util = global.Util || {};
-global.util = Util;
-
+const myGlobals = require('../globals.js');
+const hook = myGlobals.hook;
+const DBot = myGlobals.DBot;
+const sql = myGlobals.sql;
+const IMagick = myGlobals.IMagick;
+const Util = myGlobals.Util;
+const Postgres = myGlobals.Postgres;
 const fs = DBot.js.fs;
 const utf8 = require('utf8');
 

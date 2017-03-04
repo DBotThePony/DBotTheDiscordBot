@@ -1,5 +1,12 @@
 
-/* global DBot, sql, Postgres, hook */
+const myGlobals = require('../globals.js');
+const hook = myGlobals.hook;
+const DBot = myGlobals.DBot;
+const sql = myGlobals.sql;
+const IMagick = myGlobals.IMagick;
+const Util = myGlobals.Util;
+const cvars = myGlobals.cvars;
+const Postgres = myGlobals.Postgres;
 
 DBot.tags = DBot.tags || {};
 DBot.tagCache = DBot.tagCache || {};
