@@ -10,6 +10,7 @@ const Postgres = myGlobals.Postgres;
 const CommandHelper = myGlobals.CommandHelper;
 
 const filesToReload = [
+	'../lib/extensions/index.js',
 	'../lib/sql_classes.js',
 	'../lib/sql_functions.js',
 	'../lib/sql_helpers.js',
@@ -17,17 +18,12 @@ const filesToReload = [
 	'../lib/confirm.js',
 	'../lib/util.js',
 	'../lib/member_storage.js',
-	'../lib/extensions/string.js',
 	'../commands.js',
 	'../handler.js',
 	'../generic.js',
 	'../modules/jlogs.js',
-	'../modules/nlogs.js'
-];
-
-const globalReload = [
-	['../lib/Math.js', 'Math'],
-	['../lib/commandhelper.js', 'CommandHelper']
+	'../modules/nlogs.js',
+	'../lib/commandhelper.js'
 ];
 
 function requireReload(file) {
@@ -61,17 +57,6 @@ module.exports = {
 			try {
 				requireReload(file);
 				require(file);
-			} catch(err) {
-				console.error(err);
-				msg.sendMessage('```' + err.stack + '```');
-			}
-		}
-		
-		
-		for (const file of globalReload) {
-			try {
-				requireReload(file[0]);
-				global[file[1]] = require(file[0]);
 			} catch(err) {
 				console.error(err);
 				msg.sendMessage('```' + err.stack + '```');
