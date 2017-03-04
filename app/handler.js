@@ -10,7 +10,7 @@ const IMagick = myGlobals.IMagick;
 const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
-
+const CommandHelper = myGlobals.CommandHelper;
 
 Util.mkdir(DBot.WebRoot + '/msgs');
 

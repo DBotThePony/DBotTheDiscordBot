@@ -5,6 +5,7 @@ const DBot = myGlobals.DBot;
 const sql = myGlobals.sql;
 const IMagick = myGlobals.IMagick;
 const Util = myGlobals.Util;
+const fs = require('fs');
 
 process.env['PATH'] = './bin;' + process.env['PATH'];
 const stamp = (new Date()).getTime();
@@ -64,8 +65,6 @@ DBot.URLRootBare = DBot.cfg.webpath;
 DBot.URLRoot = DBot.cfg.protocol + '://' + DBot.cfg.webpath;
 DBot.owners = DBot.cfg.owners;
 
-DBot.fs = DBot.js.fs;
-
 require('./app/lib/commandhelper.js');
 require('./app/lib/util.js');
 require('./app/lib/hook.js');
@@ -84,7 +83,7 @@ require('./app/commands.js');
 
 require('./app/lib/confirm.js');
 
-for (const file of DBot.fs.readdirSync('./app/modules/')) {
+for (const file of fs.readdirSync('./app/modules/')) {
 	let sp = file.split('.');
 	if (!sp[1] || sp[1] !== 'js') continue;
 	

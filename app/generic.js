@@ -8,6 +8,8 @@ const sql = myGlobals.sql;
 const IMagick = myGlobals.IMagick;
 const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
+const Postgres = myGlobals.Postgres;
+const CommandHelper = myGlobals.CommandHelper;
 
 Util.SafeCopy('./node_modules/moment/moment.js', DBot.WebRoot + '/moment.js');
 Util.SafeCopy('./node_modules/numeral/numeral.js', DBot.WebRoot + '/numeral.js');

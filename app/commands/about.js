@@ -8,7 +8,6 @@ const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 const CommandHelper = myGlobals.CommandHelper;
-const CommandHelper = myGlobals.CommandHelper;
 
 const text = '```\n\
 About:\n\
