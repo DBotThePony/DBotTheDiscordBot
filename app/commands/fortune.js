@@ -133,7 +133,7 @@ module.exports = {
 	
 	func: function(args, cmd, msg) {
 		if (!args[0]) {
-			Postgres.query('SELECT "CONTENT" FROM fortune WHERE "ID" = ' + MathHelper.Random(1, totalCnt), function(err, data) {
+			Postgres.query('SELECT "CONTENT" FROM fortune WHERE "ID" = ' + Math.Random(1, totalCnt), function(err, data) {
 				if (err || !data || !data[0]) {
 					return;
 				}
@@ -166,7 +166,7 @@ DBot.RegisterCommand({
 	
 	func: function(args, cmd, msg) {
 		if (!args[0]) {
-			Postgres.query('SELECT "CONTENT" FROM fortune_vulgar WHERE "ID" = ' + MathHelper.Random(1, totalCntVulgar), function(err, data) {
+			Postgres.query('SELECT "CONTENT" FROM fortune_vulgar WHERE "ID" = ' + Math.Random(1, totalCntVulgar), function(err, data) {
 				if (err || !data || !data[0]) {
 					return;
 				}

@@ -71,7 +71,7 @@ module.exports = {
 					let magikArgs = ['-background', 'none', '-tile', fragmentsW + 'x' + fragmentsH, '-geometry', '+0+0'];
 					
 					for (let i = 0; i < total; i++) {
-						let rand = MathHelper.Random(-2, 2);
+						let rand = Math.Random(-2, 2);
 						magikArgs.push('(', tmpFileDice + '[' + i + ']', '-rotate', rand * 90, ')')
 					}
 					
@@ -164,11 +164,11 @@ DBot.RegisterCommand({
 					let magikArgs = ['-background', 'none', '-tile', fragmentsW + 'x' + fragmentsH, '-geometry', '+0+0'];
 					
 					for (let i = 0; i < total; i++) {
-						let r = MathHelper.Random(0, left.length - 1);
+						let r = Math.Random(0, left.length - 1);
 						let slice = left[r];
 						left.splice(r, 1);
 						
-						let rand = MathHelper.Random(-2, 2);
+						let rand = Math.Random(-2, 2);
 						magikArgs.push('(', tmpFileDice + '[' + slice + ']', '-rotate', rand * 90, ')')
 					}
 					
@@ -260,7 +260,7 @@ DBot.RegisterCommand({
 					let magikArgs = ['-background', 'none', '-tile', fragmentsW + 'x' + fragmentsH, '-geometry', '+0+0'];
 					
 					for (let i = 0; i < total; i++) {
-						let r = MathHelper.Random(0, left.length - 1);
+						let r = Math.Random(0, left.length - 1);
 						let slice = left[r];
 						left.splice(r, 1);
 						
@@ -339,7 +339,7 @@ DBot.RegisterCommand({
 			];
 			
 			for (let i = 0; i <= 400; i++) {
-				let rand = MathHelper.Random(-2, 2);
+				let rand = Math.Random(-2, 2);
 				magikArgs.push('(', '-clone', '0', '-rotate', rand * 90, ')')
 			}
 			

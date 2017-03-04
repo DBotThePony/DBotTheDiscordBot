@@ -47,18 +47,10 @@ try {
 	process.exit(1);
 }
 
-// Small safety stuff
 const token = DBot.cfg.token;
-DBot.cfg.token = undefined;
 
-DBot.js = {};
-
-global.MathHelper = require('./app/lib/mathhelper.js');
 global.CommandHelper = require('./app/lib/commandhelper.js');
-require('./app/lib/extensions/array.js');
-require('./app/lib/extensions/number.js');
-require('./app/lib/extensions/string.js');
-require('./app/lib/extensions/console.js');
+require('./app/lib/extensions/index.js');
 
 let IS_CONNECTED = false;
 let TimeoutID = null;

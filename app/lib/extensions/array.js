@@ -1,5 +1,5 @@
 
-/* global MathHelper */
+/* global Math */
 
 Array.Trim = function(arr) {
 	let newArray = [];
@@ -14,7 +14,7 @@ Array.Trim = function(arr) {
 };
 
 Array.Random = function(arr) {
-	return arr[MathHelper.Random(0, arr.length - 1)];
+	return arr[Math.Random(0, arr.length - 1)];
 };
 
 Array.concat = function(obj, sep) {

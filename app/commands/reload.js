@@ -25,7 +25,7 @@ const filesToReload = [
 ];
 
 const globalReload = [
-	['../lib/mathhelper.js', 'MathHelper'],
+	['../lib/Math.js', 'Math'],
 	['../lib/commandhelper.js', 'CommandHelper']
 ];
 

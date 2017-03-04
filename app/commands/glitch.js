@@ -106,11 +106,11 @@ DBot.RegisterCommand({
 				}
 				
 				let output = Buffer.from(output2, 'base64');
-				let step = Math.floor(output.length / MathHelper.Random(150, 300));
+				let step = Math.floor(output.length / Math.Random(150, 300));
 				
 				for (let i = 400; i < output.length - 200; i += step) {
-					if (MathHelper.Random(1, 100) > 40) {
-						output[i] = MathHelper.Random(50, 180);
+					if (Math.Random(1, 100) > 40) {
+						output[i] = Math.Random(50, 180);
 					}
 				}
 				

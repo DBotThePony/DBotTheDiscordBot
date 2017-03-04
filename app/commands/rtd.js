@@ -34,7 +34,7 @@ module.exports = {
 		let rolls = [];
 		
 		for (let i = 1; i <= times; i++) {
-			rolls.push(MathHelper.Random(1, edges));
+			rolls.push(Math.Random(1, edges));
 		}
 		
 		if (!DBot.IsPM(msg))

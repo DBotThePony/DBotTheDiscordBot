@@ -24,7 +24,7 @@ module.exports = {
 	
 	func: function(args, cmd, msg) {
 		const data = CommandHelper.switchImageArgs(msg.channel, args, 10);
-		const num = MathHelper.Clamp(data[0], 1, 100);
+		const num = Math.Clamp(data[0], 1, 100);
 		const url = data[1];
 		
 		if (!url)

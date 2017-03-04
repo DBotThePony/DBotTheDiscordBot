@@ -8,7 +8,7 @@ const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 
-/* global MathHelper, Postgres, DBot */
+/* global Math, Postgres, DBot */
 
 // https://dbot.serealia.ca/info/
 
@@ -31,51 +31,51 @@ module.exports = {
 				let min = 0;
 				let finalPercent = 0;
 				
-				let Jackpot = MathHelper.Random(0, 25);
+				let Jackpot = Math.Random(0, 25);
 				
 				if (Jackpot === 5) {
-					finalPercent = MathHelper.Random(75, 100);
+					finalPercent = Math.Random(75, 100);
 				} else if (Jackpot === 2) {
-					finalPercent = MathHelper.Random(50, 75);
+					finalPercent = Math.Random(50, 75);
 				} else if (Jackpot === 8) {
-					finalPercent = MathHelper.Random(30, 66);
+					finalPercent = Math.Random(30, 66);
 				} else if (Jackpot === 10) {
-					finalPercent = MathHelper.Random(70, 80);
+					finalPercent = Math.Random(70, 80);
 				} else if (Jackpot === 15) {
-					finalPercent = MathHelper.Random(75, 100);
+					finalPercent = Math.Random(75, 100);
 				} else if (Jackpot === 18) {
-					finalPercent = MathHelper.Random(10, 40);
+					finalPercent = Math.Random(10, 40);
 				} else if (Jackpot === 25) {
 					finalPercent = 100;
 				} else if (Jackpot === 18) {
 					finalPercent = 0;
 				} else if (Jackpot === 20) {
-					finalPercent = MathHelper.Random(40, 80);
+					finalPercent = Math.Random(40, 80);
 				} else if (length > 50) {
-					finalPercent = MathHelper.Random(10, 100);
+					finalPercent = Math.Random(10, 100);
 					
-					if (MathHelper.Random(0, 10) === 7)
+					if (Math.Random(0, 10) === 7)
 						finalPercent = 100;
 				} else if (length > 30) {
-					finalPercent = MathHelper.Random(0, 100);
+					finalPercent = Math.Random(0, 100);
 					
-					if (MathHelper.Random(0, 15) === 5)
+					if (Math.Random(0, 15) === 5)
 						finalPercent = 75;
 					
-					if (MathHelper.Random(0, 15) === 7)
+					if (Math.Random(0, 15) === 7)
 						finalPercent = 95;
 				} else if (length > 10) {
-					finalPercent = MathHelper.Random(20, 100);
+					finalPercent = Math.Random(20, 100);
 					
-					if (MathHelper.Random(0, 7) === 2)
+					if (Math.Random(0, 7) === 2)
 						finalPercent = 75;
 					
-					if (MathHelper.Random(0, 5) === 0)
+					if (Math.Random(0, 5) === 0)
 						finalPercent = 100;
 				} else {
-					finalPercent = MathHelper.Random(0, 100);
+					finalPercent = Math.Random(0, 100);
 					
-					if (MathHelper.Random(0, 5) === 0)
+					if (Math.Random(0, 5) === 0)
 						finalPercent = 100;
 				}
 				

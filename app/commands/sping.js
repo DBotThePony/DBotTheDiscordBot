@@ -51,7 +51,7 @@ module.exports = {
 		
 		let continueFunc = function() {
 			if (msg.checkAbort()) return;
-			let randPort = MathHelper.Random(50000, 55000);
+			let randPort = Math.Random(50000, 55000);
 			let Closed = false;
 			let sendStamp;
 			
