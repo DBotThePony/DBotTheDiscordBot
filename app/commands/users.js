@@ -10,10 +10,10 @@ const Postgres = myGlobals.Postgres;
 
 Util.mkdir(DBot.WebRoot + '/users');
 
-const crypto = DBot.js.crypto;
-const fs = DBot.js.fs;
-const moment = DBot.js.moment;
-const hDuration = DBot.js.hDuration;
+const crypto = require('crypto');
+const fs = require('fs');
+const moment = require('moment');
+const hDuration = require('humanize-duration');
 
 const Perms = [
 	'CREATE_INSTANT_INVITE',

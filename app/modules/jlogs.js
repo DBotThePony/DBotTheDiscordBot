@@ -9,7 +9,7 @@ const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 
 const moment = require('moment');
-const fs = DBot.js.filesystem;
+const fs = require('fs');
 const hDuration = require('humanize-duration');
 
 Util.mkdir(DBot.WebRoot + '/jlogs');

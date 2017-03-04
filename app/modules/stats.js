@@ -557,7 +557,7 @@ DBot.RegisterCommand({
 
 
 Util.mkdir(DBot.WebRoot + '/ntstats');
-const fs = DBot.js.fs;
+const fs = require('fs');
 
 DBot.RegisterCommand({
 	name: 'nevertalked',

@@ -10,7 +10,7 @@ const Postgres = myGlobals.Postgres;
 
 if (!DBot.cfg.urban_enable) return;
 
-const unirest = DBot.js.unirest;
+const unirest = require('unirest');
 
 module.exports = {
 	name: 'urban',

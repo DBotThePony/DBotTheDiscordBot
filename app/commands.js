@@ -8,8 +8,8 @@ const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 
-const fs = DBot.js.fs;
-const pug = DBot.js.pug;
+const fs = require('fs');
+const pug = require('pug');
 
 DBot.Commands = DBot.Commands || {};
 DBot.CommandsPipes = DBot.CommandsPipes || {};
@@ -48,7 +48,7 @@ DBot.RegisterCommandPipe = function(command) {
 	return command;
 };
 
-for (const file of DBot.js.filesystem.readdirSync('./app/commands/')) {
+for (const file of require('fs').readdirSync('./app/commands/')) {
 	let sp = file.split('.');
 	if (!sp[1]) continue;
 	
@@ -69,7 +69,7 @@ for (const file of DBot.js.filesystem.readdirSync('./app/commands/')) {
 	DBot.RegisterCommand(command);
 };
 
-for (const file of DBot.js.filesystem.readdirSync('./app/pipes/')) {
+for (const file of require('fs').readdirSync('./app/pipes/')) {
 	let sp = file.split('.');
 	if (!sp[1]) continue;
 

@@ -55,9 +55,9 @@ setInterval(function() {
 	}
 }, 1000);
 
-const crypto = DBot.js.crypto;
-const fs = DBot.js.fs;
-const moment = DBot.js.moment;
+const crypto = require('crypto');
+const fs = require('fs');
+const moment = require('moment');
 
 let stuff = [];
 

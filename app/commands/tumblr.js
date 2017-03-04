@@ -10,7 +10,7 @@ const Postgres = myGlobals.Postgres;
 
 if (!DBot.cfg.tumblr_enable) return;
 
-const unirest = DBot.js.unirest;
+const unirest = require('unirest');
 const token = DBot.cfg.tumblr;
 const urlBase = 'https://api.tumblr.com/v2/blog/';
 

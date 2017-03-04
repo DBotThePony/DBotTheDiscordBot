@@ -18,9 +18,9 @@ const customEmoji = DBot.customEmojiExp;
 const map = DBot.emojiMap;
 
 const emojiBase = 'https://cdn.discordapp.com/emojis/';
-const crypto = DBot.js.crypto;
-const fs = DBot.js.fs;
-const child_process = DBot.js.child_process;
+const crypto = require('crypto');
+const fs = require('fs');
+const child_process = require('child_process');
 const spawn = child_process.spawn;
 
 module.exports = {

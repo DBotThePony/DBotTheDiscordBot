@@ -7,7 +7,7 @@ const IMagick = myGlobals.IMagick;
 const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 
-const fs = DBot.js.fs;
+const fs = require('fs');
 
 DBot.sql = sql;
 DBot.ChannelIDs = DBot.ChannelIDs || {};

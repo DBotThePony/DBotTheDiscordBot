@@ -12,7 +12,7 @@ if (!DBot.cfg.steam_enable) return;
 
 let apiBase = 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=' + DBot.cfg.steam + '&steamids=';
 let resolveBase = 'http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=' + DBot.cfg.steam + '&vanityurl=';
-let unirest = DBot.js.unirest;
+let unirest = require('unirest');
 let BigNumber = require('bignumber.js');
 
 let SteamIDTo64 = function(id) {

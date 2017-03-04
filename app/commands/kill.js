@@ -8,8 +8,8 @@ const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 
-const fs = DBot.js.fs;
-const child_process = DBot.js.child_process;
+const fs = require('fs');
+const child_process = require('child_process');
 const spawn = child_process.spawn;
 
 Postgres.query('SELECT COUNT(*) AS CNT FROM killicons', function(err, data) {

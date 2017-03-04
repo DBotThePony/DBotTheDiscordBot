@@ -10,9 +10,9 @@ const Postgres = myGlobals.Postgres;
 
 if (!DBot.cfg.yandex_tr_enable) return;
 
-const unirest = DBot.js.unirest;
-const fs = DBot.js.fs;
-const JSON3 = DBot.js.json3;
+const unirest = require('unirest');
+const fs = require('fs');
+const JSON3 = require('json3');
 const apiKey = DBot.cfg.yandex_tr;
 
 let validLangs = [];

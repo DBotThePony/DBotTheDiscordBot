@@ -8,9 +8,9 @@ const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 
-const moment = DBot.js.moment;
-const hDuration = DBot.js.hDuration;
-const fs = DBot.js.filesystem;
+const moment = require('moment');
+const hDuration = require('humanize-duration');
+const fs = require('fs');
 Util.mkdir(DBot.WebRoot + '/blogs');
 
 module.exports = {

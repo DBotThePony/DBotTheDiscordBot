@@ -53,20 +53,6 @@ DBot.cfg.token = undefined;
 
 DBot.js = {};
 
-DBot.js.child_process = require('child_process');
-DBot.js.unirest = require('unirest');
-DBot.js.fs = require('fs');
-DBot.js.pug = require('pug');
-DBot.js.filesystem = DBot.js.fs;
-DBot.js.json3 = require('json3');
-DBot.js.moment = require('moment');
-DBot.js.numeral = require('numeral');
-DBot.js.url = require('url');
-DBot.js.crypto = require('crypto');
-DBot.js.hDuration = require('humanize-duration');
-DBot.js.os = require('os');
-DBot.js.Discord = Discord;
-
 global.MathHelper = require('./app/lib/mathhelper.js');
 global.CommandHelper = require('./app/lib/commandhelper.js');
 require('./app/lib/extensions/array.js');

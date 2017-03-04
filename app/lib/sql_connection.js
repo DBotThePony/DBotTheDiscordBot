@@ -196,7 +196,7 @@ class SQLConnectionDispatcher {
 };
 
 const pg = require('pg');
-const fs = DBot.js.fs;
+const fs = require('fs');
 
 const pgConfig = {
 	user: DBot.cfg.sql_user,
@@ -228,7 +228,7 @@ mainConnection.connect(function(err) {
 		DBot.SQL_FILE_LOADED = true;
 
 		let db_rev = 0;
-		let last_rev = DBot.js.filesystem.readdirSync('./app/dbrevisions/').length;
+		let last_rev = require('fs').readdirSync('./app/dbrevisions/').length;
 
 		mainConnection.query('SELECT "VALUE" FROM db_info WHERE "KEY" = \'version\'', function(err, data) {
 			if (err) {console.error(err); process.exit(1);}
@@ -262,7 +262,7 @@ mainConnection.connect(function(err) {
 				for (let i = db_rev + 1; i <= last_rev; i++) {
 					callbackFuncs.push(function(err) {
 						console.log((i - 1) + '->' + i);
-						let contents = DBot.js.filesystem.readFileSync('./app/dbrevisions/' + i + '.sql', 'utf8');
+						let contents = require('fs').readFileSync('./app/dbrevisions/' + i + '.sql', 'utf8');
 						mainConnection.query(contents, usualCallback);
 					});
 				}

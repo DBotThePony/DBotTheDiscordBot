@@ -8,7 +8,7 @@ const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 
-const fs = DBot.js.filesystem;
+const fs = require('fs');
 
 module.exports = {
 	name: 'nfs',

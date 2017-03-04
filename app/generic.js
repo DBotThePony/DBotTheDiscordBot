@@ -14,8 +14,8 @@ Util.SafeCopy('./node_modules/numeral/numeral.js', DBot.WebRoot + '/numeral.js')
 Util.SafeCopy('./resource/files/jquery-3.0.0.min.js', DBot.WebRoot + '/jquery-3.0.0.min.js');
 Util.SafeCopy('./resource/files/noavatar.jpg', DBot.WebRoot + '/no_avatar.jpg');
 
-const crypto = DBot.js.crypto;
-const fs = DBot.js.fs;
+const crypto = require('crypto');
+const fs = require('fs');
 
 for (const file of fs.readdirSync('./app/webroot')) {
 	Util.Copy('./app/webroot/' + file, DBot.WebRoot + '/' + file);
@@ -62,7 +62,7 @@ DBot.Status = function(newStatus) {
 
 DBot.pugRender = function(path, data) {
 	try {
-		return DBot.js.pug.renderFile('./app/templates/' + path, data);
+		return require('pug').renderFile('./app/templates/' + path, data);
 	} catch(err) {
 		console.error(err);
 		return '';
@@ -293,7 +293,7 @@ DBot.LoadImageURL = function(url, callback, callbackError) {
 	});
 };
 
-const child_process = DBot.js.child_process;
+const child_process = require('child_process');
 const spawn = child_process.spawn;
 
 DBot.EasySpawn = function(process, arguments, callback) {

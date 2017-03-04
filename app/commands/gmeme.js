@@ -9,8 +9,8 @@ const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 
 const toGet = 'https://api.imgflip.com/get_memes';
-const unirest = DBot.js.unirest;
-const fs = DBot.js.fs;
+const unirest = require('unirest');
+const fs = require('fs');
 let INITIALIZED = false;
 
 // Memed

@@ -10,7 +10,7 @@ const Postgres = myGlobals.Postgres;
 
 if (!DBot.cfg.google_enable) return;
 
-const unirest = DBot.js.unirest;
+const unirest = require('unirest');
 
 const Search = 'https://www.googleapis.com/customsearch/v1?key=' + DBot.cfg.google + '&cx=011142896060985630711:sibr51l3m7a&safe=medium&q=';
 

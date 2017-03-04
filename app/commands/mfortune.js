@@ -8,8 +8,8 @@ const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 
-const fs = DBot.js.fs;
-const unirest = DBot.js.unirest;
+const fs = require('fs');
+const unirest = require('unirest');
 const grabber = new RegExp('style="display: none">([^<]+)</span>', 'gi');
 const base = 'http://www.twitchquotes.com/copypastas?page=';
 let page = 1;

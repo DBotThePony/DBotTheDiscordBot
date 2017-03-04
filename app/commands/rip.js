@@ -8,8 +8,8 @@ const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 
-const unirest = DBot.js.unirest;
-const fs = DBot.js.fs;
+const unirest = require('unirest');
+const fs = require('fs');
 const path = 'D:/www/derpco/bot/tomb';
 
 let endPhrases = [

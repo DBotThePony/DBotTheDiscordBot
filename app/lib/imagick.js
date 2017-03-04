@@ -8,10 +8,10 @@ const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 
-const fs = DBot.js.fs;
-const child_process = DBot.js.child_process;
+const fs = require('fs');
+const child_process = require('child_process');
 const spawn = child_process.spawn;
-const os = DBot.js.os;
+const os = require('os');
 
 Util.mkdir(DBot.WebRoot + '/imtmp', function() {
 	Util.truncate(DBot.WebRoot + '/imtmp');

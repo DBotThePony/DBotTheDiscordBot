@@ -6,8 +6,10 @@ const sql = myGlobals.sql;
 const IMagick = myGlobals.IMagick;
 const Util = myGlobals.Util;
 const Postgres = myGlobals.Postgres;
-const fs = DBot.js.fs;
+const fs = require('fs');
+const moment = require('moment');
 const utf8 = require('utf8');
+const hDuration = require('humanize-duration');
 
 Util.SafeCopy = function(path, to) {
 	fs.stat(to, function(err, stat) {
@@ -245,7 +247,7 @@ Util.WrapText = function(text, limit) {
 };
 
 Util.formatStamp = function(stamp) {
-	return DBot.js.moment.unix(stamp).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + DBot.js.hDuration(Math.floor(CurTime() - stamp) * 1000) + ' ago)';
+	return moment.unix(stamp).format('dddd, MMMM Do YYYY, HH:mm:ss') + ' (' + hDuration(Math.floor(CurTime() - stamp) * 1000) + ' ago)';
 };
 
 const parsedTextReplaceRules = [

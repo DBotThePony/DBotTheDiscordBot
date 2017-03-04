@@ -8,9 +8,9 @@ const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 
-const hDuration = DBot.js.hDuration;
-const moment = DBot.js.moment;
-const fs = DBot.js.fs;
+const hDuration = require('humanize-duration');
+const moment = require('moment');
+const fs = require('fs');
 
 DBot.__RepCooldowns = DBot.__RepCooldowns || {};
 

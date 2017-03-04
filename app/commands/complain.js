@@ -8,8 +8,8 @@ const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 
-const moment = DBot.js.moment;
-const humanizeDuration = DBot.js.hDuration;
+const moment = require('moment');
+const humanizeDuration = require('humanize-duration');
 
 const queryToList = 'SELECT *, (SELECT "NAME" FROM servers WHERE servers."ID" = complains."SERVER") as "SERVERNAME", (SELECT "NAME" FROM channels WHERE channels."ID" = complains."CHANNEL") as "CHANNELNAME", (SELECT "NAME" FROM users WHERE users."ID" = complains."USER") as "USERNAME", (SELECT "UID" FROM servers WHERE servers."ID" = complains."SERVER") as "SERVERID", (SELECT "UID" FROM channels WHERE channels."ID" = complains."CHANNEL") as "CHANNELID", (SELECT "UID" FROM users WHERE users."ID" = complains."USER") as "USERID" FROM complains ORDER BY "ID" DESC LIMIT 5';
 

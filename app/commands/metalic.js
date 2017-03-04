@@ -8,10 +8,10 @@ const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 
-const child_process = DBot.js.child_process;
+const child_process = require('child_process');
 const spawn = child_process.spawn;
-const URL = DBot.js.url;
-const fs = DBot.js.fs;
+const URL = require('url');
+const fs = require('fs');
 
 Util.mkdir(DBot.WebRoot + '/im_composite');
 

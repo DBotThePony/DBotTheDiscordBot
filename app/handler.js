@@ -14,7 +14,7 @@ const Postgres = myGlobals.Postgres;
 
 Util.mkdir(DBot.WebRoot + '/msgs');
 
-const fs = DBot.js.fs;
+const fs = require('fs');
 
 let baseMessageHandleFunc = function(self, str) {
 	if (self.wasDeleted)

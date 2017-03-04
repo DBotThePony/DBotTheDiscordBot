@@ -9,8 +9,8 @@ const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 
 const http = require('https');
-const unirest = DBot.js.unirest;
-const url = DBot.js.url;
+const unirest = require('unirest');
+const url = require('url');
 const urlBase = 'www.trixiebooru.org';
 
 DBot.CreateTagsSpace('derpibooru', [

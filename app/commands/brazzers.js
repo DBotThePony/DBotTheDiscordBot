@@ -8,9 +8,9 @@ const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 
-const child_process = DBot.js.child_process;
+const child_process = require('child_process');
 const spawn = child_process.spawn;
-const fs = DBot.js.filesystem;
+const fs = require('fs');
 const aspectRatio = 153 / 800;
 
 Util.mkdir(DBot.WebRoot + '/brazzers');

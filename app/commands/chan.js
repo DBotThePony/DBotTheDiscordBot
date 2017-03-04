@@ -85,9 +85,9 @@ const nsfwBoard = [
 
 let validBoards = [];
 let defBans = [];
-const fs = DBot.js.fs;
-const JSON3 = DBot.js.json3;
-const unirest = DBot.js.unirest;
+const fs = require('fs');
+const JSON3 = require('json3');
+const unirest = require('unirest');
 
 for (let data of Boards) {
 	let brd = data[0];

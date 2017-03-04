@@ -8,8 +8,8 @@ const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 
-const fs = DBot.js.fs;
-const unirest = DBot.js.unirest;
+const fs = require('fs');
+const unirest = require('unirest');
 const base = 'https://steamcommunity-a.akamaihd.net/economy/emoticon/';
 Util.mkdir(DBot.WebRoot + '/steam_emoji');
 Util.mkdir(DBot.WebRoot + '/steam_emoji_large');

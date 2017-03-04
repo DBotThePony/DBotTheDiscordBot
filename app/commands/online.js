@@ -8,8 +8,8 @@ const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 
-const hDuration = DBot.js.hDuration;
-const moment = DBot.js.moment;
+const hDuration = require('humanize-duration');
+const moment = require('moment');
 
 module.exports = {
 	name: 'online',
