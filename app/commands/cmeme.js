@@ -63,7 +63,7 @@ module.exports = {
 		
 		let hash = String.hash(url + topText + (bottomText || ''));
 		
-		if (!DBot.CheckURLImage(url))
+		if (!CommandHelper.checkURL(url))
 			return 'Invalid url maybe? ;w;';
 		
 		let fPath;

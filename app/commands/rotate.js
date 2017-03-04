@@ -49,7 +49,7 @@ module.exports = {
 		}
 		
 		url = url || CommandHelper.lastImageURL2(msg.channel);
-		if (!DBot.CheckURLImage2(url))
+		if (!CommandHelper.checkURL2(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', 'rotate', args, 2);
 		
 		let hash = String.hash(url + '___' + degree);

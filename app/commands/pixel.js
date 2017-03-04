@@ -30,7 +30,7 @@ module.exports = {
 			url = url.avatarURL;
 		
 		url = url || CommandHelper.lastURL(msg.channel);
-		if (!DBot.CheckURLImage(url))
+		if (!CommandHelper.checkURL(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', 'pixel', args, 1);
 		
 		let hash = String.hash(CurTime() + '_' + msg.channel.id);

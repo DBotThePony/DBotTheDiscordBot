@@ -181,7 +181,7 @@ DBot.RegisterCommand({
 		
 		let hash = String.hash(url);
 		
-		if (!DBot.CheckURLImage(url))
+		if (!CommandHelper.checkURL(url))
 			return 'Invalid url maybe? ;w;' + Util.HighlightHelp(['dead'], 2, args);
 		
 		let fPath;

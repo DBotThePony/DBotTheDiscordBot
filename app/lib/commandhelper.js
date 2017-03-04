@@ -69,7 +69,7 @@ const CommandHelper = {
 				return false;
 		}
 
-		url = url || DBot.LastURLImageInChannel2(channel);
+		url = url || CommandHelper.lastImageURL2(channel);
 
 		if (!url)
 			return false;
@@ -77,7 +77,7 @@ const CommandHelper = {
 		if (url.match(check) || url.match(/^\//))
 			return false;
 
-		if (!DBot.CheckURLImage2(url)) {
+		if (!CommandHelper.checkURL2(url)) {
 			let emojiMatch = url.match(DBot.emojiRegExpWeak);
 
 			if (!emojiMatch)
@@ -97,7 +97,7 @@ const CommandHelper = {
 				return false;
 		}
 
-		url = url || DBot.LastURLImageInChannel(channel);
+		url = url || CommandHelper.lastImageURL(channel);
 
 		if (!url)
 			return false;
@@ -105,7 +105,7 @@ const CommandHelper = {
 		if (url.match(check) || url.match(/^\//))
 			return false;
 
-		if (!DBot.CheckURLImage(url)) {
+		if (!CommandHelper.checkURL(url)) {
 			let emojiMatch = url.match(DBot.emojiRegExpWeak);
 
 			if (!emojiMatch)
@@ -127,7 +127,7 @@ const CommandHelper = {
 		if (url.match(check) || url.match(/^\//))
 			return null;
 
-		if (!DBot.CheckURLImage(url)) {
+		if (!CommandHelper.checkURL(url)) {
 			let emojiMatch = url.match(DBot.emojiRegExpWeak);
 
 			if (!emojiMatch)

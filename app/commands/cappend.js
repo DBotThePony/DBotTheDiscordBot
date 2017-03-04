@@ -126,7 +126,7 @@ DBot.RegisterCommand({
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'cappend', args, 1);
 		
-		if (!DBot.CheckURLImage(url))
+		if (!CommandHelper.checkURL(url))
 			return DBot.CommandError('Invalid url maybe? ;w;', 'cappend', args, 1);
 		
 		let hash = String.hash(url);
