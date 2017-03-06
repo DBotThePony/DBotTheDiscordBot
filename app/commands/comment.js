@@ -92,7 +92,7 @@ DBot.RegisterCommand({
 		const path = DBot.WebRoot + '/comments/' + sha + '.html';
 		const pathU = DBot.URLRoot + '/comments/' + sha + '.html';
 		
-		userName = target.username;
+		userName = target.nickname || target.username || target.user.username;
 
 		Postgres.query(`SELECT commentaries.*, users."NAME" as "username", users."UID" as "uid" FROM commentaries, users WHERE "USER" = ${sql.User(target)} AND users."ID" = commentaries."COMMENTATOR" ORDER BY "STAMP" DESC LIMIT 300`, (err, dataHist) => {
 			const dataRender = [];
