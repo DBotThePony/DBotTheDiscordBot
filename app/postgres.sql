@@ -931,10 +931,10 @@ CREATE TABLE IF NOT EXISTS google_search (
 
 CREATE TABLE IF NOT EXISTS google_search_results (
 	"id" INTEGER NOT NULL REFERENCES google_search ("id"),
-	"order" VARCHAR(32) NOT NULL,
-	"title" VARCHAR(255) NOT NULL,
+	"order" SMALLINT NOT NULL,
+	"title" VARCHAR(512) NOT NULL,
 	"snippet" VARCHAR(4095) NOT NULL,
-	"link" VARCHAR(255) NOT NULL,
+	"link" VARCHAR(512) NOT NULL,
 	PRIMARY KEY ("id", "order")
 );
 
@@ -946,10 +946,10 @@ CREATE TABLE IF NOT EXISTS google_picture (
 
 CREATE TABLE IF NOT EXISTS google_picture_results (
 	"id" INTEGER NOT NULL REFERENCES google_picture ("id"),
-	"title" VARCHAR(255) NOT NULL,
+	"title" VARCHAR(512) NOT NULL,
 	"snippet" VARCHAR(4095) NOT NULL,
-	"link" VARCHAR(255) NOT NULL,
-	"contextLink" VARCHAR(255) NOT NULL,
+	"link" VARCHAR(512) NOT NULL,
+	"contextLink" VARCHAR(512) NOT NULL,
 	"order" SMALLINT NOT NULL,
 	PRIMARY KEY ("id", "order")
 );
