@@ -11,9 +11,9 @@ const CommandHelper = myGlobals.CommandHelper;
 
 let nextActionID = 0;
 
-let defAction = function(name, data) {
+const defAction = function(name, data) {
 	data = data || {};
-	let cActionID = nextActionID;
+	const cActionID = nextActionID;
 	nextActionID++;
 	
 	return function(args, cmd, msg) {
@@ -34,6 +34,9 @@ let defAction = function(name, data) {
 				return DBot.CommandError('Oh?', name, args, 1);
 			}
 			
+			if (actor.id === target.id)
+				return DBot.CommandError('alone', name, args, 1);
+			
 			Postgres.query(`INSERT INTO rp_actions VALUES (${actorUID}, ${cActionID}, ${DBot.GetUserID(target)}, 1) ON CONFLICT ("ACTOR", "ACTION", "TARGET") DO UPDATE SET "COUNT" = rp_actions."COUNT" + 1 RETURNING "COUNT"`, (err, sdata) =>
 				msg.sendMessage(`_ <@${actor.id}> ${data.text} <@${target.id}> (it is ${sdata[0] && sdata[0].COUNT || 1} times now) _`));
 		} else {
@@ -42,6 +45,9 @@ let defAction = function(name, data) {
 			
 			actor = msg.author;
 			actorUID = DBot.GetUserID(actor);
+			
+			if (target && actor.id === target.id)
+				return DBot.CommandError('alone', name, args, 1);
 			
 			if (target) {
 				Postgres.query(`INSERT INTO rp_actions VALUES (${actorUID}, ${cActionID}, ${DBot.GetUserID(target)}, 1) ON CONFLICT ("ACTOR", "ACTION", "TARGET") DO UPDATE SET "COUNT" = rp_actions."COUNT" + 1 RETURNING "COUNT"`, (err, sdata) =>
