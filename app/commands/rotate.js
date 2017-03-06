@@ -85,7 +85,7 @@ module.exports = {
 			});
 		}
 		
-		DBot.LoadImageURL(url, function(newPath, newExt) {
+		CommandHelper.loadImage(url, function(newPath, newExt) {
 			fPathProcessed = DBot.WebRoot + '/rotate/' + hash + '.' + newExt;
 			fPathProcessedURL = DBot.URLRoot + '/rotate/' + hash + '.' + newExt;
 			
@@ -151,7 +151,7 @@ DBot.RegisterCommand({
 			});
 		}
 		
-		DBot.LoadImageURL(url, function(newPath, newExt) {
+		CommandHelper.loadImage(url, function(newPath, newExt) {
 			fPath = newPath;
 			ContinueFunc();
 		}, function(result) {
@@ -214,7 +214,7 @@ DBot.RegisterCommand({
 			});
 		}
 		
-		DBot.LoadImageURL(url, function(newPath, newExt) {
+		CommandHelper.loadImage(url, function(newPath, newExt) {
 			fPath = newPath;
 			ContinueFunc();
 		}, function(result) {

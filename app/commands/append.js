@@ -81,7 +81,7 @@ let fn = function(fName, i, resize, fName2) {
 				};
 				
 				for (let i in urlBuild) {
-					DBot.LoadImageURL(urlBuild[i], function(newPath) {
+					CommandHelper.loadImage(urlBuild[i], function(newPath) {
 						left--;
 						urlStrings[i] = newPath;
 						

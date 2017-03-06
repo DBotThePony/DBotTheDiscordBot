@@ -26,7 +26,7 @@ module.exports = {
 		if (!url)
 			return DBot.CommandError('Nu URL ;n;', 'setavatar', args, 1);
 		
-		DBot.LoadImageURL(url, function(newPath) {
+		CommandHelper.loadImage(url, function(newPath) {
 			DBot.bot.user.setAvatar(newPath);
 			msg.reply('Done');
 		});

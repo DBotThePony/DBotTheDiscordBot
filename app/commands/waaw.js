@@ -71,7 +71,7 @@ let fn = function(name, toUse) {
 			});
 		}
 		
-		DBot.LoadImageURL(url, function(newPath) {
+		CommandHelper.loadImage(url, function(newPath) {
 			fPath = newPath;
 			ContinueFunc();
 		}, function(result) {
@@ -158,7 +158,7 @@ let fn2 = function(name, toUse, dir) {
 			});
 		}
 		
-		DBot.LoadImageURL(url, function(newPath) {
+		CommandHelper.loadImage(url, function(newPath) {
 			fPath = newPath;
 			ContinueFunc();
 		}, function(result) {
@@ -230,7 +230,7 @@ let fn3 = function(name) {
 			});
 		}
 		
-		DBot.LoadImageURL(url, function(newPath) {
+		CommandHelper.loadImage(url, function(newPath) {
 			fPath = newPath;
 			ContinueFunc();
 		}, function(result) {

@@ -8,6 +8,10 @@ const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 const URL = require('url');
+const unirest = require('unirest');
+const fs = require('fs');
+
+Util.mkdir(DBot.WebRoot + '/img_cache');
 
 const URLMessages = {};
 const URLMessagesImages = {};
@@ -18,7 +22,7 @@ const imageExtExtended = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd|gif|webp)(\?|\/)?
 const urlSelf = new RegExp('^https?://' + DBot.URLRootBare + '/(.*)');
 const url = new RegExp('https?://([^ "\n]*)', 'g');
 const urlStrong = new RegExp('^https?://([^ "\n]*)$');
-const check = new RegExp('\\.?\\./', 'gi');
+const check = new RegExp('\\.\\./', 'gi');
 const internalResource = new RegExp('^\\./resource/', '');
 
 DBot.ExtraxtExt = function(url) {
@@ -157,6 +161,52 @@ const CommandHelper = {
 	
 	checkURL2: function(url) {
 		return url && url.match(urlStrong) && url.match(imageExtExtended);
+	},
+	
+	loadImage: function(url, callback, callbackError) {
+		const hash = String.hash(url);
+		const matchExt = url.match(imageExtExtended);
+		const match = url.match(url);
+
+		let fPath = DBot.WebRoot + '/img_cache/' + hash + '.' + matchExt[1];
+
+		if (url.match(internalResource)) {
+			callback(url);
+			return;
+		}
+
+		if (match && !url.match(check)) {
+			fPath = DBot.WebRoot + '/' + match[1];
+		}
+
+		fs.stat(fPath, function(err, stat) {
+			if (stat && stat.isFile()) {
+				callback(fPath, matchExt[1]);
+			} else {
+				unirest.get(url)
+				.encoding(null)
+				.end(function(result) {
+					const body = result.raw_body;
+
+					if (!body) {
+						if (callbackError) {
+							try {
+								callbackError(result);
+							} catch(err) {
+								console.error(err);
+							}
+						}
+
+						return;
+					}
+
+					fs.writeFile(fPath, body, {flag: 'w'}, function(err) {
+						if (err) return;
+						callback(fPath, matchExt[1]);
+					});
+				});
+			}
+		});
 	}
 };
 

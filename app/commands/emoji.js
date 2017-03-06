@@ -152,7 +152,7 @@ module.exports = {
 				emojiCollection[MYID] = null;
 				
 				subStr.replace(customEmoji, function(matched, p1, offset, Self) {
-					DBot.LoadImageURL(emojiBase + p1 + '.png', function(newPath) {
+					CommandHelper.loadImage(emojiBase + p1 + '.png', function(newPath) {
 						emojiCollection[MYID] = {
 							path: newPath,
 							flop: flop,

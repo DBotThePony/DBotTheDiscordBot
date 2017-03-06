@@ -62,7 +62,7 @@ module.exports = {
 			});
 		}
 		
-		DBot.LoadImageURL(url, function(newPath, newExt) {
+		CommandHelper.loadImage(url, function(newPath, newExt) {
 			fPath = newPath;
 			ContinueFunc();
 		}, function(result) {

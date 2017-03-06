@@ -116,7 +116,7 @@ module.exports = {
 			});
 		};
 		
-		DBot.LoadImageURL(url, function(newPath) {
+		CommandHelper.loadImage(url, function(newPath) {
 			fpath = newPath;
 			ContinueFunc();
 		}, function(result) {
@@ -247,7 +247,7 @@ DBot.RegisterCommand({
 			});
 		};
 		
-		DBot.LoadImageURL(url, function(newPath) {
+		CommandHelper.loadImage(url, function(newPath) {
 			fpath = newPath;
 			ContinueFunc();
 		}, function(result) {
