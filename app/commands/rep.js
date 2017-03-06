@@ -28,6 +28,9 @@ const fn = function(act) {
 		if (typeof args[0] !== 'object' || msg.channel.guild.member(args[0]) === null)
 			return DBot.CommandError('Must be user', act + 'rep', args, 1);
 		
+		if (args[0].id === msg.author.id)
+			return DBot.CommandError('lonely', act + 'rep', args, 1);
+		
 		DBot.__RepCooldowns[msg.author.id] = CurTime() + 360;
 		msg.channel.startTyping();
 		
@@ -61,9 +64,9 @@ const fn = function(act) {
 			let histQ;
 			
 			if (act === '+')
-				histQ = `INSERT INTO rep_history("REC", "GIV", "SERVER", "AMOUNT", "REASON") VALUES(${sql.User(args[0])},${sql.User(msg.author)},'${msg.channel.guild.uid}','${amount}','${reason}')`;
+				histQ = `INSERT INTO rep_history("REC", "GIV", "SERVER", "AMOUNT", "REASON") VALUES(${sql.User(args[0])},${sql.User(msg.author)},'${msg.channel.guild.uid}','${amount}',${Postgres.escape(reason)})`;
 			else
-				histQ = `INSERT INTO rep_history("REC", "GIV", "SERVER", "AMOUNT", "REASON") VALUES(${sql.User(args[0])},${sql.User(msg.author)},'${msg.channel.guild.uid}','-${amount}','${reason}')`;
+				histQ = `INSERT INTO rep_history("REC", "GIV", "SERVER", "AMOUNT", "REASON") VALUES(${sql.User(args[0])},${sql.User(msg.author)},'${msg.channel.guild.uid}','-${amount}',${Postgres.escape(reason)})`;
 			
 			const userQ = `INSERT INTO rep_users VALUES(${sql.User(args[0])}, ${amount}) ON CONFLICT ("ID") DO UPDATE SET "REP" = rep_users."REP" ${act} ${amount} RETURNING "REP"`;
 			const membQ = `INSERT INTO rep_members VALUES(${sql.Member(membr)}, ${amount}) ON CONFLICT ("ID") DO UPDATE SET "REP" = rep_members."REP" ${act} ${amount} RETURNING "REP"`;
@@ -153,7 +156,7 @@ DBot.RegisterCommand({
 			userName = target.username;
 			
 			Postgres.query(`SELECT * FROM rep_users WHERE "ID" = ${sql.User(target)}`, (err, data) => {
-				Postgres.query(`SELECT rep_history.*, users."NAME" as "username" FROM rep_history, members, users WHERE "REC" = ${sql.User(target)} AND members."ID" = "GIV" AND users."ID" = members."USER" ORDER BY "STAMP" DESC LIMIT 100`, (err, dataHist) => {
+				Postgres.query(`SELECT rep_history.*, users."NAME" as "username" FROM rep_history, users WHERE "REC" = ${sql.User(target)} AND users."ID" = "GIV" ORDER BY "STAMP" DESC LIMIT 100`, (err, dataHist) => {
 					let dataRender = [];
 
 					for (const row of dataHist) {
