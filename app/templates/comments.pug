@@ -1,0 +1,23 @@
+
+extends report_base
+
+block append header
+	style.
+		td.username {width: 250px;}
+		td.comment {width: 600px;}
+
+block append contents
+	table#perms
+		tr.tabheader
+			td.username Username
+			td.comment Commentary
+			td.date Date
+		each row in data
+			tr
+				td.username.hintp= row.username
+					span.hint <@#{row.userid}>
+				td.comment= row.comm
+				td.date= row.date
+
+
+

@@ -868,6 +868,18 @@ CREATE TABLE IF NOT EXISTS rp_actions (
 );
 
 -----------------------------------
+--- Commentaries
+-----------------------------------
+
+CREATE TABLE IF NOT EXISTS commentaries (
+	"ENTRY" SERIAL NOT NULL PRIMARY KEY,
+	"USER" INTEGER NOT NULL REFERENCES users ("ID"),
+	"COMMENTATOR" INTEGER NOT NULL REFERENCES users ("ID"),
+	"STAMP" INTEGER NOT NULL DEFAULT currtime(),
+	"COMMENT" VARCHAR(2100) NOT NULL
+);
+
+-----------------------------------
 --- Reputation tables
 -----------------------------------
 
@@ -890,7 +902,7 @@ CREATE TABLE IF NOT EXISTS rep_history (
 	"SERVER" INTEGER NOT NULL REFERENCES servers ("ID"),
 	"AMOUNT" INTEGER NOT NULL DEFAULT 0,
 	"STAMP" INTEGER NOT NULL DEFAULT currtime(),
-	"REASON" VARCHAR(255) NOT NULL DEFAULT '<no reason given>'
+	"REASON" VARCHAR(2100) NOT NULL DEFAULT '<no reason given>'
 );
 
 -----------------------------------
