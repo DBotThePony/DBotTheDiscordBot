@@ -20,7 +20,7 @@ module.exports = {
 		if (DBot.IsPM(msg))
 			return 'Must execute in server channel ;n;';
 		
-		let me = DBot.FindMeInChannel(msg.channel);
+		let me = msg.channel.guild.member(DBot.bot.user);
 		
 		if (!me)
 			return '<internal pony error>';
@@ -125,7 +125,7 @@ DBot.RegisterCommand({
 			return 'Must execute in server channel ;n;';
 		
 		let amount = Number.from(args[0]) || 30;
-		let me = DBot.FindMeInChannel(msg.channel);
+		let me = msg.channel.guild.member(DBot.bot.user);
 		
 		if (!me)
 			return '<internal pony error>';

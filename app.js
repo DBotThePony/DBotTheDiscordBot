@@ -65,8 +65,8 @@ DBot.URLRoot = DBot.cfg.protocol + '://' + DBot.cfg.webpath;
 DBot.owners = DBot.cfg.owners;
 
 require('./app/hook.js');
-require('./app/lib/commandhelper.js');
 require('./app/lib/util.js');
+require('./app/lib/commandhelper.js');
 require('./app/lib/sql.js');
 require('./app/lib/member_storage.js');
 require('./app/lib/imagick.js');

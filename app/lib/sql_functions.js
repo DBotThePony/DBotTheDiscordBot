@@ -386,7 +386,7 @@ sql.updateLastSeenFunc = function(callback, force) {
 	let buildChannels = [];
 	let buildMembers = [];
 	
-	for (let server of DBot.GetServers()) {
+	for (const [_sid, server] of DBot.bot.guilds) {
 		let uid = DBot.GetServerIDSoft(server);
 		
 		if (!uid) continue;

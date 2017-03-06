@@ -19,7 +19,7 @@ module.exports = {
 		if (DBot.IsPM(msg))
 			return 'Must execute in server channel ;n;';
 		
-		let me = DBot.FindMeInChannel(msg.channel);
+		let me = msg.channel.guild.member(DBot.bot.user);
 		
 		if (!me)
 			return '<internal pony error>';

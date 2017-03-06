@@ -211,7 +211,7 @@ DBot.RegisterCommand({
 			return DBot.CommandError('Invalid channel', 'mcvar', args, 1);
 		
 		let channelID = args[0].substr(2, args[0].length - 3);
-		let channel = DBot.FindChannel(channelID);
+		let channel = DBot.bot.channels.get(channelID);
 		
 		if (!channel)
 			return DBot.CommandError('Invalid channel', 'mcvar', args, 1);

@@ -113,117 +113,61 @@ DBot.GetNotificationChannel = function(server) {
 	return get || server.defaultChannel;
 };
 
-DBot.HaveValue = function(arr, val) {
-	for (let vl of arr) {
-		if (vl === val)
-			return true;
-	}
-	
-	return false;
-};
-
-DBot.HasValue = DBot.HaveValue;
-
 DBot.FormatAsk = function(user) {
 	return '<@' + user.id + '>, ';
 };
 
 DBot.UserIsGarbage = function(userID) {
-	let users = DBot.client.users.array();
-	
-	for (let k in users) {
-		if (users[k].id === userID)
-			return false;
-	}
-	
+	if (DBot.bot.users.has(userID)) return false;
 	// ???
 	
-	let servers = DBot.client.guilds.array();
-	
-	for (let server of servers) {
-		let members = server.members.array();
-		
-		for (let member of members) {
-			if (member.id === userID)
+	for (const [_sid, server] of DBot.bot.guilds)
+		for (const [memberID, member] of server.members)
+			if (userID === memberID)
 				return false;
-		}
-	}
 	
 	return true;
 };
 
 DBot.GetUsers = function() {
-	let output = {};
-	let reply = [];
+	const output = {};
+	const reply = [];
 	
-	let servers = DBot.client.guilds.array();
+	for (const [_sid, server] of DBot.bot.guilds)
+		for (const [memberID, member] of server.members)
+			if (!output[memberID])
+				output[memberID] = member.user;
 	
-	for (let server of servers) {
-		let members = server.members.array();
-		
-		for (let member of members) {
-			let user = member.user;
-			
-			if (!output[user.id]) {
-				output[user.id] = user;
-			}
-		}
-	}
-	
-	for (let k in output) {
+	for (const k in output)
 		reply.push(output[k]);
-	}
 	
 	return reply;
 };
 
 DBot.GetUserServers = function(user) {
-	let servers = [];
+	const id = user.id;
+	const servers = [];
 	
-	for (let server of DBot.GetServers()) {
-		for (let member of server.members.array()) {
-			if (user.id === member.user.id) {
+	for (const [_sid, server] of DBot.bot.guilds)
+		for (const [memberID, member] of server.members)
+			if (id === memberID)
 				servers.push(server);
-			}
-		}
-	}
 	
 	return servers;
-};
-
-DBot.GetServers = function() {
-	return DBot.bot.guilds.array();
-};
-
-DBot.GetChannels = function() {
-	return DBot.bot.channels.array();
 };
 
 DBot.GetMembers = function() {
 	let members = [];
 	
-	for (let server of DBot.GetServers()) {
-		for (let member of server.members.array()) {
+	for (const [sid, server] of DBot.bot.guilds)
+		for (const [id, member] of server.members)
 			members.push(member);
-		}
-	}
 	
 	return members;
 };
 
 DBot.RefreshData = function() {
 	hook.Run('Refresh');
-};
-
-DBot.TryFindUser = function(uid) {
-	let users = DBot.client.users.array();
-	
-	for (let k of users) {
-		if (k.id === uid)
-			return k;
-	}
-	
-	return false;
 };
 
 DBot.IdentifyUser = function(str) {
@@ -236,34 +180,9 @@ DBot.IdentifyUser = function(str) {
 		return false;
 	
 	if (str.substr(0, 3) !== '<@!')
-		return DBot.TryFindUser(str.substr(2, len - 3));
+		return DBot.client.users.get(str.substr(2, len - 3));
 	else
-		return DBot.TryFindUser(str.substr(3, len - 4));
-};
-
-DBot.FindMeInChannel = function(channel) {
-	let id = DBot.bot.user.id;
-	let memb = channel.members.array();
-	
-	for (let i in memb) {
-		let Member = memb[i];
-		
-		if (Member.user.id === id)
-			return Member;
-	}
-	
-	return false;
-};
-
-DBot.FindChannel = function(id) {
-	let channels = DBot.bot.channels.array();
-	
-	for (let i in channels) {
-		if (channels[i].id === id)
-			return channels[i];
-	}
-	
-	return false;
+		return DBot.client.users.get(str.substr(3, len - 4));
 };
 
 DBot.CommandError = function(message, name, args, argID) {

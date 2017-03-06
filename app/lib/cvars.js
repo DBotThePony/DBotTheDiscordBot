@@ -185,7 +185,7 @@ class ConVar {
 				let channelID2 = Number.from(val);
 				
 				if (channelID2) {
-					let find = DBot.FindChannel(channelID2);
+					let find = DBot.bot.channels.get(channelID2);
 					if (!find)
 						return [false, FCVAR_CHANNELONLY];
 					
@@ -197,7 +197,7 @@ class ConVar {
 					return [false, FCVAR_CHANNELONLY];
 				
 				let channelID = val.substr(2, val.length - 3);
-				let find = DBot.FindChannel(channelID);
+				let find = DBot.bot.channels.get(channelID);
 				if (!find)
 					return [false, FCVAR_CHANNELONLY];
 				

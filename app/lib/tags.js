@@ -56,7 +56,7 @@ class TagBase {
 	}
 	
 	addTag(tag) {
-		if (DBot.HaveValue(this.bans, tag))
+		if (this.bans.includes(tag))
 			return false;
 		
 		this.bans.push(tag);
@@ -97,7 +97,7 @@ class TagBase {
 	}
 	
 	isBanned(tag) {
-		return DBot.HaveValue(this.bans, tag.toLowerCase());
+		return this.bans.includes(tag.toLowerCase());
 	}
 	
 	bannedTags() {

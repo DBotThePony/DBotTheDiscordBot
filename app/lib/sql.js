@@ -71,19 +71,24 @@ DBot.startSQL = function(bot) {
 	
 	DBot.SQL_START = true;
 	
-	let serversCollection = new sql.ServerSQLCollection();
-	let users = new sql.UserSQLCollection();
-	let users1 = {};
-	const servers = DBot.GetServers();
+	const serversCollection = new sql.ServerSQLCollection();
+	const users = new sql.UserSQLCollection();
+	const channelCollection = new sql.ChannelSQLCollection();
+	const rolesCollection = new sql.RoleSQLCollection();
+	const members = new sql.MemberSQLCollection();
 	
-	for (const server of servers) {
-		if (!server.id) continue; // DiscordSocketTheBugFiner
-		
+	const users1 = {};
+	
+	for (const [serverID, server] of DBot.bot.guilds) {
 		serversCollection.push(server);
 		
-		for (let member of server.members.array()) {
-			if (!member.user.id) continue; // DiscordSocketTheBugFiner
-			users1[member.user.id] = member.user;
+		for (const [memberid, member] of server.members) {
+			users1[memberid] = member.user;
+			members.push(member);
+		}
+		
+		for (const [roleID, role] of server.roles) {
+			rolesCollection.push(role);
 		}
 	}
 	
@@ -103,15 +108,7 @@ DBot.startSQL = function(bot) {
 	
 	serversCollection.updateMap();
 	serversCollection.load(function() {
-		let channelCollection = new sql.ChannelSQLCollection();
-		let rolesCollection = new sql.RoleSQLCollection();
 		DBot.updateLoadingLevel(false);
-		
-		for (const server of servers) {
-			for (const role of server.roles.array()) {
-				rolesCollection.push(role);
-			}
-		}
 		
 		serversCollection.updateMap();
 		hook.Run('ServersInitialized', serversCollection.objects);
@@ -133,15 +130,6 @@ DBot.startSQL = function(bot) {
 		users.updateMap();
 		users.load(function() {
 			DBot.updateLoadingLevel(false);
-			
-			let members = new sql.MemberSQLCollection();
-			
-			for (let server of servers) {
-				for (let member of server.members.array()) {
-					if (!member.user.uid || !member.guild.uid) continue; // WHAT THE FUCK
-					members.push(member);
-				}
-			}
 			
 			members.updateMap();
 			members.load(function() {

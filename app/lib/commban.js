@@ -36,7 +36,7 @@ class CommandBanClass {
 	}
 	
 	addCommand(command) {
-		if (DBot.HaveValue(this.bans, command))
+		if (this.bans.includes(command))
 			return false;
 		
 		this.bans.push(command);
@@ -45,7 +45,7 @@ class CommandBanClass {
 	}
 	
 	rawban(command) {
-		if (DBot.HaveValue(this.bans, command))
+		if (this.bans.includes(command))
 			return false;
 		
 		this.bans.push(command);
@@ -85,7 +85,7 @@ class CommandBanClass {
 	}
 	
 	isBanned(command) {
-		return DBot.HaveValue(this.bans, command.toLowerCase());
+		return this.bans.includes(command.toLowerCase());
 	}
 	
 	bannedTags() {

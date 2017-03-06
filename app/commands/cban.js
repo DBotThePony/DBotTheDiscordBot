@@ -79,7 +79,7 @@ module.exports = {
 				id = data.id;
 			}
 			
-			if (!DBot.HaveValue(DBot.DisallowCommandManipulate, id)) {
+			if (!DBot.DisallowCommandManipulate.includes(id)) {
 				let status = cBans.ban(id);
 				
 				if (status)
@@ -169,7 +169,7 @@ DBot.RegisterCommand({
 				id = data.id;
 			}
 			
-			if (!DBot.HaveValue(DBot.DisallowCommandManipulate, id)) {
+			if (!DBot.DisallowCommandManipulate.includes(id)) {
 				let status = cBans.unBan(id);
 				
 				if (status)
@@ -461,7 +461,7 @@ DBot.RegisterCommand({
 				if (!data) continue;
 				id = data.id;
 
-				if (!DBot.HaveValue(DBot.DisallowCommandManipulate, id)) {
+				if (!DBot.DisallowCommandManipulate.includes(id)) {
 					let status;
 					if (action !== 'add')
 						status = cmdsObj.unBan(id);

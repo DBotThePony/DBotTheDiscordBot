@@ -185,7 +185,7 @@ DBot.RegisterCommand({
 		
 		let validIDs = [];
 		
-		for (let server of DBot.GetServers()) {
+		for (const [_sid, server] of DBot.bot.guilds) {
 			validIDs.push(server.uid);
 		}
 		
@@ -1402,8 +1402,8 @@ DBot.RegisterCommand({
 			let output = '```';
 			
 			if (!hideGlobal) {
-				output += '\nTotal servers:                   ' + formatNumberFunc(DBot.GetServers().length);
-				output += '\nTotal channels:                  ' + formatNumberFunc(DBot.GetChannels().length);
+				output += '\nTotal servers:                   ' + formatNumberFunc(DBot.bot.guilds.size);
+				output += '\nTotal channels:                  ' + formatNumberFunc(DBot.bot.channels.size);
 				output += '\nTotal users:                     ' + formatNumberFunc(DBot.GetMembers().length);
 				output += '\nTotal unique users:              ' + formatNumberFunc(DBot.GetUsers().length);
 				output += '\n------ Global statistics';
