@@ -1,15 +1,6 @@
 
 // EmojiOne
 
-const myGlobals = require('../globals.js');
-const hook = myGlobals.hook;
-const DBot = myGlobals.DBot;
-const sql = myGlobals.sql;
-const IMagick = myGlobals.IMagick;
-const Util = myGlobals.Util;
-const cvars = myGlobals.cvars;
-const Postgres = myGlobals.Postgres;
-
 const regExp = '\\uD83D\\uDC69\\u200D\\u2764\\uFE0F\\u200D\\uD83D\\uDC8B\\u200D\\uD83D\\uDC69|\
 \\uD83D\\uDC68\\u200D\\u2764\\uFE0F\\u200D\\uD83D\\uDC8B\\u200D\\uD83D\\uDC68|\
 \\uD83D\\uDC68\\u200D\\uD83D\\uDC68\\u200D\\uD83D\\uDC67\\u200D\\uD83D\\uDC66|\
@@ -4138,247 +4129,7 @@ const map = {
 	'3': '0033',
 	'2': '0032',
 	'1': '0031',
-	'0': '0030',
-	'\u00A9': '00a9',
-	'\u00AE': '00ae',
-	'\u203C': '203c',
-	'\u2049': '2049',
-	'\u2122': '2122',
-	'\u2139': '2139',
-	'\u2194': '2194',
-	'\u2195': '2195',
-	'\u2196': '2196',
-	'\u2197': '2197',
-	'\u2198': '2198',
-	'\u2199': '2199',
-	'\u21A9': '21a9',
-	'\u21AA': '21aa',
-	'\u231A': '231a',
-	'\u231B': '231b',
-	'\u24C2': '24c2',
-	'\u25AA': '25aa',
-	'\u25AB': '25ab',
-	'\u25B6': '25b6',
-	'\u25C0': '25c0',
-	'\u25FB': '25fb',
-	'\u25FC': '25fc',
-	'\u25FD': '25fd',
-	'\u25FE': '25fe',
-	'\u2600': '2600',
-	'\u2601': '2601',
-	'\u260E': '260e',
-	'\u2611': '2611',
-	'\u2614': '2614',
-	'\u2615': '2615',
-	'\u261D': '261d',
-	'\u263A': '263a',
-	'\u2648': '2648',
-	'\u2649': '2649',
-	'\u264A': '264a',
-	'\u264B': '264b',
-	'\u264C': '264c',
-	'\u264D': '264d',
-	'\u264E': '264e',
-	'\u264F': '264f',
-	'\u2650': '2650',
-	'\u2651': '2651',
-	'\u2652': '2652',
-	'\u2653': '2653',
-	'\u2660': '2660',
-	'\u2663': '2663',
-	'\u2665': '2665',
-	'\u2666': '2666',
-	'\u2668': '2668',
-	'\u267B': '267b',
-	'\u267F': '267f',
-	'\u2693': '2693',
-	'\u26A0': '26a0',
-	'\u26A1': '26a1',
-	'\u26AA': '26aa',
-	'\u26AB': '26ab',
-	'\u26BD': '26bd',
-	'\u26BE': '26be',
-	'\u26C4': '26c4',
-	'\u26C5': '26c5',
-	'\u26D4': '26d4',
-	'\u26EA': '26ea',
-	'\u26F2': '26f2',
-	'\u26F3': '26f3',
-	'\u26F5': '26f5',
-	'\u26FA': '26fa',
-	'\u26FD': '26fd',
-	'\u2702': '2702',
-	'\u2708': '2708',
-	'\u2709': '2709',
-	'\u270C': '270c',
-	'\u270F': '270f',
-	'\u2712': '2712',
-	'\u2714': '2714',
-	'\u2716': '2716',
-	'\u2733': '2733',
-	'\u2734': '2734',
-	'\u2744': '2744',
-	'\u2747': '2747',
-	'\u2757': '2757',
-	'\u2764': '2764',
-	'\u27A1': '27a1',
-	'\u2934': '2934',
-	'\u2935': '2935',
-	'\u2B05': '2b05',
-	'\u2B06': '2b06',
-	'\u2B07': '2b07',
-	'\u2B1B': '2b1b',
-	'\u2B1C': '2b1c',
-	'\u2B50': '2b50',
-	'\u2B55': '2b55',
-	'\u3030': '3030',
-	'\u303D': '303d',
-	'\u3297': '3297',
-	'\u3299': '3299',
-	'\uD83C\uDC04': '1f004',
-	'\uD83C\uDD7F': '1f17f',
-	'\uD83C\uDE02': '1f202',
-	'\uD83C\uDE1A': '1f21a',
-	'\uD83C\uDE2F': '1f22f',
-	'\uD83C\uDE37': '1f237',
-	'\uD83C\uDF9E': '1f39e',
-	'\uD83C\uDF9F': '1f39f',
-	'\uD83C\uDFCB': '1f3cb',
-	'\uD83C\uDFCC': '1f3cc',
-	'\uD83C\uDFCD': '1f3cd',
-	'\uD83C\uDFCE': '1f3ce',
-	'\uD83C\uDF96': '1f396',
-	'\uD83C\uDF97': '1f397',
-	'\uD83C\uDF36': '1f336',
-	'\uD83C\uDF27': '1f327',
-	'\uD83C\uDF28': '1f328',
-	'\uD83C\uDF29': '1f329',
-	'\uD83C\uDF2A': '1f32a',
-	'\uD83C\uDF2B': '1f32b',
-	'\uD83C\uDF2C': '1f32c',
-	'\uD83D\uDC3F': '1f43f',
-	'\uD83D\uDD77': '1f577',
-	'\uD83D\uDD78': '1f578',
-	'\uD83C\uDF21': '1f321',
-	'\uD83C\uDF99': '1f399',
-	'\uD83C\uDF9A': '1f39a',
-	'\uD83C\uDF9B': '1f39b',
-	'\uD83C\uDFF3': '1f3f3',
-	'\uD83C\uDFF5': '1f3f5',
-	'\uD83C\uDFF7': '1f3f7',
-	'\uD83D\uDCFD': '1f4fd',
-	'\u271D': '271d',
-	'\uD83D\uDD49': '1f549',
-	'\uD83D\uDD4A': '1f54a',
-	'\uD83D\uDD6F': '1f56f',
-	'\uD83D\uDD70': '1f570',
-	'\uD83D\uDD73': '1f573',
-	'\uD83D\uDD76': '1f576',
-	'\uD83D\uDD79': '1f579',
-	'\uD83D\uDD87': '1f587',
-	'\uD83D\uDD8A': '1f58a',
-	'\uD83D\uDD8B': '1f58b',
-	'\uD83D\uDD8C': '1f58c',
-	'\uD83D\uDD8D': '1f58d',
-	'\uD83D\uDDA5': '1f5a5',
-	'\uD83D\uDDA8': '1f5a8',
-	'\u2328': '2328',
-	'\uD83D\uDDB2': '1f5b2',
-	'\uD83D\uDDBC': '1f5bc',
-	'\uD83D\uDDC2': '1f5c2',
-	'\uD83D\uDDC3': '1f5c3',
-	'\uD83D\uDDC4': '1f5c4',
-	'\uD83D\uDDD1': '1f5d1',
-	'\uD83D\uDDD2': '1f5d2',
-	'\uD83D\uDDD3': '1f5d3',
-	'\uD83D\uDDDC': '1f5dc',
-	'\uD83D\uDDDD': '1f5dd',
-	'\uD83D\uDDDE': '1f5de',
-	'\uD83D\uDDE1': '1f5e1',
-	'\uD83D\uDDE3': '1f5e3',
-	'\uD83D\uDDE8': '1f5e8',
-	'\uD83D\uDDEF': '1f5ef',
-	'\uD83D\uDDF3': '1f5f3',
-	'\uD83D\uDDFA': '1f5fa',
-	'\uD83D\uDEE0': '1f6e0',
-	'\uD83D\uDEE1': '1f6e1',
-	'\uD83D\uDEE2': '1f6e2',
-	'\uD83D\uDEF0': '1f6f0',
-	'\uD83C\uDF7D': '1f37d',
-	'\uD83D\uDC41': '1f441',
-	'\uD83D\uDD74': '1f574',
-	'\uD83D\uDD75': '1f575',
-	'\u270D': '270d',
-	'\uD83D\uDD90': '1f590',
-	'\uD83C\uDFD4': '1f3d4',
-	'\uD83C\uDFD5': '1f3d5',
-	'\uD83C\uDFD6': '1f3d6',
-	'\uD83C\uDFD7': '1f3d7',
-	'\uD83C\uDFD8': '1f3d8',
-	'\uD83C\uDFD9': '1f3d9',
-	'\uD83C\uDFDA': '1f3da',
-	'\uD83C\uDFDB': '1f3db',
-	'\uD83C\uDFDC': '1f3dc',
-	'\uD83C\uDFDD': '1f3dd',
-	'\uD83C\uDFDE': '1f3de',
-	'\uD83C\uDFDF': '1f3df',
-	'\uD83D\uDECB': '1f6cb',
-	'\uD83D\uDECD': '1f6cd',
-	'\uD83D\uDECE': '1f6ce',
-	'\uD83D\uDECF': '1f6cf',
-	'\uD83D\uDEE3': '1f6e3',
-	'\uD83D\uDEE4': '1f6e4',
-	'\uD83D\uDEE5': '1f6e5',
-	'\uD83D\uDEE9': '1f6e9',
-	'\uD83D\uDEF3': '1f6f3',
-	'\u23CF': '23cf',
-	'\u23ED': '23ed',
-	'\u23EE': '23ee',
-	'\u23EF': '23ef',
-	'\u23F1': '23f1',
-	'\u23F2': '23f2',
-	'\u23F8': '23f8',
-	'\u23F9': '23f9',
-	'\u23FA': '23fa',
-	'\u2602': '2602',
-	'\u2603': '2603',
-	'\u2604': '2604',
-	'\u2618': '2618',
-	'\u2620': '2620',
-	'\u2622': '2622',
-	'\u2623': '2623',
-	'\u2626': '2626',
-	'\u262A': '262a',
-	'\u262E': '262e',
-	'\u262F': '262f',
-	'\u2638': '2638',
-	'\u2639': '2639',
-	'\u2692': '2692',
-	'\u2694': '2694',
-	'\u2696': '2696',
-	'\u2697': '2697',
-	'\u2699': '2699',
-	'\u269B': '269b',
-	'\u269C': '269c',
-	'\u26B0': '26b0',
-	'\u26B1': '26b1',
-	'\u26C8': '26c8',
-	'\u26CF': '26cf',
-	'\u26D1': '26d1',
-	'\u26D3': '26d3',
-	'\u26E9': '26e9',
-	'\u26F0': '26f0',
-	'\u26F1': '26f1',
-	'\u26F4': '26f4',
-	'\u26F7': '26f7',
-	'\u26F8': '26f8',
-	'\u26F9': '26f9',
-	'\u2721': '2721',
-	'\u2763': '2763',
-	'\uD83C\uDF24': '1f324',
-	'\uD83C\uDF25': '1f325',
-	'\uD83C\uDF26': '1f326',
-	'\uD83D\uDDB1': '1f5b1'
+	'0': '0030'
 };
 
 const emojiList = {':kiss_ww:':
@@ -9131,13 +8882,14 @@ const emojiList = {':kiss_ww:':
 
 let avaliableCharEmoji = [];
 let avaliableCharEmojiMap = {};
-let mine = 'regional_indicator_';
+const mine = 'regional_indicator_';
 
-DBot.avaliableCharEmoji = avaliableCharEmoji;
-DBot.avaliableCharEmojiMap = avaliableCharEmojiMap;
+module.regExp = regExp;
+module.charEmoji = avaliableCharEmoji;
+module.charEmojMap = avaliableCharEmojiMap;
 
 for (let name in emojiList) {
-	if (name.substr(1, mine.length) != mine)
+	if (name.substr(1, mine.length) !== mine)
 		continue;
 	
 	avaliableCharEmoji.push(name.substr(mine.length + 1, 1));
@@ -9149,15 +8901,15 @@ const regExpObjWeak = new RegExp('(' + regExp + '|<:[a-zA-Z_0-9]+:([0-9]+)>)', '
 const customEmoji = new RegExp('<:[a-zA-Z_0-9]+:([0-9]+)>', 'gi');
 const emojiBase = 'https://cdn.discordapp.com/emojis/';
 
-DBot.emojiRegExp = regExpObj;
-DBot.emojiRegExpWeak = regExpObjWeak;
-DBot.customEmojiExp = customEmoji;
-DBot.emojiMap = map;
+module.regExp = regExpObj;
+module.regExpWeak = regExpObjWeak;
+module.customRegExp = customEmoji;
+module.map = map;
 
-DBot.FindEmojiURL = function(str) {
+module.findURL = function(str) {
 	let subStr = str.toLowerCase();
 	
-	if (subStr.substr(0, 2) == '<:') {
+	if (subStr.substr(0, 2) === '<:') {
 		let hitStr;
 		
 		subStr.replace(customEmoji, function(matched, p1, offset, Self) {
@@ -9173,4 +8925,6 @@ DBot.FindEmojiURL = function(str) {
 		
 		return './resource/emoji/' + unicode + '.png';
 	}
-}
+};
+
+module.exports = module;

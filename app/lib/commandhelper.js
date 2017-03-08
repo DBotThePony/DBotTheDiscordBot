@@ -10,6 +10,7 @@ const Postgres = myGlobals.Postgres;
 const URL = require('url');
 const unirest = require('unirest');
 const fs = require('fs');
+const emoji = require('./emoji.js');
 
 Util.mkdir(DBot.WebRoot + '/img_cache');
 
@@ -82,12 +83,12 @@ const CommandHelper = {
 			return false;
 
 		if (!CommandHelper.checkURL2(url)) {
-			let emojiMatch = url.match(DBot.emojiRegExpWeak);
+			let emojiMatch = url.match(emoji.regExpWeak);
 
 			if (!emojiMatch)
 				return false;
 			else
-				return DBot.FindEmojiURL(url);
+				return emoji.findURL(url);
 		}
 
 		return url;
@@ -110,12 +111,12 @@ const CommandHelper = {
 			return false;
 
 		if (!CommandHelper.checkURL(url)) {
-			let emojiMatch = url.match(DBot.emojiRegExpWeak);
+			let emojiMatch = url.match(emoji.regExpWeak);
 
 			if (!emojiMatch)
 				return false;
 			else
-				return DBot.FindEmojiURL(url);
+				return emoji.findURL(url);
 		}
 
 		return url;
@@ -132,12 +133,12 @@ const CommandHelper = {
 			return null;
 
 		if (!CommandHelper.checkURL(url)) {
-			let emojiMatch = url.match(DBot.emojiRegExpWeak);
+			let emojiMatch = url.match(emoji.regExpWeak);
 
 			if (!emojiMatch)
 				return null;
 			else
-				return DBot.FindEmojiURL(url);
+				return emoji.findURL(url);
 		}
 
 		return url;

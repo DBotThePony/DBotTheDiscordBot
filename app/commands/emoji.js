@@ -8,15 +8,16 @@ const Util = myGlobals.Util;
 const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 const CommandHelper = myGlobals.CommandHelper;
+const emoji = require('../lib/emoji.js');
 
 Util.mkdir(DBot.WebRoot + '/emoji');
 
-const avaliableCharEmoji = DBot.avaliableCharEmoji;
-const avaliableCharEmojiMap = DBot.avaliableCharEmojiMap;
+const avaliableCharEmoji = emoji.charEmoji;
+const avaliableCharEmojiMap = emoji.charEmojiMap;
 
-const regExpObj = DBot.emojiRegExp;
-const customEmoji = DBot.customEmojiExp;
-const map = DBot.emojiMap;
+const regExpObj = emoji.regExp;
+const customEmoji = emoji.customRegExp;
+const map = emoji.map;
 
 const emojiBase = 'https://cdn.discordapp.com/emojis/';
 const crypto = require('crypto');
@@ -32,7 +33,7 @@ module.exports = {
 	desc: 'Emoji into image!',
 	
 	func: function(args, cmd, msg) {
-		if (cmd == '')
+		if (cmd === '')
 			return 'No smileys? ;n;';
 		
 		let emojiCollection = [];
@@ -41,7 +42,7 @@ module.exports = {
 		
 		msg.channel.startTyping();
 		
-		let continueFunc = function() {
+		const continueFunc = function() {
 			if (!emojiCollection[0]) {
 				msg.channel.stopTyping();
 				msg.reply('No emoji found in this text ;w;');
@@ -54,22 +55,22 @@ module.exports = {
 				return;
 			}
 			
-			let hash = crypto.createHash('sha256');
+			const hash = crypto.createHash('sha256');
 			
-			for (let i in emojiCollection) {
+			for (const row of emojiCollection) {
 				let str;
 				
-				if (emojiCollection[i].isNewLine) {
+				if (row.isNewLine) {
 					str = '\n';
 				} else {
-					str = emojiCollection[i].path + '-' + (emojiCollection[i].flop && 'true' || 'false');
+					str = row.path + '-' + (row.flop && 'true' || 'false');
 				}
 				
 				hash.update(str);
 			}
 			
-			let sha = hash.digest('hex');
-			let fpath = DBot.WebRoot + '/emoji/' + sha + '.png';
+			const sha = hash.digest('hex');
+			const fpath = DBot.WebRoot + '/emoji/' + sha + '.png';
 			
 			fs.stat(fpath, function(err, stat) {
 				if (stat) {
@@ -111,18 +112,12 @@ module.exports = {
 					
 					magikArgs.push('-append', fpath);
 					
-					let magik = spawn('convert', magikArgs);
+					const magik = spawn('convert', magikArgs);
 					
-					magik.stderr.on('data', function(data) {
-						console.error(data.toString());
-					});
-					
-					magik.stdout.on('data', function(data) {
-						console.log(data.toString());
-					});
+					Util.Redirect(magik);
 					
 					magik.on('close', function(code) {
-						if (code == 0) {
+						if (code === 0) {
 							msg.reply(DBot.URLRoot + '/emoji/' + sha + '.png');
 						} else {
 							msg.reply('<internal pony error>');
@@ -132,18 +127,18 @@ module.exports = {
 					});
 				}
 			});
-		}
+		};
 		
-		for (let i in emojiMatch) {
-			let subStr = emojiMatch[i].toLowerCase();
+		for (let subStr of emojiMatch) {
+			subStr = subStr.toLowerCase();
 			let flop = false;
 			
-			if (subStr.substr(0, 1) == '!') {
+			if (subStr.substr(0, 1) === '!') {
 				flop = true;
 				subStr = subStr.substr(1);
 			}
 			
-			if (subStr.substr(0, 2) == '<:') {
+			if (subStr.substr(0, 2) === '<:') {
 				// Custom Emoji
 				customEmojiAmount++;
 				
@@ -155,29 +150,29 @@ module.exports = {
 					CommandHelper.loadImage(emojiBase + p1 + '.png', function(newPath) {
 						emojiCollection[MYID] = {
 							path: newPath,
-							flop: flop,
+							flop: flop
 						};
 						
 						customEmojiAmount--;
 						
-						if (customEmojiAmount == 0)
+						if (customEmojiAmount === 0)
 							continueFunc();
 					}, function(result) {
 						msg.channel.stopTyping();
 						msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '" URL: ' + emojiBase + p1 + '.png');
 					});
 				});
-			} else if (subStr == '\n') {
-				if (emojiCollection.length == 0)
+			} else if (subStr === '\n') {
+				if (emojiCollection.length === 0)
 					continue;
 				
 				emojiCollection.push({
-					isNewLine: true,
+					isNewLine: true
 				});
 			} else if (avaliableCharEmoji.includes(subStr)) {
 				emojiCollection.push({
 					path: './resource/emoji/' + avaliableCharEmojiMap[subStr] + '.png',
-					flop: flop,
+					flop: flop
 				});
 			} else {
 				// EmojiOne handler
@@ -189,12 +184,12 @@ module.exports = {
 				
 				emojiCollection.push({
 					path: './resource/emoji/' + unicode + '.png',
-					flop: flop,
+					flop: flop
 				});
 			}
 		}
 		
-		if (customEmojiAmount == 0)
+		if (customEmojiAmount === 0)
 			continueFunc();
 	}
-}
+};
