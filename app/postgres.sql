@@ -868,6 +868,54 @@ CREATE TABLE IF NOT EXISTS rp_actions (
 );
 
 -----------------------------------
+--- Emoji
+-----------------------------------
+
+CREATE TABLE IF NOT EXISTS emoji_ids (
+	"ID" SERIAL NOT NULL UNIQUE,
+	"EMOJI_NAME" VARCHAR(64) NOT NULL,
+	"EMOJI" CHAR(16) NOT NULL PRIMARY KEY
+);
+
+CREATE TABLE IF NOT EXISTS reactions (
+	"USER" INTEGER NOT NULL REFERENCES users ("ID"),
+	"EMOJI" INTEGER NOT NULL REFERENCES emoji_ids ("ID"),
+	"COUNT" INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY ("USER")
+);
+
+CREATE TABLE IF NOT EXISTS reactions_history (
+	"GIVER" INTEGER NOT NULL REFERENCES users ("ID"),
+	"RECEIVER" INTEGER NOT NULL REFERENCES users ("ID"),
+	"SERVER" INTEGER NOT NULL REFERENCES servers ("ID"),
+	"STAMP" INTEGER NOT NULL DEFAULT currtime(),
+	"EMOJI" INTEGER NOT NULL REFERENCES emoji_ids ("ID")
+);
+
+CREATE OR REPLACE FUNCTION get_emoji(str CHAR(16))
+RETURNS INTEGER AS $$
+DECLARE myid INTEGER;
+BEGIN
+	SELECT "ID" INTO myid FROM emoji_ids WHERE "EMOJI" = str;
+	RETURN myid;
+END; $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION reactions_history_trigger()
+RETURNS TRIGGER AS $$
+BEGIN
+	INSERT INTO reactions VALUES (NEW."RECEIVER", NEW."EMOJI", 1) ON CONFLICT ("USER") DO
+		UPDATE SET "COUNT" = reactions."COUNT" + 1;
+
+	RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS history_write ON reactions_history;
+
+CREATE TRIGGER history_write
+	AFTER INSERT ON reactions_history FOR EACH ROW 
+	EXECUTE PROCEDURE reactions_history_trigger();
+
+-----------------------------------
 --- Commentaries
 -----------------------------------
 

@@ -1,6 +1,9 @@
 
 // EmojiOne
 
+const myGlobals = require('../globals.js');
+const hook = myGlobals.hook;
+
 const regExp = '\\uD83D\\uDC69\\u200D\\u2764\\uFE0F\\u200D\\uD83D\\uDC8B\\u200D\\uD83D\\uDC69|\
 \\uD83D\\uDC68\\u200D\\u2764\\uFE0F\\u200D\\uD83D\\uDC8B\\u200D\\uD83D\\uDC68|\
 \\uD83D\\uDC68\\u200D\\uD83D\\uDC68\\u200D\\uD83D\\uDC67\\u200D\\uD83D\\uDC66|\
@@ -4132,7 +4135,8 @@ const map = {
 	'0': '0030'
 };
 
-const emojiList = {':kiss_ww:':
+const emojiList = {
+	':kiss_ww:':
 		{'unicode': ['1f469-200d-2764-fe0f-200d-1f48b-200d-1f469','1f469-2764-1f48b-1f469'], 'isCanonical': true},
 	':couplekiss_ww:':
 		{'unicode': ['1f469-200d-2764-fe0f-200d-1f48b-200d-1f469','1f469-2764-1f48b-1f469'], 'isCanonical': false},
@@ -8880,31 +8884,56 @@ const emojiList = {':kiss_ww:':
 		{'unicode': ['27bf'], 'isCanonical': true}
 };
 
+const mapBackwards = {};
+const mapUnicode = {};
+
 let avaliableCharEmoji = [];
 let avaliableCharEmojiMap = {};
 const mine = 'regional_indicator_';
 
-module.regExp = regExp;
 module.charEmoji = avaliableCharEmoji;
 module.charEmojMap = avaliableCharEmojiMap;
 
-for (let name in emojiList) {
-	if (name.substr(1, mine.length) !== mine)
-		continue;
+for (const k in map) {
+	mapBackwards[map[k]] = k;
+}
+
+{
+	const s = [];
 	
-	avaliableCharEmoji.push(name.substr(mine.length + 1, 1));
-	avaliableCharEmojiMap[name.substr(mine.length + 1, 1)] = emojiList[name].unicode[0];
+	for (const name in emojiList) {
+		const bare = name.substr(1, name.length - 2);
+		mapBackwards[name] = mapBackwards[emojiList[name].unicode[0]];
+		mapBackwards[bare] = mapBackwards[emojiList[name].unicode[0]];
+		
+		s.push(`${bare}','${mapBackwards[emojiList[name].unicode[0]]}`);
+		
+		if (name.substr(1, mine.length) !== mine)
+			continue;
+		
+		avaliableCharEmoji.push(name.substr(mine.length + 1, 1));
+		avaliableCharEmojiMap[name.substr(mine.length + 1, 1)] = emojiList[name].unicode[0];
+	}
+	
+	hook.single('SQLInitialize', (Postgres) => Postgres.query(`WITH full_list("memoji", "unicode") AS (VALUES ('${s.join("'),('")}'))
+		INSERT INTO emoji_ids ("EMOJI_NAME", "EMOJI")
+			(SELECT * FROM full_list WHERE "unicode" NOT IN
+				(SELECT "EMOJI" FROM emoji_ids)
+			) ON CONFLICT DO NOTHING;`));
 }
 
 const regExpObj = new RegExp('!?(' + regExp + '|<:[a-zA-Z_0-9]+:([0-9]+)>|\n|' + avaliableCharEmoji.join('|') + ')', 'gi');
 const regExpObjWeak = new RegExp('(' + regExp + '|<:[a-zA-Z_0-9]+:([0-9]+)>)', 'gi');
+const regExpUnicodeOnly = new RegExp('(' + regExp + ')', 'gi');
 const customEmoji = new RegExp('<:[a-zA-Z_0-9]+:([0-9]+)>', 'gi');
 const emojiBase = 'https://cdn.discordapp.com/emojis/';
 
 module.regExp = regExpObj;
 module.regExpWeak = regExpObjWeak;
+module.unicodeOnly = regExpUnicodeOnly;
 module.customRegExp = customEmoji;
 module.map = map;
+module.mapBackwards = mapBackwards;
 
 module.findURL = function(str) {
 	let subStr = str.toLowerCase();
@@ -8925,6 +8954,10 @@ module.findURL = function(str) {
 		
 		return './resource/emoji/' + unicode + '.png';
 	}
+};
+
+module.spliceString = function(str) {
+	return str.match(regExpUnicodeOnly);
 };
 
 module.exports = module;

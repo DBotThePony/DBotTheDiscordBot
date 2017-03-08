@@ -238,7 +238,7 @@ mainConnection.connect(function(err) {
 				mainConnection.query('INSERT INTO db_info VALUES (\'version\', \'' + last_rev + '\')');
 
 			if (db_rev >= last_rev)
-				hook.Run('SQLInitialize');
+				hook.Run('SQLInitialize', mainConnection);
 			else {
 				console.log('Upgrading database, please wait...');
 
@@ -270,7 +270,7 @@ mainConnection.connect(function(err) {
 				callbackFuncs.push(function() {
 					mainConnection.query('UPDATE db_info SET "VALUE" = \'' + last_rev + '\' WHERE "KEY" = \'version\';', function() {
 						console.log('Upgrade complete.');
-						hook.Run('SQLInitialize');
+						hook.Run('SQLInitialize', mainConnection);
 					});
 				});
 

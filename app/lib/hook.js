@@ -2,6 +2,7 @@
 class Hook {
 	constructor() {
 		this.hooks = new Map();
+		this.singles = new Map();
 		this.run = this.call;
 		this.Run = this.call;
 		this.Add = this.add;
@@ -18,6 +19,14 @@ class Hook {
 		this.hooks.get(event).set(id, func);
 	}
 	
+	
+	single(event, func) {
+		if (!event || !func) return;
+		if (!this.singles.has(event))
+			this.singles.set(event, []);
+		this.singles.get(event).push(func);
+	}
+	
 	remove(event, id) {
 		if (!event || !id) return;
 		if (!this.hooks.has(event)) return;
@@ -25,11 +34,19 @@ class Hook {
 	}
 	
 	call(event, A, B, C, D, E, F, G) {
-		if (!this.hooks.has(event)) return;
-
-		for (const func of this.hooks.get(event).values()) {
-			const reply = func(A, B, C, D, E, F, G);
-			if (reply !== undefined) return reply;
+		if (this.singles.has(event)) {
+			for (const func of this.singles.get(event)) {
+				func(A, B, C, D, E, F, G);
+			}
+			
+			this.singles.delete(event);
+		}
+		
+		if (this.hooks.has(event)) {
+			for (const func of this.hooks.get(event).values()) {
+				const reply = func(A, B, C, D, E, F, G);
+				if (reply !== undefined) return reply;
+			}
 		}
 	}
 	
