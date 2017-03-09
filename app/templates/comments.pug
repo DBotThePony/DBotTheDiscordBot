@@ -16,7 +16,7 @@ block append contents
 			tr
 				td.username.hintp= row.username
 					span.hint <@#{row.userid}>
-				td.comment= row.comm
+				td.comment!= row.comm
 				td.date= row.date
 
 

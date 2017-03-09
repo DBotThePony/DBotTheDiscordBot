@@ -63,6 +63,8 @@ module.exports = {
 	}
 };
 
+const replaceRegExp = new RegExp('(https?://[^ ]+)', 'gi');
+
 DBot.RegisterCommand({
 	name: 'comments',
 	alias: ['commentaries'],
@@ -101,7 +103,7 @@ DBot.RegisterCommand({
 				dataRender.push({
 					username: row.username,
 					userid: row.uid,
-					comm: row.COMMENT,
+					comm: row.COMMENT.replace(/<>&/gi, '').replace(replaceRegExp, '<a href="$1" target="_blank">$1</a>'),
 					date: Util.formatStamp(row.STAMP)
 				});
 			}
