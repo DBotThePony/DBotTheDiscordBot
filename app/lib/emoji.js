@@ -8887,6 +8887,14 @@ const emojiList = {
 const mapBackwards = {};
 const mapUnicode = {};
 
+for (const k in map) {
+	mapBackwards[map[k]] = k;
+}
+
+for (const k in emojiList) {
+	mapUnicode[emojiList[k].unicode[0]] = k;
+}
+
 let avaliableCharEmoji = [];
 let avaliableCharEmojiMap = {};
 const mine = 'regional_indicator_';
@@ -8903,10 +8911,8 @@ for (const k in map) {
 	
 	for (const name in emojiList) {
 		const bare = name.substr(1, name.length - 2);
-		mapBackwards[name] = mapBackwards[emojiList[name].unicode[0]];
-		mapBackwards[bare] = mapBackwards[emojiList[name].unicode[0]];
 		
-		s.push(`${bare}','${mapBackwards[emojiList[name].unicode[0]]}`);
+		s.push(`${bare}','${mapBackwards[emojiList[name].unicode[0]]}','${emojiList[name].unicode[0]}`);
 		
 		if (name.substr(1, mine.length) !== mine)
 			continue;
@@ -8915,8 +8921,8 @@ for (const k in map) {
 		avaliableCharEmojiMap[name.substr(mine.length + 1, 1)] = emojiList[name].unicode[0];
 	}
 	
-	hook.single('SQLInitialize', (Postgres) => Postgres.query(`WITH full_list("memoji", "unicode") AS (VALUES ('${s.join("'),('")}'))
-		INSERT INTO emoji_ids ("EMOJI_NAME", "EMOJI")
+	hook.single('SQLInitialize', (Postgres) => Postgres.query(`WITH full_list("memoji", "unicode", "UNICODE") AS (VALUES ('${s.join("'),('")}'))
+		INSERT INTO emoji_ids ("EMOJI_NAME", "EMOJI", "UNICODE")
 			(SELECT * FROM full_list WHERE "unicode" NOT IN
 				(SELECT "EMOJI" FROM emoji_ids)
 			) ON CONFLICT DO NOTHING;`));

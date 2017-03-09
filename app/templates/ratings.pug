@@ -1,0 +1,38 @@
+
+extends report_base
+
+block append header
+	link(rel='stylesheet', href='../emojione.sprites.css')
+	style.
+		span.emoji {
+			width: 64px;
+			height: 64px;
+			display: inline-block;
+		}
+		
+		span.emoji_container {
+			width: 96px;
+			height: 64px;
+			display: inline-block;
+			padding: 5px;
+			padding-top: 8px;
+			margin: 8px;
+			background: rgb(230, 230, 230);
+		}
+		
+		span.emoji_count {
+			margin-left: 8px;
+		}
+		
+		span.hintfix {text-indent: initial; margin-top: 70px;}
+
+block append contents
+	span#user_ratings
+		for em in data
+			span.emoji_container
+				span(class=`emoji emojione emojione-${em.id} hintp`)
+					span.hint.hintfix= em.name
+				span.emoji_count= em.count
+
+
+
