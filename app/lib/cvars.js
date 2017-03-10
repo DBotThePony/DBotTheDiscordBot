@@ -80,6 +80,13 @@ cvars.SERVERS = {};
 cvars.CHANNELS = {};
 cvars.CLIENTS = {};
 
+const hookObj = require('./hook.js');
+
+cvars.hook = cvars.hook || {};
+cvars.hook.server = cvars.hook.server || new hookObj();
+cvars.hook.channel = cvars.hook.channel || new hookObj();
+cvars.hook.user = cvars.hook.user || new hookObj();
+
 class ConVar {
 	constructor(data, object, noLoad) {
 		this.data = data;
@@ -98,17 +105,19 @@ class ConVar {
 		this.name = data.id;
 		this.cvar = data.id;
 		
-		let me = this;
-		
 		this.value = this.defValue;
 		
 		if (!noLoad) this.fetch();
 	}
 	
+	getID() {
+		return this.data.id;
+	}
+	
 	fetch() {
-		let self = this;
+		const self = this;
 		
-		Postgres.query('SELECT "VALUE" FROM cvar_' + this.realm + ' WHERE "ID" = ' + this.id + ' AND "CVAR" = ' + Postgres.escape(this.name), function(err, data) {
+		Postgres.query('SELECT "VALUE" FROM cvar_' + this.reaml + ' WHERE "ID" = ' + this.id + ' AND "CVAR" = ' + Postgres.escape(this.name), function(err, data) {
 			if (!data || !data[0]) {
 				Postgres.query('INSERT INTO cvar_' + self.realm + ' ("ID", "CVAR", "VALUE") VALUES (' + self.id + ', ' + Postgres.escape(self.name) + ', ' + Postgres.escape(self.defValue) + ')');
 			} else {
@@ -281,7 +290,7 @@ class ConVar {
 		
 		let oldVal = this.value;
 		this.value = val;
-		Postgres.query('UPDATE cvar_' + this.realm + ' SET "VALUE" = ' + Postgres.escape(val) + ' WHERE "ID" = ' + Postgres.escape(this.id) + ' AND "CVAR" = ' + Postgres.escape(this.name));
+		Postgres.query(`INSERT INTO cvar_${this.realm} VALUES (${this.id}, '${this.name}', ${Postgres.escape(val)}) ON CONFLICT ("ID", "CVAR") DO UPDATE SET "VALUE" = excluded."VALUE"`);
 		
 		this.session.onValueChanged(this, oldVal, val);
 		this.onValueChanged(oldVal, val);
@@ -480,6 +489,7 @@ class UserVarSession {
 	
 	onValueChanged(cvar, oldVal, newVal) {
 		hook.Run('UserVarChanges', this, cvar, oldVal, newVal);
+		cvars.hook.user.run(cvar.getID(), this, cvar, oldVal, newVal);
 		
 		if (!this.callbacks[cvar.cvar])
 			return;
@@ -560,6 +570,7 @@ class ServerVarSession {
 	
 	onValueChanged(cvar, oldVal, newVal) {
 		hook.Run('ServerVarChanges', this, cvar, oldVal, newVal);
+		cvars.hook.server.run(cvar.getID(), this, cvar, oldVal, newVal);
 		
 		if (!this.callbacks[cvar.cvar])
 			return;
@@ -639,6 +650,7 @@ class ChannelVarSession {
 	
 	onValueChanged(cvar, oldVal, newVal) {
 		hook.Run('ChannelVarChanges', this, cvar, oldVal, newVal);
+		cvars.hook.channel.run(cvar.getID(), this, cvar, oldVal, newVal);
 		
 		if (!this.callbacks[cvar.cvar])
 			return;
