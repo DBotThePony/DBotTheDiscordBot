@@ -114,15 +114,8 @@ module.exports = {
 		
 		let currRoleColor;
 		
-		for (const role of msg.member.roles.values()) {
-			if (role.name === '@everyone')
-				continue;
-			
-			if (!avaliableColorsMap[role.name.toLowerCase()])
-				return `You already has a role that is not a color!`;
-			else if (avaliableColorsMap[role.name.toLowerCase()])
-				currRoleColor = role;
-		}
+		for (const role of msg.member.roles.values())
+			if (avaliableColorsMap[role.name.toLowerCase()]) currRoleColor = role;
 		
 		if (!args[0])
 			return DBot.CommandError('No color specified', 'color', args, 1);
