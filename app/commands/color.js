@@ -36,6 +36,7 @@ const avaliableColors = [ // Colours
 	['Brown', '#8B4513'],
 	['Peru', '#CD853F'],
 	['LightGrey', '#D3D3D3'],
+	['Orange', '#FFA500'],
 	['Grey', '#808080']
 ];
 
