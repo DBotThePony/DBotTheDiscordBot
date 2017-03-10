@@ -14,15 +14,11 @@ const emoji = require('./emoji.js');
 
 Util.mkdir(DBot.WebRoot + '/img_cache');
 
-const URLMessages = {};
-const URLMessagesImages = {};
-const URLMessagesImages2 = {};
-
 const imageExt = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd|webp)(\?|\/)?/i;
 const imageExtExtended = /\.(png|jpeg|jpg|tif|tiff|bmp|svg|psd|gif|webp)(\?|\/)?/i;
 const urlSelf = new RegExp('^https?://' + DBot.URLRootBare + '/(.*)');
-const url = new RegExp('https?://([^ "\n]*)', 'g');
-const urlStrong = new RegExp('^https?://([^ "\n]*)$');
+const url = new RegExp('https?://([^ "\',\n]*)', 'gi');
+const urlStrong = new RegExp('^https?://([^ "\',\n]*)$');
 const check = new RegExp('\\.\\./', 'gi');
 const internalResource = new RegExp('^\\./resource/', '');
 
@@ -40,6 +36,10 @@ const CommandHelper = {
 	urlSelf: urlSelf,
 	url: url,
 	urlStrong: urlStrong,
+	
+	URLMessages: {},
+	URLMessagesImages: {},
+	URLMessagesImages2: {},
 	
 	switchImageArgs: function(channel, args, defNum) {
 		const url1 = CommandHelper.identifyURL(args[0]);
@@ -145,15 +145,15 @@ const CommandHelper = {
 	},
 	
 	lastURL: function(channel) {
-		return URLMessages[channel.id];
+		return CommandHelper.URLMessages[channel.id];
 	},
 	
 	lastImageURL: function(channel) {
-		return URLMessagesImages[channel.id];
+		return CommandHelper.URLMessagesImages[channel.id];
 	},
 	
 	lastImageURL2: function(channel) {
-		return URLMessagesImages2[channel.id];
+		return CommandHelper.URLMessagesImages2[channel.id];
 	},
 	
 	checkURL: function(url) {
@@ -167,11 +167,11 @@ const CommandHelper = {
 	loadImage: function(url, callback, callbackError) {
 		const hash = String.hash(url);
 		const matchExt = url.match(imageExtExtended);
-		const match = url.match(url);
+		const match = url.match(urlSelf);
 
 		let fPath = DBot.WebRoot + '/img_cache/' + hash + '.' + matchExt[1];
 
-		if (url.match(internalResource)) {
+		if (url.match(internalResource) && !url.match(check)) {
 			callback(url);
 			return;
 		}
@@ -219,20 +219,19 @@ const messageParseFunc = function(msg) {
 	if (msg.attachments) {
 		for (const val of msg.attachments.values()) {
 			if (val.url && val.url.match(imageExt)) {
-				URLMessages[cid] = val.url;
-				URLMessagesImages[cid] = val.url;
+				CommandHelper.URLMessages[cid] = val.url;
+				CommandHelper.URLMessagesImages[cid] = val.url;
 			}
 		}
 	}
 	
-	const Message = msg.content;
-	const get = Message.match(url);
+	const get = msg.content.match(url);
 	if (!get) return;
 	
-	for (const url of get) {
-		if (url.match(imageExt)) URLMessagesImages[cid] = url;
-		if (url.match(imageExtExtended)) URLMessagesImages2[cid] = url;
-		URLMessages[cid] = url;
+	for (const urlStr of get) {
+		if (urlStr.match(imageExt)) CommandHelper.URLMessagesImages[cid] = urlStr;
+		if (urlStr.match(imageExtExtended)) CommandHelper.URLMessagesImages2[cid] = urlStr;
+		CommandHelper.URLMessages[cid] = urlStr;
 	}
 };
 
