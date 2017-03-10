@@ -177,6 +177,37 @@ DBot.RegisterCommand({
 	}
 });
 
+DBot.RegisterCommand({
+	name: 'removecolor',
+	alias: ['deletecolor'],
+	
+	help_args: '',
+	desc: 'Removes any color from you',
+	
+	func: function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'PM? ;-; Lonely';
+		
+		if (!cvars.Server(msg.channel.guild).getVar('colors').getBool())
+			return 'Colors are not enabled on this server';
+		
+		if (!msg.channel.guild.member(DBot.bot.user).hasPermission('MANAGE_ROLES_OR_PERMISSIONS'))
+			return 'Server administrator has done invalid setup - Colors are enabled but i don\'t have `MANAGE_ROLES_OR_PERMISSIONS` permission!';
+		
+		let currRoleColor;
+		
+		for (const role of msg.member.roles.values()) {
+			if (avaliableColorsMap[role.name.toLowerCase()]) {
+				msg.member.removeRole(role);
+				msg.sendMessage(`Removed color \`${role.name}\` from <@${msg.author.id}>`);
+				return;
+			}
+		}
+		
+		msg.sendMessage('You have no any color roles!');
+	}
+});
+
 cvars.hook.server.add('colors', (session, cvar, oldVal, newVal) => {
 	if (cvar.getBool() && session.obj.member(DBot.bot.user).hasPermission('MANAGE_ROLES_OR_PERMISSIONS'))
 		registerColorRoles(session.obj);
