@@ -11,6 +11,7 @@ const Postgres = myGlobals.Postgres;
 const numeral = require('numeral');
 const moment = require('moment');
 const hDuration = require('humanize-duration');
+const sprintf = require('sprintf-js').sprintf;
 
 let never_talk_sql = `
 SELECT
