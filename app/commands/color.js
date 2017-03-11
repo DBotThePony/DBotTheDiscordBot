@@ -125,9 +125,6 @@ module.exports = {
 		if (!avaliableColorsMap[col])
 			return DBot.CommandError('Invalid color specified', 'color', args, 1);
 		
-		if (currRoleColor)
-			msg.member.removeRole(currRoleColor);
-		
 		let targetRole;
 		
 		const findRole = function() {
@@ -140,6 +137,12 @@ module.exports = {
 		};
 		
 		findRole();
+		
+		if (currRoleColor)
+			if (targetRole && targetRole.id === currRoleColor.id)
+				return 'You already have this color!';
+			else
+				msg.member.removeRole(currRoleColor);
 		
 		msg.channel.startTyping();
 		const continueFunc = function() {
