@@ -165,6 +165,10 @@ CREATE TABLE IF NOT EXISTS members (
 	"TIME" INTEGER NOT NULL DEFAULT currtime()
 );
 
+--------------------------------
+-- Command Bans
+--------------------------------
+
 CREATE TABLE IF NOT EXISTS command_bans_channel (
 	"UID" INTEGER NOT NULL,
 	"COMMAND" VARCHAR(64) NOT NULL
@@ -173,6 +177,21 @@ CREATE TABLE IF NOT EXISTS command_bans_channel (
 CREATE TABLE IF NOT EXISTS command_bans_server (
 	"UID" INTEGER NOT NULL,
 	"COMMAND" VARCHAR(64) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS command_bans_role (
+	"ID" INTEGER NOT NULL REFERENCES servers ("ID"),
+	"COMMAND" VARCHAR(64) NOT NULL,
+	"ROLES" INTEGER[] NOT NULL,
+	"ISWHITE" BOOLEAN NOT NULL,
+	PRIMARY KEY ("ID", "COMMAND")
+);
+
+CREATE TABLE IF NOT EXISTS command_bans_permissions (
+	"ID" INTEGER NOT NULL REFERENCES servers ("ID"),
+	"COMMAND" VARCHAR(64) NOT NULL,
+	"PERMISSIONS" discord_permission[] NOT NULL,
+	PRIMARY KEY ("ID", "COMMAND")
 );
 
 CREATE TABLE IF NOT EXISTS command_bans_member (

@@ -406,7 +406,7 @@ const findRelated = function(str) {
 let clearCommand;
 
 {
-	let clearExpr = /[a-zа-я0-9\+\-\=]/gi;
+	let clearExpr = /[a-zа-я0-9\+\-\=_]/gi;
 	
 	clearCommand = function(str) {
 		let output = '';
@@ -1030,42 +1030,46 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 	};
 	
 	let cCommand = DBot.Commands[command];
+	if (hook.Run('CanExecuteValidCommand', msg.author, cCommand.id, msg) === false) return false;
 	
-	let can2 = hook.Run('CanExecuteValidCommand', msg.author, cCommand.id, msg);
-	
-	if (can2 === false)
-		return false;
-	
-	if (ServerBans && ServerBans.isBanned(cCommand.id)) {
-		if (test)
-			return false;
+	if (ServerBans) {
+		if (ServerBans.isBanned(cCommand.id)) {
+			if (test) return false;
+			msg.reply('Command is banned on entrie server ;w;');
+			return;
+		}
 		
-		msg.reply('Command is banned on entrie server ;w;');
-		return;
+		if (!msg.member.hasPermission('MANAGE_GUILD')) {
+			if (ServerBans.checkPermissions(cCommand.id, msg.member)) {
+				if (test) return false;
+				msg.reply('You have missing permissions');
+				return false;
+			}
+			
+			if (ServerBans.checkRoles(cCommand.id, msg.member.roles.values())) {
+				if (test) return false;
+				msg.reply('You have missing required role');
+				return false;
+			}
+		}
 	};
 	
 	if (ChannelBans && ChannelBans.isBanned(cCommand.id)) {
-		if (test)
-			return false;
-		
+		if (test) return false;
 		msg.reply('Command is banned on this channel ;w;');
-		return;
+		return false;
 	};
 	
 	if (ServerBans && ServerBans.isBanned(cCommand.name)) {
-		if (test)
-			return false;
-		
+		if (test) return false;
 		msg.reply('Command is banned on entrie server ;w;');
-		return;
+		return false;
 	};
 	
 	if (ChannelBans && ChannelBans.isBanned(cCommand.name)) {
-		if (test)
-			return false;
-		
+		if (test) return false;
 		msg.reply('Command is banned on this channel ;w;');
-		return;
+		return false;
 	};
 	
 	if (test)

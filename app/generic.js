@@ -218,3 +218,61 @@ DBot.CanTarget = function(member_user, member_target) {
 	
 	return DBot.GetImmunityLevel(member_user) > DBot.GetImmunityLevel(member_target);
 };
+
+DBot.validPerms = [
+	'CREATE_INSTANT_INVITE',
+	'KICK_MEMBERS',
+	'BAN_MEMBERS',
+	'ADMINISTRATOR',
+	'MANAGE_CHANNELS',
+	'MANAGE_GUILD',
+	'ADD_REACTIONS', // add reactions to messages
+	'READ_MESSAGES',
+	'SEND_MESSAGES',
+	'SEND_TTS_MESSAGES',
+	'MANAGE_MESSAGES',
+	'EMBED_LINKS',
+	'ATTACH_FILES',
+	'READ_MESSAGE_HISTORY',
+	'MENTION_EVERYONE',
+	'EXTERNAL_EMOJIS', // use external emojis
+	'CONNECT', // connect to voice
+	'SPEAK', // speak on voice
+	'MUTE_MEMBERS', // globally mute members on voice
+	'DEAFEN_MEMBERS', // globally deafen members on voice
+	'MOVE_MEMBERS', // move member's voice channels
+	'USE_VAD', // use voice activity detection
+	'CHANGE_NICKNAME',
+	'MANAGE_NICKNAMES', // change nicknames of others
+	'MANAGE_ROLES_OR_PERMISSIONS',
+	'MANAGE_WEBHOOKS',
+	'MANAGE_EMOJIS'
+];
+
+DBot.findRole = function(server, roleName, multi) {
+	let mrole = null;
+	let roleArray = [];
+	roleName = roleName.toLowerCase();
+
+	for (const role of server.roles.values()) {
+		if (role.name.toLowerCase() === roleName) {
+			return role;
+		}
+	}
+	
+	if (!mrole) {
+		for (const role of server.roles.values()) {
+			if (role.name.toLowerCase().match(roleName)) {
+				mrole = role;
+				if (multi) {
+					if (!roleArray.includes(role)) roleArray.push(role);
+				} else break;
+			}
+		}
+	}
+	
+	if (multi && roleArray.length > 1)
+		return roleArray;
+	else
+		return mrole;
+};

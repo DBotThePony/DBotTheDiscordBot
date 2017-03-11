@@ -17,7 +17,7 @@ cache.member = cache.member || {};
 DBot.DisallowCommandManipulate = [
 	'invite', 'cban', 'ucban',
 	'cuban', 'help', 'clist',
-	'eval', 'reload'
+	'eval', 'reload', 'cmds_privs'
 ];
 
 class CommandBanClass {
@@ -104,7 +104,7 @@ class CommandBanClass {
 	}
 	
 	fetch() {
-		let self = this;
+		const self = this;
 		
 		Postgres.query('SELECT "COMMAND" FROM command_bans_' + this.realm + ' WHERE "UID" = \'' + this.uid + '\'', function(err, data) {
 			if (err) throw err;
@@ -127,13 +127,209 @@ class CommandBanClass {
 		this.ready = false;
 		this.uid = IDFunc(obj);
 	}
-}
+};
+
+class ServerCommandBans extends CommandBanClass {
+	constructor(server) {
+		super(server, 'server', DBot.GetServerID);
+		this.roleBans = {};
+		this.permsBans = {};
+		this.addPermission = this.addPerm;
+		this.removePermission = this.removePerm;
+		this.deletePermission = this.removePerm;
+	}
+	
+	fetch() {
+		super.fetch();
+		const q2 = 'SELECT "COMMAND", "ROLES"::INTEGER[] AS "ROLES", "ISWHITE" FROM command_bans_role WHERE command_bans_role."ID" = ' + this.uid;
+		const q3 = 'SELECT "ID", "COMMAND", "PERMISSIONS"::VARCHAR(64)[] AS "PERMS" FROM command_bans_permissions WHERE command_bans_permissions."ID" = ' + this.uid;
+		const self = this;
+		
+		Postgres.query(q2, (err, data) => {
+			if (err) throw err;
+			self.ready = false;
+			
+			for (const row of data) {
+				for (const role of row.ROLES) {
+					self.addRole(row.COMMAND, role);
+				}
+				
+				self.setIsWhite(row.COMMAND, row.ISWHITE);
+			}
+			
+			Postgres.query(q3, (err, data) => {
+				if (err) throw err;
+				
+				for (const row of data) {
+					for (const perm of row.PERMS) {
+						self.addPerm(row.COMMAND, perm);
+					}
+				}
+				
+				self.ready = true;
+			});
+		});
+	}
+	
+	__role(command) {
+		this.roleBans[command] = this.roleBans[command] || {};
+		if (this.roleBans[command].isWhite === undefined)
+			this.roleBans[command].isWhite = false;
+		
+		this.roleBans[command].bans = this.roleBans[command].bans || [];
+	}
+	
+	setIsWhite(command, status) {
+		this.__role(command);
+		this.roleBans[command].isWhite = status;
+		if (this.ready) this.__saveRoles();
+		return this;
+	}
+	
+	getIsWhite(command) {
+		this.__role(command);
+		return this.roleBans[command].isWhite;
+	}
+	
+	addRole(command, role) {
+		this.__role(command);
+		
+		if (!role.uid) {
+			DBot.DefineRole(role);
+			return false;
+		}
+		
+		if (this.roleBans[command].bans.includes(Number(role.uid)))
+			return false;
+		
+		this.roleBans[command].bans.push(Number(role.uid));
+		if (this.ready) this.__saveRoles();
+		
+		return true;
+	}
+	
+	removeRole(command, role) {
+		this.__role(command);
+		
+		if (!role.uid) {
+			DBot.DefineRole(role);
+			return false;
+		}
+		
+		const myRoleID = Number(role.uid);
+		
+		for (const i in this.roleBans[command].bans) {
+			if (this.roleBans[command].bans[i] === myRoleID) {
+				this.roleBans[command].bans.splice(i, 1);
+				if (this.ready) this.__saveRoles();
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	checkRoles(command, roles) {
+		if (!this.roleBans[command]) return false;
+		
+		if (!this.roleBans[command].isWhite) {
+			for (const role of roles) {
+				if (!role.uid) {
+					DBot.DefineRole(role);
+					continue;
+				}
+				
+				if (this.roleBans[command].bans.includes(Number(role.uid)))
+					return true;
+			}
+		} else {
+			let required = this.roleBans[command].bans.length;
+			
+			for (const role of roles) {
+				if (!role.uid) {
+					DBot.DefineRole(role);
+					continue;
+				}
+				
+				if (this.roleBans[command].bans.includes(Number(role.uid)))
+					required--;
+			}
+			
+			return required !== 0;
+		}
+	}
+	
+	__saveRoles() {
+		let final = '';
+		
+		for (const command in this.roleBans) {
+			final += `INSERT INTO command_bans_role VALUES ('${this.uid}', '${command}', ${sql.Array(this.roleBans[command].bans)}::INTEGER[], ${this.roleBans[command].isWhite})
+			ON CONFLICT ("ID", "COMMAND") DO UPDATE SET "ROLES" = excluded."ROLES", "ISWHITE" = excluded."ISWHITE";`;
+		}
+		
+		if (final !== '')
+			Postgres.query(final);
+	}
+	
+	addPerm(command, perm) {
+		this.permsBans[command] = this.permsBans[command] || [];
+		
+		if (this.permsBans[command].includes(perm.toUpperCase()))
+			return false;
+		
+		this.permsBans[command].push(perm.toUpperCase());
+		if (this.ready) this.__savePerms();
+		return true;
+	}
+	
+	removePerm(command, perm) {
+		this.permsBans[command] = this.permsBans[command] || [];
+		
+		perm = perm.toUpperCase();
+		const t = this.permsBans[command];
+		
+		for (const i in t) {
+			if (t[i] === perm) {
+				t.splice(i, 1);
+				if (this.ready) this.__savePerms();
+				return true;
+			}
+		}
+		
+		return true;
+	}
+	
+	checkPermissions(command, member) {
+		if (!this.permsBans[command]) return false;
+		const perms = member.permissions.serialize();
+
+		let required = this.permsBans[command].length;
+		
+		for (const myPerm of this.permsBans[command])
+			if (perms[myPerm])
+				required--;
+		
+		return required !== 0;
+	}
+	
+	__savePerms() {
+		let final = '';
+		
+		for (const command in this.permsBans) {
+			final += `INSERT INTO command_bans_permissions VALUES ('${this.uid}', '${command}', ${sql.Array(this.permsBans[command])}::discord_permission[])
+			ON CONFLICT ("ID", "COMMAND") DO UPDATE SET "PERMISSIONS" = excluded."PERMISSIONS";`;
+		}
+		
+		if (final !== '')
+			Postgres.query(final);
+	}
+};
 
 DBot.ServerCBans = function(server) {
 	if (cache.server[server.uid])
 		return cache.server[server.uid];
 	
-	cache.server[server.uid] = new CommandBanClass(server, 'server', DBot.GetServerID);
+	cache.server[server.uid] = new ServerCommandBans(server);
 	cache.server[server.uid].fetch();
 	return cache.server[server.uid];
 };
@@ -165,7 +361,7 @@ hook.Add('PreDeleteServer', 'ServerBans', function(obj) {
 });
 
 hook.Add('UpdateLoadingLevel', 'CommandBans', function(callFunc) {
-	callFunc(true, 2);
+	callFunc(true, 4);
 });
 
 hook.Add('ServerInitialized', 'ServerBans', function(server) {
@@ -173,24 +369,71 @@ hook.Add('ServerInitialized', 'ServerBans', function(server) {
 	DBot.ServerCBans(server);
 });
 
-hook.Add('ServersInitialized', 'ServerBans', function(servers) {
-	for (let server of servers) {
+hook.Add('RolesInitialized', 'ServerBans', function(roles, servers) {
+	for (const server of servers) {
 		if (!cache.server[server.uid])
-			cache.server[server.uid] = new CommandBanClass(server, 'server', DBot.GetServerID);
+			cache.server[server.uid] = new ServerCommandBans(server);
 	}
 	
-	Postgres.query('SELECT command_bans_server."UID", "COMMAND" FROM command_bans_server, servers WHERE command_bans_server."UID" = servers."ID" AND servers."TIME" > currtime() - 120', function(err, data) {
+	const q1 = 'SELECT command_bans_server."UID", "COMMAND" FROM command_bans_server, servers WHERE command_bans_server."UID" = servers."ID" AND servers."TIME" > currtime() - 120';
+	const q2 = 'SELECT command_bans_role."ID", "COMMAND", "ROLES"::INTEGER[] AS "ROLES", "ISWHITE" FROM command_bans_role, servers WHERE command_bans_role."ID" = servers."ID" AND servers."TIME" > currtime() - 120';
+	const q3 = 'SELECT command_bans_permissions."ID", "COMMAND", "PERMISSIONS"::VARCHAR(64)[] AS "PERMS" FROM command_bans_permissions, servers WHERE command_bans_permissions."ID" = servers."ID" AND servers."TIME" > currtime() - 120';
+	
+	Postgres.query(q1, function(err, data) {
 		if (err) throw err;
 		DBot.updateLoadingLevel(false);
 		
-		for (let row of data) {
-			let ob = cache.server[row.UID];
+		for (const row of data) {
+			const ob = cache.server[row.UID];
 			if (ob) ob.ban(row.COMMAND);
 		}
 		
-		for (let server of servers) {
-			cache.server[server.uid].ready = true;
-		}
+		Postgres.query(q2, function(err, data) {
+			if (err) throw err;
+			DBot.updateLoadingLevel(false);
+			
+			for (const row of data) {
+				const ob = cache.server[row.ID];
+				
+				if (ob) {
+					for (const role of row.ROLES) {
+						let findRole;
+						const toNum = Number(role);
+						
+						for (const sRole of ob.obj.roles.values()) {
+							if (Number(sRole.uid) === toNum) {
+								findRole = sRole;
+								break;
+							}
+						}
+						
+						if (findRole)
+							ob.addRole(row.COMMAND, findRole);
+					}
+					
+					ob.setIsWhite(row.COMMAND, row.ISWHITE);
+				}
+			}
+			
+			Postgres.query(q3, function(err, data) {
+				if (err) throw err;
+				DBot.updateLoadingLevel(false);
+
+				for (const row of data) {
+					const ob = cache.server[row.ID];
+
+					if (ob) {
+						for (const perm of row.PERMS) {
+							ob.addPerm(row.COMMAND, perm);
+						}
+					}
+				}
+
+				for (const server of servers) {
+					cache.server[server.uid].ready = true;
+				}
+			});
+		});
 	});
 });
 

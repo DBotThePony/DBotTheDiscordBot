@@ -117,7 +117,7 @@ DBot.startSQL = function(bot) {
 		rolesCollection.load(function() {
 			DBot.updateLoadingLevel(false);
 			rolesCollection.updateMap();
-			hook.Run('RolesInitialized', rolesCollection);
+			hook.Run('RolesInitialized', rolesCollection, serversCollection);
 		});
 		
 		channelCollection.updateMap();

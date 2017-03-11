@@ -398,6 +398,7 @@ DBot.RegisterCommand({
 	
 	help_args: '<action: add/list/remove> <realm: server/channel/member> <command(s) to ban/unban>',
 	desc: 'Manipulating commands bans. If you specify realm as @Mentioned member, it will manipulate commands for him.',
+	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
 		if (DBot.IsPM(msg))
@@ -490,6 +491,189 @@ DBot.RegisterCommand({
 				return word + 'ned commands from this channel: ' + cmdsObj.generateList();
 			else if (realm === 'server')
 				return word + 'ned commands from this server: ' + cmdsObj.generateList();
+		}
+	}
+});
+
+DBot.RegisterCommand({
+	name: 'cmds_privs',
+	alias: ['cmd_privs', 'cmd_roles', 'cmds_roles', 'cmd-privs', 'cmd-roles', 'cmds-roles', 'cmds-privs'],
+	
+	help_args: '<action: add/list/remove/iswhite> <type: role/perms> <command> <arguments>',
+	desc: 'Manipulating with commands permissions',
+	
+	func: function(args, cmd, msg) {
+		if (DBot.IsPM(msg))
+			return 'PM, Oh?';
+		
+		let action = args[0];
+		let bans = DBot.ServerCBans(msg.channel.guild);
+		let realm = args[1];
+		
+		if (!action)
+			return DBot.CommandError('Invalid action. Valid are: add, list and remove', 'cmds_privs', args, 1);
+		
+		action = action.toLowerCase();
+		
+		if (action !== 'add' && action !== 'list' && action !== 'remove' && action !== 'delete' && action !== 'rm' && action !== 'iswhite')
+			return DBot.CommandError('Invalid action. Valid are: add, list and remove', 'cmds_privs', args, 1);
+		
+		if (!realm)
+			return DBot.CommandError('Invalid type. Valid are: role or perms', 'cmds_privs', args, 2);
+
+		realm = realm.toLowerCase();
+
+		if (realm !== 'role' && realm !== 'perms')
+			return DBot.CommandError('Invalid type. Valid are: role or perms', 'cmds_privs', args, 2);
+		
+		if (action === 'list') {
+			if (realm === 'role') {
+				let output = '```\nCommand                  Roles              Is Whitelist\n';
+				let evenHit = false;
+				
+				for (const command in bans.roleBans) {
+					const data = bans.roleBans[command];
+					
+					if (data.bans.length === 0)
+						continue;
+					
+					let comp;
+					
+					for (const roleUID of data.bans) {
+						let getRole;
+						
+						for (const sRole of msg.channel.guild.roles.values()) {
+							if (Number(sRole.uid) === roleUID) {
+								getRole = sRole;
+								break;
+							}
+						}
+						
+						if (!getRole) continue;
+						if (comp)
+							comp += ', ' + getRole.name;
+						else
+							comp = getRole.name;
+					}
+					
+					if (comp) {
+						evenHit = true;
+						output += `${command}    ${comp}    ${data.isWhite}\n`;
+					}
+				}
+				
+				if (!evenHit) {
+					return 'No data to list! ;-;';
+				} else {
+					return output + '```';
+				}
+			} else if (realm === 'perms') {
+				let output = '```\nCommand                  Permissions\n';
+				let evenHit = false;
+				
+				for (const command in bans.roleBans) {
+					const data = bans.permsBans[command];
+					
+					if (data.length === 0)
+						continue;
+					
+					evenHit = true;
+					output += `${command}    ${data.join(', ')}\n`;
+				}
+				
+				if (!evenHit) {
+					return 'No data to list! ;-;';
+				} else {
+					return output + '```';
+				}
+			}
+		} else {
+			if (!msg.member.hasPermission('MANAGE_GUILD') && !DBot.owners.includes(msg.author.id))
+				return 'Onoh! You must have at least `MANAGE_GUILD` permission to do that! ;-;';
+			
+			if (!args[2])
+				return DBot.CommandError('Command is missing', 'cmds_privs', args, 3);
+			
+			const commandIDRaw = args[2].toLowerCase();
+			const data = DBot.Commands[commandIDRaw];
+
+			if (!data)
+				return DBot.CommandError('Command does not exist', 'cmds_privs', args, 3);
+			
+
+			if (DBot.DisallowCommandManipulate.includes(data.id))
+				return DBot.CommandError('Command is not allowed to be manipulated', 'cmds_privs', args, 3);
+			
+			const command = data.id;
+			
+			if (!args[3])
+				return DBot.CommandError('At least one argument is required', 'cmds_privs', args, 4);
+			
+			const newAction = action === 'add';
+			
+			if (realm === 'role') {
+				if (action === 'iswhite') {
+					let transfer;
+					const val = args[3].toLowerCase();
+					
+					if (val === '1' || val === 'true' || val === 't')
+						transfer = true;
+					else if (val === '0' || val === 'false' || val === 'f')
+						transfer = false;
+					else
+						return DBot.CommandError('Invalid boolean passed', 'cmds_privs', args, 4);
+					
+					bans.setIsWhite(command, transfer);
+					return 'Applied changes';
+				}
+				
+				const realRoles = [];
+
+				// First - find
+				for (let i = 3; i < args.length; i++) {
+					const arg = args[i];
+					const find = DBot.findRole(msg.channel.guild, arg, true);
+
+					if (!find)
+						return DBot.CommandError('Unable to find specified role', 'cmds_privs', args, i + 1);
+					else if (Array.isArray(find))
+						return DBot.CommandError('Role reference is ambiguous. Use explicit role name, e.g. "role name"', 'cmds_privs', args, i + 1);
+					else
+						realRoles.push(find);
+				}
+
+				// Second - apply changes
+				for (const role of realRoles) {
+					if (newAction)
+						bans.addRole(command, role);
+					else
+						bans.removeRole(command, role);
+				}
+
+				return 'Applied changes';
+			} else if (realm === 'perms') {
+				if (action === 'iswhite')
+					return DBot.CommandError('Action now allowed', 'cmds_privs', args, 1);
+				
+				// First - check
+				for (let i = 3; i < args.length; i++) {
+					const arg = args[i].toUpperCase();
+
+					if (!DBot.validPerms.includes(arg))
+						return DBot.CommandError('Invalid permission', 'cmds_privs', args, i + 1);
+				}
+
+				// Second - apply changes
+				for (let i = 3; i < args.length; i++) {
+					const arg = args[i].toUpperCase();
+					if (newAction)
+						bans.addPerm(command, arg);
+					else
+						bans.removePerm(command, arg);
+				}
+
+				return 'Applied changes';
+			}
 		}
 	}
 });
