@@ -221,5 +221,10 @@ hook.Add('CheckValidMessage', 'Postgres.Checker', function(msg) {
 	}
 });
 
+hook.Add('UserAvatarChanges', 'SQL', (user) => {
+	if (!DBot.IsReady()) return;
+	Postgres.query(`UPDATE users SET "AVATAR" = '${user.avatarURL || ''}' WHERE "ID" = ${sql.User(user)};`);
+});
+
 setInterval(sql.updateLastSeenFunc, 60000);
 hook.Add('BotOnline', 'RegisterIDs', DBot.startSQL);

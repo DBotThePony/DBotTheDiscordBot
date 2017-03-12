@@ -61,6 +61,9 @@ hook.Add('MemberChanges', 'events', function(oldM, newM) {
 hook.Add('UserChanges', 'events', function(oldM, newM) {
 	if (oldM.nickname !== newM.nickname)
 		hook.Run('UserNicknameChanges', newM, oldM);
+	
+	if (oldM.avatarURL !== newM.avatarURL)
+		hook.Run('UserAvatarChanges', newM, oldM);
 });
 
 hook.Add('ClientJoinsServer', 'Default', function(client) {

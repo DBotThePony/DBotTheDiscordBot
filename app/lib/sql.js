@@ -131,6 +131,33 @@ DBot.startSQL = function(bot) {
 		users.load(function() {
 			DBot.updateLoadingLevel(false);
 			
+			const queries = [];
+			let current = null;
+			let cI = 0;
+			
+			for (const user of users) {
+				if (!user.avatarURL) continue;
+				cI++;
+				
+				if (current)
+					current += `,(${user.uid}, '${user.avatarURL}')`;
+				else
+					current = `(${user.uid}, '${user.avatarURL}')`;
+				
+				if (cI >= 500) {
+					queries.push(current);
+					current = null;
+					cI = 0;
+				}
+			}
+			
+			if (current !== null)
+				queries.push(current);
+			
+			for (const q of queries) {
+				Postgres.query(`UPDATE users SET "AVATAR" = m."AVATAR" FROM (VALUES ${q}) AS m ("ID", "AVATAR") WHERE users."ID" = m."ID";`);
+			}
+			
 			members.updateMap();
 			members.load(function() {
 				DBot.updateLoadingLevel(false);
