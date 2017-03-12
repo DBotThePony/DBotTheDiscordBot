@@ -1,0 +1,36 @@
+
+extends report_base
+
+block append header
+	link(rel='stylesheet', href='../users.css')
+	style.
+		.username .hint {
+			margin-left: 750px;
+			margin-top: -30px;
+		}
+
+block append contents
+	span#additional_info
+		span.total Total users in selection: #{total}
+		span.listed Valid users: #{listed}
+		span.stamp Selection create date: #{stamp}
+	table#users
+		tr.tabheader
+			td.username Username
+			td.job Main role
+		each user in data
+			tr.userrow
+				td.username.hintp
+					span.username_wrap= user.name
+					if user.nname
+						span.hint= user.nname
+					else
+						span.hint User has no nickname
+					span.avatar
+						img.avatar(src=user.avatar)
+						img.avatar_hint(src=user.avatar)
+				
+				td.job.hintp(style=`color:${user.hexcolor};`)= user.role
+					span.hint
+						for role in user.roles
+							span.rolename(style=`color:${role.hexColor};`)= role.name

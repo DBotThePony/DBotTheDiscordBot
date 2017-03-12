@@ -1107,8 +1107,13 @@ DBot.HandleMessage = function(msg, isPrivate, test) {
 		return false;
 	};
 	
-	if (test)
-		return true;
+	if (cCommand.nopm && DBot.IsPM(msg)) {
+		if (test) return false;
+		msg.reply('Command is not allowed to be ran in PM (DM)');
+		return false;
+	}
+	
+	if (test) return true;
 	
 	let rawcmd = '';
 	let first = true;

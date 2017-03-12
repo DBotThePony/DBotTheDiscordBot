@@ -5,6 +5,10 @@ const DBot = myGlobals.DBot;
 const sql = myGlobals.sql;
 const Util = myGlobals.Util;
 const Postgres = myGlobals.Postgres;
+const fs = require('fs');
+const moment = require('moment');
+
+Util.mkdir(DBot.WebRoot + '/selections');
 
 class UserSelection {
 	constructor(id) {
@@ -249,11 +253,9 @@ DBot.RegisterCommand({
 	
 	help_args: '[!]<user1/@role1/Role:.../Nickname:...> ...',
 	desc: 'Creates a selection for future use in other commands. Nickname __IS__ a regular expression!',
+	nopm: true,
 	
 	func: function(args, cmd, msg) {
-		if (DBot.IsPM(msg))
-			return 'Onoh! PM ;n;';
-		
 		if (!args[0])
 			return DBot.CommandError('At least one argument is required', 'screate', args, 1);
 		
@@ -302,19 +304,99 @@ DBot.RegisterCommand({
 		
 		for (const user of selectedUsers)
 			myBuild.push(sql.User(user));
-		
+
 		msg.channel.startTyping();
-		
+
 		Postgres.query(`INSERT INTO selections ("OWNER", "SERVER", "USERS") VALUES (${sql.User(msg.author)}, ${sql.Server(msg.channel.guild)}, ARRAY [${myBuild.join(',')}]::INTEGER[]) RETURNING "ID";`, (err, data) => {
 			msg.channel.stopTyping();
-			
+
 			if (err) {
 				msg.reply('*Squeak!* Theres an error! *Squeaks more*');
 				console.error(err);
 				return;
 			}
-			
+
 			msg.reply(`Selection was created! Yays! Selection ID: \`${data[0].ID}\`. Use it as argument in commands that supports selections. Users selected: \`${myBuild.length}\``);
+		});
+	}
+});
+
+DBot.RegisterCommand({
+	name: 'sview',
+	alias: ['views', 'selectionview', 'viewselection'],
+	
+	help_args: '<selection id>',
+	desc: 'Views a previous created selection',
+	nopm: true,
+	
+	func: function(args, cmd, msg) {
+		if (!args[0])
+			return DBot.CommandError('No selection specified', 'sview', args, 1);
+		
+		msg.channel.startTyping();
+		
+		Postgres.query(`SELECT * FROM selections WHERE "OWNER" = ${sql.User(msg.author)} AND "SERVER" = ${sql.Server(msg.channel.guild)} AND "ID" = ${Postgres.escape(args[0])};`, (err, data) => {
+			if (!data[0]) {
+				msg.channel.stopTyping();
+				msg.reply('No such selection with specified ID');
+				return;
+			}
+			
+			const sha = String.hash(CurTime() + '_' + msg.channel.guild.id + '_' + msg.author.id);
+			const path = DBot.WebRoot + '/selections/' + sha + '.html';
+			const pathU = DBot.URLRoot + '/selections/' + sha + '.html';
+
+			const ndata = [];
+
+			for (const userID of data[0].USERS) {
+				const user = DBot.GetUser(userID);
+				if (!user) continue;
+				const member = msg.channel.guild.member(user);
+				if (!member) continue;
+				
+				const cData = {};
+
+				cData.name = member.user.username;
+				cData.nname = member.nickname;
+				cData.avatar = member.user.avatarURL || '../no_avatar.jpg';
+				cData.roles = member.roles.array();
+				let max = 0;
+				let hexColor;
+				let roleName;
+
+				for (const role of member.roles.values()) {
+					if (role.position > max) {
+						max = role.position;
+						hexColor = role.hexColor;
+						roleName = role.name;
+					}
+				}
+
+				cData.role = roleName;
+				cData.hexcolor = hexColor;
+
+				ndata.push(cData);
+			}
+			
+			if (ndata.length === 0) {
+				msg.channel.stopTyping();
+				msg.reply('No valid users in the selection!');
+				return;
+			}
+
+			fs.writeFile(path, DBot.pugRender('selection.pug', {
+				data: ndata,
+				total: data[0].USERS.length,
+				listed: ndata.length,
+				stamp: Util.formatStamp(data[0].STAMP),
+				date: moment().format('dddd, MMMM Do YYYY, HH:mm:ss'),
+				username: msg.author.username,
+				server: msg.channel.guild.name,
+				title: `Selection #${args[0]} view`
+			}), console.errHandler);
+
+			msg.channel.stopTyping();
+			msg.reply(pathU);
 		});
 	}
 });
