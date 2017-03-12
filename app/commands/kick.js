@@ -18,8 +18,9 @@ module.exports = {
 	name: 'kick',
 	
 	help_args: '<user1> ...',
-	desc: 'Kicks user(s)',
+	desc: 'Kicks user(s). Allows selections.',
 	allowUserArgument: true,
+	selections: true,
 	
 	func: function(args, cmd, msg) {
 		if (DBot.IsPM(msg))
@@ -117,8 +118,9 @@ DBot.RegisterCommand({
 	alias: ['softban'],
 	
 	help_args: '<user1> ...',
-	desc: 'Soft ban user(s). Soft banned users can join, but will be kicked in one second after join',
+	desc: 'Soft ban user(s). Soft banned users can join, but will be kicked in one second after join. Allows selections.',
 	allowUserArgument: true,
+	selections: true,
 	
 	func: function(args, cmd, msg) {
 		if (DBot.IsPM(msg))
@@ -219,7 +221,7 @@ DBot.RegisterCommand({
 	alias: ['unsoftban', 'unban', 'softunban'],
 	
 	help_args: '<member id 1> ...',
-	desc: 'Unban users if they are were banned',
+	desc: 'Unban users if they are were banned.',
 	
 	func: function(args, cmd, msg) {
 		if (DBot.IsPM(msg))
@@ -261,8 +263,9 @@ DBot.RegisterCommand({
 	name: 'ban',
 	
 	help_args: '<user1> ...',
-	desc: 'BANNs user(s)',
+	desc: 'BANNs user(s). Allows selections.',
 	allowUserArgument: true,
+	selections: true,
 	
 	func: function(args, cmd, msg) {
 		if (DBot.IsPM(msg))
@@ -360,8 +363,9 @@ DBot.RegisterCommand({
 	name: 'off',
 	
 	help_args: '<user1> ...',
-	desc: 'Offs user(s) in current channel (text chat)',
+	desc: 'Offs user(s) in current channel (text chat). Allows selections.',
 	allowUserArgument: true,
+	selections: true,
 	
 	func: function(args, cmd, msg) {
 		if (DBot.IsPM(msg))
@@ -507,7 +511,7 @@ DBot.RegisterCommand({
 	alias: ['softbanslist', 'listsoftbans', 'lsbans', 'lsban', 'softbans'],
 	
 	help_args: '',
-	desc: 'Prints softbanned users (full list)',
+	desc: 'Prints softbanned users (full list).',
 	
 	func: function(args, cmd, msg) {
 		if (DBot.IsPM(msg))
@@ -642,8 +646,9 @@ DBot.RegisterCommand({
 	alias: ['unoff', 'uoff', 'doff', 'on'],
 	
 	help_args: '<user1> ...',
-	desc: 'Unoffs user(s) in current channel (text chat)',
+	desc: 'Unoffs user(s) in current channel (text chat). Allows selections.',
 	allowUserArgument: true,
+	selections: true,
 	
 	func: function(args, cmd, msg) {
 		if (DBot.IsPM(msg))

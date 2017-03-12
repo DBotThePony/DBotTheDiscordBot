@@ -23,6 +23,7 @@ const filesToReload = [
 	'../generic.js',
 	'../modules/jlogs.js',
 	'../modules/nlogs.js',
+	'../modules/selections.js',
 	'../lib/commandhelper.js'
 ];
 

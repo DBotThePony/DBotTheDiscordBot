@@ -20,23 +20,23 @@ sql.Member = function(obj) {
 };
 
 sql.UMember = function(obj, obj2) {
-	return 'get_member_id(\'' + obj.id + '\', \'' + obj2.id + '\')';
+	return obj.uid || 'get_member_id(\'' + obj.id + '\', \'' + obj2.id + '\')';
 };
 
 sql.User = function(obj) {
-	return 'get_user_id(\'' + obj.id + '\')';
+	return obj.uid || 'get_user_id(\'' + obj.id + '\')';
 };
 
 sql.Channel = function(obj) {
-	return 'get_channel_id(\'' + obj.id + '\', ' + sql.Server(obj.guild) + ')';
+	return obj.uid || 'get_channel_id(\'' + obj.id + '\', ' + sql.Server(obj.guild) + ')';
 };
 
 sql.Server = function(obj) {
-	return 'get_server_id(\'' + obj.id + '\')';
+	return obj.uid || 'get_server_id(\'' + obj.id + '\')';
 };
 
 sql.Role = function(obj) {
-	return 'get_role_id_combined(\'' + obj.id + '\', \'' + obj.guild.id + '\')';
+	return obj.uid || 'get_role_id_combined(\'' + obj.id + '\', \'' + obj.guild.id + '\')';
 };
 
 sql.escape = Postgres.escape;

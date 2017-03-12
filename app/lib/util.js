@@ -264,3 +264,20 @@ Util.nonParsedText = function(text) {
 	
 	return text;
 };
+
+Util.fnNext = function(array, callback) {
+	let i = -1;
+	
+	const next = function() {
+		i++;
+		
+		if (!array[i]) {
+			if (callback) callback();
+		} else {
+			const fn = array[i];
+			fn(next, i);
+		}
+	};
+	
+	next();
+};

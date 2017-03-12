@@ -945,6 +945,18 @@ CREATE TRIGGER history_write
 	EXECUTE PROCEDURE reactions_history_trigger();
 
 -----------------------------------
+--- Selections
+-----------------------------------
+
+CREATE TABLE IF NOT EXISTS selections (
+	"ID" SERIAL NOT NULL PRIMARY KEY,
+	"OWNER" INTEGER NOT NULL REFERENCES users ("ID"),
+	"SERVER" INTEGER NOT NULL REFERENCES servers ("ID"),
+	"STAMP" INTEGER NOT NULL DEFAULT currtime(),
+	"USERS" INTEGER[] NOT NULL
+);
+
+-----------------------------------
 --- Commentaries
 -----------------------------------
 

@@ -480,9 +480,8 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 	
 	if (cCommand.allowUserArgument) {
 		for (let k in parsedArgs) {
-			if (typeof parsedArgs[k] !== 'string') {
+			if (typeof parsedArgs[k] !== 'string')
 				continue;
-			};
 			
 			let user = DBot.IdentifyUser(parsedArgs[k]);
 			
@@ -519,192 +518,228 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 		};
 	};
 	
-	if (cCommand.checkAccess) {
-		let reply = cCommand.checkAccess(parsedArgs, rawcmd, msg);
-		
-		if (!reply) {
-			msg.reply('No access');
-			return;
+	const continueCallback = function() {
+		if (cCommand.checkAccess) {
+			let reply = cCommand.checkAccess(parsedArgs, rawcmd, msg);
+
+			if (!reply) {
+				msg.reply('No access');
+				return;
+			};
 		};
-	};
-	
-	if (!DBot.__LastMoreCommand[msg.channel.id]) {
-		// PM channel workaround
-		DBot.__LastMoreCommand[msg.channel.id] = {};
-	};
-	
-	if (!DBot.__LastRetryCommand[msg.channel.id]) {
-		// PM channel workaround
-		DBot.__LastRetryCommand[msg.channel.id] = {};
-	};
-	
-	if (cCommand.id !== 'more' && cCommand.id !== 'retry') {
-		if (cCommand.more) {
-			DBot.__LastMoreCommand[msg.channel.id][msg.author.id] = [cCommand, parsedArgs, rawcmd, extraArgument, parsedHandlers];
+
+		if (!DBot.__LastMoreCommand[msg.channel.id]) {
+			// PM channel workaround
+			DBot.__LastMoreCommand[msg.channel.id] = {};
 		};
-		
-		DBot.__LastRetryCommand[msg.channel.id][msg.author.id] = [cCommand, parsedArgs, rawcmd, extraArgument, parsedHandlers];
-	};
-	
-	msg.oldReply = msg.oldReply || msg.reply;
-	let PIPE_HIT = false;
-	
-	msg.reply = function(str) {
-		if (this.wasDeleted || this.instantEdit)
-			return;
-		
-		if (PIPE_HIT) {
+
+		if (!DBot.__LastRetryCommand[msg.channel.id]) {
+			// PM channel workaround
+			DBot.__LastRetryCommand[msg.channel.id] = {};
+		};
+
+		if (cCommand.id !== 'more' && cCommand.id !== 'retry') {
+			if (cCommand.more) {
+				DBot.__LastMoreCommand[msg.channel.id][msg.author.id] = [cCommand, parsedArgs, rawcmd, extraArgument, parsedHandlers];
+			};
+
+			DBot.__LastRetryCommand[msg.channel.id][msg.author.id] = [cCommand, parsedArgs, rawcmd, extraArgument, parsedHandlers];
+		};
+
+		msg.oldReply = msg.oldReply || msg.reply;
+		let PIPE_HIT = false;
+
+		msg.reply = function(str) {
+			if (this.wasDeleted || this.instantEdit)
+				return;
+
+			if (PIPE_HIT) {
+				let promise = this.oldReply(str);
+				let self = this;
+
+				promise.then(function(nmsg) {
+					self.replies.push(nmsg);
+				});
+
+				return promise;
+			};
+
+			if (cCommand.id !== 'more' && cCommand.id !== 'retry' && parsedHandlers[0]) {
+				let pipeID = parsedHandlers[0].toLowerCase();
+				let pipe = DBot.CommandsPipes[pipeID];
+
+				if (pipe) {
+					let spliced = Array.Copy(parsedHandlers);
+					spliced.splice(0, 1);
+					let splitted = Array.Append(spliced, str.split(' '));
+
+					let rawcmd = '';
+					let first = true;
+
+					for (let i in splitted) {
+						if (first) {
+							rawcmd = splitted[i];
+							first = false;
+						} else {
+							rawcmd += ' ' + splitted[i];
+						};
+					};
+
+					if (!pipe.no_touch)
+						rawcmd = rawcmd.replace(/```/gi, '');
+
+					let parsedData = DBot.ParseString(rawcmd, true);
+					let parsedArgs = parsedData[0];
+
+					PIPE_HIT = true;
+					let reply;
+
+					msg.reply = msg.promiseReply;
+
+					try {
+						reply = pipe.func(parsedArgs, rawcmd, msg);
+					} catch(err) {
+						msg.oldReply('<internal pony error>');
+						console.error(err);
+						return;
+					};
+
+					if (reply === true) {
+						return;
+					} else if (typeof reply === 'string') {
+						return this.promiseReply(reply);
+					} else if (reply === false) {
+						return this.promiseReply('Pipe that you specified does not accept command output');
+					};
+				};
+			};
+
 			let promise = this.oldReply(str);
 			let self = this;
-			
+
 			promise.then(function(nmsg) {
 				self.replies.push(nmsg);
 			});
-			
+
 			return promise;
 		};
-		
-		if (cCommand.id !== 'more' && cCommand.id !== 'retry' && parsedHandlers[0]) {
-			let pipeID = parsedHandlers[0].toLowerCase();
-			let pipe = DBot.CommandsPipes[pipeID];
-			
-			if (pipe) {
-				let spliced = Array.Copy(parsedHandlers);
-				spliced.splice(0, 1);
-				let splitted = Array.Append(spliced, str.split(' '));
-				
-				let rawcmd = '';
-				let first = true;
-				
-				for (let i in splitted) {
-					if (first) {
-						rawcmd = splitted[i];
-						first = false;
-					} else {
-						rawcmd += ' ' + splitted[i];
+
+		msg.sendMessage = function(str) {
+			if (this.wasDeleted || this.instantEdit)
+				return;
+
+			if (PIPE_HIT) {
+				return this.promiseReply(str);
+			};
+
+			if (cCommand.id !== 'more' && cCommand.id !== 'retry' && parsedHandlers[0]) {
+				let pipeID = parsedHandlers[0].toLowerCase();
+				let pipe = DBot.CommandsPipes[pipeID];
+
+				if (pipe) {
+					let spliced = Array.Copy(parsedHandlers);
+					spliced.splice(0, 1);
+					let splitted = Array.Append(spliced, str.split(' '));
+
+					let rawcmd = '';
+					let first = true;
+
+					for (let i in splitted) {
+						if (first) {
+							rawcmd = splitted[i];
+							first = false;
+						} else {
+							rawcmd += ' ' + splitted[i];
+						};
+					};
+
+					if (!pipe.no_touch)
+						rawcmd = rawcmd.replace(/```/gi, '');
+
+					let parsedData = DBot.ParseString(rawcmd, true);
+					let parsedArgs = parsedData[0];
+
+					PIPE_HIT = true;
+					let reply;
+
+					try {
+						reply = pipe.func(parsedArgs, rawcmd, msg);
+					} catch(err) {
+						msg.oldReply('<internal pony error>');
+						console.error(err);
+						return;
+					};
+
+					if (reply === true) {
+						return;
+					} else if (typeof reply === 'string') {
+						return this.promiseSend(reply);
+					} else if (reply === false) {
+						return this.promiseReply('Pipe that you specified does not accept command output');
 					};
 				};
-				
-				if (!pipe.no_touch)
-					rawcmd = rawcmd.replace(/```/gi, '');
-				
-				let parsedData = DBot.ParseString(rawcmd, true);
-				let parsedArgs = parsedData[0];
-				
-				PIPE_HIT = true;
-				let reply;
-				
-				msg.reply = msg.promiseReply;
-				
-				try {
-					reply = pipe.func(parsedArgs, rawcmd, msg);
-				} catch(err) {
-					msg.oldReply('<internal pony error>');
-					console.error(err);
-					return;
-				};
-				
-				if (reply === true) {
-					return;
-				} else if (typeof reply === 'string') {
-					return this.promiseReply(reply);
-				} else if (reply === false) {
-					return this.promiseReply('Pipe that you specified does not accept command output');
-				};
 			};
+
+			return this.promiseSend(str);
 		};
-		
-		let promise = this.oldReply(str);
-		let self = this;
-		
-		promise.then(function(nmsg) {
-			self.replies.push(nmsg);
-		});
-		
-		return promise;
-	};
-	
-	msg.sendMessage = function(str) {
-		if (this.wasDeleted || this.instantEdit)
+
+		hook.Run('PreExecuteCommand', cCommand.id, msg.author, parsedArgs, rawcmd, msg, extraArgument, parsedHandlers);
+
+		let reply;
+
+		try {
+			reply = cCommand.func(parsedArgs, rawcmd, msg, extraArgument);
+		} catch(err) {
+			msg.oldReply('<internal pony error>');
+			console.error(err);
 			return;
-		
-		if (PIPE_HIT) {
-			return this.promiseReply(str);
 		};
+
+		hook.Run('PostExecuteCommand', cCommand.id, msg.author, parsedArgs, rawcmd, msg, extraArgument, parsedHandlers);
+		hook.Run('CommandExecuted', cCommand.id, msg.author, parsedArgs, rawcmd, msg, extraArgument, parsedHandlers);
+
+		if (typeof reply === 'string') {
+			msg.reply(reply);
+		} else if (reply === false) {
+			msg.oldReply('No such a command');
+		};
+
+		return reply;
+	};
+	
+	if ((cCommand.selections || cCommand.allow_selections || cCommand.allowSelections) && !DBot.IsPM(msg)) {
+		const fnArray = [];
 		
-		if (cCommand.id !== 'more' && cCommand.id !== 'retry' && parsedHandlers[0]) {
-			let pipeID = parsedHandlers[0].toLowerCase();
-			let pipe = DBot.CommandsPipes[pipeID];
+		for (const k in parsedArgs) {
+			const a = parsedArgs[k];
+			if (typeof a !== 'string') continue;
 			
-			if (pipe) {
-				let spliced = Array.Copy(parsedHandlers);
-				spliced.splice(0, 1);
-				let splitted = Array.Append(spliced, str.split(' '));
-				
-				let rawcmd = '';
-				let first = true;
-				
-				for (let i in splitted) {
-					if (first) {
-						rawcmd = splitted[i];
-						first = false;
-					} else {
-						rawcmd += ' ' + splitted[i];
-					};
-				};
-				
-				if (!pipe.no_touch)
-					rawcmd = rawcmd.replace(/```/gi, '');
-				
-				let parsedData = DBot.ParseString(rawcmd, true);
-				let parsedArgs = parsedData[0];
-				
-				PIPE_HIT = true;
-				let reply;
-				
-				try {
-					reply = pipe.func(parsedArgs, rawcmd, msg);
-				} catch(err) {
-					msg.oldReply('<internal pony error>');
-					console.error(err);
-					return;
-				};
-				
-				if (reply === true) {
-					return;
-				} else if (typeof reply === 'string') {
-					return this.promiseSend(reply);
-				} else if (reply === false) {
-					return this.promiseReply('Pipe that you specified does not accept command output');
-				};
-			};
-		};
+			const num = Number.from(a);
+			
+			if (num) {
+				fnArray.push((next, currI) => {
+					const selection = new DBot.selectionObject(num);
+					
+					selection.fetch(() => {
+						if (!selection.checkCombined(msg.author, msg.channel.guild)) {
+							parsedArgs.splice(k - currI, 1);
+							next();
+							return;
+						}
+						
+						const members = selection.getValidMembers();
+						members.unshift(k - currI, 1);
+						parsedArgs.splice.apply(parsedArgs, members);
+						next();
+					});
+				});
+			}
+		}
 		
-		return this.promiseSend(str);
-	};
-	
-	hook.Run('PreExecuteCommand', cCommand.id, msg.author, parsedArgs, rawcmd, msg, extraArgument, parsedHandlers);
-	
-	let reply;
-	
-	try {
-		reply = cCommand.func(parsedArgs, rawcmd, msg, extraArgument);
-	} catch(err) {
-		msg.oldReply('<internal pony error>');
-		console.error(err);
-		return;
-	};
-	
-	hook.Run('PostExecuteCommand', cCommand.id, msg.author, parsedArgs, rawcmd, msg, extraArgument, parsedHandlers);
-	hook.Run('CommandExecuted', cCommand.id, msg.author, parsedArgs, rawcmd, msg, extraArgument, parsedHandlers);
-	
-	if (typeof reply === 'string') {
-		msg.reply(reply);
-	} else if (reply === false) {
-		msg.oldReply('I don\'t know what to do with that :\\');
-	};
-	
-	return reply;
+		Util.fnNext(fnArray, continueCallback);
+	} else {
+		return continueCallback();
+	}
 };
 
 hook.Add('OnMessageDeleted', 'Handler', function(msg) {
