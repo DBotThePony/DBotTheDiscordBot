@@ -30,6 +30,7 @@ const avaliableColors = [ // Colours
 	['Purple', '#800080'],
 	['Salmon', '#FA8072'],
 	['Gold', '#FFD700'],
+	['DarkGold', '#BDB76B'],
 	['DarkCyan', '#008B8B'],
 	['Cyan', '#00FFFF'],
 	['DarkGreen', '#006400'],
