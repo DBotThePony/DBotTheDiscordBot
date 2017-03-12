@@ -707,7 +707,7 @@ hook.Add('UsersInitialized', 'CVars', function(users) {
 	let cVarsArray;
 	
 	for (let i in cvars.CONVARS_USER) {
-	if (!cVarsArray)
+		if (!cVarsArray)
 			cVarsArray = '(' + Postgres.escape(i) + ',' + Postgres.escape(cvars.CONVARS_USER[i].val) + ')';
 		else
 			cVarsArray += ',(' + Postgres.escape(i) + ',' + Postgres.escape(cvars.CONVARS_USER[i].val) + ')';
@@ -778,8 +778,6 @@ hook.Add('MultiUsersInitialized', 'CVars', function(users) {
 			cVarsArray += ',(' + Postgres.escape(i) + ',' + Postgres.escape(cvars.CONVARS_USER[i].val) + ')';
 	}
 	
-	if (!cVarsArray) return DBot.updateLoadingLevel(false);
-	
 	let query = `
 WITH vars_values ("VAR", "VALUE") AS (
 	VALUES ${cVarsArray}
@@ -814,7 +812,6 @@ WHERE
 	
 	Postgres.query(query, function(err, data) {
 		if (err) throw err;
-		DBot.updateLoadingLevel(false);
 		
 		for (let row of data) {
 			let obj = DBot.GetUser(row.ID);

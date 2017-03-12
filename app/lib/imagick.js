@@ -172,6 +172,7 @@ const loadingStage3 = function() {
 	const queueCallback = function() {
 		if (hasFinished)
 			return;
+		
 		let currentFunc = queue[next];
 		next++;
 		
@@ -184,6 +185,8 @@ const loadingStage3 = function() {
 			hasFinished = true;
 			if (loadingWasCalled)
 				DBot.updateLoadingLevel(false);
+			
+			hook.Remove('UpdateLoadingLevel', 'IMagick');
 		}
 	};
 	
