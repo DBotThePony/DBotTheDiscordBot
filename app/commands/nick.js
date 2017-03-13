@@ -95,26 +95,32 @@ DBot.RegisterCommand({
 		
 		let total = 0;
 		
-		msg.channel.startTyping();
+		const valids = [];
 		
 		for (let i = 0; i < args.length - 1; i++) {
-			let member = args[i];
+			const user = args[i];
 			
-			if (typeof member !== 'object') {
-				msg.channel.stopTyping();
+			if (typeof user !== 'object')
 				return DBot.CommandError('Invalid member', 'mnick', args, Number(i) + 1);
-			}
 			
-			if (!DBot.CanTarget(me, member)) {
-				msg.channel.stopTyping();
+			const member = msg.channel.guild.member(user);
+			
+			if (typeof member !== 'object')
+				return DBot.CommandError('Invalid member', 'mnick', args, Number(i) + 1);
+			
+			if (!DBot.CanTarget(me, member))
 				return DBot.CommandError('Can\'t target that ;n;', 'mnick', args, Number(i) + 1);
-			}
 
-			if (!DBot.CanTarget(msg.member, member)) {
-				msg.channel.stopTyping();
+			if (!DBot.CanTarget(msg.member, member))
 				return DBot.CommandError('In Soviet Russia, target of command targets you.', 'mnick', args, Number(i) + 1);
-			}
-
+			
+			valids.push(member);
+		}
+		
+		msg.channel.startTyping();
+		
+		for (const i in valids) {
+			const member = valids[i];
 			const finalNickname = lastArg.replace(iReplace, Number(i) + 1);
 			total++;
 			

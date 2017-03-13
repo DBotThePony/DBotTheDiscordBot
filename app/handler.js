@@ -729,7 +729,7 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 							return;
 						}
 						
-						const members = selection.getValidMembers();
+						const members = selection.getValidUsers();
 						members.unshift(k - currI, 1);
 						parsedArgs.splice.apply(parsedArgs, members);
 						next();
