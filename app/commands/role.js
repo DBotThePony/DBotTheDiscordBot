@@ -30,32 +30,13 @@ module.exports = {
 	
 	help_args: '<role name>',
 	desc: 'Prints info about role',
+	nopm: true,
 	
 	func: function(args, cmd, msg) {
-		if (DBot.IsPM(msg))
-			return 'Onoh! It is PM ;n;';
-		
 		if (!args[0])
 			return DBot.CommandError('Invalid role name', 'role', args, 1);
 		
-		let role;
-		let find = args[0].toLowerCase();
-		
-		for (let rl of msg.channel.guild.roles.array()) {
-			if (rl.name.toLowerCase() == find) {
-				role = rl;
-				break;
-			}
-		}
-		
-		if (!role) {
-			for (let rl of msg.channel.guild.roles.array()) {
-				if (rl.name.toLowerCase().match(find)) {
-					role = rl;
-					break;
-				}
-			}
-		}
+		const role = DBot.findRole(msg.channel.guild, args[0]);
 		
 		if (!role)
 			return DBot.CommandError('No such role', 'role', args, 1);
@@ -84,19 +65,17 @@ module.exports = {
 		output += '```';
 		return output;
 	}
-}
+};
 
 DBot.RegisterCommand({
 	name: 'addrole',
 	
 	help_args: '<role name>',
 	desc: 'Adds specified role to everyone who have not any roles. Excludes bot and you.',
+	nopm: true,
 	
 	func: function(args, cmd, msg) {
-		if (DBot.IsPM(msg))
-			return 'Onoh! It is PM ;n;';
-		
-		let me = msg.channel.guild.member(DBot.bot.user);
+		const me = msg.channel.guild.member(DBot.bot.user);
 		
 		if (!msg.member.hasPermission('MANAGE_ROLES_OR_PERMISSIONS') && !DBot.owners.includes(msg.author.id))
 			return 'You must have `MANAGE_ROLES_OR_PERMISSIONS` permission!';
@@ -105,45 +84,119 @@ DBot.RegisterCommand({
 			return 'I must have `MANAGE_ROLES_OR_PERMISSIONS` permission!';
 		
 		if (!args[0])
-			return DBot.CommandError('Invalid role name', 'role', args, 1);
+			return DBot.CommandError('Invalid role name', 'addrole', args, 1);
 		
-		let role;
-		let find = args[0].toLowerCase();
-		
-		for (let rl of msg.channel.guild.roles.array()) {
-			if (rl.name.toLowerCase().match(find)) {
-				role = rl;
-				break;
-			}
-		}
+		const role = DBot.findRole(msg.channel.guild, args[0]);
 		
 		if (!role)
-			return DBot.CommandError('No such role', 'role', args, 1);
+			return DBot.CommandError('No such role', 'addrole', args, 1);
 		
 		let HIT = false;
 		let total = 0;
 		
-		for (let member of msg.channel.guild.members.array()) {
-			if (member.roles.array().length == 1 && member.id != me.id && member.id != msg.member.id) {
-				total++;
-				msg.channel.startTyping();
-				
-				member.addRole(role)
-				.then(function() {
-					msg.channel.stopTyping();
-				})
-				.catch(function() {
-					msg.channel.stopTyping();
-					if (HIT)
-						return;
-					
-					HIT = true;
-					msg.reply('Unable to set role for <@' + (member.id) + '>. All further errors would not be shown.');
-				});
-			}
+		for (const member of msg.channel.guild.members.array()) {
+			if (member.roles.array().length !== 1 || member.id === me.id || member.id === msg.member.id) continue;
+			
+			total++;
+			msg.channel.startTyping();
+
+			member.addRole(role)
+			.then(function() {
+				msg.channel.stopTyping();
+			})
+			.catch(function() {
+				msg.channel.stopTyping();
+				if (HIT)
+					return;
+
+				HIT = true;
+				msg.reply('Unable to set role for <@' + (member.id) + '>. All further errors would not be shown.');
+			});
 		}
 		
 		return 'Doing role setup!\nTotal to add: ' + total;
+	}
+});
+
+DBot.RegisterCommand({
+	name: 'maddrole',
+	alias: ['massaddrole', 'addrolemass'],
+	
+	help_args: '<role name> <users/selections>',
+	desc: 'Adds specified role to specified users.',
+	nopm: true,
+	selections: true,
+	
+	func: function(args, cmd, msg) {
+		const me = msg.channel.guild.member(DBot.bot.user);
+		
+		if (!msg.member.hasPermission('MANAGE_ROLES_OR_PERMISSIONS') && !DBot.owners.includes(msg.author.id))
+			return 'You must have `MANAGE_ROLES_OR_PERMISSIONS` permission!';
+		
+		if (!me.hasPermission('MANAGE_ROLES_OR_PERMISSIONS'))
+			return 'I must have `MANAGE_ROLES_OR_PERMISSIONS` permission!';
+		
+		if (!args[0])
+			return DBot.CommandError('Invalid role name', 'maddrole', args, 1);
+		
+		const role = DBot.findRole(msg.channel.guild, args[0]);
+		
+		if (!role)
+			return DBot.CommandError('No such role', 'maddrole', args, 1);
+		
+		if (!args[1])
+			return DBot.CommandError('At least one argument is required', 'maddrole', args, 1);
+		
+		let HIT = false;
+		const valids = [];
+		let done = 0;
+		
+		for (let i = 1; i < args.length; i++) {
+			const user = args[i];
+			if (typeof user !== 'object')
+				return DBot.CommandError('Invalid user argument', 'maddrole', args, Number(i) + 1);
+			
+			const member = msg.channel.member(user);
+			
+			if (member === null)
+				return DBot.CommandError('Invalid user argument', 'maddrole', args, Number(i) + 1);
+			
+			if (member.id === DBot.bot.user.id || member.id === msg.author.id)
+				return DBot.CommandError('Oh?', 'maddrole', args, Number(i) + 1);
+			
+			if (!DBot.CanTarget(me, member))
+				return DBot.CommandError('Can\'t target that ;n;', 'maddrole', args, Number(i) + 1);
+
+			if (!DBot.CanTarget(msg.member, member))
+				return DBot.CommandError('You are unable to target that user', 'maddrole', args, Number(i) + 1);
+			
+			if (!member.roles.has(role.id))
+				valids.push(member);
+		}
+		
+		if (valids.length === 0)
+			return 'No valid users!';
+		
+		msg.channel.startTyping();
+		
+		for (const member of valids) {
+			member.addRole(role)
+			.then(() => {
+				done++;
+				if (done === valids.length) {
+					msg.reply('Done');
+					msg.channel.stopTyping();
+				}
+			})
+			.catch(() => {
+				done++;
+				if (HIT) return;
+				HIT = true;
+				msg.reply('Unable to set role for <@' + (member.id) + '>. All further errors would not be shown.');
+			});
+		}
+		
+		return 'Doing role setup!\nTotal to add: ' + valids.length;
 	}
 });
 
@@ -152,12 +205,10 @@ DBot.RegisterCommand({
 	
 	help_args: '<role name>',
 	desc: 'Adds specified role to everyone. Excludes bot and you.',
+	nopm: true,
 	
 	func: function(args, cmd, msg) {
-		if (DBot.IsPM(msg))
-			return 'Onoh! It is PM ;n;';
-		
-		let me = msg.channel.guild.member(DBot.bot.user);
+		const me = msg.channel.guild.member(DBot.bot.user);
 		
 		if (!msg.member.hasPermission('MANAGE_ROLES_OR_PERMISSIONS') && !DBot.owners.includes(msg.author.id))
 			return 'You must have `MANAGE_ROLES_OR_PERMISSIONS` permission!';
@@ -166,51 +217,33 @@ DBot.RegisterCommand({
 			return 'I must have `MANAGE_ROLES_OR_PERMISSIONS` permission!';
 		
 		if (!args[0])
-			return DBot.CommandError('Invalid role name', 'role', args, 1);
+			return DBot.CommandError('Invalid role name', 'addrole_all', args, 1);
 		
-		let role;
-		let find = args[0].toLowerCase();
-		
-		for (let rl of msg.channel.guild.roles.array()) {
-			if (rl.name.toLowerCase() == find) {
-				role = rl;
-				break;
-			}
-		}
-		
-		if (!role) {
-			for (let rl of msg.channel.guild.roles.array()) {
-				if (rl.name.toLowerCase().match(find)) {
-					role = rl;
-					break;
-				}
-			}
-		}
+		const role = DBot.findRole(msg.channel.guild, args[0]);
 		
 		if (!role)
-			return DBot.CommandError('No such role', 'role', args, 1);
+			return DBot.CommandError('No such role', 'addrole_all', args, 1);
 		
 		let HIT = false;
 		let total = 0;
 		
-		for (let member of msg.channel.guild.members.array()) {
-			if (!member.roles.array().includes(role) && member.id != me.id && member.id != msg.member.id) {
-				total++;
-				msg.channel.startTyping();
-				
-				member.addRole(role)
-				.then(function() {
-					msg.channel.stopTyping();
-				})
-				.catch(function() {
-					msg.channel.stopTyping();
-					if (HIT)
-						return;
-					
-					HIT = true;
-					msg.reply('Unable to set role for <@' + (member.id) + '>. All further errors would not be shown.');
-				});
-			}
+		for (const member of msg.channel.guild.members.array()) {
+			if (member.roles.array().includes(role) || member.id === me.id || member.id === msg.member.id) continue;
+			total++;
+			msg.channel.startTyping();
+
+			member.addRole(role)
+			.then(function() {
+				msg.channel.stopTyping();
+			})
+			.catch(function() {
+				msg.channel.stopTyping();
+				if (HIT)
+					return;
+
+				HIT = true;
+				msg.reply('Unable to set role for <@' + (member.id) + '>. All further errors would not be shown.');
+			});
 		}
 		
 		return 'Doing role setup!\nTotal to add: ' + total;
@@ -223,12 +256,10 @@ DBot.RegisterCommand({
 	
 	help_args: '<role name>',
 	desc: 'Removes specified role from everyone who have this role. Excludes bot and you.',
+	nopm: true,
 	
 	func: function(args, cmd, msg) {
-		if (DBot.IsPM(msg))
-			return 'Onoh! It is PM ;n;';
-		
-		let me = msg.channel.guild.member(DBot.bot.user);
+		const me = msg.channel.guild.member(DBot.bot.user);
 		
 		if (!msg.member.hasPermission('MANAGE_ROLES_OR_PERMISSIONS') && !DBot.owners.includes(msg.author.id))
 			return 'You must have `MANAGE_ROLES_OR_PERMISSIONS` permission!';
@@ -237,54 +268,118 @@ DBot.RegisterCommand({
 			return 'I must have `MANAGE_ROLES_OR_PERMISSIONS` permission!';
 		
 		if (!args[0])
-			return DBot.CommandError('Invalid role name', 'role', args, 1);
+			return DBot.CommandError('Invalid role name', 'rmrole', args, 1);
 		
-		let role;
-		let find = args[0].toLowerCase();
-		
-		for (let rl of msg.channel.guild.roles.array()) {
-			if (rl.name.toLowerCase() == find) {
-				role = rl;
-				break;
-			}
-		}
-		
-		if (!role) {
-			for (let rl of msg.channel.guild.roles.array()) {
-				if (rl.name.toLowerCase().match(find)) {
-					role = rl;
-					break;
-				}
-			}
-		}
+		const role = DBot.findRole(msg.channel.guild, args[0]);
 		
 		if (!role)
-			return DBot.CommandError('No such role', 'role', args, 1);
+			return DBot.CommandError('No such role', 'rmrole', args, 1);
 		
 		let HIT = false;
 		
 		let total = 0;
 		
-		for (let member of msg.channel.guild.members.array()) {
-			if (member.roles.array().includes(role) && member.id != me.id && member.id != msg.member.id) {
-				msg.channel.startTyping();
-				
-				total++;
-				member.removeRole(role)
-				.then(function() {
-					msg.channel.stopTyping();
-				})
-				.catch(function() {
-					msg.channel.stopTyping();
-					if (HIT)
-						return;
-					
-					HIT = true;
-					msg.reply('Unable to set role for <@' + (member.id) + '>. All further errors would not be shown.');
-				});
-			}
+		for (const member of msg.channel.guild.members.array()) {
+			if (!member.roles.array().includes(role) || member.id === me.id || member.id === msg.member.id) continue;
+			msg.channel.startTyping();
+
+			total++;
+			member.removeRole(role)
+			.then(function() {
+				msg.channel.stopTyping();
+			})
+			.catch(function() {
+				msg.channel.stopTyping();
+				if (HIT)
+					return;
+
+				HIT = true;
+				msg.reply('Unable to remove role from <@' + (member.id) + '>. All further errors would not be shown.');
+			});
 		}
 		
 		return 'Doing role remove!\nTotal to remove: ' + total;
+	}
+});
+
+DBot.RegisterCommand({
+	name: 'mrmrole',
+	alias: ['massrmrole', 'rmrolemass'],
+	
+	help_args: '<role name> <users/selections>',
+	desc: 'Removes specified role to specified users.',
+	nopm: true,
+	selections: true,
+	
+	func: function(args, cmd, msg) {
+		const me = msg.channel.guild.member(DBot.bot.user);
+		
+		if (!msg.member.hasPermission('MANAGE_ROLES_OR_PERMISSIONS') && !DBot.owners.includes(msg.author.id))
+			return 'You must have `MANAGE_ROLES_OR_PERMISSIONS` permission!';
+		
+		if (!me.hasPermission('MANAGE_ROLES_OR_PERMISSIONS'))
+			return 'I must have `MANAGE_ROLES_OR_PERMISSIONS` permission!';
+		
+		if (!args[0])
+			return DBot.CommandError('Invalid role name', 'maddrole', args, 1);
+		
+		const role = DBot.findRole(msg.channel.guild, args[0]);
+		
+		if (!role)
+			return DBot.CommandError('No such role', 'maddrole', args, 1);
+		
+		if (!args[1])
+			return DBot.CommandError('At least one argument is required', 'maddrole', args, 1);
+		
+		let HIT = false;
+		const valids = [];
+		let done = 0;
+		
+		for (let i = 1; i < args.length; i++) {
+			const user = args[i];
+			if (typeof user !== 'object')
+				return DBot.CommandError('Invalid user argument', 'maddrole', args, Number(i) + 1);
+			
+			const member = msg.channel.member(user);
+			
+			if (member === null)
+				return DBot.CommandError('Invalid user argument', 'maddrole', args, Number(i) + 1);
+			
+			if (member.id === DBot.bot.user.id || member.id === msg.author.id)
+				return DBot.CommandError('Oh?', 'maddrole', args, Number(i) + 1);
+			
+			if (!DBot.CanTarget(me, member))
+				return DBot.CommandError('Can\'t target that ;n;', 'maddrole', args, Number(i) + 1);
+
+			if (!DBot.CanTarget(msg.member, member))
+				return DBot.CommandError('You are unable to target that user', 'maddrole', args, Number(i) + 1);
+			
+			if (member.roles.has(role.id))
+				valids.push(member);
+		}
+		
+		if (valids.length === 0)
+			return 'No valid users!';
+		
+		msg.channel.startTyping();
+		
+		for (const member of valids) {
+			member.removeRole(role)
+			.then(() => {
+				done++;
+				if (done === valids.length) {
+					msg.reply('Done');
+					msg.channel.stopTyping();
+				}
+			})
+			.catch(() => {
+				done++;
+				if (HIT) return;
+				HIT = true;
+				msg.reply('Unable to remove role from <@' + (member.id) + '>. All further errors would not be shown.');
+			});
+		}
+		
+		return 'Doing role remove!\nTotal to remove: ' + valids.length;
 	}
 });
