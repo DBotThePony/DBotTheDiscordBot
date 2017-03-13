@@ -156,7 +156,7 @@ DBot.RegisterCommand({
 			if (typeof user !== 'object')
 				return DBot.CommandError('Invalid user argument', 'maddrole', args, Number(i) + 1);
 			
-			const member = msg.channel.member(user);
+			const member = msg.channel.guild.member(user);
 			
 			if (member === null)
 				return DBot.CommandError('Invalid user argument', 'maddrole', args, Number(i) + 1);
@@ -340,7 +340,7 @@ DBot.RegisterCommand({
 			if (typeof user !== 'object')
 				return DBot.CommandError('Invalid user argument', 'maddrole', args, Number(i) + 1);
 			
-			const member = msg.channel.member(user);
+			const member = msg.channel.guild.member(user);
 			
 			if (member === null)
 				return DBot.CommandError('Invalid user argument', 'maddrole', args, Number(i) + 1);
