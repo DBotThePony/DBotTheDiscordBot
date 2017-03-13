@@ -122,6 +122,7 @@ const registerColorRoles = function(server, callback) {
 		for (const role of server.roles.values()) {
 			if (role.name.toLowerCase() === roleName) {
 				if (role.position !== nPosition) role.setPosition(nPosition);
+				if (role.hexColor !== roleData[1]) role.setColor(roleData[1]);
 				hit = true;
 				break;
 			}
@@ -139,6 +140,7 @@ const registerColorRoles = function(server, callback) {
 			for (const role of server.roles.values()) {
 				if (role.name.toLowerCase() === roleName) {
 					if (role.position !== nPosition) role.setPosition(nPosition);
+					if (role.hexColor !== roleData[1]) role.setColor(roleData[1]);
 					hit = true;
 					break;
 				}
