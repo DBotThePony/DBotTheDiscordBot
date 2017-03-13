@@ -436,40 +436,42 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 		return;
 	};
 	
-	DBot.__SpamScore[cCommand.id] = DBot.__SpamScore[cCommand.id] || 0;
-	DBot.__SpamScore[cCommand.id]++;
-	
-	if (DBot.__SpamScore[cCommand.id] > 8) {
-		if (msg.channel.cooldown && msg.channel.cooldown > CurTime()) {
-			msg.channel.cooldown = CurTime() + 1;
-			return;
-		};
-		
-		msg.reply('Stop spamming `' + cCommand.id + '`');
-		msg.channel.cooldown = CurTime() + 1;
-		
-		return;
-	};
-	
-	let timeout = cCommand.delay || 1.5;
-	let curr = UnixStamp();
-	
-	if (DBot.CommandsAntiSpam[msg.author.id] && !DBot.DISABLE_ANTISPAM) {
-		let delta = DBot.CommandsAntiSpam[msg.author.id] - curr;
-		if (delta > 0) {
+	if (!DBot.owners.includes(msg.author.id)) {
+		DBot.__SpamScore[cCommand.id] = DBot.__SpamScore[cCommand.id] || 0;
+		DBot.__SpamScore[cCommand.id]++;
+
+		if (DBot.__SpamScore[cCommand.id] > 8) {
 			if (msg.channel.cooldown && msg.channel.cooldown > CurTime()) {
 				msg.channel.cooldown = CurTime() + 1;
 				return;
 			};
-			
-			msg.reply(':broken_heart: P... please, wait before running a new command. Wait ' + (Math.floor(delta * 10)) / 10 + ' seconds');
+
+			msg.reply('Stop spamming `' + cCommand.id + '`');
 			msg.channel.cooldown = CurTime() + 1;
-			
+
 			return;
 		};
-	};
-	
-	DBot.CommandsAntiSpam[msg.author.id] = curr + timeout;
+
+		let timeout = cCommand.delay || 1.5;
+		let curr = UnixStamp();
+
+		if (DBot.CommandsAntiSpam[msg.author.id] && !DBot.DISABLE_ANTISPAM) {
+			let delta = DBot.CommandsAntiSpam[msg.author.id] - curr;
+			if (delta > 0) {
+				if (msg.channel.cooldown && msg.channel.cooldown > CurTime()) {
+					msg.channel.cooldown = CurTime() + 1;
+					return;
+				};
+
+				msg.reply(':broken_heart: P... please, wait before running a new command. Wait ' + (Math.floor(delta * 10)) / 10 + ' seconds');
+				msg.channel.cooldown = CurTime() + 1;
+
+				return;
+			};
+		};
+
+		DBot.CommandsAntiSpam[msg.author.id] = curr + timeout;
+	}
 	
 	if ((!parsedArgs || !parsedArgs[0]) && cCommand.argNeeded) {
 		let messageFromCommand = cCommand.failMessage || 'Invalid arguments';
