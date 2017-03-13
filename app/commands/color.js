@@ -55,6 +55,8 @@ const additionalColors = [
 	['DarkOlive', '#556B2F'],
 	['Teal', '#008080'],
 	['SkyBlue', '#87CEEB'],
+	['PowderBlue', '#B0E0E6'],
+	['LightSkyBlue', '#87CEFA'],
 	['DeepSkyBlue', '#00BFFF'],
 	['RoyalBlue', '#4169E1'],
 	['DarkGoldenRod', '#B8860B'],
