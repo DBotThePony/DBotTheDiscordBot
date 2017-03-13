@@ -1,5 +1,5 @@
 
-/* global FCVAR_BOOLONLY */
+/* global FCVAR_BOOLONLY, FCVAR_NUMERSONLY_INT */
 
 const myGlobals = require('../globals.js');
 const hook = myGlobals.hook;
@@ -42,8 +42,51 @@ const avaliableColors = [ // Colours
 	['Grey', '#808080']
 ];
 
+const additionalColors = [
+	['LightYellow', '#FFFFE0'],
+	['Khaki', '#F0E68C'],
+	['LimeGreen', '#32CD32'],
+	['Pumpkin', '#d35400'],
+	['SunFlower', '#f1c40f'],
+	['SeaGreen', '#2E8B57'],
+	['ForestGreen', '#228B22'],
+	['OliveGreen', '#6B8E23'],
+	['Olive', '#808000'],
+	['DarkOlive', '#556B2F'],
+	['Teal', '#008080'],
+	['SkyBlue', '#87CEEB'],
+	['DeepSkyBlue', '#00BFFF'],
+	['RoyalBlue', '#4169E1'],
+	['DarkGoldenRod', '#B8860B'],
+	['Chocolate', '#D2691E'],
+	['Sienna', '#A0522D'],
+	['SandyBrown', '#F4A460'],
+	['GoldenRod', '#DAA520'],
+	['SlateGrey', '#708090'],
+	['Gainsboro', '#DCDCDC'],
+	['Coral', '#FF7F50'],
+	['DarkOrange', '#FF8C00'],
+	['Crimson', '#DC143C'],
+	['DarkSalmon', '#E9967A'],
+	['DarkRed', '#8B0000'],
+	['FireBrick', '#B22222'],
+	['DarkMagenta', '#8B008B'],
+	['MediumSlateBlue', '#7B68EE'],
+	['Indigo', '#4B0082'],
+	['Orchid', '#DA70D6'],
+	['MediumOrchid', '#BA55D3'],
+	['Fuchsia', '#FF00FF'],
+	['DarkViolet', '#9400D3'],
+	['DeepPink', '#FF1493'],
+	['HotPink', '#FF69B4'],
+	['Thistle', '#D8BFD8'],
+	['PaleVioletRed', '#DB7093']
+];
+
 const avaliableColorsMap = {};
+const avaliableColorsMapAdditional = {};
 let validColorsString;
+let validColorsString2;
 
 for (const r of avaliableColors) {
 	avaliableColorsMap[r[0].toLowerCase()] = r[0];
@@ -53,17 +96,30 @@ for (const r of avaliableColors) {
 		validColorsString = r[0];
 }
 
+for (const r of additionalColors) {
+	avaliableColorsMapAdditional[r[0].toLowerCase()] = r[0];
+	
+	if (validColorsString2)
+		validColorsString2 += ', ' + r[0];
+	else
+		validColorsString2 = r[0];
+}
+
 cvars.ServerVar('colors', '0', [FCVAR_BOOLONLY], 'Enable bot colors. Requires Role manipulation permissions!');
+cvars.ServerVar('colors_position', '1', [FCVAR_NUMERSONLY_INT], 'Position of color role');
+cvars.ServerVar('colors_additional', '0', [FCVAR_BOOLONLY], 'Enable additional colors');
 
 const registerColorRoles = function(server, callback) {
-	let toCreate = [];
+	const toCreate = [];
+	const nPosition = cvars.Server(server).getVar('colors_position').getInt();
 	
 	for (const roleData of avaliableColors) {
 		const roleName = roleData[0].toLowerCase();
 		let hit = false;
 		
-		for (const role of server.roles.array()) {
+		for (const role of server.roles.values()) {
 			if (role.name.toLowerCase() === roleName) {
+				if (role.position !== nPosition) role.setPosition(nPosition);
 				hit = true;
 				break;
 			}
@@ -71,6 +127,24 @@ const registerColorRoles = function(server, callback) {
 		
 		if (!hit)
 			toCreate.push(roleData);
+	}
+	
+	if (cvars.Server(server).getVar('colors_additional').getBool()) {
+		for (const roleData of additionalColors) {
+			const roleName = roleData[0].toLowerCase();
+			let hit = false;
+
+			for (const role of server.roles.values()) {
+				if (role.name.toLowerCase() === roleName) {
+					if (role.position !== nPosition) role.setPosition(nPosition);
+					hit = true;
+					break;
+				}
+			}
+
+			if (!hit)
+				toCreate.push(roleData);
+		}
 	}
 	
 	if (toCreate.length === 0) {
@@ -84,7 +158,7 @@ const registerColorRoles = function(server, callback) {
 		server.createRole({
 			name: data[0],
 			color: data[1],
-			position: 0,
+			position: nPosition,
 			mentionable: false,
 			hoist: false
 		})
@@ -102,29 +176,29 @@ module.exports = {
 	name: 'color',
 	
 	help_args: '<color name>',
-	desc: 'Change your color\nValid colors are: ' + validColorsString,
+	desc: `Change your color\nValid colors are: ${validColorsString}\nIf additional colors are enabled: ${validColorsString2}`,
+	nopm: true,
 	
 	func: function(args, cmd, msg) {
-		if (DBot.IsPM(msg))
-			return 'PM? ;-; Lonely';
-		
 		if (!cvars.Server(msg.channel.guild).getVar('colors').getBool())
 			return 'Colors are not enabled on this server';
 		
 		if (!msg.channel.guild.member(DBot.bot.user).hasPermission('MANAGE_ROLES_OR_PERMISSIONS'))
 			return 'Server administrator has done invalid setup - Colors are enabled but i don\'t have `MANAGE_ROLES_OR_PERMISSIONS` permission!';
 		
-		let currRoleColor;
-		
-		for (const role of msg.member.roles.values())
-			if (avaliableColorsMap[role.name.toLowerCase()]) currRoleColor = role;
-		
 		if (!args[0])
 			return DBot.CommandError('No color specified', 'color', args, 1);
 		
 		const col = args[0].toLowerCase();
-		if (!avaliableColorsMap[col])
+		const additionalColorsEnabled = cvars.Server(msg.channel.guild).getVar('colors_additional').getBool();
+		
+		if (!avaliableColorsMap[col] || additionalColorsEnabled && !avaliableColorsMapAdditional[col])
 			return DBot.CommandError('Invalid color specified', 'color', args, 1);
+		
+		let currRoleColor;
+		
+		for (const role of msg.member.roles.values())
+			if (avaliableColorsMap[role.name.toLowerCase()] || avaliableColorsMapAdditional[role.name.toLowerCase()]) currRoleColor = role;
 		
 		let targetRole;
 		
@@ -146,6 +220,7 @@ module.exports = {
 				msg.member.removeRole(currRoleColor);
 		
 		msg.channel.startTyping();
+		
 		const continueFunc = function() {
 			if (!targetRole) findRole();
 			msg.member.addRole(targetRole);
@@ -178,7 +253,7 @@ DBot.RegisterCommand({
 			return 'I must have `MANAGE_ROLES_OR_PERMISSIONS` permission! ;n;';
 		
 		msg.channel.startTyping();
-		registerColorRoles(msg.channel.guild, () => {msg.sendMessage('Done'); msg.channel.stopTyping();});
+		registerColorRoles(msg.channel.guild, () => {msg.reply('Done'); msg.channel.stopTyping();});
 	}
 });
 
@@ -202,7 +277,7 @@ DBot.RegisterCommand({
 		let currRoleColor;
 		
 		for (const role of msg.member.roles.values()) {
-			if (avaliableColorsMap[role.name.toLowerCase()]) {
+			if (avaliableColorsMap[role.name.toLowerCase()] || avaliableColorsMapAdditional[role.name.toLowerCase()]) {
 				msg.member.removeRole(role);
 				msg.sendMessage(`Removed color \`${role.name}\` from <@${msg.author.id}>`);
 				return;
