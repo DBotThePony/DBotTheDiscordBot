@@ -13,7 +13,7 @@ const CommandHelper = myGlobals.CommandHelper;
 
 const avaliableColors = [ // Colours
 	['Red', '#ff0000'],
-	['Reen', '#00B000'],
+	['Green', '#00B000'],
 	['Lime', '#00ff00'],
 	['Blue', '#0000ff'],
 	['Emerald', '#2ecc71'],
