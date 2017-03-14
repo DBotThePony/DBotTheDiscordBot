@@ -197,7 +197,7 @@ module.exports = {
 		const col = args[0].toLowerCase();
 		const additionalColorsEnabled = cvars.Server(msg.channel.guild).getVar('colors_additional').getBool();
 		
-		if (!avaliableColorsMap[col] || additionalColorsEnabled && !avaliableColorsMapAdditional[col])
+		if (!avaliableColorsMap[col] && !additionalColorsEnabled || additionalColorsEnabled && (!avaliableColorsMap[col] && !avaliableColorsMapAdditional[col]))
 			return DBot.CommandError('Invalid color specified', 'color', args, 1);
 		
 		let currRoleColor;
