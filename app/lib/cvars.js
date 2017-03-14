@@ -700,7 +700,7 @@ hook.Add('ServerInitialized', 'CVars', function(obj) {
 });
 
 hook.Add('UpdateLoadingLevel', 'CVars', function(callFunc) {
-	callFunc(true, 3);
+	callFunc(true, 'users variables', 'channels variables', 'server variables');
 });
 
 hook.Add('UsersInitialized', 'CVars', function(users) {
@@ -713,7 +713,7 @@ hook.Add('UsersInitialized', 'CVars', function(users) {
 			cVarsArray += ',(' + Postgres.escape(i) + ',' + Postgres.escape(cvars.CONVARS_USER[i].val) + ')';
 	}
 	
-	if (!cVarsArray) return DBot.updateLoadingLevel(false);
+	if (!cVarsArray) return DBot.updateLoadingLevel(false, 'users variables');
 	
 	let query = `
 WITH vars_values ("VAR", "VALUE") AS (
@@ -750,7 +750,7 @@ WHERE
 	
 	Postgres.query(query, function(err, data) {
 		if (err) throw err;
-		DBot.updateLoadingLevel(false);
+		DBot.updateLoadingLevel(false, 'users variables');
 		
 		for (let row of data) {
 			let obj = DBot.GetUser(row.ID);
@@ -837,7 +837,7 @@ hook.Add('ChannelsInitialized', 'CVars', function(channels) {
 			cVarsArray += ',(' + Postgres.escape(i) + ',' + Postgres.escape(cvars.CONVARS_CHANNEL[i].val) + ')';
 	}
 	
-	if (!cVarsArray) return DBot.updateLoadingLevel(false);
+	if (!cVarsArray) return DBot.updateLoadingLevel(false, 'channels variables');
 	
 	let query = `
 WITH vars_values ("VAR", "VALUE") AS (
@@ -874,7 +874,7 @@ WHERE
 	
 	Postgres.query(query, function(err, data) {
 		if (err) throw err;
-		DBot.updateLoadingLevel(false);
+		DBot.updateLoadingLevel(false, 'channels variables');
 		
 		for (let row of data) {
 			let obj = DBot.GetChannel(row.ID);
@@ -900,7 +900,7 @@ hook.Add('ServersInitialized', 'CVars', function(servers) {
 			cVarsArray += ',(' + Postgres.escape(i) + ',' + Postgres.escape(cvars.CONVARS_SERVER[i].val) + ')';
 	}
 	
-	if (!cVarsArray) return DBot.updateLoadingLevel(false);
+	if (!cVarsArray) return DBot.updateLoadingLevel(false, 'server variables');
 	
 	let query = `
 WITH vars_values ("VAR", "VALUE") AS (
@@ -936,7 +936,7 @@ WHERE
 `;
 	Postgres.query(query, function(err, data) {
 		if (err) throw err;
-		DBot.updateLoadingLevel(false);
+		DBot.updateLoadingLevel(false, 'server variables');
 		
 		for (let row of data) {
 			let obj = DBot.GetServer(row.ID);

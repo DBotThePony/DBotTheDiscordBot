@@ -276,7 +276,7 @@ hook.Add('UserInitialized', 'UserTags', function(obj) {
 });
 
 hook.Add('UpdateLoadingLevel', 'UserTags', function(callFunc) {
-	callFunc(true, 3);
+	callFunc(true, 'users tags bans', 'servers tags bans', 'channels tags bans');
 });
 
 hook.Add('UsersInitialized', 'UserTags', function() {
@@ -291,7 +291,7 @@ hook.Add('UsersInitialized', 'UserTags', function() {
 		
 		Postgres.query(q, function(err, data) {
 			if (err) throw err;
-			DBot.updateLoadingLevel(false);
+			DBot.updateLoadingLevel(false, 'users tags bans');
 			
 			let spaces = {};
 			
@@ -340,7 +340,7 @@ hook.Add('ServersInitialized', 'UserTags', function() {
 		
 		Postgres.query(q, function(err, data) {
 			if (err) throw err;
-			DBot.updateLoadingLevel(false);
+			DBot.updateLoadingLevel(false, 'servers tags bans');
 			
 			let spaces = {};
 			
@@ -389,7 +389,7 @@ hook.Add('ChannelsInitialized', 'UserTags', function() {
 		
 		Postgres.query(q, function(err, data) {
 			if (err) throw err;
-			DBot.updateLoadingLevel(false);
+			DBot.updateLoadingLevel(false, 'channels tags bans');
 			
 			let spaces = {};
 			

@@ -30,7 +30,7 @@ hook.Add('MemberRoleRemoved', 'RoleLogs', function(member, role) {
 });
 
 hook.Add('UpdateLoadingLevel', 'RoleLogs', function(callFunc) {
-	callFunc(true, 1);
+	callFunc(true, 'roles update');
 });
 
 hook.Add('RolesInitialized', 'RoleLogs', function(roleCollection) {
@@ -51,7 +51,7 @@ hook.Add('RolesInitialized', 'RoleLogs', function(roleCollection) {
 	
 	Postgres.query(q, function(err, data) {
 		if (err) throw err;
-		DBot.updateLoadingLevel(false);
+		DBot.updateLoadingLevel(false, 'roles update');
 		
 		let cTime = Postgres.escape(Math.floor(CurTime()));
 		

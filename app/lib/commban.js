@@ -361,7 +361,7 @@ hook.Add('PreDeleteServer', 'ServerBans', function(obj) {
 });
 
 hook.Add('UpdateLoadingLevel', 'CommandBans', function(callFunc) {
-	callFunc(true, 4);
+	callFunc(true, 'command bans server', 'command bans role', 'command bans permissions', 'command bans channels');
 });
 
 hook.Add('ServerInitialized', 'ServerBans', function(server) {
@@ -381,7 +381,7 @@ hook.Add('RolesInitialized', 'ServerBans', function(roles, servers) {
 	
 	Postgres.query(q1, function(err, data) {
 		if (err) throw err;
-		DBot.updateLoadingLevel(false);
+		DBot.updateLoadingLevel(false, 'command bans server');
 		
 		for (const row of data) {
 			const ob = cache.server[row.UID];
@@ -390,7 +390,7 @@ hook.Add('RolesInitialized', 'ServerBans', function(roles, servers) {
 		
 		Postgres.query(q2, function(err, data) {
 			if (err) throw err;
-			DBot.updateLoadingLevel(false);
+			DBot.updateLoadingLevel(false, 'command bans role');
 			
 			for (const row of data) {
 				const ob = cache.server[row.ID];
@@ -417,7 +417,7 @@ hook.Add('RolesInitialized', 'ServerBans', function(roles, servers) {
 			
 			Postgres.query(q3, function(err, data) {
 				if (err) throw err;
-				DBot.updateLoadingLevel(false);
+				DBot.updateLoadingLevel(false, 'command bans permissions');
 
 				for (const row of data) {
 					const ob = cache.server[row.ID];
@@ -450,7 +450,7 @@ hook.Add('ChannelsInitialized', 'ServerBans', function(channels) {
 	
 	Postgres.query('SELECT command_bans_channel."UID", "COMMAND" FROM command_bans_channel, channels WHERE command_bans_channel."UID" = channels."ID" AND channels."TIME" > currtime() - 120', function(err, data) {
 		if (err) throw err;
-		DBot.updateLoadingLevel(false);
+		DBot.updateLoadingLevel(false, 'command bans channels');
 		
 		for (let row of data) {
 			let ob = cache.channel[row.UID];
@@ -587,13 +587,13 @@ const MemberInitialized = function(obj, uid, isCascade) {
 hook.Add('MemberInitialized', 'MemberCommandBans', MemberInitialized);
 
 hook.Add('UpdateLoadingLevel', 'MemberCommandBans', function(callFunc) {
-	callFunc(true, 3);
+	callFunc(true, 'command bans member/channel', 'command bans member/server', 'command bans member/command');
 });
 
 hook.Add('MembersInitialized', 'MemberCommandBans', function(members) {
 	Postgres.query('SELECT command_banned_cmember."UID", command_banned_cmember."CHANNEL" FROM command_banned_cmember, users WHERE users."TIME" > currtime() - 120 AND command_banned_cmember."UID" = users."ID"', function(err, data) {
 		if (err) throw err;
-		DBot.updateLoadingLevel(false);
+		DBot.updateLoadingLevel(false, 'command bans member/channel');
 		
 		for (let row of data) {
 			let get = DBot.GetMember(row.UID);
@@ -607,7 +607,7 @@ hook.Add('MembersInitialized', 'MemberCommandBans', function(members) {
 	
 	Postgres.query('SELECT command_banned_member."UID" FROM command_banned_member, users WHERE users."TIME" > currtime() - 120 AND command_banned_member."UID" = users."ID"', function(err, data) {
 		if (err) throw err;
-		DBot.updateLoadingLevel(false);
+		DBot.updateLoadingLevel(false, 'command bans member/server');
 		
 		for (let row of data) {
 			let get = DBot.GetMember(row.UID);
@@ -621,7 +621,7 @@ hook.Add('MembersInitialized', 'MemberCommandBans', function(members) {
 	
 	Postgres.query('SELECT command_bans_member."UID", command_bans_member."COMMAND" FROM command_bans_member, users WHERE users."TIME" > currtime() - 120 AND command_bans_member."UID" = users."ID"', function(err, data) {
 		if (err) throw err;
-		DBot.updateLoadingLevel(false);
+		DBot.updateLoadingLevel(false, 'command bans member/command');
 		
 		for (let row of data) {
 			if (!DBot.GetMember(row.UID))

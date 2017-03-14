@@ -155,7 +155,7 @@ let loadingWasCalled = false;
 hook.Add('UpdateLoadingLevel', 'IMagick', function(callFunc) {
 	loadingWasCalled = true;
 	if (!hasFinished)
-		callFunc(true, 1);
+		callFunc(true, 'image magick init');
 });
 
 const loadingStage3 = function() {
@@ -184,7 +184,7 @@ const loadingStage3 = function() {
 			console.log('Font precache has finished!');
 			hasFinished = true;
 			if (loadingWasCalled)
-				DBot.updateLoadingLevel(false);
+				DBot.updateLoadingLevel(false, 'image magick init');
 			
 			hook.Remove('UpdateLoadingLevel', 'IMagick');
 		}

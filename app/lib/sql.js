@@ -44,25 +44,38 @@ DBot.IsReady = function() {
 	return DBot.IsOnline() && DBot.LOADING_LEVEL <= 0 && DBot.SQL_START;
 };
 
+DBot.loadingString = '';
+const loadingDB = {};
+
 const updateLoadingStatus = function() {
 	if (DBot.LOADING_LEVEL > 0)
 		DBot.Status('Loading, left [' + DBot.LOADING_LEVEL + '/' + DBot.maximalLoadingValue + '] stages');
 	else
 		DBot.Status('Finishing up...');
+	
+	DBot.loadingString = null;
+	
+	for (const i in loadingDB) {
+		if (loadingDB[i]) {
+			if (DBot.loadingString)
+				DBot.loadingString += ', ' + i;
+			else
+				DBot.loadingString = i;
+		}
+	}
 };
 
-DBot.updateLoadingLevel = function(type, times) {
-	times = times || 1;
-	
-	if (type)
-		DBot.LOADING_LEVEL += times;
-	else
-		DBot.LOADING_LEVEL -= times;
-	
-	if (DBot.LOADING_LEVEL < 0)
+DBot.updateLoadingLevel = function(type) {
+	for (let i = 1; i < arguments.length; i++) {
+		const arg = arguments[i];
+		loadingDB[arg] = type;
 		DBot.LOADING_LEVEL = 0;
-	
-	updateLoadingStatus();
+		
+		for (let ii in loadingDB)
+			if (loadingDB[ii]) DBot.LOADING_LEVEL++;
+
+		updateLoadingStatus();
+	}
 };
 
 DBot.startSQL = function(bot) {
@@ -99,7 +112,10 @@ DBot.startSQL = function(bot) {
 		sql.LoadingUser[users1[i].id] = true;
 	}
 	
-	DBot.LOADING_LEVEL = 6;
+	for (let ii in loadingDB)
+		loadingDB[ii] = false;
+	
+	DBot.updateLoadingLevel(true, 'servers', 'roles', 'channels', 'users', 'members', 'stamps update');
 	
 	hook.Run('UpdateLoadingLevel', DBot.updateLoadingLevel);
 	DBot.maximalLoadingValue = DBot.LOADING_LEVEL;
@@ -108,28 +124,28 @@ DBot.startSQL = function(bot) {
 	
 	serversCollection.updateMap();
 	serversCollection.load(function() {
-		DBot.updateLoadingLevel(false);
+		DBot.updateLoadingLevel(false, 'servers');
 		
 		serversCollection.updateMap();
 		hook.Run('ServersInitialized', serversCollection.objects);
 		
 		rolesCollection.updateMap();
 		rolesCollection.load(function() {
-			DBot.updateLoadingLevel(false);
+			DBot.updateLoadingLevel(false, 'roles');
 			rolesCollection.updateMap();
 			hook.Run('RolesInitialized', rolesCollection, serversCollection);
 		});
 		
 		channelCollection.updateMap();
 		channelCollection.load(function() {
-			DBot.updateLoadingLevel(false);
+			DBot.updateLoadingLevel(false, 'channels');
 			channelCollection.updateMap();
 			hook.Run('ChannelsInitialized', channelCollection.objects, channelCollection);
 		});
 		
 		users.updateMap();
 		users.load(function() {
-			DBot.updateLoadingLevel(false);
+			DBot.updateLoadingLevel(false, 'users');
 			
 			const queries = [];
 			let current = null;
@@ -160,10 +176,10 @@ DBot.startSQL = function(bot) {
 			
 			members.updateMap();
 			members.load(function() {
-				DBot.updateLoadingLevel(false);
+				DBot.updateLoadingLevel(false, 'members');
 				
 				sql.updateLastSeenFunc(function() {
-					DBot.updateLoadingLevel(false);
+					DBot.updateLoadingLevel(false, 'stamps update');
 					
 					users.updateMap();
 					members.updateMap();

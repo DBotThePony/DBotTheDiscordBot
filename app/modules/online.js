@@ -58,7 +58,7 @@ hook.Add('UserInitialized', 'LastSeen', function(user) {
 });
 
 hook.Add('UpdateLoadingLevel', 'LastSeen', function(callFunc) {
-	callFunc(true, 2);
+	callFunc(true, 'statuses update', 'uptimes update');
 });
 
 hook.Add('UsersInitialized', 'LastSeen', function() {
@@ -86,14 +86,14 @@ hook.Add('UsersInitialized', 'LastSeen', function() {
 	}
 	
 	if (updateStr)
-		Postgres.query('INSERT INTO uptime ("ID") VALUES ' + updateStr + ' ON CONFLICT ("ID") DO NOTHING', function() {DBot.updateLoadingLevel(false);});
+		Postgres.query('INSERT INTO uptime ("ID") VALUES ' + updateStr + ' ON CONFLICT ("ID") DO NOTHING', function() {DBot.updateLoadingLevel(false, 'uptimes update');});
 	else
-		DBot.updateLoadingLevel(false);
+		DBot.updateLoadingLevel(false, 'uptimes update');
 	
 	if (statusStr)
-		Postgres.query('UPDATE users SET "STATUS" = "m"."STATUS" FROM (VALUES ' + statusStr + ') AS "m"("ID", "STATUS") WHERE users."ID" = "m"."ID"', function() {DBot.updateLoadingLevel(false);});
+		Postgres.query('UPDATE users SET "STATUS" = "m"."STATUS" FROM (VALUES ' + statusStr + ') AS "m"("ID", "STATUS") WHERE users."ID" = "m"."ID"', function() {DBot.updateLoadingLevel(false, 'statuses update');});
 	else
-		DBot.updateLoadingLevel(false);
+		DBot.updateLoadingLevel(false, 'statuses update');
 });
 
 setInterval(function() {

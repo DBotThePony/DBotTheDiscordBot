@@ -138,7 +138,7 @@ DBot.MessageHandler = function(msg) {
 
 		if (!DBot.SQLReady()) {
 			if (msg.channel.type === 'dm')
-				msg.channel.sendMessage('I am still starting up.\nLeft [' + DBot.LOADING_LEVEL + '/' + DBot.maximalLoadingValue + '] stages');
+				msg.channel.sendMessage('I am loading.\nLeft [' + DBot.LOADING_LEVEL + '/' + DBot.maximalLoadingValue + '] stages\n```[' + DBot.loadingString + ']```');
 			return;
 		}
 		

@@ -902,7 +902,7 @@ hook.Add('MemberInitialized', 'ModerationCommands', function(member, uid, isCasc
 });
 
 hook.Add('UpdateLoadingLevel', 'ModerationCommands', function(callFunc) {
-	callFunc(true, 2);
+	callFunc(true, 'offed users', 'softbanned users');
 });
 
 DBot.RegisterMemberConstructor('ModerationCommands', function(self) {
@@ -956,7 +956,7 @@ hook.Add('MembersInitialized', 'ModerationCommands', function() {
 	}
 	
 	Postgres.query('SELECT off_users.* FROM off_users, users WHERE users."ID" = off_users."ID" AND users."TIME" > currtime() - 120', function(err, data) {
-		DBot.updateLoadingLevel(false);
+		DBot.updateLoadingLevel(false, 'offed users');
 		
 		for (let row of data) {
 			let member = memberMap[row.ID];
@@ -971,7 +971,7 @@ hook.Add('MembersInitialized', 'ModerationCommands', function() {
 	Postgres.query('SELECT member_softban."ID", member_softban."STAMP", member_softban."ADMIN", members."NAME" AS "ADMIN_NAME", users."NAME" AS "ADMIN_NAME_REAL" FROM member_softban, members, users WHERE member_softban."ID" = ANY(' + sql.Array(validMap) + '::INTEGER[]) AND members."ID" = member_softban."ADMIN" AND users."ID" = members."USER"', function(err, data) {
 		if (err) throw err;
 		
-		DBot.updateLoadingLevel(false);
+		DBot.updateLoadingLevel(false, 'softbanned users');
 		
 		for (let row of data) {
 			let member = memberMap[row.ID];

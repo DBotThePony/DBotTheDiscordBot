@@ -89,7 +89,7 @@ if (!DBot.NLOGS_INIT) {
 }
 
 hook.Add('UpdateLoadingLevel', 'NameLogs', function(callFunc) {
-	callFunc(true, 2);
+	callFunc(true, 'member nicknames update', 'usernames update');
 });
 
 hook.Add('MemberInitialized', 'MemberNameLogs', function(member, uid, isCascade) {
@@ -140,11 +140,11 @@ hook.Add('MembersInitialized', 'MemberNameLogs', function(members) {
 	}
 	
 	if (!finalQuery) {
-		DBot.updateLoadingLevel(false);
+		DBot.updateLoadingLevel(false, 'member nicknames update');
 		return;
 	}
 	
-	Postgres.query('UPDATE members SET "NAME" = m."NAME" FROM (VALUES ' + finalQuery + ') AS m ("ID", "NAME") WHERE members."ID" = m."ID"', function() {DBot.updateLoadingLevel(false);});
+	Postgres.query('UPDATE members SET "NAME" = m."NAME" FROM (VALUES ' + finalQuery + ') AS m ("ID", "NAME") WHERE members."ID" = m."ID"', function() {DBot.updateLoadingLevel(false, 'member nicknames update');});
 });
 
 hook.Add('UserInitialized', 'MemberNameLogs', function(user, id) {
@@ -182,7 +182,7 @@ hook.Add('UsersInitialized', 'MemberNameLogs', function() {
 	}
 	
 	if (!finalQuery) {
-		DBot.updateLoadingLevel(false);
+		DBot.updateLoadingLevel(false, 'usernames update');
 		return;
 	}
 	
@@ -190,7 +190,7 @@ hook.Add('UsersInitialized', 'MemberNameLogs', function() {
 		insert_uname_logs AS (INSERT INTO uname_logs ("USER", "NAME", "LASTUSE", "TIME") (SELECT name_data."ID", name_data."NAME", currtime(), 0 FROM name_data) ON CONFLICT ("USER", "NAME") DO NOTHING)
 		UPDATE users SET "NAME" = name_data."NAME" FROM name_data WHERE users."ID" = name_data."ID";`, err => {
 			if (err) throw err;
-			DBot.updateLoadingLevel(false);
+			DBot.updateLoadingLevel(false, 'usernames update');
 	});
 });
 
