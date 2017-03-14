@@ -82,7 +82,8 @@ const additionalColors = [
 	['DeepPink', '#FF1493'],
 	['HotPink', '#FF69B4'],
 	['Thistle', '#D8BFD8'],
-	['PaleVioletRed', '#DB7093']
+	['PaleVioletRed', '#DB7093'],
+	['LavenderRose', '#FF9FF7']
 ];
 
 const avaliableColorsMap = {};
