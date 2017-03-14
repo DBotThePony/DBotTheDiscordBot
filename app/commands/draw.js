@@ -45,6 +45,10 @@ const AvaliableCustomFonts = [
 	['Segoe-Print', 'Segoe'],
 	['Segoe-Script', 'SegoeScript'],
 	['Segoe-UI', 'SegoeUI'],
+	['Charlemagne', 'Charlemagne'],
+	['CharlemagneStd-Bold', 'CharlemagneB'],
+	['HyliaSerifBeta-Regular', 'Hylia'],
+	['Ravenna', 'Ravenna'],
 	
 	// Google custom fonts
 	
