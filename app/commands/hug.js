@@ -66,6 +66,7 @@ module.exports = {
 	help_args: '[user]',
 	desc: 'Hugs? ^w^',
 	allowUserArgument: true,
+	delay: 0,
 	
 	func: defAction('hug', {text: 'hugs'})
 };
@@ -76,6 +77,7 @@ DBot.RegisterCommand({
 	help_args: '[user]',
 	desc: 'Pokes',
 	allowUserArgument: true,
+	delay: 0,
 	
 	func: defAction('poke', {text: 'pokes'})
 });
@@ -86,6 +88,7 @@ DBot.RegisterCommand({
 	help_args: '[user]',
 	desc: 'Punches',
 	allowUserArgument: true,
+	delay: 0,
 	
 	func: defAction('punch', {text: 'punches'})
 });
@@ -96,6 +99,7 @@ DBot.RegisterCommand({
 	help_args: '[user]',
 	desc: 'Squeezes',
 	allowUserArgument: true,
+	delay: 0,
 	
 	func: defAction('squeeze', {text: 'hugs tight'})
 });
@@ -106,6 +110,7 @@ DBot.RegisterCommand({
 	help_args: '[user]',
 	desc: 'Cuddles',
 	allowUserArgument: true,
+	delay: 0,
 	
 	func: defAction('cuddle', {text: 'cuddles'})
 });
@@ -116,6 +121,7 @@ DBot.RegisterCommand({
 	help_args: '[user]',
 	desc: 'Rubs',
 	allowUserArgument: true,
+	delay: 0,
 	
 	func: defAction('rub', {text: 'rubs body of'})
 });
@@ -126,6 +132,7 @@ DBot.RegisterCommand({
 	help_args: '[user]',
 	desc: 'Strokes',
 	allowUserArgument: true,
+	delay: 0,
 	
 	func: defAction('stroke', {text: 'slowly strokes'})
 });
@@ -136,6 +143,7 @@ DBot.RegisterCommand({
 	help_args: '',
 	desc: 'Sits',
 	allowUserArgument: true,
+	delay: 0,
 	
 	func: defAction('stroke', {text: 'sits on', textSelf: 'sits', self: true})
 });
@@ -156,6 +164,7 @@ DBot.RegisterCommand({
 	help_args: '',
 	desc: 'Sleeps',
 	allowUserArgument: true,
+	delay: 0,
 	
 	func: defAction('stroke', {text: 'sleeps on', textSelf: 'sleeps on a bed', self: true})
 });
@@ -167,6 +176,7 @@ DBot.RegisterCommand({
 	help_args: '',
 	desc: 'Lays',
 	allowUserArgument: true,
+	delay: 0,
 	
 	func: defAction('stroke', {text: 'lays on', textSelf: 'lays', self: true})
 });
@@ -177,6 +187,7 @@ DBot.RegisterCommand({
 	help_args: '[user]',
 	desc: 'Slaps',
 	allowUserArgument: true,
+	delay: 0,
 	
 	func: defAction('slap', {text: 'softly slaps'})
 });
@@ -189,6 +200,7 @@ DBot.RegisterCommand({
 	desc: '',
 	allowUserArgument: true,
 	help_hide: true,
+	delay: 0,
 	
 	func: function(args, cmd, msg) {
 		return 'You aren\'t better';
@@ -203,6 +215,7 @@ DBot.RegisterCommand({
 	desc: '',
 	allowUserArgument: true,
 	help_hide: true,
+	delay: 0,
 	
 	func: function(args, cmd, msg) {
 		if (!args[0])
@@ -222,6 +235,7 @@ DBot.RegisterCommand({
 	desc: 'rood',
 	allowUserArgument: true,
 	help_hide: true,
+	delay: 0,
 	
 	func: function(args, cmd, msg) {
 		msg.sendMessage('Rood');
@@ -235,6 +249,7 @@ DBot.RegisterCommand({
 	desc: 'rood',
 	allowUserArgument: true,
 	help_hide: true,
+	delay: 0,
 	
 	func: function(args, cmd, msg) {
 		if (!args[0])
@@ -250,6 +265,7 @@ DBot.RegisterCommand({
 	help_args: '[user]',
 	desc: 'Pokes',
 	allowUserArgument: true,
+	delay: 0,
 	
 	func: defAction('boop', {text: 'just booped'})
 });
