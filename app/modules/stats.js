@@ -478,25 +478,22 @@ DBot.RegisterCommand({
 	func: gtop10fn('gutop10', 'TOTAL_UNIQUE_WORDS')
 });
 
-let ctop10fn = function(name, order) {
+const ctop10fn = function(name, order) {
 	return function(args, cmd, msg) {
-		if (DBot.IsPM(msg))
-			return 'Oh! This is PM x3';
-		
-		let page = Number.from(args[0]) || 1;
+		const page = Number.from(args[0]) || 1;
 		
 		if (page <= 0)
 			return DBot.CommandError('what', 'ctop10', args, 1);
 		
-		let offset = (page - 1) * 20;
-		
-		let ID = DBot.GetChannelID(msg.channel);
-		
-		let query = `
+		const offset = (page - 1) * 200;
+		const ID = DBot.GetChannelID(msg.channel);
+		const query = `
 			SELECT
 				users."UID" as "USERID",
 				users."ID" as "ID",
-				members."NAME" as "USERNAME",
+				users."AVATAR" as "AVATAR",
+				users."NAME" as "USERNAME",
+				members."NAME" as "NICKNAME",
 				stats__peruser_channels."MESSAGES" as "COUNT",
 				SUM(stats__uwords_channels."COUNT") AS "TOTAL_WORDS",
 				COUNT(DISTINCT stats__uwords_channels."WORD") AS "TOTAL_UNIQUE_WORDS"
@@ -519,8 +516,8 @@ let ctop10fn = function(name, order) {
 				users."ID",
 				members."NAME",
 				stats__peruser_channels."MESSAGES"
-			ORDER BY "COUNT" DESC
-			OFFSET ${offset} LIMIT 20`;
+			ORDER BY "${order}" DESC
+			OFFSET ${offset} LIMIT 200`;
 		
 		msg.channel.startTyping();
 		
@@ -532,30 +529,49 @@ let ctop10fn = function(name, order) {
 				return;
 			}
 			
-			try {
-				if (!data[0]) {
-					msg.channel.stopTyping();
-					msg.reply('No data was returned in query');
-					return;
-				}
-				
+			if (!data[0]) {
 				msg.channel.stopTyping();
+				msg.reply('No data was returned in query');
+				return;
+			}
+			
+			try {
+				const sha = String.hash(CurTime() + '_' + msg.channel.guild.id + '_' + msg.author.id);
+				const path = DBot.WebRoot + '/stats/' + sha + '.html';
+				const pathU = DBot.URLRoot + '/stats/' + sha + '.html';
 				
-				let output = '\nRank. Username. Total Phrases Said.\n```';
+				const output = [];
 				
 				let i = 0;
-				for (let row of data) {
-					output += String.appendSpaces(Number(i) + 1 + (page - 1) * 20, 4)
-						+ String.appendSpaces(row.USERNAME, 20) + ' --- '
-						+ String.appendSpaces(numeral(row.COUNT).format('0,0')
-						+ ' phrases', 15) + ' (' + numeral(row.TOTAL_WORDS).format('0,0')
-						+ ' total words said; ' + numeral(row.TOTAL_UNIQUE_WORDS).format('0,0')
-						+ ' unique words)\n';
+				
+				for (const row of data) {
+					const myData = {};
+					output.push(myData);
+					
+					myData.rank = Number(i) + 1 + (page - 1) * 200;
+					myData.username = row.USERNAME;
+					myData.avatar = row.AVATAR || '../no_avatar.jpg';
+					
+					if (row.USERNAME !== row.NICKNAME)
+						myData.nickname = row.NICKNAME;
+					
+					myData.count = numeral(row.COUNT).format('0,0');
+					myData.totalw = numeral(row.TOTAL_WORDS).format('0,0');
+					myData.totalwq = numeral(row.TOTAL_UNIQUE_WORDS).format('0,0');
 					
 					i++;
 				}
 				
-				msg.reply(output + '```');
+				fs.writeFile(path, DBot.pugRender('top10.pug', {
+					data: output,
+					date: moment().format('dddd, MMMM Do YYYY, HH:mm:ss'),
+					username: msg.author.username,
+					server: msg.channel.guild.name,
+					title: 'Top users on #' + msg.channel.name
+				}), console.errHandler);
+				
+				msg.channel.stopTyping();
+				msg.reply(pathU);
 			} catch(err) {
 				msg.channel.stopTyping();
 				console.error(err);
@@ -572,6 +588,7 @@ DBot.RegisterCommand({
 	help_args: '[page]',
 	desc: 'Displays TOP10 of talkable persons on this channel',
 	delay: 5,
+	nopm: true,
 	
 	func: ctop10fn('ctop10', 'COUNT')
 });
@@ -583,6 +600,7 @@ DBot.RegisterCommand({
 	help_args: '[page]',
 	desc: 'Displays TOP10 of talkable persons on this channel\nUses "Total words said" as ranking',
 	delay: 5,
+	nopm: true,
 	
 	func: ctop10fn('wctop10', 'TOTAL_WORDS')
 });
@@ -594,6 +612,7 @@ DBot.RegisterCommand({
 	help_args: '[page]',
 	desc: 'Displays TOP10 of talkable persons on this channel\nUses "Total unique words said" as ranking',
 	delay: 5,
+	nopm: true,
 	
 	func: ctop10fn('uctop10', 'TOTAL_UNIQUE_WORDS')
 });
