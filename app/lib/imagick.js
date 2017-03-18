@@ -1,4 +1,6 @@
 
+// TO-DO - Separate font precache part into standalone script
+
 const myGlobals = require('../globals.js');
 const hook = myGlobals.hook;
 const DBot = myGlobals.DBot;
@@ -9,6 +11,7 @@ const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 
 const fs = require('fs');
+const JSON3 = require('json3');
 const child_process = require('child_process');
 const spawn = child_process.spawn;
 const os = require('os');
@@ -150,207 +153,6 @@ IMagick.PrecacheFont = function(font) {
 };
 
 let hasFinished = false;
-let loadingWasCalled = false;
-
-hook.Add('UpdateLoadingLevel', 'IMagick', function(callFunc) {
-	loadingWasCalled = true;
-	if (!hasFinished)
-		callFunc(true, 'image magick init');
-});
-
-const loadingStage3 = function() {
-	console.log('Building up fonts sizes, this can take some time when running first time!');
-	console.log('--------------------------------------');
-	console.log('DO NOT INTERRUPT THIS PROCESS, OR BAD THINGS WOULD HAPPEN');
-	console.log('--------------------------------------');
-	
-	hook.Run('PrecacheFonts');
-	
-	let queue = [];
-	let next = 0;
-	
-	const queueCallback = function() {
-		if (hasFinished)
-			return;
-		
-		let currentFunc = queue[next];
-		next++;
-		
-		if (currentFunc) {
-			currentFunc();
-			if (next % 30 === 0)
-				console.log('Font precache, ' + (next + 1) + '/' + (queue.length + 1) + ' is done.');
-		} else {
-			console.log('Font precache has finished!');
-			hasFinished = true;
-			if (loadingWasCalled)
-				DBot.updateLoadingLevel(false, 'image magick init');
-			
-			hook.Remove('UpdateLoadingLevel', 'IMagick');
-		}
-	};
-	
-	for (let font of IMagick.PrecacheFonts) {
-		for (const currentSize of fontSizes) {
-			queue.push(function() {
-				Postgres.query('SELECT "CHAR", "WIDTH" FROM font_sizes_' + currentSize + ' WHERE "ID" = ' + IMagick.FontIDs[font], function(err, data) {
-					IMagick.PrecacheFontsData[font] = IMagick.PrecacheFontsData[font] || {};
-					IMagick.PrecacheFontsData[font][currentSize] = IMagick.PrecacheFontsData[font][currentSize] || {};
-
-					let cTab = IMagick.PrecacheFontsData[font][currentSize];
-
-					IMagick.PrecacheFontsDataHeight[font] = IMagick.PrecacheFontsDataHeight[font] || {};
-					IMagick.PrecacheFontsDataHeight[font][currentSize] = 12;
-
-					if (data && data[0]) {
-						for (let row of data) {
-							let trim = row.CHAR.trim();
-
-							if (trim === '')
-								trim = ' ';
-
-							cTab[trim.replace('\\\\', '\\')] = Number(row.WIDTH);
-						}
-
-						Postgres.query('SELECT * FROM font_height WHERE "ID" = ' + IMagick.FontIDs[font] + 'AND "SIZE" = ' + currentSize, function(_, data) {
-							IMagick.PrecacheFontsDataHeight[font][currentSize] = Number(data[0].HEIGHT);
-						});
-
-						queueCallback();
-						return;
-					}
-
-					let finalQuery = 'BEGIN;';
-
-					const hash = String.hash(font + '_' + currentSize);
-					let magikArgs = ['xc:none', '-background', 'none', '-font', font, '-pointsize', currentSize];
-
-					for (let i in CharsToCheckForSize) {
-						let Char = CharsToCheckForSize[i];
-						let oldChar = Char;
-
-						if (Char === '\\')
-							Char = '\\\\';
-
-						magikArgs.push('label:' + Char, '-write', DBot.WebRoot + '/imtmp/' + hash + '_' + i + '.png', '+delete');
-					}
-
-					magikArgs.push('empty.png');
-
-					let magik = spawn('convert', magikArgs);
-
-					Util.Redirect(magik);
-
-					magik.on('close', function(code) {
-						fs.unlink('empty.png', function() {});
-						fs.unlink('empty-0.png', function() {});
-						fs.unlink('empty-1.png', function() {});
-
-						if (code !== 0)
-							throw new Error('Stage 3 of Image Magick load failed; FONT: ' + font);
-
-						let magikArgs = [];
-						let unlinkArgs = [];
-
-						for (let i in CharsToCheckForSize) {
-							magikArgs.push(DBot.WebRoot + '/imtmp/' + hash + '_' + i + '-1.png');
-							unlinkArgs.push(DBot.WebRoot + '/imtmp/' + hash + '_' + i + '-0.png');
-							unlinkArgs.push(DBot.WebRoot + '/imtmp/' + hash + '_' + i + '-1.png');
-						}
-						
-						let magik = spawn('identify', magikArgs);
-
-						let output = '';
-
-						magik.stdout.on('data', function(data) {
-							output += data.toString();
-						});
-
-						magik.stderr.pipe(process.stdout);
-
-						magik.on('close', function(code) {
-							if (code !== 0 || output === '')
-								throw new Error('Stage 3 of Image Magick load failed; Font: ' + font);
-
-							let newLines = output.replace(/\r/g, '').split('\n');
-
-							for (let i in newLines) {
-								let Char = CharsToCheckForSize[i];
-								let oldChar = CharsToCheckForSize[i];
-
-								if (newLines[i] === '' || newLines[i] === ' ')
-									continue;
-
-								let parse = newLines[i].split(' ');
-								let fileName = parse[0];
-								let fileType = parse[1];
-								let fileSizes = parse[2];
-
-								let fileSizesS = fileSizes.split('x');
-								let width = Number(fileSizesS[0]);
-								let height = Number(fileSizesS[1]);
-								let aspectRatio = height / width;
-								let aspectRatio2 = width / height;
-
-								if (oldChar === '\\\\') {
-									width = Math.floor(width / 2);
-								}
-
-								finalQuery += 'INSERT INTO font_sizes_' + currentSize + ' ("ID", "CHAR", "WIDTH") VALUES (\'' + IMagick.FontIDs[font] + '\', ' + Postgres.escape(oldChar) + ', \'' + width + '\');';
-
-								if (Char === 'W') {
-									finalQuery += 'INSERT INTO font_height ("ID", "HEIGHT", "SIZE") VALUES (\'' + IMagick.FontIDs[font] + '\', \'' + height + '\', \'' + currentSize + '\') ON CONFLICT DO NOTHING;';
-									IMagick.PrecacheFontsDataHeight[font][currentSize] = height;
-								}
-
-								cTab[oldChar] = width;
-							}
-
-							Postgres.query(finalQuery + 'COMMIT;');
-
-							for (const f of unlinkArgs)
-								fs.unlink(f, err => {if (err) console.log(err);});
-
-							queueCallback();
-						});
-					});
-				});
-			});
-		}
-	}
-	
-	for (let i = 1; i <= os.cpus().length; i++) {
-		queueCallback();
-	}
-};
-
-const loadingStage2 = function() {
-	IMagick.FONTS_LOADED = true;
-	let total = 0;
-	
-	for (let font of IMagick.AvaliableFonts) {
-		total++;
-		
-		Postgres.query('SELECT get_font_id(\'' + font + '\') AS "ID";', function(err, data) {
-			if (err) {
-				console.error(font);
-				throw err;
-			}
-			
-			IMagick.FontIDs[font] = Number(data[0].ID);
-			total--;
-			
-			if (total === 0)
-				loadingStage3();
-		});
-	}
-};
-
-hook.Add('SQLInitialize', 'IMagick', function() {
-	if (IMagick.FONTS_LOADED) return;
-	SQLInit = true;
-	if (FontsInit) loadingStage2();
-});
 
 if (!IMagick.FONTS_LOADED) {
 	let magik = spawn('convert', ['-list', 'font']);
@@ -362,24 +164,175 @@ if (!IMagick.FONTS_LOADED) {
 	});
 	
 	magik.on('close', function(code) {
-		if (code !== 1) {
-			throw new Error('FATAL ERROR: Image Magick closed != 1 code!');
-		}
+		const matched = output.match(MatchGlobal);
 		
-		let matched = output.match(MatchGlobal);
-		
-		for (let str of matched) {
-			let font = str.match(Match)[1];
-			
-			IMagick.AvaliableFonts.push(font);
+		for (const str of matched) {
+			IMagick.AvaliableFonts.push(str.match(Match)[1]);
 		}
 		
 		hook.Run('FontListLoaded', IMagick.AvaliableFonts);
 		console.log('Counted total ' + IMagick.AvaliableFonts.length + ' fonts installed');
+		console.log('Loading font data');
 		
 		FontsInit = true;
-		if (SQLInit)
-			loadingStage2();
+		hook.Run('PrecacheFonts');
+
+		const queue = [];
+		let next = 0;
+
+		const queueCallback = function() {
+			if (hasFinished)
+				return;
+
+			let currentFunc = queue[next];
+			next++;
+
+			if (currentFunc) {
+				currentFunc();
+			} else {
+				console.log('Fonts data is loaded');
+				hasFinished = true;
+			}
+		};
+
+		for (let font of IMagick.PrecacheFonts) {
+			for (const currentSize of fontSizes) {
+				const hash = String.hash(font + '_' + currentSize);
+				const path = './resource/fonts_data/' + hash + '.json';
+				
+				queue.push(() => {
+					IMagick.PrecacheFontsData[font] = IMagick.PrecacheFontsData[font] || {};
+					IMagick.PrecacheFontsData[font][currentSize] = IMagick.PrecacheFontsData[font][currentSize] || {};
+
+					let cTab = IMagick.PrecacheFontsData[font][currentSize];
+
+					IMagick.PrecacheFontsDataHeight[font] = IMagick.PrecacheFontsDataHeight[font] || {};
+					IMagick.PrecacheFontsDataHeight[font][currentSize] = 12;
+					
+					fs.stat(path, (err, stat) => {
+						if (stat) {
+							fs.readFile(path, {encoding: 'utf8'}, (err, readData) => {
+								const data = JSON3.parse(readData);
+								
+								for (const char in data.widths) {
+									const width = data.widths[char];
+									let trim = char.trim();
+
+									if (trim === '')
+										trim = ' ';
+
+									cTab[trim.replace('\\\\', '\\')] = Number(width);
+								}
+								
+								IMagick.PrecacheFontsDataHeight[font][currentSize] = Number(data.height);
+								queueCallback();
+							});
+						} else {
+							console.log(`Precaching font ${font} with pointsize ${currentSize}`);
+							const magikArgs = ['xc:none', '-background', 'none', '-font', font, '-pointsize', currentSize];
+
+							for (const i in CharsToCheckForSize) {
+								let Char = CharsToCheckForSize[i];
+								const oldChar = Char;
+
+								if (Char === '\\')
+									Char = '\\\\';
+
+								magikArgs.push('label:' + Char, '-write', DBot.WebRoot + '/imtmp/' + hash + '_' + i + '.png', '+delete');
+							}
+
+							magikArgs.push('empty.png');
+
+							const magik = spawn('convert', magikArgs);
+
+							Util.Redirect(magik);
+
+							magik.on('close', function(code) {
+								fs.unlink('empty.png', function() {});
+								fs.unlink('empty-0.png', function() {});
+								fs.unlink('empty-1.png', function() {});
+
+								if (code !== 0) throw new Error('Stage 3 of Image Magick load failed; FONT: ' + font);
+
+								const magikArgs = [];
+								const unlinkArgs = [];
+
+								for (const i in CharsToCheckForSize) {
+									magikArgs.push(DBot.WebRoot + '/imtmp/' + hash + '_' + i + '-1.png');
+									unlinkArgs.push(DBot.WebRoot + '/imtmp/' + hash + '_' + i + '-0.png');
+									unlinkArgs.push(DBot.WebRoot + '/imtmp/' + hash + '_' + i + '-1.png');
+								}
+
+								const magik = spawn('identify', magikArgs);
+								let output = '';
+
+								magik.stdout.on('data', function(data) {
+									output += data.toString();
+								});
+
+								magik.stderr.pipe(process.stdout);
+
+								magik.on('close', function(code) {
+									if (code !== 0 || output === '')
+										throw new Error('Stage 3 of Image Magick load failed; Font: ' + font);
+
+									const newLines = output.replace(/\r/g, '').split('\n');
+									
+									const jsonData = {};
+									jsonData.widths = {};
+									jsonData.height = 0;
+
+									for (let i in newLines) {
+										let Char = CharsToCheckForSize[i];
+										let oldChar = CharsToCheckForSize[i];
+
+										if (newLines[i] === '' || newLines[i] === ' ')
+											continue;
+
+										const parse = newLines[i].split(' ');
+										const fileName = parse[0];
+										const fileType = parse[1];
+										const fileSizes = parse[2];
+
+										const fileSizesS = fileSizes.split('x');
+										let width = Number(fileSizesS[0]);
+										const height = Number(fileSizesS[1]);
+										const aspectRatio = height / width;
+										const aspectRatio2 = width / height;
+
+										if (oldChar === '\\\\') {
+											width = Math.floor(width / 2);
+										}
+
+										jsonData.widths[oldChar] = width;
+										
+										if (Char === 'W') {
+											IMagick.PrecacheFontsDataHeight[font][currentSize] = height;
+											jsonData.height = height;
+										}
+
+										cTab[oldChar] = width;
+									}
+									
+									const encoded = JSON3.stringify(jsonData);
+									
+									fs.writeFile(path, encoded, console.callback());
+
+									for (const f of unlinkArgs)
+										fs.unlink(f, err => {if (err) console.log(err);});
+
+									queueCallback();
+								});
+							});
+						}
+					});
+				});
+			}
+		}
+
+		for (let i = 1; i <= os.cpus().length; i++) {
+			queueCallback();
+		}
 	});
 }
 
