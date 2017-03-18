@@ -305,9 +305,9 @@ module.exports = {
 				msg.reply('Tags: ' + split.join(', ') + '\n<https://' + urlBase + '/' + ID +'>\nhttps:' + target);
 			});
 		} else {
-			for (let i in args) {
-				let str = args[i];
-				
+			args.sort();
+			
+			for (const str of args) {
 				for (let bk in bannedChars) {
 					if (str.search(bannedChars[bk]) > 0) {
 						msg.reply('Illegal charactets. AND, OR, NOT are also blocked');
