@@ -13,6 +13,8 @@ const moment = require('moment');
 const hDuration = require('humanize-duration');
 const sprintf = require('sprintf-js').sprintf;
 
+Util.mkdir(DBot.WebRoot + '/stats');
+
 let never_talk_sql = `
 SELECT
 	users."UID" AS "USERID",
@@ -209,27 +211,26 @@ DBot.RegisterCommand({
 	}
 });
 
-let top10fn = function(name, order) {
+const top10fn = function(name, order) {
 	return function(args, cmd, msg) {
-		if (DBot.IsPM(msg))
-			return 'Oh! This is PM x3';
-		
-		let page = Number.from(args[0]) || 1;
+		const page = Number.from(args[0]) || 1;
 		
 		if (page <= 0)
 			return DBot.CommandError('what', name, args, 1);
 		
-		let offset = (page - 1) * 20;
+		const offset = (page - 1) * 200;
 		
 		msg.channel.startTyping();
 		
-		let ID = DBot.GetServerID(msg.channel.guild);
+		const ID = DBot.GetServerID(msg.channel.guild);
 		
-		let query = `
+		const query = `
 			SELECT
 				users."UID" as "USERID",
 				users."ID" as "ID",
-				members."NAME" as "USERNAME",
+				users."AVATAR" as "AVATAR",
+				members."NAME" as "NICKNAME",
+				users."NAME" as "USERNAME",
 				stats__peruser_servers."MESSAGES" as "COUNT",
 				SUM(stats__uwords_servers."COUNT") AS "TOTAL_WORDS",
 				COUNT(DISTINCT stats__uwords_servers."WORD") AS "TOTAL_UNIQUE_WORDS"
@@ -244,14 +245,15 @@ let top10fn = function(name, order) {
 				members."SERVER" = stats__peruser_servers."ID" AND
 				members."USER" = users."ID" AND
 				stats__peruser_servers."USER" = users."ID" AND
-				stats__uwords_servers."USER" = users."ID"
+				stats__uwords_servers."USER" = users."ID" AND
+				users."TIME" > currtime() - 120
 			GROUP BY
 				users."UID",
 				users."ID",
 				members."NAME",
 				stats__peruser_servers."MESSAGES"
 			ORDER BY "${order}" DESC
-			OFFSET ${offset} LIMIT 20`;
+			OFFSET ${offset} LIMIT 200`;
 		
 		Postgres.query(query, function(err, data) {
 			if (err) {
@@ -261,30 +263,49 @@ let top10fn = function(name, order) {
 				return;
 			}
 			
-			try {
-				if (!data[0]) {
-					msg.channel.stopTyping();
-					msg.reply('No data was returned in query');
-					return;
-				}
-				
+			if (!data[0]) {
 				msg.channel.stopTyping();
+				msg.reply('No data was returned in query');
+				return;
+			}
+			
+			try {
+				const sha = String.hash(CurTime() + '_' + msg.channel.guild.id + '_' + msg.author.id);
+				const path = DBot.WebRoot + '/stats/' + sha + '.html';
+				const pathU = DBot.URLRoot + '/stats/' + sha + '.html';
 				
-				let output = '\nRank. Username. Total Phrases Said.\n```';
+				const output = [];
 				
 				let i = 0;
-				for (let row of data) {
-					output += String.appendSpaces(Number(i) + 1 + (page - 1) * 20, 4)
-						+ String.appendSpaces(row.USERNAME, 20) + ' --- '
-						+ String.appendSpaces(numeral(row.COUNT).format('0,0')
-						+ ' phrases', 15) + ' (' + numeral(row.TOTAL_WORDS).format('0,0')
-						+ ' total words said; ' + numeral(row.TOTAL_UNIQUE_WORDS).format('0,0')
-						+ ' unique words)\n';
+				
+				for (const row of data) {
+					const myData = {};
+					output.push(myData);
+					
+					myData.rank = Number(i) + 1 + (page - 1) * 200;
+					myData.username = row.USERNAME;
+					myData.avatar = row.AVATAR || '../no_avatar.jpg';
+					
+					if (row.USERNAME !== row.NICKNAME)
+						myData.nickname = row.NICKNAME;
+					
+					myData.count = numeral(row.COUNT).format('0,0');
+					myData.totalw = numeral(row.TOTAL_WORDS).format('0,0');
+					myData.totalwq = numeral(row.TOTAL_UNIQUE_WORDS).format('0,0');
 					
 					i++;
 				}
 				
-				msg.reply(output + '```');
+				fs.writeFile(path, DBot.pugRender('top10.pug', {
+					data: output,
+					date: moment().format('dddd, MMMM Do YYYY, HH:mm:ss'),
+					username: msg.author.username,
+					server: msg.channel.guild.name,
+					title: 'Top users on ' + msg.channel.guild.name
+				}), console.errHandler);
+				
+				msg.channel.stopTyping();
+				msg.reply(pathU);
 			} catch(err) {
 				msg.channel.stopTyping();
 				console.error(err);
@@ -301,6 +322,7 @@ DBot.RegisterCommand({
 	help_args: '[page]',
 	desc: 'Displays TOP10 of talkable persons on this server',
 	delay: 5,
+	nopm: true,
 	
 	func: top10fn('top10', 'COUNT')
 });
@@ -312,6 +334,7 @@ DBot.RegisterCommand({
 	help_args: '[page]',
 	desc: 'Displays TOP10 of talkable persons on this server\nUses "Total Words said" as ranking',
 	delay: 5,
+	nopm: true,
 	
 	func: top10fn('wtop10', 'TOTAL_WORDS')
 });
@@ -323,18 +346,19 @@ DBot.RegisterCommand({
 	help_args: '[page]',
 	desc: 'Displays TOP10 of talkable persons on this server\nUses "Total Unique Words said" as ranking',
 	delay: 5,
+	nopm: true,
 	
 	func: top10fn('utop10', 'TOTAL_UNIQUE_WORDS')
 });
 
-let gtop10fn = function(name, order) {
+const gtop10fn = function(name, order) {
 	return function(args, cmd, msg) {
-		let page = Number.from(args[0]) || 1;
+		const page = Number.from(args[0]) || 1;
 		
 		if (page <= 0)
 			return DBot.CommandError('what', name, args, 1);
 		
-		let offset = (page - 1) * 20;
+		const offset = (page - 1) * 20;
 		
 		msg.channel.startTyping();
 		

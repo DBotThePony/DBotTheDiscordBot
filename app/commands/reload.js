@@ -24,6 +24,7 @@ const filesToReload = [
 	'../modules/jlogs.js',
 	'../modules/nlogs.js',
 	'../modules/selections.js',
+	'../modules/stats.js',
 	'../lib/commandhelper.js'
 ];
 

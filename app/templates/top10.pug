@@ -1,0 +1,36 @@
+
+extends report_base
+
+block append header
+	link(rel='stylesheet', href='../users.css')
+	style
+		include top10.css
+
+block append contents
+	span.topwrapper
+		table#perms
+			tr.tabheader
+				td.rank Rank
+				td.username Username
+				td.count Phrases
+				td.totalw Total words said
+				td.totalwq Total unique words said
+			each row in data
+				tr
+					td.rank= row.rank
+					td.username.hintp
+						span.username_wrap= row.username
+						if row.nickname
+							span.hint= row.nickname
+						else
+							span.hint User has no nickname
+						span.avatar
+							img.avatar(src=row.avatar)
+							img.avatar_hint(src=row.avatar)
+
+					td.count= row.count
+					td.totalw= row.totalw
+					td.totalwq= row.totalwq
+
+
+
