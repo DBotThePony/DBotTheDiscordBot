@@ -60,41 +60,20 @@ module.exports = {
 			if (!items || !items[0])
 				return msg.reply('None found ;n;');
 			
-			let items2;
-			
-			if (!previousStuff)
-				items2 = items;
-			else {
-				items2 = [];
-				
-				for (let i2 in items) {
-					let hit = false;
-					
-					for (let i in previousStuff) {
-						if (previousStuff[i] === items[i2].link) {
-							hit = true;
-							break;
-						}
-					}
-					
-					if (!hit)
-						items2.push(items[i2]);
-				}
+			const items2 = [];
+
+			for (const i2 of items) {
+				if (!previousStuff.includes(i2.link)) items2.push(i2);
 			}
-			
+
 			if (!items2[0]) {
 				msg.reply('Onoh! No more results ;n;');
 				return;
 			}
 			
-			let result;
-			
-			if (previousStuff)
-				result = Array.Random(items2);
-			else
-				result = items2[0];
-			
+			const result = Array.Random(items2);
 			let output = '<' + result.contextLink + '>\n' + result.link;
+			previousStuff.push(result.link);
 			
 			if (isCached) {
 				output = '(results are cached)\n' + output;

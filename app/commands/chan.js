@@ -131,28 +131,27 @@ module.exports = {
 		let board = args[0];
 		board = board.toLowerCase();
 		
-		if (board.substr(0, 1) == '/') {
+		if (board.substr(0, 1) === '/') {
 			board = board.substr(1);
 		}
 		
-		if (board.substr(board.length - 1) == '/') {
+		if (board.substr(board.length - 1) === '/') {
 			board = board.substr(0, board.length - 1);
 		}
 		
 		let hit = false;
 		
-		for (let i in validBoards) {
-			if (board == validBoards[i]) {
+		for (const board of validBoards) {
+			if (board === board) {
 				hit = true;
 				break;
 			}
 		}
 		
-		if (!hit)
-			return 'Invalid board! 6.9';
+		if (!hit) return 'Invalid board! 6.9';
 		
 		let ServerTags;
-		let ClientTags = DBot.UserTags(msg.author, '4chan');
+		const ClientTags = DBot.UserTags(msg.author, '4chan');
 		let ChannelTags;
 		
 		if (!DBot.IsPM(msg)) {
@@ -165,7 +164,7 @@ module.exports = {
 		
 		msg.channel.startTyping();
 		
-		let ContinueLoad = function(data) {
+		const ContinueLoad = function(data) {
 			if (msg.checkAbort()) return;
 			msg.channel.stopTyping();
 			
@@ -175,9 +174,9 @@ module.exports = {
 				for (let i in data.threads) {
 					let thread = data.threads[i];
 					
-					let imgID = thread.posts[0].tim;
-					let imgEXT = thread.posts[0].ext;
-					let threadPost = thread.posts[0].no;
+					const imgID = thread.posts[0].tim;
+					const imgEXT = thread.posts[0].ext;
+					const threadPost = thread.posts[0].no;
 					
 					for (let i2 in thread.posts) {
 						let post = thread.posts[i2];
@@ -193,22 +192,16 @@ module.exports = {
 					}
 				}
 				
-				let rand;
-				
-				if (previousStuff) {
-					rand = Array.Random(validReplies.filter(function(item) {
-						return !Util.HasValue(previousStuff, item[1]);
-					}));
-					
-					if (!rand) {
-						msg.reply('None of valid posts found because i listed them all.\nDo you want to reset search history by }retry ?');
-						return
-					}
-					
-					previousStuff.push(rand[1]);
-				} else {
-					rand = Array.Random(validReplies);
+				const rand = Array.Random(validReplies.filter(function(item) {
+					return !previousStuff.includes(item[1]);
+				}));
+
+				if (!rand) {
+					msg.reply('None of valid posts found because i listed them all.\nDo you want to reset search history by }retry ?');
+					return;
 				}
+
+				previousStuff.push(rand[1]);
 				
 				if (!rand) {
 					msg.reply('No valid posts found ;n;');
@@ -222,7 +215,7 @@ module.exports = {
 				
 				reply += '```Post #' + rand[1];
 				
-				if (rand[5] && rand[5] != rand[2]) {
+				if (rand[5] && rand[5] !== rand[2]) {
 					reply += '\nReact image: https://i.4cdn.org/' + board + '/' + rand[5] + rand[6];
 				}
 				
@@ -233,7 +226,7 @@ module.exports = {
 				msg.reply('<internal pony error>');
 				console.error(err);
 			}
-		}
+		};
 		
 		let path = DBot.WebRoot + '/4chan/' + board + '.json';
 		
@@ -250,8 +243,8 @@ module.exports = {
 				});
 			}
 		});
-	},
-}
+	}
+};
 
 DBot.RegisterCommand({
 	name: 'chanboards',

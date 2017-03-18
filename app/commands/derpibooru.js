@@ -335,7 +335,7 @@ module.exports = {
 					return;
 				}
 				
-				let valids = [];
+				const valids = [];
 				
 				for (const data of parsed) {
 					let split;
@@ -354,8 +354,7 @@ module.exports = {
 						}
 					}
 					
-					if (!hit)
-						valids.push(data);
+					if (!hit) valids.push(data);
 				}
 				
 				if (!valids[0]) {
@@ -365,26 +364,19 @@ module.exports = {
 					return;
 				}
 				
-				let valids2;
-				
-				if (!previousStuff)
-					valids2 = valids;
-				else {
-					valids2 = [];
+				const valids2 = [];
 					
-					for (let i2 in valids) {
-						let hit = false;
-						
-						for (let i in previousStuff) {
-							if (previousStuff[i] === valids[i2].id) {
-								hit = true;
-								break;
-							}
+				for (const i2 of valids) {
+					let hit = false;
+
+					for (const i of previousStuff) {
+						if (i === i2) {
+							hit = true;
+							break;
 						}
-						
-						if (!hit)
-							valids2.push(valids[i2]);
 					}
+
+					if (!hit) valids2.push(i2);
 				}
 				
 				if (!valids2[0]) {
@@ -396,8 +388,7 @@ module.exports = {
 				let data = Array.Random(valids2);
 				let target = data.medium || data.small || data.full;
 				
-				if (previousStuff)
-					previousStuff.push(data.id);
+				previousStuff.push(data.id);
 				
 				let tagStr = data.tags;
 				

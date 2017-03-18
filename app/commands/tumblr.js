@@ -38,30 +38,24 @@ module.exports = {
 					return;
 				}
 				
-				let rand;
-				
-				if (previousStuff) {
-					rand = Array.Random(posts.filter(function(item) {
-						return !Util.HasValue(previousStuff, item.id);
-					}));
-					
-					if (!rand) {
-						msg.reply('None of valid posts found because i listed them all.\nDo you want to reset search history by }retry ?');
-						return;
-					}
-					
-					previousStuff.push(rand.id);
-				} else {
-					rand = Array.Random(posts);
+				const rand = Array.Random(posts.filter(function(item) {
+					return !previousStuff.includes(item.id);
+				}));
+
+				if (!rand) {
+					msg.reply('None of valid posts found because i listed them all.\nDo you want to reset search history by }retry ?');
+					return;
 				}
+
+				previousStuff.push(rand.id);
 				
-				let url = rand.post_url;
-				let short_url = rand.surl;
-				let summary = rand.summary;
-				let image_permalink = rand.image_permalink;
-				let date = rand.date;
-				let tags = rand.tags;
-				let title = rand.title;
+				const url = rand.post_url;
+				const short_url = rand.surl;
+				const summary = rand.summary;
+				const image_permalink = rand.image_permalink;
+				const date = rand.date;
+				const tags = rand.tags;
+				const title = rand.title;
 				
 				let output = '\n<' + short_url + '>';
 				

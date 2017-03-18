@@ -16,12 +16,12 @@ Util.mkdir(DBot.WebRoot + '/msgs');
 
 const fs = require('fs');
 
-let baseMessageHandleFunc = function(self, str) {
+const baseMessageHandleFunc = function(self, str) {
 	if (self.wasDeleted)
 		return {then: function() {}, catch: function() {}};
 
 	if (str.length > 1800) {
-		let sha = String.hash(CurTime() + self.author.id + self.channel.id);
+		const sha = String.hash(CurTime() + self.author.id + self.channel.id);
 		let oldMess = str;
 		str = 'Message is too big to send it here, here is the message: <' + DBot.URLRoot + '/msgs/' + sha + '.txt>';
 		let path = DBot.WebRoot + '/msgs/' + sha + '.txt';
@@ -542,6 +542,7 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 
 		if (cCommand.id !== 'more' && cCommand.id !== 'retry') {
 			if (cCommand.more) {
+				extraArgument = extraArgument || [];
 				DBot.__LastMoreCommand[msg.channel.id][msg.author.id] = [cCommand, parsedArgs, rawcmd, extraArgument, parsedHandlers];
 			};
 
