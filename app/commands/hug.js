@@ -38,7 +38,7 @@ const defAction = function(name, data) {
 				return DBot.CommandError('alone', name, args, 1);
 			
 			Postgres.query(`INSERT INTO rp_actions VALUES (${actorUID}, ${cActionID}, ${DBot.GetUserID(target)}, 1) ON CONFLICT ("ACTOR", "ACTION", "TARGET") DO UPDATE SET "COUNT" = rp_actions."COUNT" + 1 RETURNING "COUNT"`, (err, sdata) =>
-				msg.sendMessage(`_ <@${actor.id}> ${data.text} <@${target.id}> (it is ${sdata[0] && sdata[0].COUNT || 1} times now) _`));
+				msg.sendMessage(`_<@${actor.id}> ${data.text} <@${target.id}> (it is ${sdata[0] && sdata[0].COUNT || 1} times now)_`));
 		} else {
 			if (typeof args[0] === 'object')
 				target = args[0];
@@ -51,10 +51,10 @@ const defAction = function(name, data) {
 			
 			if (target) {
 				Postgres.query(`INSERT INTO rp_actions VALUES (${actorUID}, ${cActionID}, ${DBot.GetUserID(target)}, 1) ON CONFLICT ("ACTOR", "ACTION", "TARGET") DO UPDATE SET "COUNT" = rp_actions."COUNT" + 1 RETURNING "COUNT"`, (err, sdata) =>
-					msg.sendMessage(`_ <@${actor.id}> ${data.text} <@${target.id}> (it is ${sdata[0] && sdata[0].COUNT || 1} times now) _`));
+					msg.sendMessage(`_<@${actor.id}> ${data.text} <@${target.id}> (it is ${sdata[0] && sdata[0].COUNT || 1} times now)_`));
 			} else {
 				Postgres.query(`INSERT INTO rp_actions VALUES (${actorUID}, ${cActionID}, -1, 1) ON CONFLICT ("ACTOR", "ACTION", "TARGET") DO UPDATE SET "COUNT" = rp_actions."COUNT" + 1 RETURNING "COUNT"`, (err, sdata) =>
-					msg.sendMessage(`_ <@${actor.id}> ${data.textSelf} (it is ${sdata[0] && sdata[0].COUNT || 1} times now) _`));
+					msg.sendMessage(`_<@${actor.id}> ${data.textSelf} (it is ${sdata[0] && sdata[0].COUNT || 1} times now)_`));
 			}
 		}
 	};
@@ -70,6 +70,74 @@ module.exports = {
 	
 	func: defAction('hug', {text: 'hugs'})
 };
+
+
+DBot.RegisterCommand({
+	name: 'shitbot',
+	alias: ['shittybot'],
+	
+	help_args: '',
+	desc: '',
+	allowUserArgument: true,
+	help_hide: true,
+	delay: 0,
+	
+	func: function(args, cmd, msg) {
+		return 'You aren\'t better';
+	}
+});
+
+DBot.RegisterCommand({
+	name: 'shit',
+	alias: ['shitty'],
+	
+	help_args: '',
+	desc: '',
+	allowUserArgument: true,
+	help_hide: true,
+	delay: 0,
+	
+	func: function(args, cmd, msg) {
+		if (!args[0])
+			return 'What';
+		else if (args[0] === 'bot')
+			return 'fuck you';
+		else
+			return 'i don\'t care';
+	}
+});
+
+DBot.RegisterCommand({
+	name: 'cock',
+	alias: ['dick', 'cunt'],
+	
+	help_args: '',
+	desc: 'rood',
+	allowUserArgument: true,
+	help_hide: true,
+	delay: 0,
+	
+	func: function(args, cmd, msg) {
+		msg.sendMessage('Rood');
+	}
+});
+
+DBot.RegisterCommand({
+	name: 'fuck',
+	
+	help_args: '',
+	desc: 'rood',
+	allowUserArgument: true,
+	help_hide: true,
+	delay: 0,
+	
+	func: function(args, cmd, msg) {
+		if (!args[0])
+			msg.sendMessage('No buttfucking');
+		else
+			msg.sendMessage('Fuck you <@' + msg.author.id + '>');
+	}
+});
 
 DBot.RegisterCommand({
 	name: 'poke',
@@ -193,73 +261,6 @@ DBot.RegisterCommand({
 });
 
 DBot.RegisterCommand({
-	name: 'shitbot',
-	alias: ['shittybot'],
-	
-	help_args: '',
-	desc: '',
-	allowUserArgument: true,
-	help_hide: true,
-	delay: 0,
-	
-	func: function(args, cmd, msg) {
-		return 'You aren\'t better';
-	}
-});
-
-DBot.RegisterCommand({
-	name: 'shit',
-	alias: ['shitty'],
-	
-	help_args: '',
-	desc: '',
-	allowUserArgument: true,
-	help_hide: true,
-	delay: 0,
-	
-	func: function(args, cmd, msg) {
-		if (!args[0])
-			return 'What';
-		else if (args[0] === 'bot')
-			return 'fuck you';
-		else
-			return 'i don\'t care';
-	}
-});
-
-DBot.RegisterCommand({
-	name: 'cock',
-	alias: ['dick', 'cunt'],
-	
-	help_args: '',
-	desc: 'rood',
-	allowUserArgument: true,
-	help_hide: true,
-	delay: 0,
-	
-	func: function(args, cmd, msg) {
-		msg.sendMessage('Rood');
-	}
-});
-
-DBot.RegisterCommand({
-	name: 'fuck',
-	
-	help_args: '',
-	desc: 'rood',
-	allowUserArgument: true,
-	help_hide: true,
-	delay: 0,
-	
-	func: function(args, cmd, msg) {
-		if (!args[0])
-			msg.sendMessage('No buttfucking');
-		else
-			msg.sendMessage('Fuck you <@' + msg.author.id + '>');
-	}
-});
-
-DBot.RegisterCommand({
 	name: 'boop',
 	
 	help_args: '[user]',
@@ -268,4 +269,72 @@ DBot.RegisterCommand({
 	delay: 0,
 	
 	func: defAction('boop', {text: 'just booped'})
+});
+
+DBot.RegisterCommand({
+	name: 'lick',
+	
+	help_args: '[user]',
+	desc: 'Nose licks',
+	allowUserArgument: true,
+	delay: 0,
+	
+	func: defAction('lick', {text: 'nose licks'})
+});
+
+DBot.RegisterCommand({
+	name: 'brush',
+	
+	help_args: '[user]',
+	desc: 'Hair brushes',
+	allowUserArgument: true,
+	delay: 0,
+	
+	func: defAction('brush', {text: 'brushes mane of'})
+});
+
+DBot.RegisterCommand({
+	name: 'earnom',
+	alias: ['earbite'],
+	
+	help_args: '[user]',
+	desc: 'nom',
+	allowUserArgument: true,
+	delay: 0,
+	
+	func: defAction('earnom', {text: 'softly bites ears of'})
+});
+
+DBot.RegisterCommand({
+	name: 'chokeslam',
+	
+	help_args: '[user]',
+	desc: 'CHOKE AND SLAM',
+	allowUserArgument: true,
+	delay: 0,
+	
+	func: defAction('chokeslam', {text: 'CHOKES AND SLAMS'})
+});
+
+DBot.RegisterCommand({
+	name: 'sniff',
+	
+	help_args: '[user]',
+	desc: 'sniffs',
+	allowUserArgument: true,
+	delay: 0,
+	
+	func: defAction('sniff', {text: 'sniff'})
+});
+
+DBot.RegisterCommand({
+	name: 'manebite',
+	alias: ['manenom', 'nommane', 'bitemane'],
+	
+	help_args: '[user]',
+	desc: 'nom',
+	allowUserArgument: true,
+	delay: 0,
+	
+	func: defAction('manebite', {text: 'chews mane of'})
 });
