@@ -358,15 +358,14 @@ const gtop10fn = function(name, order) {
 		if (page <= 0)
 			return DBot.CommandError('what', name, args, 1);
 		
-		const offset = (page - 1) * 20;
-		
+		const offset = (page - 1) * 200;
 		msg.channel.startTyping();
-		
-		let query = `
+		const query = `
 			SELECT
 				users."UID" as "USERID",
 				users."ID" as "ID",
 				users."NAME" as "USERNAME",
+				users."AVATAR" as "AVATAR",
 				stats__generic_users."MESSAGES" as "COUNT",
 				SUM(stats__words_users."COUNT") AS "TOTAL_WORDS",
 				COUNT(DISTINCT stats__words_users."WORD") AS "TOTAL_UNIQUE_WORDS"
@@ -384,7 +383,7 @@ const gtop10fn = function(name, order) {
 				users."NAME",
 				stats__generic_users."MESSAGES"
 			ORDER BY "${order}" DESC
-			OFFSET ${offset} LIMIT 20`;
+			OFFSET ${offset} LIMIT 200`;
 		
 		Postgres.query(query, function(err, data) {
 			if (err) {
@@ -394,30 +393,49 @@ const gtop10fn = function(name, order) {
 				return;
 			}
 			
-			try {
-				if (!data[0]) {
-					msg.channel.stopTyping();
-					msg.reply('No data was returned in query');
-					return;
-				}
-				
+			if (!data[0]) {
 				msg.channel.stopTyping();
+				msg.reply('No data was returned in query');
+				return;
+			}
+			
+			try {
+				const sha = String.hash(CurTime() + '_' + msg.author.id);
+				const path = DBot.WebRoot + '/stats/' + sha + '.html';
+				const pathU = DBot.URLRoot + '/stats/' + sha + '.html';
 				
-				let output = '\nRank. Username. Total Phrases Said.\n```';
+				const output = [];
 				
 				let i = 0;
-				for (let row of data) {
-					output += String.appendSpaces(Number(i) + 1 + (page - 1) * 20, 4)
-						+ String.appendSpaces(row.USERNAME, 20) + ' --- '
-						+ String.appendSpaces(numeral(row.COUNT).format('0,0')
-						+ ' phrases', 15) + ' (' + numeral(row.TOTAL_WORDS).format('0,0')
-						+ ' total words said; ' + numeral(row.TOTAL_UNIQUE_WORDS).format('0,0')
-						+ ' unique words)\n';
+				
+				for (const row of data) {
+					const myData = {};
+					output.push(myData);
+					
+					myData.rank = Number(i) + 1 + (page - 1) * 200;
+					myData.username = row.USERNAME;
+					myData.avatar = row.AVATAR || '../no_avatar.jpg';
+					
+					if (row.USERNAME !== row.NICKNAME)
+						myData.nickname = row.NICKNAME;
+					
+					myData.count = numeral(row.COUNT).format('0,0');
+					myData.totalw = numeral(row.TOTAL_WORDS).format('0,0');
+					myData.totalwq = numeral(row.TOTAL_UNIQUE_WORDS).format('0,0');
 					
 					i++;
 				}
 				
-				msg.reply(output + '```');
+				fs.writeFile(path, DBot.pugRender('top10.pug', {
+					data: output,
+					date: moment().format('dddd, MMMM Do YYYY, HH:mm:ss'),
+					username: msg.author.username,
+					server: 'N/A (GLOBAL)',
+					title: 'Global TOP200'
+				}), console.errHandler);
+				
+				msg.channel.stopTyping();
+				msg.reply(pathU);
 			} catch(err) {
 				msg.channel.stopTyping();
 				console.error(err);
