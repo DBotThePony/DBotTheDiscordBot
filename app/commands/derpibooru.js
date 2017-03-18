@@ -91,13 +91,15 @@ const searchImages = function(keywords, callback) {
 	Postgres.query(`SELECT stamp FROM derpibooru_search WHERE derpibooru_search.phrase = ` + Postgres.escape(hash), function(err, data) {
 		data.throw();
 		
-		const getFunc = function() {
-			unirest.get('https://' + urlBase + '/search.json?q=' + encode)
+		const getFunc = function(recursion, page) {
+			page = page || 1;
+			if (page > 8) return;
+			unirest.get('https://' + urlBase + '/search.json?q=' + encode + '&page=' + page)
 			.end(function(response) {
 				try {
 					let data = response.body;
 					if (!data) {
-						callback(null);
+						if (!recursion) callback(null);
 						return;
 					}
 					
@@ -114,7 +116,7 @@ const searchImages = function(keywords, callback) {
 					}
 					
 					if (images.length === 0) {
-						callback([]);
+						if (!recursion) callback([]);
 						return;
 					}
 					
@@ -124,7 +126,8 @@ const searchImages = function(keywords, callback) {
 						
 						Postgres.query(`INSERT INTO derpibooru_search VALUES ('${hash}', ${Math.floor(CurTime())}, ARRAY [${imagesArray.join(',')}]::INTEGER[]) ON CONFLICT (phrase) DO UPDATE SET stamp = excluded.stamp, pics = excluded.pics`, (err) => {
 							if (err) throw err;
-							callback(data.search);
+							if (!recursion) callback(data.search);
+							getFunc(true, page + 1);
 						});
 					});
 				} catch(err) {
