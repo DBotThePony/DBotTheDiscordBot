@@ -91,7 +91,7 @@ const searchImages = function(keywords, callback) {
 	Postgres.query(`SELECT stamp FROM derpibooru_search WHERE derpibooru_search.phrase = ` + Postgres.escape(hash), function(err, data) {
 		data.throw();
 		
-		const getFunc = function(recursion, page) {
+		const getFunc = function(recursion, page, imagesArray) {
 			page = page || 1;
 			if (page > 8) return;
 			unirest.get('https://' + urlBase + '/search.json?q=' + encode + '&page=' + page)
@@ -104,7 +104,7 @@ const searchImages = function(keywords, callback) {
 					}
 					
 					let images = [];
-					let imagesArray = [];
+					imagesArray = imagesArray || [];
 					
 					for (const im of data.search) {
 						images.push(serealizeImageData(im));
@@ -127,7 +127,7 @@ const searchImages = function(keywords, callback) {
 						Postgres.query(`INSERT INTO derpibooru_search VALUES ('${hash}', ${Math.floor(CurTime())}, ARRAY [${imagesArray.join(',')}]::INTEGER[]) ON CONFLICT (phrase) DO UPDATE SET stamp = excluded.stamp, pics = excluded.pics`, (err) => {
 							if (err) throw err;
 							if (!recursion) callback(data.search);
-							getFunc(true, page + 1);
+							getFunc(true, page + 1, imagesArray);
 						});
 					});
 				} catch(err) {
