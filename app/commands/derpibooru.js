@@ -373,7 +373,7 @@ module.exports = {
 					let hit = false;
 
 					for (const i of previousStuff) {
-						if (i === i2) {
+						if (i === i2.id) {
 							hit = true;
 							break;
 						}
