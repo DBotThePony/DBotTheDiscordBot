@@ -277,9 +277,9 @@ DBot.ParseString = function(str, ignoreHandlers) {
 			};
 			
 			continue;
-		};
+		}
 		
-		if (item === '\'' && current === '') {
+		if (item === '\'') {
 			if (inSingle) {
 				if (inDouble) {
 					current += item;
@@ -312,7 +312,7 @@ DBot.ParseString = function(str, ignoreHandlers) {
 			};
 			
 			continue;
-		};
+		}
 		
 		current += item;
 	};
