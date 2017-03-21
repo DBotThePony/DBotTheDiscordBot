@@ -16,10 +16,10 @@
     "numeral": "latest",
     "opusscript": "latest",
     "pg": "latest",
-    "unirest": "latest",
     "ping": "latest",
-    "sprintf-js": "latest",
     "pug": "latest",
+    "sprintf-js": "latest",
+    "unirest": "latest",
     "utf8": "latest"
   }
 }
