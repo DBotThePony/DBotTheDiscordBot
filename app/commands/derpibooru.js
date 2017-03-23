@@ -103,6 +103,11 @@ const searchImages = function(keywords, callback) {
 						return;
 					}
 					
+					if (!data.search) {
+						if (!recursion) callback([]);
+						return;
+					}
+					
 					let images = [];
 					imagesArray = imagesArray || [];
 					
