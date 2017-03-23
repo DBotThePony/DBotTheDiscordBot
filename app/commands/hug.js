@@ -273,6 +273,7 @@ DBot.RegisterCommand({
 
 DBot.RegisterCommand({
 	name: 'lick',
+	alias: ['noselicks', 'licknose'],
 	
 	help_args: '[user]',
 	desc: 'Nose licks',
@@ -337,4 +338,16 @@ DBot.RegisterCommand({
 	delay: 0,
 	
 	func: defAction('manebite', {text: 'chews mane of'})
+});
+
+DBot.RegisterCommand({
+	name: 'nom',
+	alias: ['nosenom', 'nomnose'],
+	
+	help_args: '[user]',
+	desc: 'Nose noms',
+	allowUserArgument: true,
+	delay: 0,
+	
+	func: defAction('nom', {text: 'nose noms'})
 });
