@@ -11,119 +11,65 @@ const CommandHelper = myGlobals.CommandHelper;
 
 const fs = require('fs');
 
-let categories = [];
-let categoriesVulgar = [];
-let categoriesFull = [];
-let totalCnt = 0;
-let totalCntVulgar = 0;
-let doneFiles = 2;
+const categories = fs.readdirSync('./resource/fortune');
+const categoriesVulgar = fs.readdirSync('./resource/fortune_vulgar');
+const categoriesFull = [];
 
-// Fill the SQL table!
-// Using SQL for stuff that is stored in files because it is better in preformance
-// And of course - this consumes much less memory
+const fortuneNormal = [];
+const fortuneVulgar = [];
+const fortuneFull = [];
 
-let updateFullList = function() {
-	for (let ct of categories) {
-		categoriesFull.push(ct);
-	}
+const fortuneMapNormal = new Map();
+const fortuneMapVulgar = new Map();
+const fortuneMapFull = new Map();
+
+for (const cat of categories)
+	categoriesFull.push(cat);
+
+for (const cat of categoriesVulgar)
+	categoriesFull.push(cat);
+
+for (const file of categories) {
+	const data = fs.readFileSync('./resource/fortune/' + file, 'utf8');
 	
-	for (let ct of categoriesVulgar) {
-		if (!Util.HasValue(categoriesFull, ct))
-			categoriesFull.push(ct);
+	const mapData1 = [];
+	const mapData2 = [];
+	fortuneMapNormal.set(file, mapData1);
+	fortuneMapFull.set(file, mapData2);
+	
+	const phrases = data.split('%');
+	
+	for (const phr of phrases) {
+		fortuneNormal.push(phr);
+		mapData1.push(phr);
+		fortuneFull.push(phr);
+		mapData2.push(phr);
 	}
 }
 
-fs.readdir('./resource/fortune', function(err, files) {
-	categories = files;
-	doneFiles--;
+for (const file of categoriesVulgar) {
+	const data = fs.readFileSync('./resource/fortune_vulgar/' + file, 'utf8');
 	
-	if (doneFiles == 0) {
-		updateFullList;
+	const mapData1 = [];
+	let mapData2;
+	fortuneMapVulgar.set(file, mapData1);
+	
+	if (!fortuneMapFull.has(file)) {
+		mapData2 = [];
+		fortuneMapFull.set(file, mapData2);
+	} else {
+		mapData2 = fortuneMapFull.get(file);
 	}
 	
-	Postgres.query('SELECT COUNT("ID") as "COUNT" FROM fortune LIMIT 1', function(err, data) {
-		if (data && data[0] && data[0].COUNT != 0) {
-			totalCnt = Number(data[0].COUNT);
-			return;
-		}
-		
-		for (let file of categories) {
-			fs.readFile('./resource/fortune/' + file, 'utf8', function(err, data) {
-				if (err) {
-					console.error(err);
-					return;
-				}
-				
-				let phrases = data.split('%');
-				let esc = Postgres.escape(file);
-				
-				totalCnt += phrases.length;
-				
-				for (let phraseID in phrases) {
-					let phr = phrases[phraseID];
-					
-					Postgres.query('INSERT INTO fortune ("CATEGORY", "CONTENT") VALUES (' + esc + ', ' + Postgres.escape(phr) + ')');
-				}
-			});
-		}
-	});
-});
-
-fs.readdir('./resource/fortune_vulgar', function(err, files) {
-	categoriesVulgar = files;
-	doneFiles--;
+	const phrases = data.split('%');
 	
-	if (doneFiles == 0) {
-		updateFullList;
+	for (const phr of phrases) {
+		fortuneVulgar.push(phr);
+		mapData1.push(phr);
+		fortuneFull.push(phr);
+		mapData2.push(phr);
 	}
-	
-	Postgres.query('SELECT COUNT("ID") as "COUNT" FROM fortune_vulgar LIMIT 1', function(err, data) {
-		if (data && data[0] && data[0].COUNT != 0) {
-			totalCntVulgar = Number(data[0].COUNT);
-			return;
-		}
-		
-		for (let file of categories) {
-			fs.readFile('./resource/fortune/' + file, 'utf8', function(err, data) {
-				if (err) {
-					console.error(err);
-					return;
-				}
-				
-				let phrases = data.split('%');
-				let esc = Postgres.escape(file);
-				
-				totalCntVulgar += phrases.length;
-				
-				for (let phraseID in phrases) {
-					let phr = phrases[phraseID];
-					
-					Postgres.query('INSERT INTO fortune_vulgar ("CATEGORY", "CONTENT") VALUES (' + esc + ', ' + Postgres.escape(phr) + ')');
-				}
-			});
-		}
-		
-		for (let file of categoriesVulgar) {
-			fs.readFile('./resource/fortune_vulgar/' + file, 'utf8', function(err, data) {
-				if (err) {
-					console.error(err);
-					return;
-				}
-				
-				let phrases = data.split('%');
-				let esc = Postgres.escape(file);
-				
-				totalCntVulgar += phrases.length;
-				
-				for (let phraseID in phrases) {
-					let phr = phrases[phraseID];
-					
-					Postgres.query('INSERT INTO fortune_vulgar ("CATEGORY", "CONTENT") VALUES (' + esc + ', ' + Postgres.escape(phr) + ')');
-				}
-			});
-		}
-	});
-});
+}
 
 module.exports = {
 	name: 'fortune',
@@ -134,28 +80,17 @@ module.exports = {
 	
 	func: function(args, cmd, msg) {
 		if (!args[0]) {
-			Postgres.query('SELECT "CONTENT" FROM fortune WHERE "ID" = ' + Math.Random(1, totalCnt), function(err, data) {
-				if (err || !data || !data[0]) {
-					return;
-				}
-				
-				msg.reply('```' + data[0].CONTENT + '```');
-			});
+			return '```' + Array.Random(fortuneNormal) + '```';
 		} else {
 			args[0] = args[0].toLowerCase();
-			if (!Util.HasValue(categories, args[0]))
+			
+			if (!categories.includes(args[0]))
 				return DBot.CommandError('Invalid fortune category', 'fortune', args, 1);
 			
-			Postgres.query('SELECT "CONTENT" FROM fortune WHERE "CATEGORY" = ' + Postgres.escape(args[0]) + ' ORDER BY random() LIMIT 1', function(err, data) {
-				if (err || !data || !data[0]) {
-					return;
-				}
-				
-				msg.reply('```' + data[0].CONTENT + '```');
-			});
+			return '```' + Array.Random(fortuneMapNormal.get(args[0])) + '```';
 		}
-	},
-}
+	}
+};
 
 DBot.RegisterCommand({
 	name: 'vfortune',
@@ -163,31 +98,42 @@ DBot.RegisterCommand({
 	
 	more: true,
 	help_args: '[category]',
-	desc: 'Messages from Cookies!\nThis command includes some vulgar stuff\nCategories list: vfortunelist',
+	desc: 'Messages from Cookies!\nThis command shows only vulgar stuff\nCategories list: vfortunelist',
 	
 	func: function(args, cmd, msg) {
 		if (!args[0]) {
-			Postgres.query('SELECT "CONTENT" FROM fortune_vulgar WHERE "ID" = ' + Math.Random(1, totalCntVulgar), function(err, data) {
-				if (err || !data || !data[0]) {
-					return;
-				}
-				
-				msg.reply('```' + data[0].CONTENT + '```');
-			});
+			return '```' + Array.Random(fortuneVulgar) + '```';
 		} else {
 			args[0] = args[0].toLowerCase();
-			if (!Util.HasValue(categoriesFull, args[0]))
+			
+			if (!categoriesVulgar.includes(args[0]))
 				return DBot.CommandError('Invalid fortune category', 'fortune', args, 1);
 			
-			Postgres.query('SELECT "CONTENT" FROM fortune_vulgar WHERE "CATEGORY" = ' + Postgres.escape(args[0]) + ' ORDER BY random() LIMIT 1', function(err, data) {
-				if (err || !data || !data[0]) {
-					return;
-				}
-				
-				msg.reply('```' + data[0].CONTENT + '```');
-			});
+			return '```' + Array.Random(fortuneMapVulgar.get(args[0])) + '```';
 		}
-	},
+	}
+});
+
+DBot.RegisterCommand({
+	name: 'ffortune',
+	alias: ['fullfortune'],
+	
+	more: true,
+	help_args: '[category]',
+	desc: 'Messages from Cookies!\nThis command includes vulgar and usual stuff\nCategories list: ffortunelist',
+	
+	func: function(args, cmd, msg) {
+		if (!args[0]) {
+			return '```' + Array.Random(fortuneFull) + '```';
+		} else {
+			args[0] = args[0].toLowerCase();
+			
+			if (!categoriesFull.includes(args[0]))
+				return DBot.CommandError('Invalid fortune category', 'fortune', args, 1);
+			
+			return '```' + Array.Random(fortuneMapFull.get(args[0])) + '```';
+		}
+	}
 });
 
 DBot.RegisterCommand({
@@ -198,16 +144,27 @@ DBot.RegisterCommand({
 	
 	func: function(args, cmd, msg) {
 		return 'Avaliable categories are: ```\n' + categories.join(', ') + '\n```';
-	},
+	}
 });
 
 DBot.RegisterCommand({
 	name: 'vfortunelist',
 	
 	help_args: '',
+	desc: 'Lists vulgar fortune categories',
+	
+	func: function(args, cmd, msg) {
+		return 'Avaliable categories are: ```\n' + categoriesVulgar.join(', ') + '\n```';
+	}
+});
+
+DBot.RegisterCommand({
+	name: 'ffortunelist',
+	
+	help_args: '',
 	desc: 'Lists all fortune categories',
 	
 	func: function(args, cmd, msg) {
 		return 'Avaliable categories are: ```\n' + categoriesFull.join(', ') + '\n```';
-	},
+	}
 });
