@@ -27,7 +27,7 @@ module.exports = {
 		const url = CommandHelper.CombinedURL(args[0], msg.channel);
 		
 		if (!url)
-			return DBot.CommandError('Invalid url maybe? ;w;', 'magik', args, 1);
+			return DBot.CommandError('Invalid url maybe? ;w;', 'walk', args, 1);
 		
 		const sha = String.hash(url);
 		
