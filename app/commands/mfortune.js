@@ -2,20 +2,15 @@
 const myGlobals = require('../globals.js');
 const hook = myGlobals.hook;
 const DBot = myGlobals.DBot;
-const sql = myGlobals.sql;
-const IMagick = myGlobals.IMagick;
-const Util = myGlobals.Util;
-const cvars = myGlobals.cvars;
-const Postgres = myGlobals.Postgres;
-const CommandHelper = myGlobals.CommandHelper;
-
 const fs = require('fs');
+
+/*
 const unirest = require('unirest');
 const grabber = new RegExp('style="display: none">([^<]+)</span>', 'gi');
 const base = 'http://www.twitchquotes.com/copypastas?page=';
 let page = 1;
 
-let updateFunc = function() {
+const updateFunc = function() {
 	console.log('Fetching twitchquotes.com; page: ' + page);
 	
 	unirest.get(base + page)
@@ -68,17 +63,29 @@ let updateFunc = function() {
 }
 
 updateFunc();
+*/
+
+const uniqueStr = '\0\0\0\0\0\0\1\1\1\1\1\0\0\1\0\1\0\1';
+const fileContents = fs.readFileSync('./resource/copypasta.csv', 'utf8').replace(/""/g, uniqueStr);
+const split = fileContents.split(/"([^"]*)"/g);
+const memes = [];
+
+for (const str of split) {
+	if (str === '') continue;
+	const finale = str.replace(new RegExp(uniqueStr, 'g'), '"').replace(/\r?\n$/g, '');
+	if (finale.length === 0) continue;
+	
+	memes.push(finale);
+}
 
 module.exports = {
 	name: 'mfortune',
-	alias: ['memefortune'],
+	alias: ['memefortune', 'copypasta'],
 	
 	help_args: '',
 	desc: 'Posts a random quote from http://www.twitchquotes.com/',
 	
 	func: function(args, cmd, msg) {
-		Postgre.query('SELECT * FROM mfortune ORDER BY RANDOM() LIMIT 1', function(err, data) {
-			msg.reply('```' + data[0].TEXT + '```')
-		});
+		return Array.Random(memes);
 	}
-}
+};
