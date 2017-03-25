@@ -598,9 +598,30 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 					let reply;
 
 					msg.reply = msg.promiseReply;
+					
+					const currentFuncObj = {
+						msg: msg,
+						server: msg.channel.guild || null,
+						guild: msg.channel.guild || null,
+						channel: msg.channel,
+						args: parsedArgs,
+						author: msg.author,
+						member: msg.member,
+						content: msg.content,
+						contents: msg.content,
+						cmd: rawcmd,
+						extra: extraArgument,
+						self: cCommand,
+						handlers: parsedHandlers,
+						reply: msg.reply,
+						sendMessage: msg.sendMessage,
+						message: msg.sendMessage,
+						pm: DBot.IsPM(msg),
+						send: msg.sendMessage
+					};
 
 					try {
-						reply = pipe.func(parsedArgs, rawcmd, msg);
+						reply = pipe.func.call(currentFuncObj, parsedArgs, rawcmd, msg);
 					} catch(err) {
 						msg.oldReply('<internal pony error>');
 						console.error(err);
@@ -664,9 +685,30 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 
 					PIPE_HIT = true;
 					let reply;
-
+					
+					const currentFuncObj = {
+						msg: msg,
+						server: msg.channel.guild || null,
+						guild: msg.channel.guild || null,
+						channel: msg.channel,
+						args: parsedArgs,
+						author: msg.author,
+						member: msg.member,
+						content: msg.content,
+						contents: msg.content,
+						cmd: rawcmd,
+						extra: extraArgument,
+						self: cCommand,
+						handlers: parsedHandlers,
+						reply: msg.reply,
+						sendMessage: msg.sendMessage,
+						message: msg.sendMessage,
+						pm: DBot.IsPM(msg),
+						send: msg.sendMessage
+					};
+					
 					try {
-						reply = pipe.func(parsedArgs, rawcmd, msg);
+						reply = pipe.func.call(currentFuncObj, parsedArgs, rawcmd, msg);
 					} catch(err) {
 						msg.oldReply('<internal pony error>');
 						console.error(err);
@@ -689,9 +731,30 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 		hook.Run('PreExecuteCommand', cCommand.id, msg.author, parsedArgs, rawcmd, msg, extraArgument, parsedHandlers);
 
 		let reply;
+		
+		const currentFuncObj = {
+			msg: msg,
+			server: msg.channel.guild || null,
+			guild: msg.channel.guild || null,
+			channel: msg.channel,
+			args: parsedArgs,
+			author: msg.author,
+			member: msg.member,
+			content: msg.content,
+			contents: msg.content,
+			cmd: rawcmd,
+			extra: extraArgument,
+			self: cCommand,
+			handlers: parsedHandlers,
+			reply: msg.reply,
+			sendMessage: msg.sendMessage,
+			message: msg.sendMessage,
+			pm: DBot.IsPM(msg),
+			send: msg.sendMessage
+		};
 
 		try {
-			reply = cCommand.func(parsedArgs, rawcmd, msg, extraArgument);
+			reply = cCommand.func.call(currentFuncObj, parsedArgs, rawcmd, msg, extraArgument);
 		} catch(err) {
 			msg.oldReply('<internal pony error>');
 			console.error(err);
