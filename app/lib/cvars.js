@@ -772,7 +772,7 @@ hook.Add('MultiUsersInitialized', 'CVars', function(users) {
 	let cVarsArray;
 	
 	for (let i in cvars.CONVARS_USER) {
-	if (!cVarsArray)
+		if (!cVarsArray)
 			cVarsArray = '(' + Postgres.escape(i) + ',' + Postgres.escape(cvars.CONVARS_USER[i].val) + ')';
 		else
 			cVarsArray += ',(' + Postgres.escape(i) + ',' + Postgres.escape(cvars.CONVARS_USER[i].val) + ')';
