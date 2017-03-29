@@ -251,6 +251,7 @@ module.exports = {
 						return;
 					}
 					
+					const data = parse;
 					let target = parse.medium || parse.small || parse.full || parse.image;
 					let split;
 					
@@ -267,7 +268,7 @@ module.exports = {
 					}
 					
 					msg.channel.stopTyping();
-					msg.reply('Tags: ' + split.join(', ') + '\n<https://' + urlBase + '/' + myID +'>\nhttps:' + target);
+					msg.reply(`Tags: \`${split.join(', ')}\`\nScore: \`${data.upvotes - data.downvotes} (${data.upvotes} vs ${data.downvotes})\`\nFaves: \`${data.faves}\`\n<https://${urlBase}/${data.id}>\nhttps:${target}`);
 				});
 			};
 			
@@ -307,7 +308,7 @@ module.exports = {
 				}
 				
 				msg.channel.stopTyping();
-				msg.reply('Tags: ' + split.join(', ') + '\n<https://' + urlBase + '/' + ID +'>\nhttps:' + target);
+				msg.reply(`Tags: \`${split.join(', ')}\`\nScore: \`${data.upvotes - data.downvotes} (${data.upvotes} vs ${data.downvotes})\`\nFaves: \`${data.faves}\`\n<https://${urlBase}/${data.id}>\nhttps:${target}`);
 			});
 		} else {
 			args.sort();
@@ -403,7 +404,7 @@ module.exports = {
 				if (typeof tagStr === 'object')
 					tagStr = data.tags.join(', ');
 				
-				msg.reply('Tags: ' + tagStr + '\n<https://' + urlBase + '/' + data.id + '>\nhttps:' + target);
+				msg.reply(`Tags: \`${tagStr}\`\nScore: \`${data.upvotes - data.downvotes} (${data.upvotes} vs ${data.downvotes})\`\nFaves: \`${data.faves}\`\n<https://${urlBase}/${data.id}>\nhttps:${target}`);
 				
 				msg.channel.stopTyping();
 			};
