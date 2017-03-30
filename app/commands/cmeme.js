@@ -47,11 +47,7 @@ module.exports = {
 		if (!url)
 			return DBot.CommandError('Invalid url maybe? ;w;', 'cmeme', args, 1);
 		
-		let topText = args[1];
-		
-		if (!topText)
-			return 'You must say me the text to place on top' + Util.HighlightHelp(['cmeme'], 3, args);
-		
+		const topText = args[1];
 		let bottomText;
 		
 		for (let i = 2; i < args.length; i++) {
@@ -61,15 +57,16 @@ module.exports = {
 				bottomText = args[i];
 		}
 		
-		let hash = String.hash(url + topText + (bottomText || ''));
+		if (!topText && !bottomText)
+			return DBot.CommandError('At least top or bottom text is required', 'cmeme', args, 1);
 		
-		if (!CommandHelper.checkURL(url))
-			return 'Invalid url maybe? ;w;';
+		
+		const hash = String.hash(url + 'top_' + (topText || '___') + 'bottom_' + (bottomText || '___'));
 		
 		let fPath;
 		
-		let fPathProcessed = DBot.WebRoot + '/cmeme/' + hash + '.png';
-		let fPathProcessedURL = DBot.URLRoot + '/cmeme/' + hash + '.png';
+		const fPathProcessed = DBot.WebRoot + '/cmeme/' + hash + '.png';
+		const fPathProcessedURL = DBot.URLRoot + '/cmeme/' + hash + '.png';
 		
 		msg.channel.startTyping();
 		
@@ -133,23 +130,28 @@ module.exports = {
 						height = Math.floor(height);
 						width = Math.floor(width);
 						
-						args.push('-gravity', 'South', '-font', 'Impact', '-fill', 'white', '-stroke', 'black', '-strokewidth', '2', '-weight', '500', '-pointsize');
-						
-						let fSize = IMagick.GetTextSize(topText, 'Impact', 1);
-						
-						let calc = (width - 40) / fSize[0];
-						
-						if (calc > height / 4) {
-							calc = Math.floor(height / 4);
-						} else if (calc < 18) {
-							calc = 18;
+						args.push(
+							'-gravity', 'South', '-font', 'Impact', '-fill', 'white', '-stroke',
+							'black', '-strokewidth', '2', '-weight', '500'
+						);
+				
+						if (topText) {
+							args.push('-pointsize');
+							
+							let fSize = IMagick.GetTextSize(topText, 'Impact', 1);
+							let calc = (width - 40) / fSize[0];
+							
+							if (calc > height / 4) {
+								calc = Math.floor(height / 4);
+							} else if (calc < 18) {
+								calc = 18;
+							}
+							
+							args.push(String(calc));
+							
+							args.push('-draw');
+							args.push('text 0,' + (calc * 0.2) + ' "' + topText + '"');
 						}
-						
-						let tSize = IMagick.GetFontHeight('Impact', calc);
-						
-						args.push(String(calc));
-						
-						args.push('-draw', 'text 0,' + (height - calc * 1.3) + ' "' + topText + '"');
 						
 						if (bottomText) {
 							args.push('-pointsize');
@@ -162,8 +164,6 @@ module.exports = {
 							} else if (calc < 18) {
 								calc = 18;
 							}
-							
-							let tSize = IMagick.GetFontHeight('Impact', calc);
 							
 							args.push(String(calc));
 							
@@ -179,7 +179,8 @@ module.exports = {
 						
 						magik.on('close', function(code) {
 							if (msg.checkAbort()) return;
-							if (code == 0) {
+							
+							if (code === 0) {
 								msg.reply(fPathProcessedURL);
 							} else {
 								msg.reply('<internal pony error>');
@@ -190,7 +191,7 @@ module.exports = {
 					});
 				}
 			});
-		}
+		};
 		
 		CommandHelper.loadImage(url, function(newPath) {
 			fPath = newPath;
