@@ -124,6 +124,21 @@ const registerColorRoles = function(server, callback) {
 			if (role.name.toLowerCase() === roleName) {
 				if (role.position !== nPosition) role.setPosition(nPosition);
 				if (role.hexColor !== roleData[1]) role.setColor(roleData[1]);
+				
+				const perms = role.serialize();
+				let hitPerm = false;
+				
+				for (const i in perms) {
+					if (perms[i]) {
+						hitPerm = true;
+						break;
+					}
+				}
+				
+				if (hitPerm) {
+					role.setPermissions([]);
+				}
+				
 				hit = true;
 				break;
 			}
@@ -142,6 +157,21 @@ const registerColorRoles = function(server, callback) {
 				if (role.name.toLowerCase() === roleName) {
 					if (role.position !== nPosition) role.setPosition(nPosition);
 					if (role.hexColor !== roleData[1]) role.setColor(roleData[1]);
+					
+					const perms = role.serialize();
+					let hitPerm = false;
+
+					for (const i in perms) {
+						if (perms[i]) {
+							hitPerm = true;
+							break;
+						}
+					}
+
+					if (hitPerm) {
+						role.setPermissions([]);
+					}
+					
 					hit = true;
 					break;
 				}
