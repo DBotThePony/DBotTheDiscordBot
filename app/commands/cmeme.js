@@ -131,15 +131,15 @@ module.exports = {
 						width = Math.floor(width);
 						
 						args.push(
-							'-gravity', 'South', '-font', 'Impact', '-fill', 'white', '-stroke',
+							'-font', 'Impact', '-fill', 'white', '-stroke',
 							'black', '-strokewidth', '2', '-weight', '500'
 						);
 				
 						if (topText) {
-							args.push('-pointsize');
+							args.push('-gravity', 'North', '-pointsize');
 							
 							let fSize = IMagick.GetTextSize(topText, 'Impact', 1);
-							let calc = (width - 40) / fSize[0];
+							let calc = (width - 80) / fSize[0];
 							
 							if (calc > height / 4) {
 								calc = Math.floor(height / 4);
@@ -154,10 +154,10 @@ module.exports = {
 						}
 						
 						if (bottomText) {
-							args.push('-pointsize');
+							args.push('-gravity', 'South', '-pointsize');
 							
 							let fSize = IMagick.GetTextSize(bottomText, 'Impact', 1);
-							let calc = (width - 40) / fSize[0];
+							let calc = (width - 80) / fSize[0];
 							
 							if (calc > height / 4) {
 								calc = Math.floor(height / 4);
