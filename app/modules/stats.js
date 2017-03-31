@@ -1346,7 +1346,11 @@ WITH most_used_command AS (
 		"COMMAND",
 		SUM("COUNT") AS "COUNT"
 	FROM
-		stats__command_users
+		stats__command_users,
+		users
+	WHERE
+		users."TIME" > currtime() - 120 AND
+		stats__command_users."ID" = users."ID"
 	GROUP BY
 		"COMMAND"
 	ORDER BY
@@ -1380,7 +1384,11 @@ SELECT
 	(SELECT "COUNT" FROM words_count) AS "WordsSaid",
 	(SELECT "COUNT" FROM most_used_command) AS "MostCommandUsedCount"
 FROM
-	stats__generic_users
+	stats__generic_users,
+	users
+WHERE
+	users."TIME" > currtime() - 120 AND
+	stats__generic_users."ID" = users."ID"
 `;
 
 const formatNumberFunc = function(num) {
