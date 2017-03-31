@@ -11,9 +11,7 @@ const CommandHelper = myGlobals.CommandHelper;
 
 const child_process = require('child_process');
 const spawn = child_process.spawn;
-const unirest = require('unirest');
 const fs = require('fs');
-const URL = require('url');
 
 Util.mkdir(DBot.WebRoot + '/waw');
 Util.mkdir(DBot.WebRoot + '/wave');
