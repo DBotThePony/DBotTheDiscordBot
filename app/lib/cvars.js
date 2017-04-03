@@ -778,6 +778,8 @@ hook.Add('MultiUsersInitialized', 'CVars', function(users) {
 			cVarsArray += ',(' + Postgres.escape(i) + ',' + Postgres.escape(cvars.CONVARS_USER[i].val) + ')';
 	}
 	
+	if (!cVarsArray) return;
+	
 	let query = `
 WITH vars_values ("VAR", "VALUE") AS (
 	VALUES ${cVarsArray}
