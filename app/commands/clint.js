@@ -38,7 +38,7 @@ module.exports = {
 		
 		msg.channel.startTyping();
 		
-		let ContinueFunc = function() {
+		const ContinueFunc = function() {
 			if (msg.checkAbort()) return;
 			fs.stat(fPathProcessed, function(err, stat) {
 				if (msg.checkAbort()) return;
@@ -46,13 +46,29 @@ module.exports = {
 					msg.channel.stopTyping();
 					msg.reply(fPathProcessedURL);
 				} else {
-					let magik = spawn('convert', ['-alpha', 'on', '(', '-size', '1024x768', 'xc:black', '-gravity', 'center', '(', fPath, '-resize', '1024x768>', '-resize', '1024x768<', ')', '-compose', 'srcover', '-composite', '(', '-size', '1200x800!', 'xc:none', ')', '-gravity', 'northwest', '+swap', '-composite', '-mattecolor', 'none', '-virtual-pixel', 'none', '-distort', 'perspective', '0,0,788,181 1024,0,1080,49 0,768,809,493 1024,768,1109,649', '-distort', 'shepards', '798,350 780,350 750,181 755,181 750,170 730,170 750,200 740,200 875,134 875,120 850,134 850,120 889,134 889,120 909,548 909,580 1095,290 1105,290 1095,320 1105,320 1095,340 1105,340 1095,362 1105,362', ')', './resource/files/clint.png', '+swap', '-gravity', 'northwest', '-compose', 'srcover', '-composite', fPathProcessed]);
+					let magik = spawn('convert', [
+						'-alpha', 'on',
+						'(',
+							'-size', '1324x1068', 'xc:black',
+							'-gravity', 'center',
+							'(', fPath, '-scale', '1024x768', ')',
+							'-compose', 'srcover', '-composite',
+							'(', '-size', '1200x800!', 'xc:black', ')',
+							'-gravity', 'center', '+swap', '-composite',
+							'-mattecolor', 'none', '-virtual-pixel', 'none',
+							'-distort', 'perspective', '86,16,786,177 1111,16,1090,30 86,784,790,503 1111,784,1140,690',
+						')',
+						'./resource/files/clint.png', '-gravity', 'northwest',
+						'-compose', 'srcover', '-composite',
+						'-crop', '1200x675', '+delete', fPathProcessed
+					]);
 					
 					Util.Redirect(magik);
 					
 					magik.on('close', function(code) {
 						if (msg.checkAbort()) return;
-						if (code == 0) {
+						
+						if (code === 0) {
 							msg.channel.stopTyping();
 							msg.reply(fPathProcessedURL);
 						} else {
@@ -62,7 +78,7 @@ module.exports = {
 					});
 				}
 			});
-		}
+		};
 		
 		CommandHelper.loadImage(url, function(newPath) {
 			fPath = newPath;
@@ -72,4 +88,4 @@ module.exports = {
 			msg.reply('Failed to download image. "HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '"');
 		});
 	}
-}
+};
