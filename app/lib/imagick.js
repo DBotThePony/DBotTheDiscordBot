@@ -31,11 +31,10 @@ const CharsExp = new RegExp('(' + CharsExprStr + ')', 'g');
 const CharsExp2 = new RegExp('(' + CharsExprStr + '|\n)', 'g');
 const fontSizes = [14, 24, 28, 48, 56, 72, 100];
 
-IMagick.AvaliableFonts = IMagick.AvaliableFonts || [];
+IMagick.AvaliableFonts = [];
 IMagick.PrecacheFonts = IMagick.PrecacheFonts || [];
 IMagick.PrecacheFontsData = IMagick.PrecacheFontsData || {};
 IMagick.PrecacheFontsDataHeight = IMagick.PrecacheFontsDataHeight || {};
-IMagick.FontIDs = IMagick.FontIDs || {};
 
 let SQLInit = false;
 let FontsInit = false;
