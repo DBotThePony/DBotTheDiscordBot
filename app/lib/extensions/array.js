@@ -60,8 +60,8 @@ Array.Copy = function(Source) {
 };
 
 Array.MapDiff = function(newMap, oldMap) {
-	let added = [];
-	let removed = [];
+	const added = [];
+	const removed = [];
 	
 	for (const key of oldMap.keys()) {
 		if (!newMap.has(key)) {
@@ -72,6 +72,25 @@ Array.MapDiff = function(newMap, oldMap) {
 	for (const key of newMap.keys()) {
 		if (!oldMap.has(key)) {
 			added.push(newMap.get(key));
+		}
+	}
+	
+	return [added, removed];
+};
+
+Array.Diff = function(newArray, oldArray) {
+	const added = [];
+	const removed = [];
+	
+	for (const c of newArray) {
+		if (!oldArray.includes(c)) {
+			added.push(c);
+		}
+	}
+	
+	for (const c of oldArray) {
+		if (!newArray.includes(c)) {
+			removed.push(c);
 		}
 	}
 	
