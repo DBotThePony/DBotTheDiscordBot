@@ -97,35 +97,24 @@ function genTables(path) {
 	phrasesAll.medium = [];
 	phrasesAll.hard = [];
 	phrasesAll.very_hard = [];
+	phrasesAll.impossible = [];
+	phrasesAll.wizard = [];
 
 	const phrasesAllMap = {};
 	phrasesAllMap.easy = {};
 	phrasesAllMap.medium = {};
 	phrasesAllMap.hard = {};
 	phrasesAllMap.very_hard = {};
-
-	const phrasesCategory = {};
-	const phrasesCategoryMap = {};
+	phrasesAllMap.impossible = {};
+	phrasesAllMap.wizard = {};
 
 	for (const file of categories) {
 		const data = fs.readFileSync(path + '/' + file, 'utf8');
 		const phrases = data.split('%');
-		phrasesCategory[file] = {};
-		const pData = phrasesCategory[file];
-		pData.easy = [];
-		pData.medium = [];
-		pData.hard = [];
-		pData.very_hard = [];
-
-		phrasesCategoryMap[file] = {};
-		const pDataMap = phrasesCategoryMap[file];
-		pDataMap.easy = {};
-		pDataMap.medium = {};
-		pDataMap.hard = {};
-		pDataMap.very_hard = {};
 
 		for (const phrase of phrases) {
-			const div = phrase.replace(/\r?\n/gi, '').split(/(,|\.|\})/);
+			const div = phrase.replace(/\r?\n/gi, '').split(/(,|\.)/);
+			const divImpossible = phrase.replace(/\r?\n/gi, '').split(/(\.)/);
 
 			for (const solid of div) {
 				let spacesSplit = solid.split(' ');
@@ -176,6 +165,40 @@ function genTables(path) {
 					if (!phrasesAllMap.very_hard[phr]) {
 						phrasesAll.very_hard.push(phr);
 						phrasesAllMap.very_hard[phr] = true;
+					}
+				}
+			}
+
+			for (const solid of divImpossible) {
+				let spacesSplit = solid.split(' ');
+				
+				for (const i in spacesSplit) {
+					spacesSplit[i] = spacesSplit[i].replace(toReplaceSoft, '').replace(toReplace, '').replace(toReplaceHard, ' ').trim();
+				}
+				
+				spacesSplit = spacesSplit.filter(wordFilter);
+				
+				for (let i = 0; i < spacesSplit.length; i += 6) {
+					if (!spacesSplit[i + 1] || !spacesSplit[i + 2] || !spacesSplit[i + 3] || !spacesSplit[i + 4] || !spacesSplit[i + 5])
+						break;
+
+					const phr = `${spacesSplit[i]} ${spacesSplit[i + 1]} ${spacesSplit[i + 2]} ${spacesSplit[i + 3]} ${spacesSplit[i + 4]} ${spacesSplit[i + 5]}`;
+
+					if (!phrasesAllMap.impossible[phr]) {
+						phrasesAll.impossible.push(phr);
+						phrasesAllMap.impossible[phr] = true;
+					}
+				}
+				
+				for (let i = 0; i < spacesSplit.length; i += 7) {
+					if (!spacesSplit[i + 1] || !spacesSplit[i + 2] || !spacesSplit[i + 3] || !spacesSplit[i + 4] || !spacesSplit[i + 5] || !spacesSplit[i + 6])
+						break;
+
+					const phr = `${spacesSplit[i]} ${spacesSplit[i + 1]} ${spacesSplit[i + 2]} ${spacesSplit[i + 3]} ${spacesSplit[i + 4]} ${spacesSplit[i + 5]} ${spacesSplit[i + 6]}`;
+
+					if (!phrasesAllMap.wizard[phr]) {
+						phrasesAll.wizard.push(phr);
+						phrasesAllMap.wizard[phr] = true;
 					}
 				}
 			}

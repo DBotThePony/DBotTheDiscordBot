@@ -34,7 +34,9 @@ const mapped = {
 	generated_all_easy: avaliableFortune.easy,
 	generated_all_medium: avaliableFortune.medium,
 	generated_all_hard: avaliableFortune.hard,
-	generated_very_hard: avaliableFortune.very_hard
+	generated_very_hard: avaliableFortune.very_hard,
+	generated_impossible: avaliableFortune.impossible,
+	generated_wizard: avaliableFortune.wizard
 };
 
 let avaliableString = '';
