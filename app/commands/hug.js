@@ -140,6 +140,24 @@ DBot.RegisterCommand({
 });
 
 DBot.RegisterCommand({
+	name: 'bleach',
+	alias: ['drinkbleach'],
+	
+	help_args: '',
+	desc: '',
+	allowUserArgument: true,
+	help_hide: true,
+	delay: 0,
+	
+	func: function(args, cmd, msg) {
+		if (!args[0])
+			msg.sendMessage('You should do not do that');
+		else
+			msg.sendMessage('You should not tell anyone to do that');
+	}
+});
+
+DBot.RegisterCommand({
 	name: 'poke',
 	
 	help_args: '[user]',
