@@ -68,6 +68,28 @@ module.exports = {
 };
 
 DBot.RegisterCommand({
+	name: 'roles',
+	
+	help_args: '[user]',
+	desc: 'Get list of user roles',
+	nopm: true,
+	allowUserArgument: true,
+	
+	func: function(args, cmd, msg) {
+		const target = this.server.member(typeof args[0] === 'object' || msg.author);
+		if (!target)
+			return DBot.CommandError('Invalid user', 'roles', args, 1);
+		
+		const output = [];
+		
+		for (const role of target.roles.values())
+			output.push(role.name);
+		
+		return '```' + output.join(', ') + '```';
+	}
+});
+
+DBot.RegisterCommand({
 	name: 'addrole',
 	
 	help_args: '<role name>',
