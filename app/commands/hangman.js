@@ -25,7 +25,24 @@ const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 const CommandHelper = myGlobals.CommandHelper;
 
-const avaliableWords = ['test word loal'];
+const fs = require('fs');
+const json3 = require('json3');
+
+const avaliableFortune = json3.parse(fs.readFileSync('./resource/hangman/hangman_fortune.json', 'utf8'));
+
+const mapped = {
+	generated_all_easy: avaliableFortune.all.easy,
+	generated_all_medium: avaliableFortune.all.medium,
+	generated_all_hard: avaliableFortune.all.hard
+};
+
+let avaliableString = '';
+
+for (const i in mapped) {
+	avaliableString += ', ' + i;
+}
+
+avaliableString = avaliableString.substr(1);
 
 const allowedChars = [
 	'q',
@@ -212,6 +229,17 @@ class HangmanDispatcher {
 															 "TOTAL_LENGTH" = hangman_score."TOTAL_LENGTH" + excluded."TOTAL_LENGTH";`);
 	}
 	
+	
+	practicantsNames() {
+		const output = [];
+		
+		for (const user of this.users) {
+			output.push('<@' + user.id + '>');
+		}
+		
+		return output.join(', ');
+	}
+	
 	saveStats() {
 		const st = this.getStatus();
 		
@@ -234,7 +262,7 @@ class HangmanDispatcher {
 	}
 	
 	abort() {
-		if (this.bannedChars === 0 || this.getStatus() === this.WIN)
+		if (this.bannedChars.length === 0 || this.getStatus() === this.WIN || this.getStatus() === this.DEFEAT)
 			return false; // Game doesn't even started or finished
 		
 		for (const user of this.users) {
@@ -290,8 +318,14 @@ module.exports = {
 			if (status[channelID])
 				return DBot.CommandError('Game already started! try `reset` command', 'hangman', args, 1);
 			
-			status[channelID] = new HangmanDispatcher(this.channel, Array.Random(avaliableWords));
-			return 'The game started!\n' + status[channelID].getStatusString();
+			const pick = args[1] || 'generated_all_medium';
+			
+			if (!mapped[pick])
+				return DBot.CommandError('Invalid difficulty pick', 'hangman', args, 2);
+			
+			status[channelID] = new HangmanDispatcher(this.channel, Array.Random(mapped[pick]));
+			status[channelID].map = mapped[pick];
+			return 'The game has started with `' + pick + '` difficulty!\n' + status[channelID].getStatusString();
 		} else if (action === 'suggest' || action === 's' || action === 'try') {
 			if (!status[channelID])
 				return DBot.CommandError('There is no game at all!', 'hangman', args, 1);
@@ -314,14 +348,14 @@ module.exports = {
 			if (st)
 				if (status2 === status[channelID].WIN) {
 					status[channelID].saveStats();
-					return 'That was correct!\nCongrants! You won!\n' + status[channelID].getStatusString();
+					return 'That was correct!\nCongrants! ' + status[channelID].practicantsNames() + ' won!\n' + status[channelID].getStatusString();
 				} else {
 					return 'That was correct!\n' + status[channelID].getStatusString();
 				}
 			else
 				if (status2 === status[channelID].DEFEAT) {
 					status[channelID].saveStats();
-					return 'That was miss!\nYou lose!\n' + status[channelID].getStatusString();
+					return 'That was miss!\n' + status[channelID].practicantsNames() + ' lose!\n' + status[channelID].getStatusString();
 				} else {
 					return 'That was miss!\n' + status[channelID].getStatusString();
 				}
@@ -330,7 +364,7 @@ module.exports = {
 				return DBot.CommandError('There is no game at all!', 'hangman', args, 1);
 			
 			const st = status[channelID].abort();
-			status[channelID].reset(Array.Random(avaliableWords));
+			status[channelID].reset(Array.Random(status[channelID].map));
 			
 			if (st)
 				return 'Game was aborted and has been counted as aborted game.\nGame has been reset!\n' + status[channelID].getStatusString();
