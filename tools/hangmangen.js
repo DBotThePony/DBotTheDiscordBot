@@ -131,11 +131,7 @@ function genTables(path) {
 				let spacesSplit = solid.split(' ');
 				
 				for (const i in spacesSplit) {
-					let str = spacesSplit[i].replace(toReplaceSoft, '').replace(toReplace, '').replace(toReplaceHard, ' ').trim();
-					if (str[str.length - 1] === '}') // wtf
-						str = str.substr(0, str.length - 1);
-					
-					spacesSplit[i] = str;
+					spacesSplit[i] = spacesSplit[i].replace(toReplaceSoft, '').replace(toReplace, '').replace(toReplaceHard, ' ').trim();
 				}
 				
 				spacesSplit = spacesSplit.filter(wordFilter);
@@ -163,7 +159,7 @@ function genTables(path) {
 					if (!spacesSplit[i + 1] || !spacesSplit[i + 2] || !spacesSplit[i + 3])
 						break;
 
-					const phr = `${spacesSplit[i]} ${spacesSplit[i + 1]} ${spacesSplit[i + 2]} ${spacesSplit[i + 3]}}`;
+					const phr = `${spacesSplit[i]} ${spacesSplit[i + 1]} ${spacesSplit[i + 2]} ${spacesSplit[i + 3]}`;
 
 					if (!phrasesAllMap.hard[phr]) {
 						phrasesAll.hard.push(phr);

@@ -302,6 +302,7 @@ module.exports = {
 
 	help_args: '<action> [arguments]',
 	desc: 'Hangman mini-game',
+	delay: 0,
 
 	func: function(args, cmd, msg) {
 		const action = (args[0] || '').toLowerCase();
