@@ -209,9 +209,8 @@ function genTables(path) {
 }
 
 const fortuneDefault = genTables('../resource/fortune');
-
 fs.writeFileSync('../resource/hangman/hangman_fortune.json', json3.stringify(fortuneDefault, null, 1));
-
 const fortuneVulgar = genTables('../resource/fortune_vulgar');
-
 fs.writeFileSync('../resource/hangman/hangman_fortunev.json', json3.stringify(fortuneVulgar, null, 1));
+
+

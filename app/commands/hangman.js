@@ -30,6 +30,7 @@ const json3 = require('json3');
 const numeral = require('numeral');
 
 const avaliableFortune = json3.parse(fs.readFileSync('./resource/hangman/hangman_fortune.json', 'utf8'));
+const singlewords = fs.readFileSync('./resource/hangman/singlewords.csv', 'utf8').split(/\r?\n/);
 
 const mapped = {
 	generated_easy: avaliableFortune.easy,
@@ -37,7 +38,8 @@ const mapped = {
 	generated_hard: avaliableFortune.hard,
 	generated_very_hard: avaliableFortune.very_hard,
 	generated_impossible: avaliableFortune.impossible,
-	generated_wizard: avaliableFortune.wizard
+	generated_wizard: avaliableFortune.wizard,
+	single_word: singlewords
 };
 
 let avaliableString = '';
