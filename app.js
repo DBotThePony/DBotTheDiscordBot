@@ -117,6 +117,20 @@ hook.Add('SQLInitialize', 'Core', function() {
 	if (shouldRunAfterSQL) timerOnlineFunc();
 });
 
+DBot.connectionWatchdog = function() {
+	if (bot.status === Status.DISCONNECTED || bot.status === Status.IDLE) {
+		// Sometimes there is disconnect without event, or we handled disconnect event incorrectly
+		
+		console.log('Reconnecting manually');
+		
+		setTimeout(() => {
+			bot.login(token)
+			.then(() => console.log('Reconnected manually'))
+			.catch(err => {console.error('Unable to login.'); console.error(err);});
+		}, 6000);
+	}
+};
+
 DBot.disconnectEvent = function(event) {
 	if (!IS_CONNECTED) return;
 	if (bot.status === Status.READY) return;
@@ -170,6 +184,7 @@ IsOnline = DBot.IsOnline;
 
 bot.on('ready', DBot.readyEvent);
 bot.on('disconnect', DBot.disconnectEvent);
+setInterval(DBot.connectionWatchdog, 30000);
 
 const nStamp = (new Date()).getTime();
 console.log('Initialization complete in ' + (Math.floor((nStamp - stamp) * 100) / 100) + ' ms. Connecting...');
