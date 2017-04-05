@@ -276,3 +276,16 @@ DBot.findRole = function(server, roleName, multi) {
 	else
 		return mrole;
 };
+
+DBot.channelIsNSFW = function(channel) {
+	if (channel.type === 'dm')
+		return true;
+	
+	if ((channel.name || '').match('nsfw'))
+		return true;
+	
+	if ((channel.topic || '').match('[nsfw]'))
+		return true;
+	
+	return false;
+};

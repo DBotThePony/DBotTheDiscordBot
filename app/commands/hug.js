@@ -37,6 +37,9 @@ const defAction = function(name, data) {
 			if (actor.id === target.id)
 				return DBot.CommandError('alone', name, args, 1);
 			
+			if (data.immunity && (target.id === DBot.bot.id || DBot.owners.includes(target.id)) && !DBot.owners.includes(msg.author.id))
+				return DBot.CommandError('too stronk for you', name, args, 1);
+			
 			Postgres.query(`INSERT INTO rp_actions VALUES (${actorUID}, ${cActionID}, ${DBot.GetUserID(target)}, 1) ON CONFLICT ("ACTOR", "ACTION", "TARGET") DO UPDATE SET "COUNT" = rp_actions."COUNT" + 1 RETURNING "COUNT"`, (err, sdata) =>
 				msg.sendMessage(`_<@${actor.id}> ${data.text} <@${target.id}> (it is ${sdata[0] && sdata[0].COUNT || 1} times now)_`));
 		} else {
@@ -119,23 +122,6 @@ DBot.RegisterCommand({
 	
 	func: function(args, cmd, msg) {
 		msg.sendMessage('Rood');
-	}
-});
-
-DBot.RegisterCommand({
-	name: 'fuck',
-	
-	help_args: '',
-	desc: 'rood',
-	allowUserArgument: true,
-	help_hide: true,
-	delay: 0,
-	
-	func: function(args, cmd, msg) {
-		if (!args[0])
-			msg.sendMessage('No buttfucking');
-		else
-			msg.sendMessage('Fuck you <@' + msg.author.id + '>');
 	}
 });
 
@@ -369,3 +355,27 @@ DBot.RegisterCommand({
 	
 	func: defAction('nom', {text: 'nose noms'})
 });
+
+DBot.RegisterCommand({
+	name: 'fuck',
+	
+	help_args: '',
+	desc: 'rood',
+	allowUserArgument: true,
+	help_hide: true,
+	delay: 0,
+	
+	rpfunc: defAction('fuck', {text: 'fucks', immunity: true}),
+	
+	func: function(args, cmd, msg) {
+		if (!DBot.channelIsNSFW(msg.channel)) {
+			if (!args[0])
+				msg.sendMessage('No buttfucking');
+			else
+				msg.sendMessage('Fuck you <@' + msg.author.id + '>');
+		} else {
+			return this.self.rpfunc.call(this, args, cmd, msg);
+		}
+	}
+});
+
