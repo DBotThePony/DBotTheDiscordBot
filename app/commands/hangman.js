@@ -31,9 +31,9 @@ const json3 = require('json3');
 const avaliableFortune = json3.parse(fs.readFileSync('./resource/hangman/hangman_fortune.json', 'utf8'));
 
 const mapped = {
-	generated_all_easy: avaliableFortune.easy,
-	generated_all_medium: avaliableFortune.medium,
-	generated_all_hard: avaliableFortune.hard,
+	generated_easy: avaliableFortune.easy,
+	generated_medium: avaliableFortune.medium,
+	generated_hard: avaliableFortune.hard,
 	generated_very_hard: avaliableFortune.very_hard,
 	generated_impossible: avaliableFortune.impossible,
 	generated_wizard: avaliableFortune.wizard
@@ -314,7 +314,7 @@ module.exports = {
 			if (status[channelID])
 				return DBot.CommandError('Game already started! try `reset` command', 'hangman', args, 1);
 			
-			const pick = args[1] || 'generated_all_medium';
+			const pick = args[1] || 'generated_medium';
 			
 			if (!mapped[pick])
 				return DBot.CommandError('Invalid difficulty pick\nValids are: ```' + avaliableString + '```', 'hangman', args, 2);
