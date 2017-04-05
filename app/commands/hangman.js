@@ -27,6 +27,7 @@ const CommandHelper = myGlobals.CommandHelper;
 
 const fs = require('fs');
 const json3 = require('json3');
+const numeral = require('numeral');
 
 const avaliableFortune = json3.parse(fs.readFileSync('./resource/hangman/hangman_fortune.json', 'utf8'));
 
@@ -385,3 +386,43 @@ module.exports = {
 	}
 };
 
+DBot.RegisterCommand({
+	name: 'hangmanstats',
+
+	help_args: '[user]',
+	desc: 'Hangman stats',
+	allowUserArgument: true,
+
+	func: function(args, cmd, msg) {
+		const user = typeof args[0] === 'object' && args[0] || msg.author;
+		
+		msg.channel.startTyping();
+		
+		Postgres.query(`SELECT * FROM hangman_score WHERE "ID" = ${sql.User(user)}`, (err, data) => {
+			msg.channel.stopTyping();
+			
+			if (!data[0]) {
+				msg.reply('No stats!');
+				return;
+			}
+			
+			data = data[0];
+			
+			let output = '```';
+			
+			output += `Total games:                         ${numeral(data.GAMES).format('0,0')}\n`;
+			output += `Total victories:                     ${numeral(data.VICTORIES).format('0,0')}\n`;
+			output += `Total defeats:                       ${numeral(data.DEFEATS).format('0,0')}\n`;
+			output += `Total game aborts:                   ${numeral(data.ABORTS).format('0,0')}\n`;
+			output += `Total game words length:             ${numeral(data.TOTAL_LENGTH).format('0,0')}\n`;
+			output += `Total game words length on wins:     ${numeral(data.LENGTH_WIN).format('0,0')}\n`;
+			output += `Total game words length on defeats:  ${numeral(data.LENGTH_DEF).format('0,0')}\n`;
+			output += `Total game words length on aborts:   ${numeral(data.LENGTH_ABORT).format('0,0')}\n`;
+			output += `Total chars suggested:               ${numeral(data.CHARS_SUGGESTED).format('0,0')}\n`;
+			output += `Total chars hits:                    ${numeral(data.CHARS_HIT).format('0,0')}\n`;
+			output += `Total chars misses:                  ${numeral(data.CHARS_MISS).format('0,0')}\n`;
+			
+			msg.reply(output + '```');
+		});
+	}
+});
