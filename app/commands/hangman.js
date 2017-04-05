@@ -307,7 +307,7 @@ module.exports = {
 	name: 'hangman',
 
 	help_args: '<action> [arguments]',
-	desc: 'Hangman mini-game',
+	desc: 'Hangman mini-game. Actions are: `start <set>`, `s <char>`, `reset`, `stop`\nWord sets are: `' + avaliableString + '`',
 	delay: 0,
 
 	func: function(args, cmd, msg) {
@@ -321,7 +321,7 @@ module.exports = {
 			const pick = args[1] || 'generated_medium';
 			
 			if (!mapped[pick])
-				return DBot.CommandError('Invalid difficulty pick\nValids are: ```' + avaliableString + '```', 'hangman', args, 2);
+				return DBot.CommandError('Invalid word set pick\nValids are: ```' + avaliableString + '```', 'hangman', args, 2);
 			
 			status[channelID] = new HangmanDispatcher(this.channel, Array.Random(mapped[pick]));
 			status[channelID].map = mapped[pick];
@@ -369,9 +369,9 @@ module.exports = {
 			status[channelID].reset(Array.Random(status[channelID].map));
 			
 			if (st)
-				return 'Game was aborted and has been counted as aborted game.\nGame has been reset on `' + status[channelID].pick + '` difficulty!\n' + status[channelID].getStatusString();
+				return 'Game was aborted and has been counted as aborted game.\nGame has been reset on `' + status[channelID].pick + '` word set!\n' + status[channelID].getStatusString();
 			else
-				return 'Game has been reset on `' + status[channelID].pick + '` difficulty!\n' + status[channelID].getStatusString();
+				return 'Game has been reset on `' + status[channelID].pick + '` word set!\n' + status[channelID].getStatusString();
 		} else if (action === 'stop' || action === 'remove' || action === 'delete' || action === 'close') {
 			if (!status[channelID])
 				return DBot.CommandError('There is no game at all!', 'hangman', args, 1);
@@ -384,7 +384,7 @@ module.exports = {
 			else
 				return 'Game instance has been deleted.';
 		} else {
-			return DBot.CommandError('Unknown action', 'hangman', args, 1);
+			return DBot.CommandError('Unknown action. Valid are: `start <set>`, `s <char>`, `reset`, `stop`', 'hangman', args, 1);
 		}
 	}
 };
