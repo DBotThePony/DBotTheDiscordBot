@@ -274,11 +274,12 @@ class HangmanDispatcher {
 	
 	buildWord() {
 		let output = '';
+		const st = this.getStatus();
 		
 		for (const char of this.word) {
 			if (!allowedChars.includes(char))
 				output += '   ';
-			else if (this.isUnlocked(char))
+			else if (this.isUnlocked(char) || st === this.DEFEAT)
 				output += ' ' + char;
 			else
 				output += ' _';
