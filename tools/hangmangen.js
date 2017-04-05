@@ -145,11 +145,6 @@ function genTables(path) {
 						phrasesAll.easy.push(spacesSplit[i]);
 						phrasesAllMap.easy[spacesSplit[i]] = true;
 					}
-
-					if (!pDataMap.easy[spacesSplit[i]]) {
-						pData.easy.push(spacesSplit[i]);
-						pDataMap.easy[spacesSplit[i]] = true;
-					}
 				}
 
 				for (let i = 0; i < spacesSplit.length; i += 3) {
@@ -161,11 +156,6 @@ function genTables(path) {
 					if (!phrasesAllMap.medium[phr]) {
 						phrasesAll.medium.push(phr);
 						phrasesAllMap.medium[phr] = true;
-					}
-
-					if (!pDataMap.medium[phr]) {
-						pData.medium.push(phr);
-						pDataMap.medium[phr] = true;
 					}
 				}
 
@@ -179,11 +169,6 @@ function genTables(path) {
 						phrasesAll.hard.push(phr);
 						phrasesAllMap.hard[phr] = true;
 					}
-
-					if (!pDataMap.hard[phr]) {
-						pData.hard.push(phr);
-						pDataMap.hard[phr] = true;
-					}
 				}
 
 				for (let i = 0; i < spacesSplit.length; i += 5) {
@@ -196,29 +181,18 @@ function genTables(path) {
 						phrasesAll.very_hard.push(phr);
 						phrasesAllMap.very_hard[phr] = true;
 					}
-
-					if (!pDataMap.very_hard[phr]) {
-						pData.very_hard.push(phr);
-						pDataMap.very_hard[phr] = true;
-					}
 				}
 			}
 		}
 	}
 	
-	return [phrasesAll, phrasesCategory];
+	return phrasesAll;
 }
 
-const [fortuneDefault, fortuneDefaultCat] = genTables('../resource/fortune');
+const fortuneDefault = genTables('../resource/fortune');
 
-fs.writeFileSync('../resource/hangman/hangman_fortune.json', json3.stringify({
-	all: fortuneDefault,
-	category: fortuneDefaultCat
-}, null, 1));
+fs.writeFileSync('../resource/hangman/hangman_fortune.json', json3.stringify(fortuneDefault, null, 1));
 
-const [fortuneVulgar, fortuneVulgarCat] = genTables('../resource/fortune_vulgar');
+const fortuneVulgar = genTables('../resource/fortune_vulgar');
 
-fs.writeFileSync('../resource/hangman/hangman_fortunev.json', json3.stringify({
-	all: fortuneVulgar,
-	category: fortuneVulgarCat
-}, null, 1));
+fs.writeFileSync('../resource/hangman/hangman_fortunev.json', json3.stringify(fortuneVulgar, null, 1));

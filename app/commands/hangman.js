@@ -31,9 +31,10 @@ const json3 = require('json3');
 const avaliableFortune = json3.parse(fs.readFileSync('./resource/hangman/hangman_fortune.json', 'utf8'));
 
 const mapped = {
-	generated_all_easy: avaliableFortune.all.easy,
-	generated_all_medium: avaliableFortune.all.medium,
-	generated_all_hard: avaliableFortune.all.hard
+	generated_all_easy: avaliableFortune.easy,
+	generated_all_medium: avaliableFortune.medium,
+	generated_all_hard: avaliableFortune.hard,
+	generated_very_hard: avaliableFortune.very_hard
 };
 
 let avaliableString = '';
@@ -287,7 +288,7 @@ class HangmanDispatcher {
 		output += `Word - ${this.buildWord()}\n`;
 		output += `Named chars: ${this.bannedChars.join(', ')}\n`;
 		output += `Left: ${this.foundChars.length}/${this.chars.length} (${this.chars.length - this.foundChars.length}) chars\n`;
-		output += `Lifes: ${8 - this.defeat}/8\n`;
+		output += `Lives: ${8 - this.defeat}/8\n`;
 		
 		return output + '```';
 	}
@@ -313,10 +314,12 @@ module.exports = {
 			const pick = args[1] || 'generated_all_medium';
 			
 			if (!mapped[pick])
-				return DBot.CommandError('Invalid difficulty pick', 'hangman', args, 2);
+				return DBot.CommandError('Invalid difficulty pick\nValids are: ```' + avaliableString + '```', 'hangman', args, 2);
 			
 			status[channelID] = new HangmanDispatcher(this.channel, Array.Random(mapped[pick]));
 			status[channelID].map = mapped[pick];
+			status[channelID].pick = pick;
+			
 			return 'The game has started with `' + pick + '` difficulty!\n' + status[channelID].getStatusString();
 		} else if (action === 'suggest' || action === 's' || action === 'try') {
 			if (!status[channelID])
@@ -359,9 +362,9 @@ module.exports = {
 			status[channelID].reset(Array.Random(status[channelID].map));
 			
 			if (st)
-				return 'Game was aborted and has been counted as aborted game.\nGame has been reset!\n' + status[channelID].getStatusString();
+				return 'Game was aborted and has been counted as aborted game.\nGame has been reset on `' + status[channelID].pick + '` difficulty!\n' + status[channelID].getStatusString();
 			else
-				return 'Game has been reset!\n' + status[channelID].getStatusString();
+				return 'Game has been reset on `' + status[channelID].pick + '` difficulty!\n' + status[channelID].getStatusString();
 		} else if (action === 'stop' || action === 'remove' || action === 'delete' || action === 'close') {
 			if (!status[channelID])
 				return DBot.CommandError('There is no game at all!', 'hangman', args, 1);
