@@ -159,7 +159,7 @@ module.exports = {
 			ServerTags = DBot.ServerTags(msg.channel.guild, '4chan');
 		}
 		
-		if (!(msg.channel.name || 'private').match('nsfw') && (ClientTags.isBanned(board) || ServerTags && ServerTags.isBanned(board) || ChannelTags && ChannelTags.isBanned(board)))
+		if (!DBot.channelIsNSFW(msg.channel) && (ClientTags.isBanned(board) || ServerTags && ServerTags.isBanned(board) || ChannelTags && ChannelTags.isBanned(board)))
 			return 'Board is banned by the server, channel or even you';
 		
 		msg.channel.startTyping();

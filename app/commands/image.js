@@ -39,7 +39,7 @@ module.exports = {
 			ServerTags = DBot.ServerTags(msg.channel.guild, 'google');
 		}
 		
-		if (!(msg.channel.name || 'private').match('nsfw')) {
+		if (!DBot.channelIsNSFW(msg.channel)) {
 			for (let k in args) {
 				let split = args[k].split(' ');
 				

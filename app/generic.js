@@ -277,8 +277,8 @@ DBot.findRole = function(server, roleName, multi) {
 		return mrole;
 };
 
-DBot.channelIsNSFW = function(channel) {
-	if (channel.type === 'dm')
+DBot.channelIsNSFW = function(channel, nopm) {
+	if (channel.type === 'dm' && !nopm)
 		return true;
 	
 	if ((channel.name || '').match('nsfw'))

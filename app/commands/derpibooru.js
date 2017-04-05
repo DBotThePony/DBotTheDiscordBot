@@ -260,10 +260,12 @@ module.exports = {
 					else
 						split = parse.tags.split(', ');
 					
-					for (let i in split) {
-						if (!(msg.channel.name || 'private').match('nsfw') && (ClientTags.isBanned(split[i]) || ServerTags && ServerTags.isBanned(split[i]) || ChannelTags && ChannelTags.isBanned(split[i]))) {
-							searchFunc();
-							return;
+					if (!DBot.channelIsNSFW(msg.channel, true)) {
+						for (let i in split) {
+							if ((ClientTags.isBanned(split[i]) || ServerTags && ServerTags.isBanned(split[i]) || ChannelTags && ChannelTags.isBanned(split[i]))) {
+								searchFunc();
+								return;
+							}
 						}
 					}
 					
@@ -299,11 +301,13 @@ module.exports = {
 				else
 					split = data.tags.split(', ');
 				
-				for (let i in split) {
-					if (!(msg.channel.name || 'private').match('nsfw') && (ClientTags.isBanned(split[i]) || ServerTags && ServerTags.isBanned(split[i]) || ChannelTags && ChannelTags.isBanned(split[i]))) {
-						msg.reply('Image have tags that was blocked by server, channel or even you ;n; Next tag was banned: ' + split[i]);
-						msg.channel.stopTyping();
-						return;
+				if (!DBot.channelIsNSFW(msg.channel, true)) {
+					for (let i in split) {
+						if ((ClientTags.isBanned(split[i]) || ServerTags && ServerTags.isBanned(split[i]) || ChannelTags && ChannelTags.isBanned(split[i]))) {
+							msg.reply('Image have tags that was blocked by server, channel or even you ;n; Next tag was banned: ' + split[i]);
+							msg.channel.stopTyping();
+							return;
+						}
 					}
 				}
 				
@@ -320,9 +324,11 @@ module.exports = {
 						return;
 					}
 					
-					if (!(msg.channel.name || 'private').match('nsfw') && (ClientTags.isBanned(str) || ServerTags && ServerTags.isBanned(str) || ChannelTags && ChannelTags.isBanned(str))) {
-						msg.reply('You are trying to search by tag that was blocked by server, channel, or even you. Next tag was banned: ' + str);
-						return;
+					if (!DBot.channelIsNSFW(msg.channel, true)) {
+						if ((ClientTags.isBanned(str) || ServerTags && ServerTags.isBanned(str) || ChannelTags && ChannelTags.isBanned(str))) {
+							msg.reply('You are trying to search by tag that was blocked by server, channel, or even you. Next tag was banned: ' + str);
+							return;
+						}
 					}
 				}
 			}
