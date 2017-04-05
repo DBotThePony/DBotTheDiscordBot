@@ -121,7 +121,7 @@ class HangmanDispatcher {
 		
 		for (const c of checkArray)
 			if (!newArray.includes(c) && allowedChars.includes(c))
-				newArray.push(c);
+				newArray.push(c.toLowerCase());
 
 		this.chars = newArray;
 		
@@ -148,27 +148,19 @@ class HangmanDispatcher {
 	}
 	
 	isUnlocked(char) {
-		return this.foundChars.includes(char);
+		return this.foundChars.includes(char.toLowerCase());
 	}
 
 	tryChar(char, simulated) {
 		if (this.checkChar(char))
 			return false;
 		
-		const charUp = char.toUpperCase();
+		char = char.toLowerCase();
 		
 		if (this.chars.includes(char)) {
 			if (!simulated) {
 				this.bannedChars.push(char);
 				this.foundChars.push(char);
-			}
-			
-			return true;
-			
-		} else if (this.chars.includes(charUp)) {
-			if (!simulated) {
-				this.bannedChars.push(charUp);
-				this.foundChars.push(charUp);
 			}
 			
 			return true;
