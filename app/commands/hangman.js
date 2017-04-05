@@ -30,17 +30,20 @@ const json3 = require('json3');
 const numeral = require('numeral');
 
 const avaliableFortune = json3.parse(fs.readFileSync('./resource/hangman/hangman_fortune.json', 'utf8'));
+const avaliableFortuneVulgar = json3.parse(fs.readFileSync('./resource/hangman/hangman_fortunev.json', 'utf8'));
 const singlewords = fs.readFileSync('./resource/hangman/singlewords.csv', 'utf8').split(/\r?\n/);
 
 const mapped = {
-	generated_easy: avaliableFortune.easy,
-	generated_medium: avaliableFortune.medium,
-	generated_hard: avaliableFortune.hard,
-	generated_very_hard: avaliableFortune.very_hard,
-	generated_impossible: avaliableFortune.impossible,
-	generated_wizard: avaliableFortune.wizard,
 	single_word: singlewords
 };
+
+for (const i in avaliableFortune) {
+	mapped['generated_' + i] = avaliableFortune[i];
+}
+
+for (const i in avaliableFortune) {
+	mapped['vulgar_generated_' + i] = avaliableFortuneVulgar[i];
+}
 
 let avaliableString = '';
 
@@ -318,7 +321,7 @@ module.exports = {
 			if (status[channelID])
 				return DBot.CommandError('Game already started! try `reset` command', 'hangman', args, 1);
 			
-			const pick = args[1] || 'generated_medium';
+			const pick = args[1] || 'generated_hard';
 			
 			if (!mapped[pick])
 				return DBot.CommandError('Invalid word set pick\nValids are: ```' + avaliableString + '```', 'hangman', args, 2);

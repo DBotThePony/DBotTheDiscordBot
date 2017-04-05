@@ -93,19 +93,17 @@ function genTables(path) {
 	const categories = fs.readdirSync(path);
 	
 	const phrasesAll = {};
+	phrasesAll.very_easy = [];
 	phrasesAll.easy = [];
 	phrasesAll.medium = [];
 	phrasesAll.hard = [];
-	phrasesAll.very_hard = [];
-	phrasesAll.impossible = [];
 	phrasesAll.wizard = [];
 
 	const phrasesAllMap = {};
+	phrasesAllMap.very_easy = {};
 	phrasesAllMap.easy = {};
 	phrasesAllMap.medium = {};
 	phrasesAllMap.hard = {};
-	phrasesAllMap.very_hard = {};
-	phrasesAllMap.impossible = {};
 	phrasesAllMap.wizard = {};
 
 	for (const file of categories) {
@@ -126,9 +124,21 @@ function genTables(path) {
 				spacesSplit = spacesSplit.filter(wordFilter);
 				
 				for (let i = 0; i < spacesSplit.length; i++) {
-					if (!phrasesAllMap.easy[spacesSplit[i]]) {
-						phrasesAll.easy.push(spacesSplit[i]);
-						phrasesAllMap.easy[spacesSplit[i]] = true;
+					if (!phrasesAllMap.wizard[spacesSplit[i]]) {
+						phrasesAll.wizard.push(spacesSplit[i]);
+						phrasesAllMap.wizard[spacesSplit[i]] = true;
+					}
+				}
+
+				for (let i = 0; i < spacesSplit.length; i += 2) {
+					if (!spacesSplit[i + 1])
+						break;
+
+					const phr = `${spacesSplit[i]} ${spacesSplit[i + 1]}`;
+
+					if (!phrasesAllMap.hard[phr]) {
+						phrasesAll.hard.push(phr);
+						phrasesAllMap.hard[phr] = true;
 					}
 				}
 
@@ -150,21 +160,9 @@ function genTables(path) {
 
 					const phr = `${spacesSplit[i]} ${spacesSplit[i + 1]} ${spacesSplit[i + 2]} ${spacesSplit[i + 3]}`;
 
-					if (!phrasesAllMap.hard[phr]) {
-						phrasesAll.hard.push(phr);
-						phrasesAllMap.hard[phr] = true;
-					}
-				}
-
-				for (let i = 0; i < spacesSplit.length; i += 5) {
-					if (!spacesSplit[i + 1] || !spacesSplit[i + 2] || !spacesSplit[i + 3] || !spacesSplit[i + 4])
-						break;
-
-					const phr = `${spacesSplit[i]} ${spacesSplit[i + 1]} ${spacesSplit[i + 2]} ${spacesSplit[i + 3]} ${spacesSplit[i + 4]}`;
-
-					if (!phrasesAllMap.very_hard[phr]) {
-						phrasesAll.very_hard.push(phr);
-						phrasesAllMap.very_hard[phr] = true;
+					if (!phrasesAllMap.easy[phr]) {
+						phrasesAll.easy.push(phr);
+						phrasesAllMap.easy[phr] = true;
 					}
 				}
 			}
@@ -184,9 +182,9 @@ function genTables(path) {
 
 					const phr = `${spacesSplit[i]} ${spacesSplit[i + 1]} ${spacesSplit[i + 2]} ${spacesSplit[i + 3]} ${spacesSplit[i + 4]} ${spacesSplit[i + 5]}`;
 
-					if (!phrasesAllMap.impossible[phr]) {
-						phrasesAll.impossible.push(phr);
-						phrasesAllMap.impossible[phr] = true;
+					if (!phrasesAllMap.very_easy[phr]) {
+						phrasesAll.very_easy.push(phr);
+						phrasesAllMap.very_easy[phr] = true;
 					}
 				}
 				
@@ -196,9 +194,9 @@ function genTables(path) {
 
 					const phr = `${spacesSplit[i]} ${spacesSplit[i + 1]} ${spacesSplit[i + 2]} ${spacesSplit[i + 3]} ${spacesSplit[i + 4]} ${spacesSplit[i + 5]} ${spacesSplit[i + 6]}`;
 
-					if (!phrasesAllMap.wizard[phr]) {
-						phrasesAll.wizard.push(phr);
-						phrasesAllMap.wizard[phr] = true;
+					if (!phrasesAllMap.very_easy[phr]) {
+						phrasesAll.very_easy.push(phr);
+						phrasesAllMap.very_easy[phr] = true;
 					}
 				}
 			}
