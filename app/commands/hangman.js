@@ -29,20 +29,31 @@ const fs = require('fs');
 const json3 = require('json3');
 const numeral = require('numeral');
 
-const avaliableFortune = json3.parse(fs.readFileSync('./resource/hangman/hangman_fortune.json', 'utf8'));
-const avaliableFortuneVulgar = json3.parse(fs.readFileSync('./resource/hangman/hangman_fortunev.json', 'utf8'));
-const singlewords = fs.readFileSync('./resource/hangman/singlewords.csv', 'utf8').split(/\r?\n/);
-
 const mapped = {
-	single_word: singlewords
+	hard: fs.readFileSync('./resource/hangman/hard.csv', 'utf8').split(/\r?\n/),
+	medium: fs.readFileSync('./resource/hangman/medium.csv', 'utf8').split(/\r?\n/),
+	easy: fs.readFileSync('./resource/hangman/easy.csv', 'utf8').split(/\r?\n/),
+	very_easy: fs.readFileSync('./resource/hangman/very_easy.csv', 'utf8').split(/\r?\n/),
+	generated_simple: fs.readFileSync('./resource/hangman/gen_simple.csv', 'utf8').split(/\r?\n/)
 };
 
-for (const i in avaliableFortune) {
-	mapped['generated_' + i] = avaliableFortune[i];
-}
+{
+	const avaliableFortune = json3.parse(fs.readFileSync('./resource/hangman/hangman_fortune.json', 'utf8'));
+	const avaliableFortuneVulgar = json3.parse(fs.readFileSync('./resource/hangman/hangman_fortunev.json', 'utf8'));
+	
+	for (const i in avaliableFortune) {
+		mapped['fortune_' + i] = avaliableFortune[i];
+	}
 
-for (const i in avaliableFortune) {
-	mapped['vulgar_generated_' + i] = avaliableFortuneVulgar[i];
+	for (const i in avaliableFortune) {
+		mapped['vulgar_fortune_' + i] = avaliableFortuneVulgar[i];
+	}
+	
+	for (const fName of ['hard', 'medium', 'easy', 'very_easy']) {
+		mapped['word_gen_' + fName + '_two'] = fs.readFileSync('./resource/hangman/gen_' + fName + '_two.csv', 'utf8').split(/\r?\n/);
+		mapped['word_gen_' + fName + '_three'] = fs.readFileSync('./resource/hangman/gen_' + fName + '_three.csv', 'utf8').split(/\r?\n/);
+		mapped['word_gen_' + fName + '_four'] = fs.readFileSync('./resource/hangman/gen_' + fName + '_four.csv', 'utf8').split(/\r?\n/);
+	}
 }
 
 let avaliableString = '';
@@ -310,7 +321,7 @@ module.exports = {
 	name: 'hangman',
 
 	help_args: '<action> [arguments]',
-	desc: 'Hangman mini-game. Actions are: `start <set>`, `s <char>`, `reset`, `stop`\nWord sets are: `' + avaliableString + '`',
+	desc: 'Hangman mini-game. Actions are: `start <set>`, `s <char>`, `reset`, `stop`\nWord sets are:\n' + avaliableString,
 	delay: 0,
 
 	func: function(args, cmd, msg) {
@@ -321,7 +332,7 @@ module.exports = {
 			if (status[channelID])
 				return DBot.CommandError('Game already started! try `reset` command', 'hangman', args, 1);
 			
-			const pick = args[1] || 'generated_hard';
+			const pick = args[1] || 'medium';
 			
 			if (!mapped[pick])
 				return DBot.CommandError('Invalid word set pick\nValids are: ```' + avaliableString + '```', 'hangman', args, 2);
