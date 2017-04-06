@@ -341,7 +341,7 @@ module.exports = {
 			status[channelID].map = mapped[pick];
 			status[channelID].pick = pick;
 			
-			return 'The game has started with `' + pick + '` difficulty!\n' + status[channelID].getStatusString();
+			return 'The game has started with `' + pick + '` word set!\n' + status[channelID].getStatusString();
 		} else if (action === 'suggest' || action === 's' || action === 'try') {
 			if (!status[channelID])
 				return DBot.CommandError('There is no game at all!', 'hangman', args, 1);
