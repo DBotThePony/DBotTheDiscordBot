@@ -344,6 +344,7 @@ module.exports = {
 			if (!char || !allowedChars.includes(char))
 				return DBot.CommandError('Invalid char', 'hangman', args, 2);
 			
+			status[channelID].addPracticant(this.author);
 			if (status[channelID].checkChar(char))
 				return 'Char was already suggested!\n' + status[channelID].getStatusString();
 			
@@ -368,6 +369,7 @@ module.exports = {
 			if (!status[channelID])
 				return DBot.CommandError('There is no game at all!', 'hangman', args, 1);
 			
+			status[channelID].addPracticant(this.author);
 			const st = status[channelID].abort();
 			status[channelID].reset(Array.Random(status[channelID].map));
 			
@@ -379,6 +381,7 @@ module.exports = {
 			if (!status[channelID])
 				return DBot.CommandError('There is no game at all!', 'hangman', args, 1);
 			
+			status[channelID].addPracticant(this.author);
 			const st = status[channelID].abort();
 			delete status[channelID];
 			
