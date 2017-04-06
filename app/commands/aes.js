@@ -25,7 +25,7 @@ const charMap = [
 	'U', 'U', 'I', 'O', 'P', 'A', 'S',
 	'D', 'F', 'G', 'H', 'J', 'K', 'K',
 	'L', 'Z', 'X', 'C', 'V', 'B', 'N',
-	'M', 
+	'M'
 ];
 
 const charMapExp = [
@@ -42,7 +42,7 @@ const charMapExp = [
 	'U', 'U', 'I', 'O', 'P', 'A', 'S',
 	'D', 'F', 'G', 'H', 'J', 'K', 'K',
 	'L', 'Z', 'X', 'C', 'V', 'B', 'N',
-	'M', 
+	'M'
 ];
 
 const charFullSpace = [ 'ｑ', 'ｗ', 'ｅ', 'ｒ', 'ｔ', 'ｙ', 'ｕ', 'ｉ', 'ｏ', 'ｐ', 'ａ', 'ｓ', 'ｄ', 'ｆ', 'ｇ', 'ｈ', 'ｊ', 'ｋ', 'ｌ', 'ｚ', 'ｘ', 'ｃ', 'ｖ', 'ｂ', 'ｎ', 'ｍ', '１', '２', '３', '４', '５', '６', '７', '８', '９', '０', '［', '］', '；', '＇', '＼', '，', '．', '／', '？', '－', '＝', '＋', '！', '＠', '＃', '＄', '％', '＾', '＆', '＊', '（', '）', '～', '｀', '﻿｛', '﻿｝', '﻿＜', '﻿＞', 'Ｑ', 'Ｗ', 'Ｅ', 'Ｒ', 'Ｔ', 'Ｙ', 'Ｕ', 'Ｕ', 'Ｉ', 'Ｏ', 'Ｐ', 'Ａ', 'Ｓ', 'Ｄ', 'Ｆ', 'Ｇ', 'Ｈ', 'Ｊ', 'Ｋ', 'Ｋ', 'Ｌ', 'Ｚ', 'Ｘ', 'Ｃ', 'Ｖ', 'Ｂ', 'Ｎ', 'Ｍ'];
@@ -75,8 +75,8 @@ module.exports = {
 		return cmd.replace(matchMapExp, function(m) {
 			return mappedFull[m] || m;
 		});
-	},
-}
+	}
+}ж
 
 DBot.RegisterCommand({
 	name: 'tflip',
@@ -107,7 +107,7 @@ DBot.RegisterCommand({
 		return cmd.replace(matchMapExp, function(m) {
 			return mappedFlop[m] || m;
 		});
-	},
+	}
 });
 
 DBot.RegisterPipe({
@@ -121,7 +121,7 @@ DBot.RegisterPipe({
 		return cmd.replace(matchMapExp, function(m) {
 			return mappedFull[m] || m;
 		});
-	},
+	}
 });
 
 DBot.RegisterPipe({
@@ -135,7 +135,7 @@ DBot.RegisterPipe({
 		return cmd.replace(matchMapExp, function(m) {
 			return mappedFlip[m] || m;
 		});
-	},
+	}
 });
 
 DBot.RegisterPipe({
@@ -149,6 +149,6 @@ DBot.RegisterPipe({
 		return cmd.replace(matchMapExp, function(m) {
 			return mappedFlop[m] || m;
 		});
-	},
+	}
 });
 
