@@ -76,7 +76,7 @@ module.exports = {
 			return mappedFull[m] || m;
 		});
 	}
-}ж
+}
 
 DBot.RegisterCommand({
 	name: 'tflip',
