@@ -37,9 +37,9 @@ const CommandHelper = {
 	url: url,
 	urlStrong: urlStrong,
 	
-	URLMessages: {},
-	URLMessagesImages: {},
-	URLMessagesImages2: {},
+	URLMessages: new Map(),
+	URLMessagesImages: new Map(),
+	URLMessagesImages2: new Map(),
 	
 	switchImageArgs: function(channel, args, defNum) {
 		const url1 = CommandHelper.identifyURL(args[0]);
@@ -145,15 +145,15 @@ const CommandHelper = {
 	},
 	
 	lastURL: function(channel) {
-		return CommandHelper.URLMessages[channel.id];
+		return CommandHelper.URLMessages.get(channel.id);
 	},
 	
 	lastImageURL: function(channel) {
-		return CommandHelper.URLMessagesImages[channel.id];
+		return CommandHelper.URLMessagesImages.get(channel.id);
 	},
 	
 	lastImageURL2: function(channel) {
-		return CommandHelper.URLMessagesImages2[channel.id];
+		return CommandHelper.URLMessagesImages2.get(channel.id);
 	},
 	
 	checkURL: function(url) {
@@ -214,13 +214,13 @@ const CommandHelper = {
 CommandHelper.combinedURL = CommandHelper.CombinedURL;
 
 const messageParseFunc = function(msg) {
-	let cid = msg.channel.id;
+	const cid = msg.channel.id;
 	
 	if (msg.attachments) {
 		for (const val of msg.attachments.values()) {
 			if (val.url && val.url.match(imageExt)) {
-				CommandHelper.URLMessages[cid] = val.url;
-				CommandHelper.URLMessagesImages[cid] = val.url;
+				CommandHelper.URLMessages.set(cid, val.url);
+				CommandHelper.URLMessagesImages.set(cid, val.url);
 			}
 		}
 	}
@@ -229,9 +229,13 @@ const messageParseFunc = function(msg) {
 	if (!get) return;
 	
 	for (const urlStr of get) {
-		if (urlStr.match(imageExt)) CommandHelper.URLMessagesImages[cid] = urlStr;
-		if (urlStr.match(imageExtExtended)) CommandHelper.URLMessagesImages2[cid] = urlStr;
-		CommandHelper.URLMessages[cid] = urlStr;
+		if (urlStr.match(imageExt))
+			CommandHelper.URLMessagesImages.set(cid, urlStr);
+		
+		if (urlStr.match(imageExtExtended))
+			CommandHelper.URLMessagesImages2.set(cid, urlStr);
+		
+		CommandHelper.URLMessages.set(cid, urlStr);
 	}
 };
 
