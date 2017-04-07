@@ -326,6 +326,11 @@ const reactions = [
 	],
 	
 	[
+		['music', 'musical'],
+		['musical_note']
+	],
+	
+	[
 		['pizza'],
 		['pizza']
 	]
