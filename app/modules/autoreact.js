@@ -57,7 +57,7 @@ const reactions = [
 ];
 
 for (const ar of reactions) {
-	ar[0] = new RegExp(ar[0], 'i');
+	ar[0] = new RegExp('(^| )' + ar[0] + '( |$)', 'i');
 	ar[2] = emojiModule.getEmojiByName(ar[1]);
 }
 
