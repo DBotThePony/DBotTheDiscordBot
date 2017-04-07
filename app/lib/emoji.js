@@ -8886,6 +8886,7 @@ const emojiList = {
 
 const mapBackwards = {};
 const mapUnicode = {};
+const mapUnicodeEnchanted = new Map();
 const mapNameToString = new Map();
 
 for (const k in map) {
@@ -8893,8 +8894,15 @@ for (const k in map) {
 }
 
 for (const k in emojiList) {
-	for (const code of emojiList[k].unicode)
+	for (const code of emojiList[k].unicode) {
 		mapUnicode[code] = k;
+		
+		if (mapUnicodeEnchanted.has(code)) {
+			mapUnicodeEnchanted.get(code).push(k);
+		} else {
+			mapUnicodeEnchanted.set(code, [k]);
+		}
+	}
 }
 
 let avaliableCharEmoji = [];
@@ -8903,12 +8911,13 @@ const mine = 'regional_indicator_';
 
 module.charEmoji = avaliableCharEmoji;
 module.charEmojMap = avaliableCharEmojiMap;
+module.mapUnicodeEnchanted = mapUnicodeEnchanted;
 
-for (const unicodeID in mapUnicode) {
-	const unicode = mapUnicode[unicodeID];
-	
-	mapNameToString.set(unicode, mapBackwards[unicodeID]);
-	mapNameToString.set(unicode.substr(1, unicode.length - 2), mapBackwards[unicodeID]);
+for (const [unicodeID, unicodeArray] of mapUnicodeEnchanted) {
+	for (const unicode of unicodeArray) {
+		mapNameToString.set(unicode, mapBackwards[unicodeID]);
+		mapNameToString.set(unicode.substr(1, unicode.length - 2), mapBackwards[unicodeID]);
+	}
 }
 
 {
