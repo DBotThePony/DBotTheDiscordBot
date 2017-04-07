@@ -29,7 +29,7 @@ const fs = require('fs');
 const json3 = require('json3');
 const numeral = require('numeral');
 
-const mapped = {
+myGlobals.__hangman_mapped = {
 	hard: fs.readFileSync('./resource/hangman/hard.csv', 'utf8').split(/\r?\n/),
 	medium: fs.readFileSync('./resource/hangman/medium.csv', 'utf8').split(/\r?\n/),
 	easy: fs.readFileSync('./resource/hangman/easy.csv', 'utf8').split(/\r?\n/),
@@ -42,23 +42,23 @@ const mapped = {
 	const avaliableFortuneVulgar = json3.parse(fs.readFileSync('./resource/hangman/hangman_fortunev.json', 'utf8'));
 	
 	for (const i in avaliableFortune) {
-		mapped['fortune_' + i] = avaliableFortune[i];
+		myGlobals.__hangman_mapped['fortune_' + i] = avaliableFortune[i];
 	}
 
 	for (const i in avaliableFortune) {
-		mapped['vulgar_fortune_' + i] = avaliableFortuneVulgar[i];
+		myGlobals.__hangman_mapped['vulgar_fortune_' + i] = avaliableFortuneVulgar[i];
 	}
 	
 	for (const fName of ['hard', 'medium', 'easy', 'very_easy']) {
-		mapped['word_gen_' + fName + '_two'] = fs.readFileSync('./resource/hangman/gen_' + fName + '_two.csv', 'utf8').split(/\r?\n/);
-		mapped['word_gen_' + fName + '_three'] = fs.readFileSync('./resource/hangman/gen_' + fName + '_three.csv', 'utf8').split(/\r?\n/);
-		mapped['word_gen_' + fName + '_four'] = fs.readFileSync('./resource/hangman/gen_' + fName + '_four.csv', 'utf8').split(/\r?\n/);
+		myGlobals.__hangman_mapped['word_gen_' + fName + '_two'] = fs.readFileSync('./resource/hangman/gen_' + fName + '_two.csv', 'utf8').split(/\r?\n/);
+		myGlobals.__hangman_mapped['word_gen_' + fName + '_three'] = fs.readFileSync('./resource/hangman/gen_' + fName + '_three.csv', 'utf8').split(/\r?\n/);
+		myGlobals.__hangman_mapped['word_gen_' + fName + '_four'] = fs.readFileSync('./resource/hangman/gen_' + fName + '_four.csv', 'utf8').split(/\r?\n/);
 	}
 }
 
 let avaliableString = '';
 
-for (const i in mapped) {
+for (const i in myGlobals.__hangman_mapped) {
 	avaliableString += ', ' + i;
 }
 
@@ -334,11 +334,11 @@ module.exports = {
 			
 			const pick = args[1] || 'medium';
 			
-			if (!mapped[pick])
+			if (!myGlobals.__hangman_mapped[pick])
 				return DBot.CommandError('Invalid word set pick\nValids are: ```' + avaliableString + '```', 'hangman', args, 2);
 			
-			status[channelID] = new HangmanDispatcher(this.channel, Array.Random(mapped[pick]));
-			status[channelID].map = mapped[pick];
+			status[channelID] = new HangmanDispatcher(this.channel, Array.Random(myGlobals.__hangman_mapped[pick]));
+			status[channelID].map = myGlobals.__hangman_mapped[pick];
 			status[channelID].pick = pick;
 			
 			return 'The game has started with `' + pick + '` word set!\n' + status[channelID].getStatusString();
