@@ -36,7 +36,7 @@ const reactions = [
 	],
 	
 	[
-		['snek', 'snaek', 'snake', 'danger noodle', 'sneaky'],
+		['snek', 'snaek', 'snake', 'danger noodle', 'sneaky', 'hiss+'],
 		['snake']
 	],
 	
