@@ -8886,13 +8886,15 @@ const emojiList = {
 
 const mapBackwards = {};
 const mapUnicode = {};
+const mapNameToString = new Map();
 
 for (const k in map) {
 	mapBackwards[map[k]] = k;
 }
 
 for (const k in emojiList) {
-	mapUnicode[emojiList[k].unicode[0]] = k;
+	for (const code of emojiList[k].unicode)
+		mapUnicode[code] = k;
 }
 
 let avaliableCharEmoji = [];
@@ -8902,8 +8904,11 @@ const mine = 'regional_indicator_';
 module.charEmoji = avaliableCharEmoji;
 module.charEmojMap = avaliableCharEmojiMap;
 
-for (const k in map) {
-	mapBackwards[map[k]] = k;
+for (const unicodeID in mapUnicode) {
+	const unicode = mapUnicode[unicodeID];
+	
+	mapNameToString.set(unicode, mapBackwards[unicodeID]);
+	mapNameToString.set(unicode.substr(1, unicode.length - 2), mapBackwards[unicodeID]);
 }
 
 {
@@ -8940,6 +8945,12 @@ module.unicodeOnly = regExpUnicodeOnly;
 module.customRegExp = customEmoji;
 module.map = map;
 module.mapBackwards = mapBackwards;
+module.mapNameToString = mapNameToString;
+
+// :snake: turns into single char emoji
+module.getEmojiByName = function(name) {
+	return mapNameToString.get(name);
+}
 
 module.findURL = function(str) {
 	let subStr = str.toLowerCase();
