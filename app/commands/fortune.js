@@ -11,38 +11,41 @@ const CommandHelper = myGlobals.CommandHelper;
 
 const fs = require('fs');
 
+myGlobals.__fortune = {};
+
+myGlobals.__fortune.categoriesFull = [];
+
+myGlobals.__fortune.fortuneNormal = [];
+myGlobals.__fortune.fortuneVulgar = [];
+myGlobals.__fortune.fortuneFull = [];
+
+myGlobals.__fortune.fortuneMapNormal = new Map();
+myGlobals.__fortune.fortuneMapVulgar = new Map();
+myGlobals.__fortune.fortuneMapFull = new Map();
+
 const categories = fs.readdirSync('./resource/fortune');
 const categoriesVulgar = fs.readdirSync('./resource/fortune_vulgar');
-const categoriesFull = [];
-
-const fortuneNormal = [];
-const fortuneVulgar = [];
-const fortuneFull = [];
-
-const fortuneMapNormal = new Map();
-const fortuneMapVulgar = new Map();
-const fortuneMapFull = new Map();
 
 for (const cat of categories)
-	categoriesFull.push(cat);
+	myGlobals.__fortune.categoriesFull.push(cat);
 
 for (const cat of categoriesVulgar)
-	categoriesFull.push(cat);
+	myGlobals.__fortune.categoriesFull.push(cat);
 
 for (const file of categories) {
 	const data = fs.readFileSync('./resource/fortune/' + file, 'utf8');
 	
 	const mapData1 = [];
 	const mapData2 = [];
-	fortuneMapNormal.set(file, mapData1);
-	fortuneMapFull.set(file, mapData2);
+	myGlobals.__fortune.fortuneMapNormal.set(file, mapData1);
+	myGlobals.__fortune.fortuneMapFull.set(file, mapData2);
 	
 	const phrases = data.split('%');
 	
 	for (const phr of phrases) {
-		fortuneNormal.push(phr);
+		myGlobals.__fortune.fortuneNormal.push(phr);
 		mapData1.push(phr);
-		fortuneFull.push(phr);
+		myGlobals.__fortune.fortuneFull.push(phr);
 		mapData2.push(phr);
 	}
 }
@@ -52,21 +55,21 @@ for (const file of categoriesVulgar) {
 	
 	const mapData1 = [];
 	let mapData2;
-	fortuneMapVulgar.set(file, mapData1);
+	myGlobals.__fortune.fortuneMapVulgar.set(file, mapData1);
 	
-	if (!fortuneMapFull.has(file)) {
+	if (!myGlobals.__fortune.fortuneMapFull.has(file)) {
 		mapData2 = [];
-		fortuneMapFull.set(file, mapData2);
+		myGlobals.__fortune.fortuneMapFull.set(file, mapData2);
 	} else {
-		mapData2 = fortuneMapFull.get(file);
+		mapData2 = myGlobals.__fortune.fortuneMapFull.get(file);
 	}
 	
 	const phrases = data.split('%');
 	
 	for (const phr of phrases) {
-		fortuneVulgar.push(phr);
+		myGlobals.__fortune.fortuneVulgar.push(phr);
 		mapData1.push(phr);
-		fortuneFull.push(phr);
+		myGlobals.__fortune.fortuneFull.push(phr);
 		mapData2.push(phr);
 	}
 }
@@ -80,14 +83,14 @@ module.exports = {
 	
 	func: function(args, cmd, msg) {
 		if (!args[0]) {
-			return '```' + Array.Random(fortuneNormal) + '```';
+			return '```' + Array.Random(myGlobals.__fortune.fortuneNormal) + '```';
 		} else {
 			args[0] = args[0].toLowerCase();
 			
 			if (!categories.includes(args[0]))
 				return DBot.CommandError('Invalid fortune category', 'fortune', args, 1);
 			
-			return '```' + Array.Random(fortuneMapNormal.get(args[0])) + '```';
+			return '```' + Array.Random(myGlobals.__fortune.fortuneMapNormal.get(args[0])) + '```';
 		}
 	}
 };
@@ -102,14 +105,14 @@ DBot.RegisterCommand({
 	
 	func: function(args, cmd, msg) {
 		if (!args[0]) {
-			return '```' + Array.Random(fortuneVulgar) + '```';
+			return '```' + Array.Random(myGlobals.__fortune.fortuneVulgar) + '```';
 		} else {
 			args[0] = args[0].toLowerCase();
 			
 			if (!categoriesVulgar.includes(args[0]))
 				return DBot.CommandError('Invalid fortune category', 'fortune', args, 1);
 			
-			return '```' + Array.Random(fortuneMapVulgar.get(args[0])) + '```';
+			return '```' + Array.Random(myGlobals.__fortune.fortuneMapVulgar.get(args[0])) + '```';
 		}
 	}
 });
@@ -124,14 +127,14 @@ DBot.RegisterCommand({
 	
 	func: function(args, cmd, msg) {
 		if (!args[0]) {
-			return '```' + Array.Random(fortuneFull) + '```';
+			return '```' + Array.Random(myGlobals.__fortune.fortuneFull) + '```';
 		} else {
 			args[0] = args[0].toLowerCase();
 			
-			if (!categoriesFull.includes(args[0]))
+			if (!myGlobals.__fortune.categoriesFull.includes(args[0]))
 				return DBot.CommandError('Invalid fortune category', 'fortune', args, 1);
 			
-			return '```' + Array.Random(fortuneMapFull.get(args[0])) + '```';
+			return '```' + Array.Random(myGlobals.__fortune.fortuneMapFull.get(args[0])) + '```';
 		}
 	}
 });
@@ -165,6 +168,6 @@ DBot.RegisterCommand({
 	desc: 'Lists all fortune categories',
 	
 	func: function(args, cmd, msg) {
-		return 'Avaliable categories are: ```\n' + categoriesFull.join(', ') + '\n```';
+		return 'Avaliable categories are: ```\n' + myGlobals.__fortune.categoriesFull.join(', ') + '\n```';
 	}
 });
