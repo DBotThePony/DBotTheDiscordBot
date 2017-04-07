@@ -397,4 +397,4 @@ const OnValidMessage = function(msg) {
 	}
 };
 
-hook.Add('OnValidMessage', 'CommandHelper', OnValidMessage);
+hook.Add('OnValidMessage', 'AutoReact', OnValidMessage);
