@@ -2,7 +2,7 @@
 /* global FCVAR_BOOLONLY */
 
 // 
-// Copyright (C) 2017 DBot
+// Copyright (C) 2016-2017 DBot. All other content, that was used, but not created in this project, is licensed under their own licenses, and belong to their authors.
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
