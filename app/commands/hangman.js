@@ -307,7 +307,7 @@ class HangmanDispatcher {
 		
 		output += `Word - ${this.buildWord()}\n`;
 		output += `Named chars: ${this.bannedChars.join(', ')}\n`;
-		output += `Left: ${this.foundChars.length}/${this.chars.length} (${this.chars.length - this.foundChars.length}) chars\n`;
+		output += `Left: ${this.chars.length - this.foundChars.length}/${this.chars.length} (${this.foundChars.length}) chars\n`;
 		output += `Lives: ${8 - this.defeat}/8\n`;
 		
 		return output + '```';
