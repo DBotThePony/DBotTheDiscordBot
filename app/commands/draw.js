@@ -115,6 +115,8 @@ const AvaliableCustomFonts = [
 	['Anonymous-Pro-Bold-Italic', 'Anonymous-Bold-Italic'],
 	['Anonymous-Pro-Italic', 'Anonymous-Italic'],
 	['Exo-2-Thin', 'Exo2Thin'],
+	['Exo-2-Light', 'Exo2Light'],
+	['Exo-2', 'Exo2'],
 	['PT-Sans', 'PTSans'],
 	['PT-Sans-Bold', 'PTSansBold'],
 	['PT-Sans-Bold-Italic', 'PTSansBoldItalic'],
