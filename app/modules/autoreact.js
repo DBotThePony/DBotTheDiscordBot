@@ -74,6 +74,9 @@ const OnValidMessage = function(msg) {
 	if (!me || !me.hasPermission('ADD_REACTIONS'))
 		return;
 	
+	if (msg.channel.guild.lastReact && msg.channel.guild.lastReact > CurTime())
+		return;
+	
 	let i = 0;
 	
 	for (const data of reactions) {
@@ -84,6 +87,10 @@ const OnValidMessage = function(msg) {
 		
 		if (i > 5)
 			break;
+	}
+	
+	if (i !== 0) {
+		msg.channel.guild.lastReact = CurTime() + 2;
 	}
 };
 
