@@ -150,13 +150,16 @@ DBot.MessageHandler = function(msg) {
 	if (msg.pinned) return;
 	
 	try {
-		if (DBot.IsMyMessage(msg)) return;
-
 		if (!DBot.SQLReady()) {
+			if (DBot.IsMyMessage(msg)) return;
 			if (msg.channel.type === 'dm')
 				msg.channel.sendMessage('I am loading.\nLeft [' + DBot.LOADING_LEVEL + '/' + DBot.maximalLoadingValue + '] stages\n```[' + DBot.loadingString + ']```');
 			return;
 		}
+		
+		hook.Run('OnRawMessage', msg);
+		if (DBot.IsMyMessage(msg)) return;
+		
 		
 		msg.internalCreateTime = CurTime();
 		hook.Run('OnMessage', msg);
