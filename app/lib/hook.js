@@ -60,7 +60,7 @@ class Hook {
 		for (const [key, val] of this.hooks) {
 			obj[key] = obj[key] || {};
 			for (const [key2, val2] of val) {
-				obj[key][key2] = val;
+				obj[key][key2] = val2;
 			}
 		}
 		
