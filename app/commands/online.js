@@ -74,7 +74,7 @@ DBot.RegisterCommand({
 	allowUserArgument: true,
 	
 	func: function(args, cmd, msg) {
-		if (typeof args[0] === 'object') {
+		if (typeof args[0] === 'object' && args[0].id !== DBot.bot.user.id) {
 			let uid = DBot.GetUserID(args[0]);
 			
 			Postgres.query('SELECT * FROM uptime WHERE "ID" = ' + uid, function(err, data) {
