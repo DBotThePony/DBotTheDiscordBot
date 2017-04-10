@@ -28,12 +28,12 @@ const CommandHelper = myGlobals.CommandHelper;
 
 if (!DBot.cfg.steam_enable) return;
 
-let apiBase = 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=' + DBot.cfg.steam + '&steamids=';
-let resolveBase = 'http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=' + DBot.cfg.steam + '&vanityurl=';
-let unirest = require('unirest');
-let BigNumber = require('bignumber.js');
+const apiBase = 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=' + DBot.cfg.steam + '&steamids=';
+const resolveBase = 'http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=' + DBot.cfg.steam + '&vanityurl=';
+const unirest = require('unirest');
+const BigNumber = require('bignumber.js');
 
-let SteamIDTo64 = function(id) {
+const SteamIDTo64 = function(id) {
 	let server = 0;
 	let AuthID = 0;
 	
@@ -51,7 +51,7 @@ let SteamIDTo64 = function(id) {
 	return one.plus(two).plus(three).toString(10);
 };
 
-let SteamIDFrom64 = function(id) {
+const SteamIDFrom64 = function(id) {
 	let newNum = new BigNumber(id);
 	let num = Number.from(newNum.minus(new BigNumber('76561197960265728')).toString(10));
 	
@@ -61,7 +61,7 @@ let SteamIDFrom64 = function(id) {
 	return 'STEAM_0:' + server + ':' + (num / 2);
 };
 
-let SteamIDTo3 = function(id) {
+const SteamIDTo3 = function(id) {
 	let server = 0;
 	let AuthID = 0;
 	
@@ -73,7 +73,7 @@ let SteamIDTo3 = function(id) {
 	return '[U:1:' + (AuthID * 2 + server) + ']';
 };
 
-let SteamIDFrom3 = function(id) {
+const SteamIDFrom3 = function(id) {
 	let sub = id.substr(1, id.length - 2);
 	let split = sub.split(':');
 	
@@ -88,6 +88,8 @@ let SteamIDFrom3 = function(id) {
 };
 
 let manipulateRegExp = new RegExp('/', 'g');
+const usualProfileStart = 'https://steamcommunity.com/profiles/';
+const idProfileStart = 'https://steamcommunity.com/id/';
 
 module.exports = {
 	name: 'steamid',
@@ -124,7 +126,10 @@ module.exports = {
 			output += 'Player SteamID(32): `' + SteamID + '`\n';
 			output += 'Player SteamID3: `' + SteamID3 + '`\n';
 			output += 'Player SteamID64: `' + SteamID64 + '`\n';
-			output += 'Player Profile URL: https://steamcommunity.com/id/' + CustomProfileURL + '\n';
+			output += 'Player Profile URL: ' + usualProfileStart + SteamID64 + '\n';
+			
+			if (CustomProfileURL.substr(0, 4) !== 'http')
+				output += 'Player Profile Custom URL: ' + idProfileStart + SteamID64 + '\n';
 			
 			msg.reply(output);
 		};
@@ -167,9 +172,9 @@ module.exports = {
 							let steamid = SteamIDFrom64(id);
 							let steamid3 = SteamIDTo3(steamid);
 							
-							let profile = profileurl.replace('http://steamcommunity.com/id/', '').replace('/', '');
-							
+							let profile = profileurl.replace(idProfileStart, '').replace('/', '');
 							CustomProfileURL = profile;
+							
 							SteamID = steamid;
 							SteamID3 = steamid3;
 							SteamID64 = id;
