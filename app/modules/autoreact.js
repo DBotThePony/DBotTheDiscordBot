@@ -636,7 +636,7 @@ const OnValidMessage = function(msg) {
 		return;
 	
 	const me = msg.channel.guild.member(DBot.bot.user);
-	if (!me || !me.hasPermission('ADD_REACTIONS') || !msg.channel.guild.permissionsFor(me).hasPermission('ADD_REACTIONS'))
+	if (!me || !me.hasPermission('ADD_REACTIONS') || !msg.channel.permissionsFor(me).hasPermission('ADD_REACTIONS'))
 		return;
 	
 	if (msg.channel.guild.lastReact && msg.channel.guild.lastReact > CurTime())
