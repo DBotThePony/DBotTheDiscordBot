@@ -1,4 +1,6 @@
 
+'use strict';
+
 process.env['PATH'] = '../bin;' + process.env['PATH'];
 
 const json3 = require('json3');

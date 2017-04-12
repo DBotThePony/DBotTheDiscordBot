@@ -14,6 +14,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // 
+
+'use strict';
+
 const myGlobals = require('./globals.js');
 const hook = myGlobals.hook;
 const DBot = myGlobals.DBot;

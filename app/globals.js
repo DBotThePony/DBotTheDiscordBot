@@ -18,6 +18,8 @@
 // Just a wrapper for storing "global" variables as local
 // lol
 
+'use strict';
+
 module.sql = {};
 module.DBot = {};
 module.IMagick = {};

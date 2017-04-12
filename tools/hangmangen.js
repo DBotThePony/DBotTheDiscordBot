@@ -15,6 +15,8 @@
 // limitations under the License.
 // 
 
+'use strict';
+
 const fs = require('fs');
 const json3 = require('json3');
 

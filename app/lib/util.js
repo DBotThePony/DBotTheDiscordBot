@@ -16,6 +16,8 @@
 // limitations under the License.
 // 
 
+'use strict';
+
 const myGlobals = require('../globals.js');
 const hook = myGlobals.hook;
 const DBot = myGlobals.DBot;
@@ -41,14 +43,14 @@ Util.Copy = function(path, to) {
 	fs.createReadStream(path).pipe(fs.createWriteStream(to));
 };
 
-TimezoneOffset = function() {
+global.TimezoneOffset = function() {
 	return (new Date()).getTimezoneOffset() * 60;
 };
 
-TimeOffset = TimezoneOffset;
-CurTimeOffset = TimezoneOffset;
-RealTimeOffset = TimezoneOffset;
-SysTimeOffset = TimezoneOffset;
+global.TimeOffset = global.TimezoneOffset;
+global.CurTimeOffset = global.TimezoneOffset;
+global.RealTimeOffset = global.TimezoneOffset;
+global.SysTimeOffset = global.TimezoneOffset;
 
 const emptyFunc = function() {};
 

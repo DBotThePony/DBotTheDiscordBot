@@ -15,6 +15,8 @@
 // limitations under the License.
 // 
 
+'use strict';
+
 const spawn = require('child_process').spawn;
 const fs = require('fs');
 const os = require('os');

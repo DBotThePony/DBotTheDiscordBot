@@ -16,6 +16,8 @@
 // limitations under the License.
 // 
 
+'use strict';
+
 const myGlobals = require('../globals.js');
 const hook = myGlobals.hook;
 const DBot = myGlobals.DBot;
@@ -82,7 +84,7 @@ const updateFunc = function() {
 updateFunc();
 */
 
-const uniqueStr = '\0\0\0\0\0\0\1\1\1\1\1\0\0\1\0\1\0\1';
+const uniqueStr = '------------------||||||||||||||||||||||||---------------------';
 const fileContents = fs.readFileSync('./resource/copypasta.csv', 'utf8').replace(/""/g, uniqueStr);
 const split = fileContents.split(/"([^"]*)"/g);
 const memes = [];

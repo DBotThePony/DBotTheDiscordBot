@@ -15,6 +15,8 @@
 // limitations under the License.
 // 
 
+'use strict';
+
 const myGlobals = require('./globals.js');
 const DBot = myGlobals.DBot;
 const sql = myGlobals.sql;

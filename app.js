@@ -15,6 +15,8 @@
 // limitations under the License.
 // 
 
+'use strict';
+
 const myGlobals = require('./app/globals.js');
 const DBot = myGlobals.DBot;
 const sql = myGlobals.sql;
@@ -196,7 +198,7 @@ DBot.readyEvent = function() {
 	}, 6000);
 };
 
-IsOnline = DBot.IsOnline;
+global.IsOnline = DBot.IsOnline;
 
 bot.on('ready', DBot.readyEvent);
 bot.on('disconnect', DBot.disconnectEvent);

@@ -16,6 +16,8 @@
 // limitations under the License.
 // 
 
+'use strict';
+
 const myGlobals = require('../globals.js');
 const hook = myGlobals.hook;
 const DBot = myGlobals.DBot;
@@ -35,7 +37,7 @@ const fs = require('fs');
 Util.mkdir(DBot.WebRoot + '/jpeg', function() {
 	Util.mkdir(DBot.WebRoot + '/jpeg/dlcache');
 	
-	for (i = 1; i <= 10; i++) {
+	for (let i = 1; i <= 10; i++) {
 		Util.mkdir(DBot.WebRoot + '/jpeg/' + i);
 	}
 });
