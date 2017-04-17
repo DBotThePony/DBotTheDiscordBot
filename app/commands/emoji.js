@@ -148,67 +148,74 @@ module.exports = {
 			});
 		};
 		
-		for (let subStr of emojiMatch) {
-			subStr = subStr.toLowerCase();
-			let flop = false;
-			
-			if (subStr.substr(0, 1) === '!') {
-				flop = true;
-				subStr = subStr.substr(1);
-			}
-			
-			if (subStr.substr(0, 2) === '<:') {
-				// Custom Emoji
-				customEmojiAmount++;
-				
-				let MYID = emojiCollection.length;
-				
-				emojiCollection[MYID] = null;
-				
-				subStr.replace(customEmoji, function(matched, p1, offset, Self) {
-					CommandHelper.loadImage(emojiBase + p1 + '.png', function(newPath) {
-						emojiCollection[MYID] = {
-							path: newPath,
-							flop: flop
-						};
-						
-						customEmojiAmount--;
-						
-						if (customEmojiAmount === 0)
-							continueFunc();
-					}, function(result) {
-						msg.channel.stopTyping();
-						msg.reply('Failed to download image. `HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '` URL: ' + emojiBase + p1 + '.png');
+		try {
+			for (let subStr of emojiMatch) {
+				subStr = subStr.toLowerCase();
+				let flop = false;
+
+				if (subStr.substr(0, 1) === '!') {
+					flop = true;
+					subStr = subStr.substr(1);
+				}
+
+				if (subStr.substr(0, 2) === '<:') {
+					// Custom Emoji
+					customEmojiAmount++;
+
+					let MYID = emojiCollection.length;
+
+					emojiCollection[MYID] = null;
+
+					subStr.replace(customEmoji, function(matched, p1, offset, Self) {
+						CommandHelper.loadImage(emojiBase + p1 + '.png', function(newPath) {
+							emojiCollection[MYID] = {
+								path: newPath,
+								flop: flop
+							};
+
+							customEmojiAmount--;
+
+							if (customEmojiAmount === 0)
+								continueFunc();
+						}, function(result) {
+							msg.channel.stopTyping();
+							msg.reply('Failed to download image. `HTTP Status Code: ' + (result.code || 'socket hangs up or connection timeout') + '` URL: ' + emojiBase + p1 + '.png');
+						});
 					});
-				});
-			} else if (subStr === '\n') {
-				if (emojiCollection.length === 0)
-					continue;
-				
-				emojiCollection.push({
-					isNewLine: true
-				});
-			} else if (avaliableCharEmoji.includes(subStr)) {
-				emojiCollection.push({
-					path: './resource/emoji/' + avaliableCharEmojiMap[subStr] + '.png',
-					flop: flop
-				});
-			} else {
-				// EmojiOne handler
-				
-				let unicode = map[subStr];
-				
-				if (!unicode)
-					continue;
-				
-				emojiCollection.push({
-					path: './resource/emoji/' + unicode + '.png',
-					flop: flop
-				});
+				} else if (subStr === '\n') {
+					if (emojiCollection.length === 0)
+						continue;
+
+					emojiCollection.push({
+						isNewLine: true
+					});
+				} else if (avaliableCharEmoji.includes(subStr)) {
+					emojiCollection.push({
+						path: './resource/emoji/' + avaliableCharEmojiMap[subStr] + '.png',
+						flop: flop
+					});
+				} else {
+					// EmojiOne handler
+
+					let unicode = map[subStr];
+
+					if (!unicode)
+						continue;
+
+					emojiCollection.push({
+						path: './resource/emoji/' + unicode + '.png',
+						flop: flop
+					});
+				}
 			}
+
+			if (customEmojiAmount === 0)
+				continueFunc();
+		} catch(err) {
+			console.error(err);
+			msg.reply('<internal pony error>');
+			msg.channel.stopTyping();
+			return;
 		}
-		
-		if (customEmojiAmount === 0)
-			continueFunc();
 	}
 };
