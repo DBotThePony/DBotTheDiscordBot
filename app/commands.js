@@ -205,7 +205,6 @@ let BuildCommands = function() {
 			BuildHelp[cPage] = output;
 			cPage++;
 			output = 'Help page: ' + cPage + '/' + totalPages + '\n```';
-			first = true;
 		}
 	}
 	
