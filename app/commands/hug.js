@@ -287,7 +287,7 @@ DBot.RegisterCommand({
 	name: 'boop',
 	
 	help_args: '[user]',
-	desc: 'Pokes',
+	desc: 'Boop! the nose',
 	allowUserArgument: true,
 	delay: 0,
 	
