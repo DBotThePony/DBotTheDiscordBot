@@ -417,8 +417,6 @@ const findRelated = function(str) {
 		} else {
 			return -1;
 		};
-		
-		return 0;
 	});
 	
 	return matches;
@@ -782,8 +780,8 @@ DBot.ExecuteCommand = function(cCommand, msg, parsedArgs, rawcmd, command, extra
 			return;
 		};
 
-		hook.Run('PostExecuteCommand', cCommand.id, msg.author, parsedArgs, rawcmd, msg, extraArgument, parsedHandlers);
-		hook.Run('CommandExecuted', cCommand.id, msg.author, parsedArgs, rawcmd, msg, extraArgument, parsedHandlers);
+		hook.Run('PostExecuteCommand', cCommand.id, msg.author, parsedArgs, rawcmd, msg, extraArgument, parsedHandlers, currentFuncObj);
+		hook.Run('CommandExecuted', cCommand.id, msg.author, parsedArgs, rawcmd, msg, extraArgument, parsedHandlers, currentFuncObj);
 
 		if (typeof reply === 'string') {
 			msg.reply(reply);
@@ -947,8 +945,6 @@ DBot.MessagePrefix = function(msg) {
 		else
 			return sPrefix;
 	};
-	
-	return '}';
 };
 
 DBot.IsAskingMe_Command = function(msg) {

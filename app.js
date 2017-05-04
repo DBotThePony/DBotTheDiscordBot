@@ -109,6 +109,8 @@ for (const file of fs.readdirSync('./app/modules/')) {
 	require('./app/modules/' + file);
 };
 
+require('./app/lib/logging.js');
+
 DBot.START_STAMP = (new Date()).getTime() / 1000;
 
 const Status = {

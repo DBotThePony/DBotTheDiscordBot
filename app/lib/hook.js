@@ -51,10 +51,16 @@ class Hook {
 		this.hooks.get(event).delete(id);
 	}
 	
-	call(event, A, B, C, D, E, F, G) {
+	call(event) {
+		const args = [];
+
+		for (let i = 1; i < arguments.length; i++) {
+			args.push(arguments[i]);
+		}
+
 		if (this.singles.has(event)) {
 			for (const func of this.singles.get(event)) {
-				func(A, B, C, D, E, F, G);
+				func.apply(null, args);
 			}
 			
 			this.singles.delete(event);
@@ -62,7 +68,7 @@ class Hook {
 		
 		if (this.hooks.has(event)) {
 			for (const func of this.hooks.get(event).values()) {
-				const reply = func(A, B, C, D, E, F, G);
+				const reply = func.apply(null, args);
 				if (reply !== undefined) return reply;
 			}
 		}
