@@ -308,6 +308,7 @@ DBot.RegisterCommand({
 		
 		let fpath;
 		let fpathProcessed = DBot.WebRoot + '/triggered/' + sha + '_3.gif';
+		let fpathPre = DBot.WebRoot + '/triggered/' + sha + 'pre_3.png';
 		let fpathU = DBot.URLRoot + '/triggered/' + sha + '_3.gif';
 		
 		msg.channel.startTyping();
@@ -321,31 +322,34 @@ DBot.RegisterCommand({
 					msg.reply(fpathU);
 				} else {
 					let magik = spawn('convert', [
+						fpath,
+						'-resize', '680x680',
+						'+write', fpathPre,
+						'+delete',
+						'-size', '512x680',
 						'canvas:white',
-						'-size', '512x680!',
-						'-resize', '512x680!',
-						'-draw', 'image srcover -60,-60 0,0 "' + fpathProcessed + '"',
+						'-draw', 'image srcover -60,-60 0,0 "' + fpathPre + '"',
 						'-draw', 'image srcover 0,512 0,0 "./resource/files/triggered.jpg"',
 						
 						'(',
+							'-size', '512x680',
 							'canvas:white',
-							'-size', '512x680!',
-							'-draw', 'image srcover -45,-50 0,0 "' + fpathProcessed + '"',
+							'-draw', 'image srcover -45,-50 0,0 "' + fpathPre + '"',
 							'-draw', 'image srcover 0,512 0,0 "./resource/files/triggered.jpg"',
 							
 						')',
 						
 						'(',
+							'-size', '512x680',
 							'canvas:white',
-							'-size', '512x680!',
-							'-draw', 'image srcover -50,-45 0,0 "' + fpathProcessed + '"',
+							'-draw', 'image srcover -50,-45 0,0 "' + fpathPre + '"',
 							'-draw', 'image srcover 0,512 0,0 "./resource/files/triggered.jpg"',
 						')',
 						
 						'(',
+							'-size', '512x680',
 							'canvas:white',
-							'-size', '512x680!',
-							'-draw', 'image srcover -45,-65 0,0 "' + fpathProcessed + '"',
+							'-draw', 'image srcover -45,-65 0,0 "' + fpathPre + '"',
 							'-draw', 'image srcover 0,512 0,0 "./resource/files/triggered.jpg"',
 						')',
 						
