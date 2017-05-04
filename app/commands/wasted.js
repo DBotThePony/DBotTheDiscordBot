@@ -264,9 +264,9 @@ DBot.RegisterCommand({
 							'-weight', '300'
 						);
 
-						magikArgs.push('-pointsize', String(Math.floor(signHeight * .8)), '-draw', 'text 0,' + (Math.floor(height / 2 - (signHeight - 60) * .45)) + ' "cactus"');
+						magikArgs.push('-pointsize', String(Math.floor(signHeight * .8)), '-draw', 'text 0,' + (Math.floor(height / 2 - signHeight * .4)) + ' "cactus"');
 						magikArgs.push('-fill', 'rgb(237,226,226)', '-strokewidth', '2');
-						magikArgs.push('-pointsize', String(Math.floor(signHeight * .2)), '-draw', 'text 0,' + (Math.floor(height / 2 - (signHeight) * .45)) + ' "you got cocky, mate"');
+						magikArgs.push('-pointsize', String(Math.floor(signHeight * .2)), '-draw', 'text 0,' + (Math.floor(height / 2 - signHeight * .45)) + ' "you got cocky, mate"');
 
 						magikArgs.push(fPathProcessed);
 
