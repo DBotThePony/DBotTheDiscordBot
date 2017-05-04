@@ -335,11 +335,15 @@ module.exports = {
 			});
 		} else {
 			args.sort();
+
+			for (let i in args) {
+				args[i] = args[i].replace(/,/g, '');
+			}
 			
 			for (const str of args) {
-				for (let bk in bannedChars) {
+				for (const bk in bannedChars) {
 					if (str.search(bannedChars[bk]) > 0) {
-						msg.reply('Illegal charactets. AND, OR, NOT are also blocked');
+						msg.reply('Illegal charactets. AND, OR, NOT are also blocked. `derpi "bat pony" socks` will become into bat_pony AND socks.');
 						return;
 					}
 					
