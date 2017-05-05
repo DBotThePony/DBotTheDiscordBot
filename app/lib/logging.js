@@ -83,7 +83,7 @@ hook.Add('CommandExecuted', 'Logging', (id, author, parsedArgs, rawcmd, msg, ext
 	const date = (new Date()).toString();
 
 	if (currentFuncObj.server)
-		fs.write(myGlobals.LOG_FILE_COMMANDS, `[${date}] ${author.username}<${author.id}> executed command '${id}' in ${currentFuncObj.channel.name}<${currentFuncObj.channel.id}>(${currentFuncObj.server.name}<${currentFuncObj.server.id}>)`, err => {});
+		fs.write(myGlobals.LOG_FILE_COMMANDS, `[${date}] ${author.username}<${author.id}> executed command '${id}' in ${currentFuncObj.channel.name}<${currentFuncObj.channel.id}>(${currentFuncObj.server.name}<${currentFuncObj.server.id}>)\n`, err => {});
 	else
-		fs.write(myGlobals.LOG_FILE_COMMANDS, `[${date}] ${author.username}<${author.id}> executed command '${id}' in PM`, err => {});
+		fs.write(myGlobals.LOG_FILE_COMMANDS, `[${date}] ${author.username}<${author.id}> executed command '${id}' in PM\n`, err => {});
 });
