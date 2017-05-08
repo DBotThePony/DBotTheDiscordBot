@@ -50,6 +50,10 @@ String.AppendSpaces = function(str, target) {
 	return str.toString() + String.repeat(' ', target - str.toString().length);
 };
 
+String.prototype.appendSpaces = function(str, target) {
+	return this + String.repeat(' ', target - this.length);
+};
+
 String.Spaces = function(num) {
 	let output = '';
 	

@@ -29,11 +29,7 @@ const Postgres = myGlobals.Postgres;
 
 const fs = require('fs');
 
-fs.mkdir('./logs', err => {
-	fs.mkdir('./logs/error', err => {});
-	fs.mkdir('./logs/commands', err => {});
-	fs.mkdir('./logs/console', err => {});
-
+function openLogFiles() {
 	if (myGlobals.LOG_FILE_ERROR)
 		fs.close(myGlobals.LOG_FILE_ERROR, err => console.errHandler);
 
@@ -56,13 +52,35 @@ fs.mkdir('./logs', err => {
 	fs.open(`./logs/console/${fileStr}.log`, 'a', (err, fd) => {
 		myGlobals.LOG_FILE_CONSOLE = fd;
 	});
+}
+
+if (DBot.ROTATING_LOGS_TIMER_ID === undefined) {
+	DBot.ROTATING_LOGS_TIMER_ID = setTimeout(openLogFiles, 3600);
+}
+
+fs.mkdir('./logs', err => {
+	fs.mkdir('./logs/error', err => {});
+	fs.mkdir('./logs/commands', err => {});
+	fs.mkdir('./logs/console', err => {});
+	openLogFiles();
 });
+
+function getStackTrace() {
+	return (new Error()).stack.split('\n')[5].substr(7);
+}
 
 hook.Add('OnError', 'Logging', (args) => {
 	if (!myGlobals.LOG_FILE_ERROR) return;
+	const date = (new Date()).toString();
+
+	fs.write(myGlobals.LOG_FILE_ERROR, `[${getStackTrace()}] [${date}] `, err => {});
 
 	for (let arg of args) {
-		fs.write(myGlobals.LOG_FILE_ERROR, arg.toString(), err => {});
+		if (arg.stack) {
+			fs.write(myGlobals.LOG_FILE_ERROR, `\n${arg.toString()}\n${arg.stack}`, err => {});
+		} else {
+			fs.write(myGlobals.LOG_FILE_ERROR, arg.toString(), err => {});
+		}
 	}
 
 	fs.write(myGlobals.LOG_FILE_ERROR, '\n', err => {});
@@ -70,6 +88,9 @@ hook.Add('OnError', 'Logging', (args) => {
 
 hook.Add('OnPrint', 'Logging', (args) => {
 	if (!myGlobals.LOG_FILE_CONSOLE) return;
+	const date = (new Date()).toString();
+
+	fs.write(myGlobals.LOG_FILE_CONSOLE, `[${getStackTrace()}] [${date}] `, err => {});
 
 	for (let arg of args) {
 		fs.write(myGlobals.LOG_FILE_CONSOLE, arg.toString(), err => {});
@@ -82,8 +103,11 @@ hook.Add('CommandExecuted', 'Logging', (id, author, parsedArgs, rawcmd, msg, ext
 	if (!myGlobals.LOG_FILE_COMMANDS) return;
 	const date = (new Date()).toString();
 
+	const authorStr = String.AppendSpaces(`${author.username}<${author.id}>`, 40);
+	const commandStr = String.AppendSpaces(`executed command '${id}' in`, 35);
+
 	if (currentFuncObj.server)
-		fs.write(myGlobals.LOG_FILE_COMMANDS, `[${date}] ${author.username}<${author.id}> executed command '${id}' in ${currentFuncObj.channel.name}<${currentFuncObj.channel.id}>(${currentFuncObj.server.name}<${currentFuncObj.server.id}>)\n`, err => {});
+		fs.write(myGlobals.LOG_FILE_COMMANDS, `[${date}] ${authorStr} ${commandStr} ${currentFuncObj.channel.name}<${currentFuncObj.channel.id}>(${currentFuncObj.server.name}<${currentFuncObj.server.id}>)\n`, err => {});
 	else
-		fs.write(myGlobals.LOG_FILE_COMMANDS, `[${date}] ${author.username}<${author.id}> executed command '${id}' in PM\n`, err => {});
+		fs.write(myGlobals.LOG_FILE_COMMANDS, `[${date}] ${authorStr} ${commandStr} PM\n`, err => {});
 });
