@@ -108,7 +108,7 @@ const generateFunc = (col1, col2, cName) => {
 			if (username2)
 				calcWidthLast = IMagick.GetTextSize(username2, Font, FontSize)[0] + 25;
 
-			let totalWidth = calcWidthFirst + width + calcWidthLast + 30;
+			let totalWidth = calcWidthFirst + width + calcWidthLast + 140;
 
 			if (!username2)
 				totalWidth += 40;
@@ -125,8 +125,8 @@ const generateFunc = (col1, col2, cName) => {
 
 			if (username2) {
 				magikArgs.push('-draw', 'text 40,20 ' + Postgres.escape(username));
-				magikArgs.push('-draw', 'image over ' + (calcWidthFirst + 40) + ',' + (height / 2 - iheight / 2) + ' 0,0 "./resource/killicons/' + myWeapon.filename + '"');
-				magikArgs.push('-fill', col2, '-draw', 'text ' + (45 + calcWidthFirst + width) + ',20 ' + Postgres.escape(username2));
+				magikArgs.push('-draw', 'image over ' + (calcWidthFirst + 80) + ',' + (height / 2 - iheight / 2) + ' 0,0 "./resource/killicons/' + myWeapon.filename + '"');
+				magikArgs.push('-fill', col2, '-draw', 'text ' + (125 + calcWidthFirst + width) + ',20 ' + Postgres.escape(username2));
 			} else {
 				magikArgs.push('-draw', 'image over 30,' + (height / 2 - iheight / 2) + ' 0,0 "./resource/killicons/' + myWeapon.filename + '"');
 				magikArgs.push('-draw', 'text ' + (60 + width) +',20 ' + Postgres.escape(username));
