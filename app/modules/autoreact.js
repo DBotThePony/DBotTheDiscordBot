@@ -26,8 +26,6 @@ const cvars = myGlobals.cvars;
 
 const emojiModule = require('../lib/emoji.js');
 
-
-
 const reactions = [
 	[
 		['lit', 'fire', 'flame', emojiModule.getEmojiByName('fire')],
@@ -85,7 +83,7 @@ const reactions = [
 	],
 	
 	[
-		['horse', 'pony', 'pone', 'ponie', 'pne'],
+		['horses?', 'pony', 'hoarses?', 'pones?', 'ponies?', 'pnes?'],
 		['racehorse']
 	],
 	
@@ -95,7 +93,7 @@ const reactions = [
 	],
 	
 	[
-		['magic', 'sparkles', emojiModule.getEmojiByName('sparkles')],
+		['magic', 'sparkles?', emojiModule.getEmojiByName('sparkles')],
 		['sparkles']
 	],
 	
@@ -125,17 +123,17 @@ const reactions = [
 	],
 	
 	[
-		['zap', 'lightning', 'fast', 'faster'],
+		['zap', 'lightnings?', 'fast', 'faster'],
 		['zap']
 	],
 	
 	[
-		['book', 'dictionary', 'read'],
+		['books?', 'dictionary', 'reads?'],
 		['green_book', 'closed_book', 'blue_book', 'orange_book', 'books', 'book']
 	],
 	
 	[
-		['apple', 'apples'],
+		['apples?'],
 		['green_apple', 'apple']
 	],
 	
@@ -595,7 +593,16 @@ const simpleEmojiReact = [
 }
 
 for (const em of simpleEmojiReact) {
-	reactions.push([[emojiModule.getEmojiByName(em), em.replace(/_/g, ' '), em], [em]]);
+	const fixedEm = em.replace(/_/g, ' ');
+	const arr = [emojiModule.getEmojiByName(em), fixedEm, em]
+	if (fixedEm.substr(-1) === 's')
+		arr.push(fixedEm + 'es');
+	else if (fixedEm.substr(-1) === 'y')
+		arr.push(fixedEm.substr(0, fixedEm.length - 1) + 'ies');
+	else
+		arr.push(fixedEm + 's');
+	
+	reactions.push([arr, [em]]);
 }
 
 for (const em of arrowsEmoji) {

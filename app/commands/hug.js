@@ -398,3 +398,13 @@ DBot.RegisterCommand({
 	}
 });
 
+DBot.RegisterCommand({
+	name: 'pet',
+	
+	help_args: '[user]',
+	desc: 'pets',
+	allowUserArgument: true,
+	delay: 0,
+	
+	func: defAction('pet', {text: 'pets'})
+});

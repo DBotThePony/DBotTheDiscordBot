@@ -55,7 +55,7 @@ function openLogFiles() {
 }
 
 if (DBot.ROTATING_LOGS_TIMER_ID === undefined) {
-	DBot.ROTATING_LOGS_TIMER_ID = setTimeout(openLogFiles, 3600);
+	DBot.ROTATING_LOGS_TIMER_ID = setTimeout(openLogFiles, 3600 * 6);
 }
 
 fs.mkdir('./logs', err => {
@@ -77,7 +77,7 @@ hook.Add('OnError', 'Logging', (args) => {
 
 	for (let arg of args) {
 		if (arg.stack) {
-			fs.write(myGlobals.LOG_FILE_ERROR, `\n${arg.toString()}\n${arg.stack}`, err => {});
+			fs.write(myGlobals.LOG_FILE_ERROR, `\n${arg.toString()}\n${arg.stack}\n`, err => {});
 		} else {
 			fs.write(myGlobals.LOG_FILE_ERROR, arg.toString(), err => {});
 		}
