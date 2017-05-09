@@ -53,6 +53,9 @@ module.exports = {
 		const avatar1 = user1.avatarURL;
 		const avatar2 = user2.avatarURL;
 
+		if (user1.id === user2.id)
+			return DBot.CommandError('what', 'ship', args, 2);
+
 		if (!avatar1)
 			return DBot.CommandError('User has no avatar', 'ship', args, 1);
 		if (!avatar2)
