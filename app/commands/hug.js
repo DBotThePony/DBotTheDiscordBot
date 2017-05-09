@@ -408,3 +408,58 @@ DBot.RegisterCommand({
 	
 	func: defAction('pet', {text: 'pets'})
 });
+
+DBot.RegisterCommand({
+	name: 'fluff',
+	
+	help_args: '[user]',
+	desc: 'fluffs',
+	allowUserArgument: true,
+	delay: 0,
+	
+	func: defAction('fluff', {text: 'makes fluffy'})
+});
+
+DBot.RegisterCommand({
+	name: 'box',
+	
+	help_args: '[user]',
+	desc: 'boxes',
+	allowUserArgument: true,
+	delay: 0,
+	
+	func: defAction('box', {text: 'puts into a pone box'})
+});
+
+DBot.RegisterCommand({
+	name: 'hoofnom',
+	
+	help_args: '[user]',
+	desc: 'Tasty marshmallow hooves',
+	allowUserArgument: true,
+	delay: 0,
+	
+	func: defAction('hoofnom', {text: 'hoof nom'})
+});
+
+DBot.RegisterCommand({
+	name: 'tailnom',
+	
+	help_args: '[user]',
+	desc: 'Tasty noodles tails',
+	allowUserArgument: true,
+	delay: 0,
+	
+	func: defAction('tailnom', {text: 'tail noms'})
+});
+
+DBot.RegisterCommand({
+	name: 'lewd',
+	
+	help_args: '[user]',
+	desc: 'lewdy',
+	allowUserArgument: true,
+	delay: 0,
+	
+	func: defAction('lewd', {text: 'makes lewdish'})
+});
