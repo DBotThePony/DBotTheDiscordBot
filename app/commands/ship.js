@@ -114,13 +114,13 @@ module.exports = {
 								msg.reply('I broke! uh oh ;n;');
 							} else {
 								const text = `${this.author} ships it\nShip name: **${nick1Piece}${nick2Piece}**\n${uPath}`;
-								msg.reply(text);
+								msg.sendMessage(text);
 							}
 						});
 					} else {
 						msg.channel.stopTyping();
 						const text = `${this.author} ships it\nShip name: **${nick1Piece}${nick2Piece}**\n${uPath}`;
-						msg.reply(text);
+						msg.sendMessage(text);
 					}
 				});
 			}, (result) => {
