@@ -352,9 +352,9 @@ IMagick.DrawText = function(data, callback) {
 					const line = splitLines[i];
 					
 					if (currentBuild === null)
-						currentBuild = 'text 0,' + (i * height) + ' "' + line.replace(/"/g, '\\"').replace(/\\/g, "\\\\") + '"';
+						currentBuild = 'text 0,' + (i * height) + ' "' + line.replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"';
 					else
-						currentBuild += ' text 0,' + (i * height) + ' "' + line.replace(/"/g, '\\"').replace(/\\/g, "\\\\") + '"';
+						currentBuild += ' text 0,' + (i * height) + ' "' + line.replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"';
 					
 					if (currentBuild.length > 800) {
 						magikArgs.push(currentBuild);
