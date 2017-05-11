@@ -335,6 +335,7 @@ IMagick.DrawText = function(data, callback) {
 			
 			if (!lolcat) {
 				let magikArgs = [
+					'convert',
 					'-size', calcWidth + 'x' + calcHeight,
 					'canvas:none',
 					'-pointsize', rFontSize,
@@ -370,7 +371,7 @@ IMagick.DrawText = function(data, callback) {
 				let magik;
 					
 				try {
-					magik = spawn('convert', magikArgs);
+					magik = spawn('magick', magikArgs);
 				} catch(err) {
 					console.error(err);
 					callback(127, err);
