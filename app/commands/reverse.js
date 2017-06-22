@@ -45,7 +45,7 @@ DBot.RegisterCommandPipe({
 	func: function(args, cmd, msg) {
 		let out = '';
 		
-		for (i = cmd.length - 1; i >= 0; i--) {
+		for (let i = cmd.length - 1; i >= 0; i--) {
 			out += cmd[i];
 		}
 		
@@ -67,7 +67,7 @@ DBot.RegisterCommandPipe({
 		let out = '';
 		
 		args.forEach(function(item) {
-			for (i = item.length - 1; i >= 0; i--) {
+			for (let i = item.length - 1; i >= 0; i--) {
 				out += item[i];
 			}
 			
