@@ -29,7 +29,6 @@ const Postgres = myGlobals.Postgres;
 const CommandHelper = myGlobals.CommandHelper;
 
 const fs = require('fs');
-const json3 = require('json3');
 const child_process = require('child_process');
 const spawn = child_process.spawn;
 
@@ -46,7 +45,7 @@ hook.Add('PrecacheFonts', 'KillIcon', function() {
 	IMagick.PrecacheFont(Font);
 });
 
-const weaponsData = json3.parse(fs.readFileSync('./resource/killicons_data.json'));
+const weaponsData = JSON.parse(fs.readFileSync('./resource/killicons_data.json'));
 
 const generateFunc = (col1, col2, cName) => {
 	return (args, cmd, msg) => {

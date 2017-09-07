@@ -28,7 +28,6 @@ const Postgres = myGlobals.Postgres;
 const CommandHelper = myGlobals.CommandHelper;
 
 const fs = require('fs');
-const json3 = require('json3');
 const numeral = require('numeral');
 
 myGlobals.__hangman_mapped = {
@@ -40,8 +39,8 @@ myGlobals.__hangman_mapped = {
 };
 
 {
-	const avaliableFortune = json3.parse(fs.readFileSync('./resource/hangman/hangman_fortune.json', 'utf8'));
-	const avaliableFortuneVulgar = json3.parse(fs.readFileSync('./resource/hangman/hangman_fortunev.json', 'utf8'));
+	const avaliableFortune = JSON.parse(fs.readFileSync('./resource/hangman/hangman_fortune.json', 'utf8'));
+	const avaliableFortuneVulgar = JSON.parse(fs.readFileSync('./resource/hangman/hangman_fortunev.json', 'utf8'));
 	
 	for (const i in avaliableFortune) {
 		myGlobals.__hangman_mapped['fortune_' + i] = avaliableFortune[i];

@@ -32,7 +32,6 @@ if (!DBot.cfg.yandex_tr_enable) return;
 
 const unirest = require('unirest');
 const fs = require('fs');
-const JSON3 = require('json3');
 const apiKey = DBot.cfg.yandex_tr;
 
 let validLangs = [];
@@ -47,7 +46,7 @@ const alias = {
 fs.stat(DBot.WebRoot + '/yandex_langs.json', function(err, stat) {
 	if (stat) {
 		fs.readFile(DBot.WebRoot + '/yandex_langs.json' , 'utf8', function(err, data) {
-			let dt = JSON3.parse(data);
+			let dt = JSON.parse(data);
 
 			for (let lID in dt.langs) {
 				let lName = dt.langs[lID];

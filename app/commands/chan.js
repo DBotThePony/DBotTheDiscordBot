@@ -106,7 +106,6 @@ const nsfwBoard = [
 let validBoards = [];
 let defBans = [];
 const fs = require('fs');
-const JSON3 = require('json3');
 const unirest = require('unirest');
 
 for (let data of Boards) {
@@ -252,7 +251,7 @@ module.exports = {
 		fs.stat(path, function(err, stat) {
 			if (stat && ((stat.ctime.getTime() / 1000) > (UnixStamp() - 3600))) {
 				fs.readFile(path, 'utf8', function(err, data) {
-					ContinueLoad(JSON3.parse(data));
+					ContinueLoad(JSON.parse(data));
 				});
 			} else {
 				unirest.get('http://api.4chan.org/' + board + '/1.json')

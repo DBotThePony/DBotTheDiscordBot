@@ -27,7 +27,6 @@ const cvars = myGlobals.cvars;
 const Postgres = myGlobals.Postgres;
 
 const fs = require('fs');
-const JSON3 = require('json3');
 const child_process = require('child_process');
 const spawn = child_process.spawn;
 const os = require('os');
@@ -192,7 +191,7 @@ if (!IMagick.FONTS_LOADED) {
 		FontsInit = true;
 		hook.Run('PrecacheFonts');
 		
-		fs.writeFile('./resource/imagick_fonts_to_precache.json', JSON3.stringify(IMagick.PrecacheFonts), (err) => {if (err) console.error(err);});
+		fs.writeFile('./resource/imagick_fonts_to_precache.json', JSON.stringify(IMagick.PrecacheFonts), (err) => {if (err) console.error(err);});
 
 		for (const font of IMagick.PrecacheFonts) {
 			if (!IMagick.AvaliableFonts.includes(font)) {
@@ -213,7 +212,7 @@ if (!IMagick.FONTS_LOADED) {
 				continue;
 			}
 			
-			const data = JSON3.parse(fs.readFileSync(path, {encoding: 'utf8'}));
+			const data = JSON.parse(fs.readFileSync(path, {encoding: 'utf8'}));
 
 			IMagick.PrecacheFontsData[font] = IMagick.PrecacheFontsData[font] || {};
 			IMagick.PrecacheFontsDataHeight[font] = IMagick.PrecacheFontsDataHeight[font] || {};
