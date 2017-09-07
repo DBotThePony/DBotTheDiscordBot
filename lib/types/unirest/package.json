@@ -1,0 +1,14 @@
+{
+  "name": "unirest_types",
+  "version": "1.0.0",
+  "description": "Unirest types definition for typescript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@types/node": "^8.0.14"
+  },
+  "author": "DBotThePony",
+  "license": "Apache-2.0"
+}
