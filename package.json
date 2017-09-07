@@ -6,6 +6,7 @@
     "start": "node --expose-gc app.js"
   },
   "dependencies": {
+    "@types/node": "^8.0.27",
     "bignumber.js": "^4.0.4",
     "bufferutil": "^3.0.2",
     "cowsay": "^1.2.1",
