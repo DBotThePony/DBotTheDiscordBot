@@ -1,4 +1,6 @@
+
 config.js
 nbproject
 node_modules/
 logs/
+app/*.js
