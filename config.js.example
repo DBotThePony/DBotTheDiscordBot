@@ -1,19 +1,19 @@
 
-// 
+//
 // Copyright (C) 2016-2017 DBot. All other content, that was used, but not created in this project, is licensed under their own licenses, and belong to their authors.
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //      http://www.apache.org/licenses/LICENSE-2.0
-//  
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// 
+//
 
 'use strict';
 
@@ -23,58 +23,58 @@
 module.exports = {
 	// Bot login token
 	token: 'MjQ4Nzxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-	
+
 	// Google search token
 	google: 'AIzaxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 	google_enable: true,
-	
+
 	// Tumblr API token
-	tumblr: '6RO3cAAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-	tumblr_enable: true,
-	
+	// tumblr: '6RO3cAAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+	// tumblr_enable: true,
+
 	// Yandex Translation API key
-	yandex_tr: 'trnsl.1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-	yandex_tr_enable: true,
-	
+	// yandex_tr: 'trnsl.1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+	// yandex_tr_enable: true,
+
 	// Steam API key
 	steam: 'A670xxxxxxxxxxxxxxxxxxx',
 	steam_enable: true,
-	
+
 	// Mashape API key
-	urban: 'EBS2Sxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-	urban_enable: true,
-	
+	// urban: 'EBS2Sxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+	// urban_enable: true,
+
 	// PostgreSQL database connection options
-	
+
 	// Hostname
 	sql_hostname: 'localhost',
-	
+
 	// Port
 	// env var: PGPORT
 	sql_port: 5432,
-	
+
 	// Username of database. It can be superuser, or not.
 	// env var: PGUSER
 	sql_user: 'notdbot',
-	
+
 	// User password of database
 	// env var: PGPASSWORD
 	sql_password: 'notdbot',
-	
+
 	// Name of database to use
 	// env var: PGDATABASE
 	sql_database: 'notdbot',
-	
+
 	// Number of connections done to PostgreSQL DB
 	sql_workers: 1,
 
 	// Path to web server bot directory (not to root of your web server)
 	// Should be readable by web server process. Should be writable by bot process.
 	webroot: '/home/dbot_bot/www',
-	
+
 	// [prefix] to all URLs that bot sends
 	webpath: 'dbot.serealia.ca/bot',
-	
+
 	// The protocol that server uses. It can be http or https
 	protocol: 'https',
 
