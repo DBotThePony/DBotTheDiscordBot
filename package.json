@@ -6,6 +6,7 @@
     "start": "node --expose-gc app.js"
   },
   "dependencies": {
+    "@types/bignumber.js": "^4.0.3",
     "@types/node": "^8.0.27",
     "bignumber.js": "^4.0.4",
     "bufferutil": "^3.0.2",
@@ -24,6 +25,7 @@
     "pug": "^2.0.0-rc.4",
     "sodium": "^2.0.1",
     "sprintf-js": "^1.1.1",
+    "tslint": "^5.7.0",
     "typescript": "^2.5.2",
     "unirest": "^0.5.1",
     "utf8": "^2.1.2",
