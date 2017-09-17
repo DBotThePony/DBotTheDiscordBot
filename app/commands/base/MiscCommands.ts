@@ -18,8 +18,6 @@
 import {CommandBase, CommandExecutionInstance} from '../CommandBase'
 import {CommandHolder} from '../CommandHolder'
 
-const replaceDesc = /\r?\n/gi
-
 class Invite extends CommandBase {
 	help = 'Invite link'
 
