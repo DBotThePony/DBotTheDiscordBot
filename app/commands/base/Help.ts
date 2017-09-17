@@ -35,12 +35,27 @@ class Help extends CommandBase {
 	buildHelp() {
 		this.helpStrs = []
 
-		let helpPages = Math.ceil(this.bot.commands.size / 5)
+		let helpPages = 0
+
+		for (const command of this.bot.commands.values()) {
+			if (!command.displayHelp) {
+				continue
+			}
+
+			helpPages++
+		}
+
+		helpPages = Math.ceil(helpPages / 5)
+
 		let page = 1
 		let current = `Help page: ${page}/${helpPages}\n` + '```'
 		let i = 1
 
 		for (const command of this.bot.commands.values()) {
+			if (!command.displayHelp) {
+				continue
+			}
+
 			current += '\n - ' + command.id
 
 			if (command.hasArguments()) {

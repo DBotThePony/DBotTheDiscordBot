@@ -31,6 +31,7 @@ class CommandContext extends GEventEmitter {
 	serverid: string | null = null
 
 	raw: string = ''
+	rawArgs: string = ''
 	args: string[] = []
 	argsPipes: string[][] = []
 	parsedArgs: any[] = []
@@ -48,6 +49,7 @@ class CommandContext extends GEventEmitter {
 	get user() { return this.author }
 	get sender() { return this.author }
 	get inServer() { return this.server != null }
+	get isOwner() { return this.uid && this.bot.config.owners.includes(this.uid) }
 	get inDM() { return typeof this.channel == 'object' && this.channel instanceof Discord.DMChannel }
 
 	constructor(bot: BotInstance, rawInput: string, msg?: Discord.Message) {
@@ -128,6 +130,10 @@ class CommandContext extends GEventEmitter {
 		}
 
 		this.parsedArgs = this.args
+
+		if (this.args[0]) {
+			this.rawArgs = this.raw.substr(this.args[0].length)
+		}
 
 		return this
 	}

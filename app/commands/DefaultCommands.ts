@@ -16,10 +16,12 @@
 //
 
 import {Help} from './base/Help'
+import {Eval} from './base/Eval'
 import {CommandHolder} from './CommandHolder'
 
 const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new Help(holder))
+	holder.registerCommand(new Eval(holder))
 }
 
-export {registerDefaultCommands, Help}
+export {registerDefaultCommands, Help, Eval}

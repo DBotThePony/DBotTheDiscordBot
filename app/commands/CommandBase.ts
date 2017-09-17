@@ -149,6 +149,7 @@ class CommandBase {
 	args = ''
 	executedTimes = 0
 	holder: CommandHolder
+	displayHelp = true
 
 	get bot() { return this.holder.bot }
 	get client() { return this.holder.bot.client }
