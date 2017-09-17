@@ -15,15 +15,21 @@
 // limitations under the License.
 //
 
-import {Help} from './base/Help'
-import {Eval} from './base/Eval'
-import {Invite} from './base/MiscCommands'
-import {CommandHolder} from './CommandHolder'
+import {CommandBase, CommandExecutionInstance} from '../CommandBase'
+import {CommandHolder} from '../CommandHolder'
 
-const registerDefaultCommands = function(holder: CommandHolder) {
-	holder.registerCommand(new Help(holder))
-	holder.registerCommand(new Eval(holder))
-	holder.registerCommand(new Invite(holder))
+const replaceDesc = /\r?\n/gi
+
+class Invite extends CommandBase {
+	help = 'Invite link'
+
+	constructor(holder: CommandHolder) {
+		super(holder, 'invite')
+	}
+
+	executed(instance: CommandExecutionInstance) {
+		return 'Link https://discordapp.com/api/oauth2/authorize?client_id=' + this.bot.id + '&scope=bot&permissions=0\nJoin https://discord.gg/HG9eS79';
+	}
 }
 
-export {registerDefaultCommands, Help, Eval, Invite}
+export {Invite}
