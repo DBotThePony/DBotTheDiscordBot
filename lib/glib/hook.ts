@@ -59,7 +59,9 @@ class Hook {
 		if (this.hooks.has(event)) {
 			for (const func of this.hooks.get(event).values()) {
 				const reply = func.apply(null, callArgs)
-				if (reply !== undefined) return reply
+				if (reply !== undefined) {
+					return reply
+				}
 			}
 		}
 	}
