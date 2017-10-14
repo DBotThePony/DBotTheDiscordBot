@@ -84,6 +84,9 @@ class CommandHolder {
 			return null
 		}
 
+		context.importFlags(command)
+		context.parseFull()
+
 		const status = command.execute(context)
 
 		if (status == false) {

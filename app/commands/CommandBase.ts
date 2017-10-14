@@ -15,7 +15,7 @@
 // limitations under the License.
 //
 
-import {CommandContext} from './CommandContext'
+import {CommandContext, CommandFlags} from './CommandContext'
 import {CommandHolder} from './CommandHolder'
 import {GEventEmitter} from '../../lib/glib/GEventEmitter'
 
@@ -25,7 +25,7 @@ class CommandExecutionInstance extends GEventEmitter {
 	flushed = false
 	context: CommandContext
 	command: CommandBase
-	currentArg = -1
+	currentArg = 0
 
 	get uid() { return this.context.bot.uid }
 	get id() { return this.context.bot.id }
@@ -157,11 +157,12 @@ class CommandExecutionInstance extends GEventEmitter {
 	}
 
 	reset() {
-		this.currentArg = -1
+		this.currentArg = 0
+		return this
 	}
 }
 
-class CommandBase {
+class CommandBase implements CommandFlags {
 	id: string
 	alias: string[]
 	help = ''
@@ -169,6 +170,12 @@ class CommandBase {
 	executedTimes = 0
 	holder: CommandHolder
 	displayHelp = true
+
+	allowUsers = false
+	allowMembers = false
+	allowRoles = false
+	allowChannels = false
+	allowPipes = true
 
 	get bot() { return this.holder.bot }
 	get client() { return this.holder.bot.client }

@@ -47,7 +47,7 @@ class SetAvatar extends CommandBase {
 			return
 		}
 
-		instance.loadImage(img).then((path) => {
+		instance.loadImage(img).then((path: string) => {
 			this.bot.client.user.setAvatar(path)
 		})
 	}

@@ -24,7 +24,15 @@ const parseUser = /<@([0-9]+)>/
 const parseRole = /<&([0-9]+)>/
 const parseChannel = /<#([0-9]+)>/
 
-class CommandContext extends GEventEmitter {
+interface CommandFlags {
+	allowUsers: boolean
+	allowMembers: boolean
+	allowRoles: boolean
+	allowChannels: boolean
+	allowPipes: boolean
+}
+
+class CommandContext extends GEventEmitter implements CommandFlags {
 	msg: Discord.Message | null = null
 	author: Discord.User | null = null
 	channel: Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel | null = null
@@ -78,6 +86,14 @@ class CommandContext extends GEventEmitter {
 				this.serverid = msg.guild.id
 			}
 		}
+	}
+
+	importFlags(flags: CommandFlags) {
+		this.allowUsers = flags.allowUsers
+		this.allowMembers = flags.allowMembers
+		this.allowRoles = flags.allowRoles
+		this.allowChannels = flags.allowChannels
+		this.allowPipes = flags.allowPipes
 	}
 
 	send(content: string) {
@@ -136,6 +152,14 @@ class CommandContext extends GEventEmitter {
 			}
 		}
 
+		if (this.args[0]) {
+			this.rawArgs = this.raw.substr(this.args[0].length)
+		}
+
+		return this
+	}
+
+	parseFull() {
 		this.parsedArgs = []
 
 		for (const i in this.args) {
@@ -145,7 +169,7 @@ class CommandContext extends GEventEmitter {
 				const user = arg.match(parseUser)
 
 				if (user) {
-					this.parsedArgs[i] = this.bot.client.users.get(user[0])
+					this.parsedArgs[i] = this.bot.client.users.get(user[1])
 					continue
 				} else {
 					switch (arg) {
@@ -181,11 +205,13 @@ class CommandContext extends GEventEmitter {
 						continue
 					}
 				}
-			} else if (this.allowMembers && this.server) {
+			}
+
+			if (this.allowMembers && this.server) {
 				const user = arg.match(parseUser)
 
 				if (user) {
-					this.parsedArgs[i] = this.server.member(user[0])
+					this.parsedArgs[i] = this.server.member(user[1])
 					continue
 				} else {
 					switch (arg) {
@@ -221,27 +247,27 @@ class CommandContext extends GEventEmitter {
 						continue
 					}
 				}
-			} else if (this.allowChannels) {
+			}
+
+			if (this.allowChannels) {
 				const channel = arg.match(parseChannel)
 
 				if (channel) {
-					this.parsedArgs[i] = channel
+					this.parsedArgs[i] = this.bot.client.channels.get(channel[1])
 					continue
 				}
-			} else if (this.allowRoles) {
+			}
+
+			if (this.allowRoles && this.server) {
 				const role = arg.match(parseRole)
 
 				if (role) {
-					this.parsedArgs[i] = role
+					this.parsedArgs[i] = this.server.roles.get(role[1])
 					continue
 				}
-			} else {
-				this.parsedArgs[i] = arg
 			}
-		}
 
-		if (this.args[0]) {
-			this.rawArgs = this.raw.substr(this.args[0].length)
+			this.parsedArgs[i] = arg
 		}
 
 		return this
@@ -270,4 +296,4 @@ class CommandContext extends GEventEmitter {
 	}
 }
 
-export {CommandContext}
+export {CommandContext, CommandFlags}
