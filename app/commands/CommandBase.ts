@@ -48,12 +48,12 @@ class CommandExecutionInstance extends GEventEmitter {
 	}
 
 	buildError(message: string, argNum: number) {
-		let buildString = 'Error - ' + message + '\n````' + this.command.id
-		let spacesLen = this.command.id.length + 1
+		let buildString = 'Error - ' + message + '\n```' + this.command.id + ' '
+		let spacesLen = this.command.id.length
 		let uppersLen = 0
 		argNum--
 
-		for (let i2 = 0; i2 <= Math.max(argNum, this.context.parsedArgs.length - 1); i2++) {
+		for (let i2 = 1; i2 <= Math.max(argNum, this.context.parsedArgs.length - 1) + 1; i2++) {
 			const arg = this.context.parsedArgs[i2] || '<missing>'
 			buildString += arg + ' '
 			if (i2 < argNum) {
