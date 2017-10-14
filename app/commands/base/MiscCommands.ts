@@ -30,4 +30,27 @@ class Invite extends CommandBase {
 	}
 }
 
-export {Invite}
+class SetAvatar extends CommandBase {
+	help = 'Set bot avatar'
+	displayHelp = false
+	allowUsers = true
+
+	constructor(holder: CommandHolder) {
+		super(holder, 'setavatar')
+	}
+
+	executed(instance: CommandExecutionInstance) {
+		const img = instance.findImage(instance.next())
+
+		if (!img) {
+			instance.error('Nu image? ;n;', 1)
+			return
+		}
+
+		instance.loadImage(img).then((path) => {
+			this.bot.client.user.setAvatar(path)
+		})
+	}
+}
+
+export {Invite, SetAvatar}

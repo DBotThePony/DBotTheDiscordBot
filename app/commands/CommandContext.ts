@@ -20,6 +20,10 @@ import {ParseString} from '../../lib/StringUtil'
 import {BotInstance} from '../BotInstance'
 import {GEventEmitter} from '../../lib/glib/GEventEmitter'
 
+const parseUser = /<@([0-9]+)>/
+const parseRole = /<&([0-9]+)>/
+const parseChannel = /<#([0-9]+)>/
+
 class CommandContext extends GEventEmitter {
 	msg: Discord.Message | null = null
 	author: Discord.User | null = null
@@ -39,9 +43,12 @@ class CommandContext extends GEventEmitter {
 	parsed = false
 	bot: BotInstance
 
-	allowUsers: boolean = false
-	allowPipes: boolean = true
-	executed: boolean = false
+	allowUsers = false
+	allowMembers = false
+	allowRoles = false
+	allowChannels = false
+	allowPipes = true
+	executed = false
 
 	get sid() { return this.serverid }
 	get uid() { return this.userid }
@@ -129,7 +136,109 @@ class CommandContext extends GEventEmitter {
 			}
 		}
 
-		this.parsedArgs = this.args
+		this.parsedArgs = []
+
+		for (const i in this.args) {
+			const arg = this.args[i]
+
+			if (this.allowUsers) {
+				const user = arg.match(parseUser)
+
+				if (user) {
+					this.parsedArgs[i] = this.bot.client.users.get(user[0])
+					continue
+				} else {
+					switch (arg) {
+						case '@me':
+						case '@myself':
+						case '@self':
+						case '@user':
+						case '%self%':
+						case '%me%':
+						case '%myself%':
+						case '%user%':
+							this.parsedArgs[i] = this.author
+							break
+						case '@bot':
+						case '@notdbot':
+						case '%bot%':
+						case '%notdbot%':
+							this.parsedArgs[i] = this.bot.client.user
+							break
+						case '@owner':
+						case '@serverowner':
+						case '@server_owner':
+						case '%owner%':
+						case '%serverowner%':
+						case '%server_owner%':
+							if (this.server) {
+								this.parsedArgs[i] = this.server.owner.user
+							}
+							break
+					}
+
+					if (this.parsedArgs[i]) {
+						continue
+					}
+				}
+			} else if (this.allowMembers && this.server) {
+				const user = arg.match(parseUser)
+
+				if (user) {
+					this.parsedArgs[i] = this.server.member(user[0])
+					continue
+				} else {
+					switch (arg) {
+						case '@me':
+						case '@myself':
+						case '@self':
+						case '@user':
+						case '%self%':
+						case '%me%':
+						case '%myself%':
+						case '%user%':
+							this.parsedArgs[i] = this.member
+							break
+						case '@bot':
+						case '@notdbot':
+						case '%bot%':
+						case '%notdbot%':
+							this.parsedArgs[i] = this.server.member(this.bot.client.user)
+							break
+						case '@owner':
+						case '@serverowner':
+						case '@server_owner':
+						case '%owner%':
+						case '%serverowner%':
+						case '%server_owner%':
+							if (this.server) {
+								this.parsedArgs[i] = this.server.owner
+							}
+							break
+					}
+
+					if (this.parsedArgs[i]) {
+						continue
+					}
+				}
+			} else if (this.allowChannels) {
+				const channel = arg.match(parseChannel)
+
+				if (channel) {
+					this.parsedArgs[i] = channel
+					continue
+				}
+			} else if (this.allowRoles) {
+				const role = arg.match(parseRole)
+
+				if (role) {
+					this.parsedArgs[i] = role
+					continue
+				}
+			} else {
+				this.parsedArgs[i] = arg
+			}
+		}
 
 		if (this.args[0]) {
 			this.rawArgs = this.raw.substr(this.args[0].length)

@@ -35,6 +35,9 @@ class CommandExecutionInstance extends GEventEmitter {
 	get author() { return this.context.author }
 	get user() { return this.context.author }
 	get sender() { return this.context.author }
+	get helper() { return this.bot.helper }
+	get channel() { return this.context.channel }
+	get server() { return this.context.server }
 	hasArguments() { return this.context.hasArguments() }
 
 	constructor(command: CommandBase, context: CommandContext) {
@@ -78,6 +81,22 @@ class CommandExecutionInstance extends GEventEmitter {
 		}
 
 		this.isTyping = status
+	}
+
+	findImage(arg: any) {
+		if (this.channel) {
+			return this.bot.helper.findImage(this.channel, arg)
+		}
+	}
+
+	loadImage(urlIn: string) {
+		return this.bot.helper.loadImage(urlIn).catch((err: string) => {
+			this.send('Image download failed: ' + err)
+		})
+	}
+
+	argument(num: number) {
+		return this.context.parsedArgs[num]
 	}
 
 	destroy() {

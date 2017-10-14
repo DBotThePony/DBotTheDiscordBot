@@ -18,6 +18,7 @@
 import {ConfigInstance} from './ConfigInstance'
 import {CommandHolder} from './commands/CommandHolder'
 import {Hook} from '../lib/glib/hook'
+import {CommandHelper} from './lib/CommandHelper'
 import Discord = require('discord.js')
 import {registerDefaultCommands} from './commands/DefaultCommands'
 
@@ -31,6 +32,7 @@ class BotInstance {
 	config: ConfigInstance
 	hooks = new Hook()
 	client = new Discord.Client({})
+	helper = new CommandHelper(this)
 	commands = new CommandHolder(this)
 
 	get id() { return this.client.user.id }
