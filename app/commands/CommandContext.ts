@@ -153,7 +153,7 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 		}
 
 		if (this.args[0]) {
-			this.rawArgs = this.raw.substr(this.args[0].length)
+			this.rawArgs = this.raw.substr(this.args[0].length + 1)
 		}
 
 		return this

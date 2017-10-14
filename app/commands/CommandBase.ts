@@ -39,6 +39,7 @@ class CommandExecutionInstance extends GEventEmitter {
 	get channel() { return this.context.channel }
 	get server() { return this.context.server }
 	get length() { return this.context.args.length - 1 }
+	get raw() { return this.context.rawArgs }
 	hasArguments() { return this.context.hasArguments() }
 
 	constructor(command: CommandBase, context: CommandContext) {

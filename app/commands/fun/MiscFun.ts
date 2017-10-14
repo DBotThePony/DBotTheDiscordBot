@@ -21,7 +21,6 @@ import Discord = require('discord.js')
 
 class XD extends CommandBase {
 	help = 'XD'
-	allowUsers = true
 
 	constructor(holder: CommandHolder) {
 		super(holder, 'xd')
