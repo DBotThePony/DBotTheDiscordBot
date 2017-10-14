@@ -18,6 +18,7 @@
 import {CommandContext, CommandFlags} from './CommandContext'
 import {CommandHolder} from './CommandHolder'
 import {GEventEmitter} from '../../lib/glib/GEventEmitter'
+import Discord = require('discord.js')
 
 class CommandExecutionInstance extends GEventEmitter {
 	isTyping = false
@@ -121,16 +122,16 @@ class CommandExecutionInstance extends GEventEmitter {
 		}
 	}
 
-	send(content: string) {
-		if (this.emit('send', content) != undefined) { return false }
+	send (content: string): Promise<Discord.Message | Discord.Message[]> | null {
+		if (this.emit('send', content) != undefined) { return null }
 
-		this.context.send(content)
+		const promise = this.context.send(content)
 
 		if (this.isTyping) {
 			this.thinking(false)
 		}
 
-		return true
+		return promise
 	}
 
 	reply(content: string) {

@@ -18,6 +18,7 @@
 const stamp = (new Date()).getTime()
 import {ConfigInstance} from './app/ConfigInstance'
 import {BotInstance} from './app/BotInstance'
+require('./lib/ArrayUtil')
 
 process.env['PATH'] = './bin;' + process.env['PATH']
 

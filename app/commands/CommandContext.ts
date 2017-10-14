@@ -96,7 +96,7 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 		this.allowPipes = flags.allowPipes
 	}
 
-	send(content: string) {
+	send(content: string): Promise<Discord.Message | Discord.Message[]> | null {
 		if (!this.channel) {
 			return null
 		}
@@ -111,7 +111,11 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 			return status
 		}
 
-		return this.channel.send(content)
+		const promise = this.channel.send(content).catch((err) => {
+			console.error(err)
+		})
+
+		return <Promise<Discord.Message | Discord.Message[]>> promise
 	}
 
 	typing(status: boolean) {
