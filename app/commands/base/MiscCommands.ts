@@ -83,4 +83,16 @@ class GetAvatar extends CommandBase {
 	}
 }
 
-export {Invite, SetAvatar, GetAvatar}
+class About extends CommandBase {
+	help = 'About'
+
+	constructor(holder: CommandHolder) {
+		super(holder, 'about')
+	}
+
+	executed(instance: CommandExecutionInstance) {
+		return 'DeeeBootTheDeescordBot V2.0\nRewrite because this thing needs to work better.'
+	}
+}
+
+export {Invite, SetAvatar, GetAvatar, About}
