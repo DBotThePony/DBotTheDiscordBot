@@ -28,7 +28,7 @@ class CommandExecutionInstance extends GEventEmitter {
 	currentArg = 0
 
 	get uid() { return this.context.bot.uid }
-	get id() { return this.context.bot.id }
+	get id() { return this.context.author && this.context.author.id }
 	get bot() { return this.context.bot }
 	get commands() { return this.context.bot.commands }
 	get inServer() { return this.context.inServer }

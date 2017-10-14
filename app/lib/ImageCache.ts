@@ -23,21 +23,24 @@ import crypto = require('crypto')
 import fs = require('fs')
 import os = require('os')
 
-const tmpdir = os.tmpdir().replace(/\\/g, '/') + '/' + crypto.createHash('sha256').update((new Date()).toString()).digest('hex').substr(0, 14)
-
-fs.mkdir(tmpdir, (err => {
-	if (err) {
-		console.error(err)
-	}
-}))
-
 const transformBase = (text: string) => text.replace(/\+/g, 'pp').replace(/\//g, 'ss')
 
 class ImageCache {
 	bot: BotInstance
+	tmpdir: string
 
 	constructor(bot: BotInstance) {
 		this.bot = bot
+		const subdir = crypto.createHash('sha256').update(bot.config.token).digest('hex').substr(0, 12)
+		this.tmpdir = os.tmpdir().replace(/\\/g, '/') + '/' + subdir
+
+		fs.mkdir(this.tmpdir, (err => {
+			if (err) {
+				// console.error(err)
+			}
+
+			console.log('Created tmp directory with ID ' + subdir)
+		}))
 	}
 
 	transformName(urlIn: string) {
@@ -48,10 +51,10 @@ class ImageCache {
 		const filename = filenameext.match(/([^\.]+)\.(.*)?/)
 
 		if (filename) {
-			const file = filename[0]
-			const ext = filename[1]
+			const file = filename[1]
+			const ext = filename[2]
 			const sha = transformBase(hash.digest('hex'))
-			const tpath = tmpdir + '/' + sha + '.' + ext
+			const tpath = this.tmpdir + '/' + sha.substr(0, 12) + '.' + ext
 
 			return [sha, file, ext, tpath]
 		}
@@ -72,7 +75,7 @@ class ImageCache {
 
 			fs.stat(tpath, (err, stats) => {
 				if (!stats) {
-					unirest.get(urlIn).end((result) => {
+					unirest.get(urlIn).encoding(null).end((result) => {
 						if (result.status != 200) {
 							reject('Server replied with non 200 code: `' + result.status + '`')
 						} else {

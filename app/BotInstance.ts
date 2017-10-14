@@ -32,8 +32,8 @@ class BotInstance {
 	config: ConfigInstance
 	hooks = new Hook()
 	client = new Discord.Client({})
-	helper = new CommandHelper(this)
-	commands = new CommandHolder(this)
+	helper: CommandHelper
+	commands: CommandHolder
 
 	get id() { return this.client.user.id }
 	get uid() { return this.client.user.id }
@@ -44,6 +44,9 @@ class BotInstance {
 		}
 
 		this.config = configInstance
+
+		this.helper = new CommandHelper(this)
+		this.commands = new CommandHolder(this)
 
 		this.registerHooks()
 		registerDefaultCommands(this.commands)
