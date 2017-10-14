@@ -20,7 +20,7 @@ import {ParseString} from '../../lib/StringUtil'
 import {BotInstance} from '../BotInstance'
 import {GEventEmitter} from '../../lib/glib/GEventEmitter'
 
-const parseUser = /<@([0-9]+)>/
+const parseUser = /<@!?([0-9]+)>/
 const parseRole = /<&([0-9]+)>/
 const parseChannel = /<#([0-9]+)>/
 

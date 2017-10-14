@@ -156,9 +156,19 @@ class CommandExecutionInstance extends GEventEmitter {
 		return this.context.parsedArgs[this.currentArg]
 	}
 
+	get(argNum: number) {
+		return this.context.parsedArgs[argNum + 1]
+	}
+
 	reset() {
 		this.currentArg = 0
 		return this
+	}
+
+	*[Symbol.iterator] () {
+		for (let i = 1; i < this.context.parsedArgs.length; i++) {
+			yield [i, this.context.parsedArgs[i]]
+		}
 	}
 }
 

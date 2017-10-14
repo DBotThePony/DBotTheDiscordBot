@@ -17,6 +17,7 @@
 
 import {CommandBase, CommandExecutionInstance} from '../CommandBase'
 import {CommandHolder} from '../CommandHolder'
+import Discord = require('discord.js')
 
 class Invite extends CommandBase {
 	help = 'Invite link'
@@ -58,4 +59,28 @@ class SetAvatar extends CommandBase {
 	}
 }
 
-export {Invite, SetAvatar}
+class GetAvatar extends CommandBase {
+	help = 'Get user(s) avatar(s)'
+	allowUsers = true
+
+	constructor(holder: CommandHolder) {
+		super(holder, 'avatar')
+	}
+
+	executed(instance: CommandExecutionInstance) {
+		let reply = 'Avatars: '
+
+		for (const [i,  user] of instance) {
+			if (typeof user != 'object') {
+				instance.error('Not a user!', i)
+				return
+			}
+
+			reply += '\n' + (<Discord.User> user).avatarURL + ' '
+		}
+
+		return reply
+	}
+}
+
+export {Invite, SetAvatar, GetAvatar}
