@@ -18,6 +18,7 @@
 import {Help} from './base/Help'
 import {Eval} from './base/Eval'
 import {Invite, SetAvatar, GetAvatar} from './base/MiscCommands'
+import {XD} from './fun/MiscFun'
 import {CommandHolder} from './CommandHolder'
 
 const registerDefaultCommands = function(holder: CommandHolder) {
@@ -26,6 +27,8 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new Invite(holder))
 	holder.registerCommand(new SetAvatar(holder))
 	holder.registerCommand(new GetAvatar(holder))
+
+	holder.registerCommand(new XD(holder))
 }
 
 export {registerDefaultCommands, Help, Eval, Invite}
