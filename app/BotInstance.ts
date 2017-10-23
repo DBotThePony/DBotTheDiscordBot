@@ -21,6 +21,8 @@ import {Hook} from '../lib/glib/hook'
 import {CommandHelper} from './lib/CommandHelper'
 import Discord = require('discord.js')
 import {registerDefaultCommands} from './commands/DefaultCommands'
+import pg = require('pg')
+import fs = require('fs')
 
 const DefaultHooksMap = [
 	['message', 'OnMessage'],
@@ -34,6 +36,7 @@ class BotInstance {
 	client = new Discord.Client({})
 	helper: CommandHelper
 	commands: CommandHolder
+	db: pg.Client
 
 	get id() { return this.client.user.id }
 	get uid() { return this.client.user.id }
@@ -54,6 +57,32 @@ class BotInstance {
 		if (doLogin) {
 			this.login()
 		}
+
+		const config = configInstance.getSQL()
+
+		if (config) {
+			this.db = new pg.Client(config)
+			this.db.connect().then(() => {
+				fs.readFile('./app/database.sql', (err, data) => {
+					this.db.query(data.toString()).catch((err) => {
+						console.error('SQL initialization error - ' + err)
+						process.exit(1)
+					}).then(() => {
+						console.log('SQL database online')
+					})
+				})
+			}).catch((err) => {
+				console.error('SQL initialization error - ' + err)
+				process.exit(1)
+			})
+		} else {
+			console.error('No valid SQL config?')
+			process.exit(1)
+		}
+	}
+
+	query(...args: any[]) {
+		return this.db.query.apply(this.db, args)
 	}
 
 	channel(id: string) {
