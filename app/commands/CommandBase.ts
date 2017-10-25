@@ -173,6 +173,13 @@ class CommandExecutionInstance extends GEventEmitter {
 			yield [i, this.context.parsedArgs[i]]
 		}
 	}
+
+	query(query: string) {
+		return this.bot.db.query(query).catch((err) => {
+			this.send('SQL Execution error - ' + err)
+			console.error(this.command.id + ' sql query errored: ' + err)
+		})
+	}
 }
 
 class CommandBase implements CommandFlags {
