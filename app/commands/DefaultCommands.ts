@@ -22,6 +22,7 @@ import {CommandHolder} from './CommandHolder'
 import {Invite, SetAvatar, GetAvatar, About, Ping} from './base/MiscCommands'
 import {XD} from './fun/MiscFun'
 import {RegisterCowsay} from './fun/Cowsay'
+import {RegisterRPActions} from './fun/Roleplay'
 
 const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new Help(holder))
@@ -34,6 +35,7 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 
 	holder.registerCommand(new XD(holder))
 	RegisterCowsay(holder)
+	RegisterRPActions(holder)
 }
 
 export {registerDefaultCommands, Help, Eval, Invite}

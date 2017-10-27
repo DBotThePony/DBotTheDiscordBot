@@ -18,7 +18,14 @@
 CREATE TABLE IF NOT EXISTS "roleplay" (
 	"actor" BIGINT NOT NULL,
 	"target" BIGINT NOT NULL,
-	"action" INTEGER NOT NULL,
+	"action" SMALLINT NOT NULL,
 	"times" INTEGER NOT NULL DEFAULT 0,
-	PRIMARY KEY ("actor", "target")
+	PRIMARY KEY ("actor", "target", "action")
+);
+
+CREATE TABLE IF NOT EXISTS "roleplay_self" (
+	"actor" BIGINT NOT NULL,
+	"action" SMALLINT NOT NULL,
+	"times" INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY ("actor", "action")
 );

@@ -122,7 +122,7 @@ class CommandExecutionInstance extends GEventEmitter {
 		}
 	}
 
-	send (content: string): Promise<Discord.Message | Discord.Message[]> | null {
+	send(content: string): Promise<Discord.Message | Discord.Message[]> | null {
 		if (this.emit('send', content) != undefined) { return null }
 
 		const promise = this.context.send(content)
@@ -132,6 +132,10 @@ class CommandExecutionInstance extends GEventEmitter {
 		}
 
 		return promise
+	}
+
+	say(content: string) {
+		return this.send(content)
 	}
 
 	reply(content: string) {

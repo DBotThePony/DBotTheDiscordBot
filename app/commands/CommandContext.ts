@@ -169,6 +169,10 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 		for (const i in this.args) {
 			const arg = this.args[i]
 
+			if (typeof arg != 'string') {
+				break
+			}
+
 			if (this.allowUsers) {
 				const user = arg.match(parseUser)
 
