@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS "roleplay" (
 	PRIMARY KEY ("actor", "target", "action")
 );
 
-CREATE TABLE IF NOT EXISTS "roleplay_self" (
+CREATE TABLE IF NOT EXISTS "roleplay_generic" (
 	"actor" BIGINT NOT NULL,
 	"action" SMALLINT NOT NULL,
 	"times" INTEGER NOT NULL DEFAULT 0,

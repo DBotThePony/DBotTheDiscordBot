@@ -27,6 +27,7 @@ class CommandExecutionInstance extends GEventEmitter {
 	context: CommandContext
 	command: CommandBase
 	currentArg = 0
+	errored = false
 
 	get uid() { return this.context.bot.uid }
 	get id() { return this.context.author && this.context.author.id }
@@ -123,6 +124,10 @@ class CommandExecutionInstance extends GEventEmitter {
 	}
 
 	send(content: string): Promise<Discord.Message | Discord.Message[]> | null {
+		if (this.errored) {
+			return null
+		}
+
 		if (this.emit('send', content) != undefined) { return null }
 
 		const promise = this.context.send(content)
@@ -143,6 +148,10 @@ class CommandExecutionInstance extends GEventEmitter {
 	}
 
 	sendPM(content: string) {
+		if (this.errored) {
+			return false
+		}
+
 		if (this.emit('sendPM', content) != undefined) { return false }
 
 		if (!this.context.user) {
@@ -180,8 +189,9 @@ class CommandExecutionInstance extends GEventEmitter {
 
 	query(query: string) {
 		return this.bot.db.query(query).catch((err) => {
-			this.send('SQL Execution error - ' + err)
+			this.send('```sql\nSQL Execution error - ' + err + '```')
 			console.error(this.command.id + ' sql query errored: ' + err)
+			this.errored = true
 		})
 	}
 }
@@ -204,9 +214,20 @@ class CommandBase implements CommandFlags {
 	get bot() { return this.holder.bot }
 	get client() { return this.holder.bot.client }
 
-	constructor(holder: CommandHolder, id: string, ...aliases: string[]) {
-		this.id = id
-		this.alias = aliases || []
+	constructor(holder: CommandHolder, id: string | string[], ...aliases: string[]) {
+		if (typeof id == 'object') {
+			this.id = id[0]
+			id.splice(0, 1)
+			this.alias = id
+
+			for (const obj of aliases) {
+				this.alias.push(obj)
+			}
+		} else {
+			this.id = id
+			this.alias = aliases || []
+		}
+
 		this.holder = holder
 	}
 

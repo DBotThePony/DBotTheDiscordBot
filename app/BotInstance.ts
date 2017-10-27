@@ -30,6 +30,10 @@ const DefaultHooksMap = [
 	['ready', 'BotOnline'],
 ]
 
+interface BotStorage {
+	[key: string]: any
+}
+
 class BotInstance {
 	config: ConfigInstance
 	hooks = new Hook()
@@ -37,6 +41,7 @@ class BotInstance {
 	helper: CommandHelper
 	commands: CommandHolder
 	db: pg.Client
+	storage: BotStorage = {}
 
 	get id() { return this.client.user.id }
 	get uid() { return this.client.user.id }
