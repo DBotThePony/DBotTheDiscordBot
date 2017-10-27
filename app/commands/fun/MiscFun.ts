@@ -73,4 +73,85 @@ class XD extends CommandBase {
 	}
 }
 
-export {XD}
+interface shutup {
+	[key: string]: string | undefined
+}
+
+const leet_charmap = <shutup> {
+	'a': '/-|',
+	'b': '8',
+	'c': '[',
+	'с': '[',
+	'd': '|)',
+	'e': '3',
+	'f': '|=',
+	'g': '6',
+	'h': '|-|',
+	'i': '|',
+	'j': ')',
+	'k': '|(',
+	'l': '1',
+	'm': '|\\/|',
+	'n': '|\\|',
+	'o': '()',
+	'p': '|>',
+	'р': '|>',
+	'q': '9',
+	'r': '|2',
+	's': '$',
+	't': '7',
+	'u': '|_|',
+	'v': '\\/',
+	'w': '\\/\\/',
+	'x': '*',
+	'y': '\'/',
+	'у': '\'/',
+	'z': '2',
+	'г': 'r',
+	'ж': '}|{',
+	'з': '\'/_',
+	'и': '|/|',
+	'л': '/\\',
+	'п': '|^|',
+	'ф': '<|>',
+	'ц': '||_',
+	'ч': '\'-|',
+	'ш': 'LLI',
+	'щ': 'LLL',
+	'ъ': '\'b',
+	'ы': 'b|',
+	'ь': '|o',
+	'э': '€',
+	'ю': '|-O',
+	'я': '9|',
+}
+
+const leetmap_array = []
+
+for (let i in leet_charmap) {
+	leetmap_array.push(i)
+}
+
+const lett_match = new RegExp('(' + leetmap_array.join('|') + ')', 'gi')
+
+class Leet extends CommandBase {
+	help = 'l33t'
+
+	constructor(holder: CommandHolder) {
+		super(holder, 'l33t', 'leet', 'leetspeak', 'l33tspeak')
+	}
+
+	executed(instance: CommandExecutionInstance) {
+		if (instance.length == 0) {
+			instance.error('Phrase is required', 1)
+			return
+		}
+
+		return instance.raw.replace(lett_match, (m, p) => {
+			return leet_charmap[p.toLowerCase()] || m
+		})
+	}
+}
+
+
+export {XD, Leet}
