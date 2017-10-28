@@ -126,6 +126,7 @@ const RegisterRPActions = function(holder: CommandHolder) {
 	holder.registerCommand(new UserWithUserCommand(holder, 'hoofnom', '%s hoof nom of %s', 'hmmm?'))
 	holder.registerCommand(new UserWithUserCommand(holder, 'tailnom', '%s softly chews tail of %s', 'that tickles!'))
 	holder.registerCommand(new UserWithUserCommand(holder, 'lewd', '%s makes lewdish %s', '>w<'))
+	holder.registerCommand(new UserWithUserCommand(holder, 'bread', '%s gives bread to %s', 'baguette'))
 
 	holder.registerCommand(new UserWithEnvCommand(holder, 'sit', '%s sits', '%s sits on %s', 'sitty'))
 	holder.registerCommand(new UserWithEnvCommand(holder, 'jump', '%s jumps around', '%s jumps on %s', 'Jumps'))
