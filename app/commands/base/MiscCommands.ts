@@ -95,6 +95,18 @@ class About extends CommandBase {
 	}
 }
 
+class DateCommand extends CommandBase {
+	help = 'Shows current date'
+
+	constructor(holder: CommandHolder) {
+		super(holder, 'about')
+	}
+
+	executed(instance: CommandExecutionInstance) {
+		return 'Today is: `' + (new Date()).toString() + '` for me.'
+	}
+}
+
 const initMessage = [
 	'Bleh', 'Pne?', 'Ponies are coming for you', 'Ponis everiwhere!', 'gnignip', 'k', 'Am I a bot?',
 	'It is so fun!', 'Lookin\' for something interesting', '*jumps*', 'pew pew', 'vroom'
@@ -133,4 +145,4 @@ class Ping extends CommandBase {
 	}
 }
 
-export {Invite, SetAvatar, GetAvatar, About, Ping}
+export {Invite, SetAvatar, GetAvatar, About, Ping, DateCommand}

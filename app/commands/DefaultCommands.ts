@@ -20,7 +20,7 @@ import {Eval} from './base/Eval'
 import {HashCommand} from './base/Util'
 import {CommandHolder} from './CommandHolder'
 
-import {Invite, SetAvatar, GetAvatar, About, Ping} from './base/MiscCommands'
+import {Invite, SetAvatar, GetAvatar, About, Ping, DateCommand} from './base/MiscCommands'
 import {XD, Leet} from './fun/MiscFun'
 import {RegisterCowsay} from './fun/Cowsay'
 import {RegisterRPActions} from './fun/Roleplay'
@@ -33,6 +33,7 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new GetAvatar(holder))
 	holder.registerCommand(new About(holder))
 	holder.registerCommand(new Ping(holder))
+	holder.registerCommand(new DateCommand(holder))
 
 	holder.registerCommand(new HashCommand(holder, 'MD5'))
 	holder.registerCommand(new HashCommand(holder, 'SHA256'))
