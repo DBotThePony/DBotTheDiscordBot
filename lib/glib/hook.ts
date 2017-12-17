@@ -22,10 +22,11 @@ class Hook {
 	add(event: string, id: string, func: () => any) {
 		if (!event || !id || !func) return
 		if (this.hooks.has(event)) {
-			this.hooks.get(event).set(id, func)
+			(<any> this.hooks.get(event)).set(id, func)
 		} else {
-			this.hooks.set(event, new Map())
-			this.hooks.get(event).set(id, func)
+			const newMap = new Map()
+			this.hooks.set(event, newMap)
+			newMap.set(id, func)
 		}
 	}
 
@@ -33,23 +34,23 @@ class Hook {
 	single(event: string, func: () => any) {
 		if (!event || !func) return
 		if (!this.singles.has(event)) {
-			const arr = []
+			const arr: (() => any)[] = []
 			this.singles.set(event, arr)
 		} else {
-			this.singles.get(event).push(func)
+			(<any> this.singles.get(event)).push(func)
 		}
 	}
 
 	remove(event: string, id: string) {
 		if (!event || !id) return
 		if (this.hooks.has(event)) {
-			this.hooks.get(event).delete(id)
+			(<any> this.hooks.get(event)).delete(id)
 		}
 	}
 
 	call(event: string, ...callArgs: any[]) {
 		if (this.singles.has(event)) {
-			for (const func of this.singles.get(event)) {
+			for (const func of (<any> this.singles.get(event))) {
 				func.apply(null, callArgs)
 			}
 
@@ -57,7 +58,7 @@ class Hook {
 		}
 
 		if (this.hooks.has(event)) {
-			for (const func of this.hooks.get(event).values()) {
+			for (const func of (<any> this.hooks.get(event)).values()) {
 				const reply = func.apply(null, callArgs)
 				if (reply !== undefined) {
 					return reply
@@ -83,7 +84,7 @@ class Hook {
 	}
 
 	getTable() {
-		const obj = {}
+		const obj: any = {}
 
 		for (const [key, val] of this.hooks) {
 			obj[key] = obj[key] || {}
