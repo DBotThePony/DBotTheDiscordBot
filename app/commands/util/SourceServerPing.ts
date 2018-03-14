@@ -22,13 +22,35 @@ import {CommandBase, CommandExecutionInstance} from '../CommandBase'
 import {CommandHolder} from '../CommandHolder'
 import Discord = require('discord.js')
 
-const sign = [
+const sign = Buffer.from([
 	0xFF, 0xFF, 0xFF, 0xFF, 0x54,
 	0x53, 0x6F, 0x75, 0x72, 0x63,
 	0x65, 0x20, 0x45, 0x6E, 0x67,
 	0x69, 0x6E, 0x65, 0x20, 0x51,
 	0x75, 0x65, 0x72, 0x79, 0x00
-]
+])
+
+const CurTime = function() {
+	return (new Date()).getTime() / 1000
+}
+
+const ReadString = function(buf: Buffer, offset: number) {
+	let output = ''
+	let len = 0
+
+	while (true) {
+		const readChar = buf.readUInt8(offset + len)
+		len++
+
+		if (readChar == 0) {
+			break
+		}
+
+		output += String.fromCharCode(readChar)
+	}
+
+	return [output, len]
+}
 
 class SourceServerPing extends CommandBase {
 	help = 'Pings source server'
@@ -106,7 +128,7 @@ class SourceServerPing extends CommandBase {
 	ping(ip: string, instance: CommandExecutionInstance, port: number) {
 		const randPort = Math.floor(Math.random() * 5000) + 50000
 		let Closed = false
-		let sendStamp = new Date()
+		let sendStamp = CurTime()
 
 		let socket = dgram.createSocket('udp4');
 
@@ -114,49 +136,49 @@ class SourceServerPing extends CommandBase {
 			try {
 				let pingLatency = Math.floor((CurTime() - sendStamp) * 1000);
 				let offset = 6;
-				let readName = Util.ReadString(buf, offset);
+				const readName = ReadString(buf, offset);
 				let name = readName[0];
-				offset += readName[1];
+				offset += <number> readName[1];
 
-				let readMap = Util.ReadString(buf, offset);
-				let map = readMap[0];
-				offset += readMap[1];
+				const readMap = ReadString(buf, offset);
+				const map = readMap[0];
+				offset += <number> readMap[1];
 
-				let readFolder = Util.ReadString(buf, offset);
-				let folder = readFolder[0];
-				offset += readFolder[1];
+				const readFolder = ReadString(buf, offset);
+				const folder = readFolder[0];
+				offset += <number> readFolder[1];
 
-				let readGame = Util.ReadString(buf, offset);
-				let game = readGame[0];
-				offset += readGame[1];
+				const readGame = ReadString(buf, offset);
+				const game = readGame[0];
+				offset += <number> readGame[1];
 
-				let readID = buf.readUInt16LE(offset);
+				const readID = buf.readUInt16LE(offset);
 				offset += 2;
 
-				let Players = buf.readUInt8(offset);
+				const Players = buf.readUInt8(offset);
 				offset += 1;
 
-				let MPlayers = buf.readUInt8(offset);
+				const MPlayers = buf.readUInt8(offset);
 				offset += 1;
 
-				let Bots = buf.readUInt8(offset);
+				const Bots = buf.readUInt8(offset);
 				offset += 1;
 
-				let Type = String.fromCharCode(buf.readUInt8(offset));
+				const Type = String.fromCharCode(buf.readUInt8(offset));
 				offset += 1;
 
-				let OS = String.fromCharCode(buf.readUInt8(offset));
+				const OS = String.fromCharCode(buf.readUInt8(offset));
 				offset += 1;
 
-				let Visibility = buf.readUInt8(offset);
+				const Visibility = buf.readUInt8(offset);
 				offset += 1;
 
-				let VAC = buf.readUInt8(offset);
+				const VAC = buf.readUInt8(offset);
 				offset += 1;
 
-				let readVersion = Util.ReadString(buf, offset);
-				let Version = readVersion[0];
-				offset += readVersion[1];
+				const readVersion = ReadString(buf, offset);
+				const Version = readVersion[0];
+				offset += <number> readVersion[1];
 
 				let output = '\n```';
 
@@ -178,7 +200,7 @@ class SourceServerPing extends CommandBase {
 
 				output += '\n```';
 
-				msg.reply(output);
+				instance.reply(output);
 			} catch(err) {
 				console.log(err)
 				instance.reply('Internal error')
@@ -187,32 +209,31 @@ class SourceServerPing extends CommandBase {
 			socket.close();
 		})
 
-		socket.on('listening', function() {
-			socket.send(sign, 0, sign.length, port, ip);
-			sendStamp = new Date()
+		socket.on('listening', () => {
+			socket.send(sign, 0, sign.length, port, ip)
+			sendStamp = CurTime()
 		})
 
-		socket.on('error', function(err) {
-			console.error(err);
-			msg.channel.stopTyping();
-			msg.reply('OSHI~ Something is bad with UDP socket...');
+		socket.on('error', (err) => {
+			console.error(err)
+			instance.reply('OSHI~ Something is bad with UDP socket...')
 		})
 
-		socket.on('close', function() {
+		socket.on('close', () => {
 			Closed = true;
 		});
 
-		setTimeout(function() {
+		setTimeout(() => {
 			if (Closed) {
 				return;
 			}
 
-			msg.channel.stopTyping();
-			msg.reply('Failed to ping: Connection timeout!');
-
+			instance.reply('Failed to ping: Connection timeout!');
 			socket.close();
 		}, 4000);
 
 		socket.bind(randPort, '0.0.0.0');
 	}
 }
+
+export {SourceServerPing}

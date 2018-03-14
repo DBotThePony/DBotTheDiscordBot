@@ -24,6 +24,7 @@ import {Invite, SetAvatar, GetAvatar, About, Ping, DateCommand} from './base/Mis
 import {XD, Leet} from './fun/MiscFun'
 import {RegisterCowsay} from './fun/Cowsay'
 import {RegisterRPActions} from './fun/Roleplay'
+import {SourceServerPing} from './util/SourceServerPing'
 
 const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new Help(holder))
@@ -42,6 +43,7 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 
 	holder.registerCommand(new XD(holder))
 	holder.registerCommand(new Leet(holder))
+	holder.registerCommand(new SourceServerPing(holder))
 
 	RegisterCowsay(holder)
 	RegisterRPActions(holder)
