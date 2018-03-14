@@ -23,7 +23,7 @@ import Discord = require('discord.js')
 class CommandHolder {
 	registeredCommands = new Map<string, CommandBase>()
 	mappedCommands = new Map<string, CommandBase>()
-	prefix = '{'
+	prefix = '}'
 	bot: BotInstance
 
 	get size() { return this.registerCommand.length }
