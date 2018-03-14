@@ -34,6 +34,12 @@ interface BotStorage {
 	[key: string]: any
 }
 
+interface AntispamStorage {
+	// UserID -> UserObject, Score
+	// Score should decrease each second
+	[key: string]: number
+}
+
 class BotInstance {
 	config: ConfigInstance
 	hooks = new Hook()
@@ -42,6 +48,8 @@ class BotInstance {
 	commands: CommandHolder
 	db: pg.Client
 	storage: BotStorage = {}
+	antispam: AntispamStorage = {}
+	decreaseID = setInterval(() => this.updateAntispam(), 3000)
 
 	get id() { return this.client.user.id }
 	get uid() { return this.client.user.id }
@@ -84,6 +92,49 @@ class BotInstance {
 			console.error('No valid SQL config?')
 			process.exit(1)
 		}
+	}
+
+	updateAntispam() {
+		//if (this.client.status != 0) {
+		//	return
+		//}
+
+		for (const ID in this.antispam) {
+			const time = this.antispam[ID] - 1
+
+			if (time > 0) {
+				this.antispam[ID] = time
+			} else {
+				delete this.antispam[ID]
+			}
+		}
+	}
+
+	// less weight - stricter check
+	checkAntispam(user: Discord.User, weight = 3) {
+		if (!this.antispam[user.id]) {
+			return true
+		}
+
+		if (this.antispam[user.id] >= weight) {
+			return false
+		}
+
+		return true
+	}
+
+	addAntispam(user: Discord.User, weight = 1, limit = 3) {
+		if (!this.antispam[user.id]) {
+			this.antispam[user.id] = weight
+			return true
+		}
+
+		if (this.antispam[user.id] >= limit) {
+			return false
+		}
+
+		this.antispam[user.id] += weight
+		return true
 	}
 
 	query(...args: any[]) {

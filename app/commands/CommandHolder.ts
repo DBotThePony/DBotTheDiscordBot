@@ -61,7 +61,11 @@ class CommandHolder {
 
 	call(msg: Discord.Message, force = false) {
 		if (msg.author.id == this.bot.uid && !force) {
-			return
+			return null
+		}
+
+		if (!this.bot.checkAntispam(msg.author)) {
+			return null
 		}
 
 		const raw = msg.content.trim()
@@ -81,6 +85,10 @@ class CommandHolder {
 		const command = this.getCommand(getCommand)
 
 		if (!command) {
+			return null
+		}
+
+		if (!this.bot.addAntispam(msg.author, command.antispam(msg.author, msg))) {
 			return null
 		}
 

@@ -231,6 +231,10 @@ class CommandBase implements CommandFlags {
 		this.holder = holder
 	}
 
+	antispam(user: Discord.User, msg: Discord.Message) {
+		return 1
+	}
+
 	hasHelp() {
 		return this.help != ''
 	}
