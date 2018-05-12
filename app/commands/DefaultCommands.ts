@@ -23,6 +23,7 @@ import {CommandHolder} from './CommandHolder'
 import {Invite, SetAvatar, GetAvatar, About, Ping, DateCommand} from './base/MiscCommands'
 import {XD, Leet} from './fun/MiscFun'
 import {RegisterCowsay} from './fun/Cowsay'
+import {WordWallCommand} from './fun/text/WordWall'
 import {RegisterRPActions} from './fun/Roleplay'
 import {SourceServerPing} from './util/SourceServerPing'
 import {ColorCommand, ColorsCommand, ReloadColors, RemoveColors} from './util/ColorCommand'
@@ -47,6 +48,7 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new HashCommand('SHA1'))
 	holder.registerCommand(new HashCommand('SHA512'))
 
+	holder.registerCommand(new WordWallCommand())
 	holder.registerCommand(new XD())
 	holder.registerCommand(new Leet())
 	holder.registerCommand(new SourceServerPing())

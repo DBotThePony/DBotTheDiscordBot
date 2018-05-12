@@ -176,7 +176,7 @@ class CommandExecutionInstance extends GEventEmitter {
 	}
 
 	get(argNum: number) {
-		return this.context.parsedArgs[argNum + 1]
+		return this.context.parsedArgs[argNum - 1]
 	}
 
 	reset() {
