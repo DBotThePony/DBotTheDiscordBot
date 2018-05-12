@@ -22,8 +22,8 @@ import Discord = require('discord.js')
 class XD extends CommandBase {
 	help = 'XD'
 
-	constructor(holder: CommandHolder) {
-		super(holder, 'xd')
+	constructor() {
+		super('xd')
 	}
 
 	executed(instance: CommandExecutionInstance) {
@@ -137,8 +137,8 @@ const lett_match = new RegExp('(' + leetmap_array.join('|') + ')', 'gi')
 class Leet extends CommandBase {
 	help = 'l33t'
 
-	constructor(holder: CommandHolder) {
-		super(holder, 'l33t', 'leet', 'leetspeak', 'l33tspeak')
+	constructor() {
+		super('l33t', 'leet', 'leetspeak', 'l33tspeak')
 	}
 
 	executed(instance: CommandExecutionInstance) {

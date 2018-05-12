@@ -23,8 +23,8 @@ import crypto = require('crypto')
 class HashCommand extends CommandBase {
 	hasher: string
 
-	constructor(holder: CommandHolder, hasher: string) {
-		super(holder, 'hash' + hasher.toLowerCase())
+	constructor(hasher: string) {
+		super('hash' + hasher.toLowerCase())
 		this.help = 'Hash a text with ' + hasher
 		this.hasher = hasher.toLowerCase()
 	}

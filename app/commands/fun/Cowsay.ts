@@ -23,8 +23,8 @@ const cowsay = require('cowsay');
 class Cowsay extends CommandBase {
 	askFile: string
 
-	constructor(holder: CommandHolder, cowname: string) {
-		super(holder, cowname + 'say', cowname)
+	constructor(cowname: string) {
+		super(cowname + 'say', cowname)
 		this.help = cowname + 'say the word'
 		this.askFile = cowname
 
@@ -54,7 +54,7 @@ const cows = [
 
 const RegisterCowsay = function(holder: CommandHolder) {
 	for (const cow of cows) {
-		holder.registerCommand(new Cowsay(holder, cow))
+		holder.registerCommand(new Cowsay(cow))
 	}
 }
 

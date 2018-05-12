@@ -27,8 +27,8 @@ class Help extends CommandBase {
 	helpStrs: string[]
 	allowPipes = false
 
-	constructor(holder: CommandHolder) {
-		super(holder, 'help', '?', 'h')
+	constructor() {
+		super('help', '?', 'h')
 		this.help = 'Shows help'
 	}
 

@@ -22,8 +22,8 @@ import Discord = require('discord.js')
 class Invite extends CommandBase {
 	help = 'Invite link'
 
-	constructor(holder: CommandHolder) {
-		super(holder, 'invite')
+	constructor() {
+		super('invite')
 	}
 
 	executed(instance: CommandExecutionInstance) {
@@ -36,8 +36,8 @@ class SetAvatar extends CommandBase {
 	displayHelp = false
 	allowUsers = true
 
-	constructor(holder: CommandHolder) {
-		super(holder, 'setavatar')
+	constructor() {
+		super('setavatar')
 	}
 
 	executed(instance: CommandExecutionInstance) {
@@ -63,8 +63,8 @@ class GetAvatar extends CommandBase {
 	help = 'Get user(s) avatar(s)'
 	allowUsers = true
 
-	constructor(holder: CommandHolder) {
-		super(holder, 'avatar')
+	constructor() {
+		super('avatar')
 	}
 
 	executed(instance: CommandExecutionInstance) {
@@ -86,8 +86,8 @@ class GetAvatar extends CommandBase {
 class About extends CommandBase {
 	help = 'About'
 
-	constructor(holder: CommandHolder) {
-		super(holder, 'about')
+	constructor() {
+		super('about')
 	}
 
 	executed(instance: CommandExecutionInstance) {
@@ -98,8 +98,8 @@ class About extends CommandBase {
 class DateCommand extends CommandBase {
 	help = 'Shows current date'
 
-	constructor(holder: CommandHolder) {
-		super(holder, 'about')
+	constructor() {
+		super('about')
 	}
 
 	executed(instance: CommandExecutionInstance) {
@@ -126,20 +126,20 @@ const finishMessage = [
 class Ping extends CommandBase {
 	help = 'Time to reply'
 
-	constructor(holder: CommandHolder) {
-		super(holder, 'ping')
+	constructor() {
+		super('ping')
 	}
 
 	executed(instance: CommandExecutionInstance) {
 		const now = new Date()
 
-		const promise = instance.send(initMessage.random())
+		const promise = instance.send(initMessage[Math.floor(Math.random() * (initMessage.length - 1))])
 
 		if (promise) {
 			promise.then((msg) => {
 				const newnow = new Date()
 				msg = <Discord.Message> msg
-				msg.edit(`It takes **${(newnow.getTime() - now.getTime())}** ms to ping **${instance.next() || finishMessage.random()}**`)
+				msg.edit(`It takes **${(newnow.getTime() - now.getTime())}** ms to ping **${instance.next() || finishMessage[Math.floor(Math.random() * (finishMessage.length - 1))]}**`)
 			})
 		}
 	}

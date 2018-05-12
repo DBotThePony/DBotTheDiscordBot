@@ -32,16 +32,19 @@ class CommandExecutionInstance extends GEventEmitter {
 	get uid() { return this.context.bot.uid }
 	get id() { return this.context.author && this.context.author.id }
 	get bot() { return this.context.bot }
+	get sql() { return this.context.bot.sql }
 	get commands() { return this.context.bot.commands }
 	get inServer() { return this.context.inServer }
 	get author() { return this.context.author }
 	get user() { return this.context.author }
 	get sender() { return this.context.author }
+	get member() { return this.context.member }
 	get helper() { return this.bot.helper }
 	get channel() { return this.context.channel }
 	get server() { return this.context.server }
 	get length() { return this.context.args.length - 1 }
 	get raw() { return this.context.rawArgs }
+	get isPM() { return this.context.msg && this.context.msg.channel.type == 'dm' }
 	hasArguments() { return this.context.hasArguments() }
 
 	constructor(command: CommandBase, context: CommandContext) {
@@ -188,11 +191,15 @@ class CommandExecutionInstance extends GEventEmitter {
 	}
 
 	query(query: string) {
-		return this.bot.db.query(query).catch((err) => {
+		const promise = this.bot.db.query(query)
+
+		promise.catch((err) => {
 			this.send('```sql\nSQL Execution error - ' + err + '```')
 			console.error(this.command.id + ' sql query errored: ' + err)
 			this.errored = true
 		})
+
+		return promise
 	}
 }
 
@@ -210,11 +217,14 @@ class CommandBase implements CommandFlags {
 	allowRoles = false
 	allowChannels = false
 	allowPipes = true
+	allowPM = true
+	onlyPM = false
 
 	get bot() { return this.holder.bot }
+	get sql() { return this.holder.bot.sql }
 	get client() { return this.holder.bot.client }
 
-	constructor(holder: CommandHolder, id: string | string[], ...aliases: string[]) {
+	constructor(id: string | string[], ...aliases: string[]) {
 		if (typeof id == 'object') {
 			this.id = id[0]
 			id.splice(0, 1)
@@ -227,8 +237,11 @@ class CommandBase implements CommandFlags {
 			this.id = id
 			this.alias = aliases || []
 		}
+	}
 
+	setHolder(holder: CommandHolder) {
 		this.holder = holder
+		return this
 	}
 
 	antispam(user: Discord.User, msg: Discord.Message) {
@@ -256,8 +269,19 @@ class CommandBase implements CommandFlags {
 	}
 
 	execute(context: CommandContext) {
-		this.executedTimes++
 		const instance = new CommandExecutionInstance(this, context)
+
+		if (this.onlyPM && !instance.isPM) {
+			instance.reply('This command can be only executed in Direct messaging channel (PM/Private Messaging)')
+			return false
+		}
+
+		if (!this.allowPM && instance.isPM) {
+			instance.reply('This command can not be executed in Direct messaging channel (PM/Private Messaging)')
+			return false
+		}
+
+		this.executedTimes++
 
 		try {
 			const status = this.executed(instance)

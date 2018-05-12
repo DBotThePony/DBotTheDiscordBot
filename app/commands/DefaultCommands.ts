@@ -25,25 +25,31 @@ import {XD, Leet} from './fun/MiscFun'
 import {RegisterCowsay} from './fun/Cowsay'
 import {RegisterRPActions} from './fun/Roleplay'
 import {SourceServerPing} from './util/SourceServerPing'
+import {ColorCommand, ColorsCommand, ReloadColors, RemoveColors} from './util/ColorCommand'
 
 const registerDefaultCommands = function(holder: CommandHolder) {
-	holder.registerCommand(new Help(holder))
-	holder.registerCommand(new Eval(holder))
-	holder.registerCommand(new Invite(holder))
-	holder.registerCommand(new SetAvatar(holder))
-	holder.registerCommand(new GetAvatar(holder))
-	holder.registerCommand(new About(holder))
-	holder.registerCommand(new Ping(holder))
-	holder.registerCommand(new DateCommand(holder))
+	holder.registerCommand(new Help())
+	holder.registerCommand(new Eval())
+	holder.registerCommand(new Invite())
+	holder.registerCommand(new SetAvatar())
+	holder.registerCommand(new GetAvatar())
+	holder.registerCommand(new About())
+	holder.registerCommand(new Ping())
+	holder.registerCommand(new DateCommand())
 
-	holder.registerCommand(new HashCommand(holder, 'MD5'))
-	holder.registerCommand(new HashCommand(holder, 'SHA256'))
-	holder.registerCommand(new HashCommand(holder, 'SHA1'))
-	holder.registerCommand(new HashCommand(holder, 'SHA512'))
+	holder.registerCommand(new ColorCommand())
+	holder.registerCommand(new ColorsCommand())
+	holder.registerCommand(new ReloadColors())
+	holder.registerCommand(new RemoveColors())
 
-	holder.registerCommand(new XD(holder))
-	holder.registerCommand(new Leet(holder))
-	holder.registerCommand(new SourceServerPing(holder))
+	holder.registerCommand(new HashCommand('MD5'))
+	holder.registerCommand(new HashCommand('SHA256'))
+	holder.registerCommand(new HashCommand('SHA1'))
+	holder.registerCommand(new HashCommand('SHA512'))
+
+	holder.registerCommand(new XD())
+	holder.registerCommand(new Leet())
+	holder.registerCommand(new SourceServerPing())
 
 	RegisterCowsay(holder)
 	RegisterRPActions(holder)

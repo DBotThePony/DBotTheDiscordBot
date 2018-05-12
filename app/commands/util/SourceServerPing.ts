@@ -55,8 +55,8 @@ const ReadString = function(buf: Buffer, offset: number) {
 class SourceServerPing extends CommandBase {
 	help = 'Pings source server'
 
-	constructor(holder: CommandHolder) {
-		super(holder, 'sping')
+	constructor() {
+		super('sping')
 	}
 
 	executed(instance: CommandExecutionInstance) {

@@ -29,3 +29,9 @@ CREATE TABLE IF NOT EXISTS "roleplay_generic" (
 	"times" INTEGER NOT NULL DEFAULT 0,
 	PRIMARY KEY ("actor", "action")
 );
+
+CREATE TABLE IF NOT EXISTS "server_colors" (
+	"server" BIGINT NOT NULL,
+	"colors" BIGINT[] NOT NULL,
+	PRIMARY KEY ("server")
+);

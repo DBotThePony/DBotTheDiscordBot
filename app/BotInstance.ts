@@ -47,6 +47,7 @@ class BotInstance {
 	helper: CommandHelper
 	commands: CommandHolder
 	db: pg.Client
+	get sql() { return this.db }
 	storage: BotStorage = {}
 	antispam: AntispamStorage = {}
 	decreaseID = setInterval(() => this.updateAntispam(), 3000)

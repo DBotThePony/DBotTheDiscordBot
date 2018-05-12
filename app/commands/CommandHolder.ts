@@ -35,6 +35,7 @@ class CommandHolder {
 	}
 
 	registerCommand(command: CommandBase) {
+		command.setHolder(this)
 		this.registeredCommands.set(command.id, command)
 		this.mappedCommands.set(command.id, command)
 
