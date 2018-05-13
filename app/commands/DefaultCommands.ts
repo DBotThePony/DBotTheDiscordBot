@@ -26,6 +26,7 @@ import {RegisterCowsay} from './fun/Cowsay'
 import {ShippingCommand} from './fun/Shipping'
 import {WordWallCommand} from './fun/text/WordWall'
 import {ASCIIPonyCommand, ASCIIPonyImageCommand} from './fun/text/ASCIIPony'
+import {Fortune, VulgarFortune} from './fun/text/Fortune'
 import {RegisterRPActions} from './fun/Roleplay'
 import {SourceServerPing} from './util/SourceServerPing'
 import {ColorCommand, ColorsCommand, ReloadColors, RemoveColors} from './util/ColorCommand'
@@ -61,6 +62,8 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new ShippingCommand())
 	holder.registerCommand(new ASCIIPonyCommand())
 	holder.registerCommand(new ASCIIPonyImageCommand())
+	holder.registerCommand(new Fortune())
+	holder.registerCommand(new VulgarFortune())
 }
 
 export {registerDefaultCommands, Help, Eval, Invite}
