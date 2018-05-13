@@ -97,9 +97,23 @@ class CommandExecutionInstance extends GEventEmitter {
 	}
 
 	loadImage(urlIn: string) {
-		return this.bot.helper.loadImage(urlIn).catch((err: string) => {
+		const promise = this.bot.helper.loadImage(urlIn)
+
+		promise.catch((err: string) => {
 			this.send('Image download failed: ' + err)
 		})
+
+		return promise
+	}
+
+	loadBufferImage(urlIn: string) {
+		const promise = this.bot.helper.loadBufferImage(urlIn)
+
+		promise.catch((err: string) => {
+			this.send('Image download failed: ' + err)
+		})
+
+		return promise
 	}
 
 	argument(num: number) {
@@ -126,14 +140,14 @@ class CommandExecutionInstance extends GEventEmitter {
 		}
 	}
 
-	send(content: string): Promise<Discord.Message | Discord.Message[]> | null {
+	send(content: string, attach?: Discord.Attachment | Discord.MessageOptions): Promise<Discord.Message | Discord.Message[]> | null {
 		if (this.errored) {
 			return null
 		}
 
 		if (this.emit('send', content) != undefined) { return null }
 
-		const promise = this.context.send(content)
+		const promise = this.context.send(content, attach)
 
 		if (this.isTyping) {
 			this.thinking(false)
@@ -142,12 +156,12 @@ class CommandExecutionInstance extends GEventEmitter {
 		return promise
 	}
 
-	say(content: string) {
-		return this.send(content)
+	say(content: string, attach?: Discord.Attachment | Discord.MessageOptions) {
+		return this.send(content, attach)
 	}
 
-	reply(content: string) {
-		return this.send('<@' + this.id + '>, ' + content)
+	reply(content: string, attach?: Discord.Attachment | Discord.MessageOptions) {
+		return this.send('<@' + this.id + '>, ' + content, attach)
 	}
 
 	sendPM(content: string) {
@@ -176,7 +190,7 @@ class CommandExecutionInstance extends GEventEmitter {
 	}
 
 	get(argNum: number) {
-		return this.context.parsedArgs[argNum - 1]
+		return this.context.parsedArgs[argNum]
 	}
 
 	reset() {
@@ -309,4 +323,128 @@ class CommandBase implements CommandFlags {
 	}
 }
 
-export {CommandBase, CommandExecutionInstance}
+import child_process = require('child_process')
+const spawn = child_process.spawn
+
+const reconstructBuffer = (buffers: Buffer[]) => {
+	let bufferSize = 0
+
+	for (const buffer of buffers) {
+		bufferSize += buffer.byteLength
+	}
+
+	const newBuffer = Buffer.alloc(bufferSize)
+	let offset = 0
+
+	// the fuck node? I want .extend(Buffer) or .append(Buffer | BytesArray) or even better .write(Buffer, offset, length)
+	for (const buffer of buffers) {
+		for (let i = 0; i < buffer.byteLength; i++) {
+			newBuffer[offset + i] = buffer[i]
+		}
+
+		offset += buffer.byteLength
+	}
+
+	return newBuffer
+}
+
+class ImageCommandBase extends CommandBase {
+	convert(...args: string[]): Promise<Buffer> {
+		return new Promise((resolve, reject) => {
+			const magick = spawn('convert', args)
+
+			let buffers: Buffer[] = []
+
+			magick.on('close', (code: number, signal: string) => {
+				if (code != 0) {
+					reject('Image magick exited with non zero code! (' + code + ')')
+					return
+				}
+
+				if (buffers.length == 0) {
+					reject('Image magick did not gave the picture output')
+					return
+				}
+
+				resolve(reconstructBuffer(buffers))
+			})
+
+			magick.stdout.on('data', (chunk: Buffer) => {
+				buffers.push(chunk)
+			})
+
+			magick.stderr.pipe(process.stderr)
+		})
+	}
+
+	convertInOut(bufferIn: Buffer, ...args: string[]): Promise<Buffer> {
+		return new Promise((resolve, reject) => {
+			const magick = spawn('convert', args)
+
+			let buffers: Buffer[] = []
+
+			magick.on('close', (code: number, signal: string) => {
+				if (code != 0) {
+					reject('Image magick exited with non zero code! (' + code + ')')
+					return
+				}
+
+				if (buffers.length == 0) {
+					reject('Image magick did not gave the picture output')
+					return
+				}
+
+				resolve(reconstructBuffer(buffers))
+			})
+
+			magick.stdout.on('data', (chunk: Buffer) => {
+				buffers.push(chunk)
+			})
+
+			magick.stderr.pipe(process.stderr)
+			magick.stdin.end(bufferIn)
+		})
+	}
+
+	tryConvert(instance: CommandExecutionInstance, ...args: string[]): Promise<Buffer | null> {
+		if (instance.isPM || instance.server && instance.server.me.hasPermission('ATTACH_FILES')) {
+			return this.convert(...args)
+		}
+
+		return new Promise((resolve, reject) => {
+			resolve(null)
+		})
+	}
+
+	tryConvertInOut(instance: CommandExecutionInstance, bufferIn: Buffer, ...args: string[]): Promise<Buffer | null> {
+		if (instance.isPM || instance.server && instance.server.me.hasPermission('ATTACH_FILES')) {
+			return this.convertInOut(bufferIn, ...args)
+		}
+
+		return new Promise((resolve, reject) => {
+			resolve(null)
+		})
+	}
+
+	tryConvert2(instance: CommandExecutionInstance, ...args: string[]): Promise<Buffer | null> {
+		const promise = this.tryConvert(instance, ...args)
+
+		promise.catch((err) => {
+			instance.reply(err)
+		})
+
+		return promise
+	}
+
+	tryConvertInOut2(instance: CommandExecutionInstance, bufferIn: Buffer, ...args: string[]): Promise<Buffer | null> {
+		const promise = this.convertInOut(bufferIn, ...args)
+
+		promise.catch((err) => {
+			instance.reply(err)
+		})
+
+		return promise
+	}
+}
+
+export {CommandBase, ImageCommandBase, CommandExecutionInstance}

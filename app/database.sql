@@ -35,3 +35,10 @@ CREATE TABLE IF NOT EXISTS "server_colors" (
 	"colors" BIGINT[] NOT NULL,
 	PRIMARY KEY ("server")
 );
+
+CREATE TABLE IF NOT EXISTS "shipping" (
+	"first" BIGINT NOT NULL,
+	"second" BIGINT NOT NULL,
+	"times" INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY ("first", "second")
+);

@@ -23,6 +23,7 @@ import {CommandHolder} from './CommandHolder'
 import {Invite, SetAvatar, GetAvatar, About, Ping, DateCommand} from './base/MiscCommands'
 import {XD, Leet} from './fun/MiscFun'
 import {RegisterCowsay} from './fun/Cowsay'
+import {ShippingCommand} from './fun/Shipping'
 import {WordWallCommand} from './fun/text/WordWall'
 import {RegisterRPActions} from './fun/Roleplay'
 import {SourceServerPing} from './util/SourceServerPing'
@@ -55,6 +56,8 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 
 	RegisterCowsay(holder)
 	RegisterRPActions(holder)
+
+	holder.registerCommand(new ShippingCommand())
 }
 
 export {registerDefaultCommands, Help, Eval, Invite}

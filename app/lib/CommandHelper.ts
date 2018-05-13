@@ -18,6 +18,7 @@
 import {BotInstance} from '../BotInstance'
 import Discord = require('discord.js')
 import { ImageCache } from './ImageCache';
+import fs = require('fs')
 
 const imgExt = /.(jpe?g|png|bpg|tiff|bmp)/
 const imgExtGif = /.(jpe?g|png|bpg|tiff|bmp|gif)/
@@ -91,6 +92,23 @@ class CommandHelper {
 
 	loadImage(urlIn: string) {
 		return this.cache.download(urlIn)
+	}
+
+	loadBufferImage(urlIn: string): Promise<Buffer> {
+		return new Promise((resolve, reject) => {
+			this.cache.download(urlIn)
+			.then((path) => {
+				fs.readFile(path, {encoding: null}, (err, data) => {
+					if (err) {
+						reject(err)
+						return
+					}
+
+					resolve(data)
+				})
+			})
+			.catch(err => reject(err))
+		})
 	}
 }
 

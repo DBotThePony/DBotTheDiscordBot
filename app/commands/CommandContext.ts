@@ -96,7 +96,7 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 		this.allowPipes = flags.allowPipes
 	}
 
-	send(content: string): Promise<Discord.Message | Discord.Message[]> | null {
+	send(content: string, attach?: Discord.Attachment | Discord.MessageOptions): Promise<Discord.Message | Discord.Message[]> | null {
 		if (!this.channel) {
 			return null
 		}
@@ -111,7 +111,9 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 			return status
 		}
 
-		const promise = this.channel.send(content).catch((err) => {
+		const promise = this.channel.send(content, attach)
+
+		promise.catch((err) => {
 			console.error(err)
 		})
 
@@ -177,7 +179,7 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 				const user = arg.match(parseUser)
 
 				if (user) {
-					this.parsedArgs[i] = this.bot.client.users.get(user[1])
+					this.parsedArgs[i] = this.bot.client.users.get(user[1]) || arg
 					continue
 				} else {
 					switch (arg) {
