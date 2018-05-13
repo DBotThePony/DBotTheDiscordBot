@@ -26,7 +26,7 @@ class Eval extends CommandBase {
 	help = 'Debug'
 
 	constructor() {
-		super('eval', 'debug')
+		super('eval', 'debug', 'repl')
 	}
 
 	executed(instance: CommandExecutionInstance) {
