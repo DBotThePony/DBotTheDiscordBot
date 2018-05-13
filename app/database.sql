@@ -39,6 +39,6 @@ CREATE TABLE IF NOT EXISTS "server_colors" (
 CREATE TABLE IF NOT EXISTS "shipping" (
 	"first" BIGINT NOT NULL,
 	"second" BIGINT NOT NULL,
-	"times" INTEGER NOT NULL DEFAULT 0,
+	"times" INTEGER NOT NULL DEFAULT 1,
 	PRIMARY KEY ("first", "second")
 );

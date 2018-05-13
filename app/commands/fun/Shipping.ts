@@ -60,7 +60,18 @@ class ShippingCommand extends ImageCommandBase {
 		const nick1Piece = nickname1.substr(0, nick1Sub);
 		const nick2Piece = nickname2.substr(nick2Sub);
 
-		const shipText = `${instance.author} ships it\nShip name: **${nick1Piece}${nick2Piece}**`
+		const postShip = (imageBuffer?: Buffer | null) => {
+			instance.query(`INSERT INTO "shipping" ("first", "second") VALUES (${user1.id}, ${user2.id}) ON CONFLICT ("first", "second") DO UPDATE SET "times" = "shipping"."times" + 1 RETURNING "times"`)
+			.then((value) => {
+				const shipText = `${instance.author} ships it (${value.rows[0].times} times now)\nShip name: **${nick1Piece}${nick2Piece}**`
+
+				if (imageBuffer) {
+					instance.reply(shipText, new Discord.Attachment(imageBuffer, 'ship.png'))
+				} else {
+					instance.reply(shipText)
+				}
+			})
+		}
 
 		if (user1.avatarURL && user2.avatarURL) {
 			instance.loadImage(user1.avatarURL)
@@ -73,11 +84,7 @@ class ShippingCommand extends ImageCommandBase {
 						'(', avatar2, '-resize', '256x256!', ')',
 						'+append', 'png:-')
 					.then(imageBuffer => {
-						if (imageBuffer) {
-							instance.reply(shipText, new Discord.Attachment(imageBuffer, 'shipping.png'))
-						} else {
-							instance.reply(shipText)
-						}
+						postShip(imageBuffer)
 					})
 				})
 			})
@@ -85,7 +92,7 @@ class ShippingCommand extends ImageCommandBase {
 			return
 		}
 
-		instance.reply(shipText)
+		postShip()
 	}
 }
 
