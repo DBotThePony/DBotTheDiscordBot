@@ -114,6 +114,18 @@ class NoIntel extends CommandBase {
 	}
 }
 
+class Pogreb extends CommandBase {
+	help = 'pogreb'
+
+	constructor() {
+		super('pogreb')
+	}
+
+	executed(instance: CommandExecutionInstance) {
+		instance.send('Погреб - погреб, но не простой, а с психотропными веществами. И есть в том погребе негр. И зовут его LeshaInc.')
+	}
+}
+
 class VulgarFortune extends CommandBase {
 	help = ':$ fortune [category]'
 
@@ -163,4 +175,4 @@ class CopyPasta extends CommandBase {
 	}
 }
 
-export {Fortune, VulgarFortune, CopyPasta, Intel, NoIntel}
+export {Fortune, VulgarFortune, CopyPasta, Intel, NoIntel, Pogreb}
