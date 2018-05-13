@@ -25,6 +25,7 @@ class ServerCommandsState {
 	channels = new Map<string, CommandBase[]>()
 	loaded = false
 	loadCallbacks: ((...args: any[]) => any)[] = []
+	loadCallbacksCatch: ((...args: any[]) => any)[] = []
 
 	constructor(public bot: BotInstance, public serverid: string) {
 		if (!this.bot.sql) {
@@ -75,6 +76,16 @@ class ServerCommandsState {
 					resolve()
 				}
 			})
+			.catch((err) => {
+				for (const reject of this.loadCallbacksCatch) {
+					reject()
+				}
+			})
+		})
+		.catch((err) => {
+			for (const reject of this.loadCallbacksCatch) {
+				reject()
+			}
 		})
 	}
 
@@ -94,6 +105,10 @@ class ServerCommandsState {
 				this.loadCallbacks.push(() => {
 					resolve(this.isBanned(command))
 				})
+
+				this.loadCallbacksCatch.push(() => {
+					reject(this.isBanned(command))
+				})
 			}
 		})
 	}
@@ -106,8 +121,23 @@ class ServerCommandsState {
 				this.loadCallbacks.push(() => {
 					resolve(this.isBannedChannel(channel, command))
 				})
+
+				this.loadCallbacksCatch.push(() => {
+					reject(this.isBanned(command))
+				})
 			}
 		})
+	}
+
+	getChannel(channel: Discord.TextChannel | string) {
+		const id = this.resolveChannelID(channel)
+
+		if (this.channels.has(id)) {
+			return <CommandBase[]> this.channels.get(id)
+		}
+
+		this.channels.set(id, [])
+		return <CommandBase[]> this.channels.get(id)
 	}
 
 	resolveChannelID(channel: Discord.TextChannel | string) {
@@ -115,11 +145,11 @@ class ServerCommandsState {
 	}
 
 	isBannedChannel(channel: Discord.TextChannel | string, command: CommandBase) {
-		return this.commands.includes(command)
+		return this.getChannel(this.resolveChannelID(channel)).includes(command)
 	}
 
 	canBanChannel(channel: Discord.TextChannel | string, command: CommandBase) {
-		return !this.isBanned(command) && command.canBeBanned
+		return !this.isBannedChannel(channel, command) && command.canBeBanned
 	}
 
 	banCommand(command: CommandBase): Promise<string> {
@@ -144,6 +174,27 @@ class ServerCommandsState {
 				this.commands.push(command)
 				resolve('Command banned successfully')
 			})
+			.catch(reject)
+		})
+	}
+
+	unbanCommand(command: CommandBase): Promise<string> {
+		return new Promise((resolve, reject) => {
+			if (!this.isBanned(command)) {
+				reject('Command is not banned!')
+				return
+			}
+
+			if (!this.bot.sql) {
+				throw new Error('Bad bot initialization')
+			}
+
+			this.bot.sql.query(`UPDATE "command_ban_server" SET "commands" = array_remove("commands", '${command.id}') WHERE "server" = ${this.serverid}`)
+			.then((value) => {
+				this.commands.splice(this.commands.indexOf(command), 1)
+				resolve('Command unbanned successfully')
+			})
+			.catch(reject)
 		})
 	}
 
@@ -166,14 +217,139 @@ class ServerCommandsState {
 			this.bot.sql.query(`INSERT INTO "command_ban_channel" VALUES (${this.serverid}, ${this.resolveChannelID(channel)}, ARRAY['${command.id}']) ON CONFLICT ("server") DO UPDATE
 				SET "commands" = "command_ban_server"."commands" || excluded."commands"`)
 			.then((value) => {
-				this.commands.push(command)
+				this.getChannel(channel).push(command)
 				resolve('Command banned successfully')
 			})
+			.catch(reject)
 		})
 	}
 
-	bulkBan(...commands: CommandBase[]) {
+	unbanChannelCommand(channel: Discord.TextChannel | string, command: CommandBase): Promise<string> {
+		return new Promise((resolve, reject) => {
+			if (!this.isBannedChannel(channel, command)) {
+				reject('Command is not banned!')
+				return
+			}
 
+			if (!this.bot.sql) {
+				throw new Error('Bad bot initialization')
+			}
+
+			this.bot.sql.query(`UPDATE "command_ban_channel" SET "commands" = array_remove("commands", '${command.id}') WHERE "server" = ${this.serverid} AND "channel" = ${this.resolveChannelID(channel)}`)
+			.then((value) => {
+				this.getChannel(channel).splice(this.getChannel(channel).indexOf(command), 1)
+				resolve('Command unbanned successfully')
+			})
+			.catch(reject)
+		})
+	}
+
+	bulkBan(...commands: CommandBase[]): Promise<[CommandBase, boolean, string]> {
+		return new Promise((resolve, reject) => {
+			const statuses: any[] = []
+			let amount = commands.length
+
+			for (const command of commands) {
+				this.banCommand(command)
+				.then((status) => {
+					amount--
+					statuses.push([command, true, status])
+
+					if (amount == 0) {
+						resolve(<any> statuses)
+					}
+				})
+				.catch((reason) => {
+					amount--
+					statuses.push([command, false, reason])
+
+					if (amount == 0) {
+						resolve(<any> statuses)
+					}
+				})
+			}
+		})
+	}
+
+	bulkUnban(...commands: CommandBase[]): Promise<[CommandBase, boolean, string]> {
+		return new Promise((resolve, reject) => {
+			const statuses: any[] = []
+			let amount = commands.length
+
+			for (const command of commands) {
+				this.unbanCommand(command)
+				.then((status) => {
+					amount--
+					statuses.push([command, true, status])
+
+					if (amount == 0) {
+						resolve(<any> statuses)
+					}
+				})
+				.catch((reason) => {
+					amount--
+					statuses.push([command, false, reason])
+
+					if (amount == 0) {
+						resolve(<any> statuses)
+					}
+				})
+			}
+		})
+	}
+
+	bulkChannelBan(channel: Discord.TextChannel | string, ...commands: CommandBase[]): Promise<[CommandBase, boolean, string]> {
+		return new Promise((resolve, reject) => {
+			const statuses: any[] = []
+			let amount = commands.length
+
+			for (const command of commands) {
+				this.banChannelCommand(channel, command)
+				.then((status) => {
+					amount--
+					statuses.push([command, true, status])
+
+					if (amount == 0) {
+						resolve(<any> statuses)
+					}
+				})
+				.catch((reason) => {
+					amount--
+					statuses.push([command, false, reason])
+
+					if (amount == 0) {
+						resolve(<any> statuses)
+					}
+				})
+			}
+		})
+	}
+
+	bulkChannelUnban(channel: Discord.TextChannel | string, ...commands: CommandBase[]): Promise<[CommandBase, boolean, string]> {
+		return new Promise((resolve, reject) => {
+			const statuses: any[] = []
+			let amount = commands.length
+
+			for (const command of commands) {
+				this.unbanChannelCommand(channel, command)
+				.then((status) => {
+					amount--
+					statuses.push([command, true, status])
+
+					if (amount == 0) {
+						resolve(<any> statuses)
+					}
+				})
+				.catch((reason) => {
+					amount--
+					statuses.push([command, false, reason])
+
+					if (amount == 0) {
+						resolve(<any> statuses)
+					}
+				})
+			}
+		})
 	}
 }
 
