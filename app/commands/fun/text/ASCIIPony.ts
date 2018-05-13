@@ -55,7 +55,7 @@ class ASCIIPonyImageCommand extends CommandBase {
 	}
 
 	executed(instance: CommandExecutionInstance) {
-		if (!instance.hasPermission('ATTACH_FILES')) {
+		if (!instance.hasPermissionBoth('ATTACH_FILES')) {
 			instance.reply('No rights to post image!')
 			return
 		}

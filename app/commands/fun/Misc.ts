@@ -31,7 +31,7 @@ class NFS extends CommandBase {
 	}
 
 	executed(instance: CommandExecutionInstance) {
-		if (!instance.hasPermission('ATTACH_FILES')) {
+		if (!instance.hasPermissionBoth('ATTACH_FILES')) {
 			instance.reply('NeedForPermissions')
 			return
 		}

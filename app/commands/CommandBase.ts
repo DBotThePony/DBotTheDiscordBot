@@ -76,6 +76,29 @@ class CommandExecutionInstance extends GEventEmitter {
 		return false
 	}
 
+	hasPermissionBoth(permission: Discord.PermissionResolvable | Discord.PermissionResolvable[]) {
+		if (this.isPM) {
+			return true // maybe
+		}
+
+		if (this.server && this.server.me.hasPermission('ADMINISTRATOR') && this.member && this.member.hasPermission('ADMINISTRATOR')) {
+			return true
+		}
+
+		if (this.channel && this.server && this.member) {
+			const perms = (<Discord.TextChannel> this.channel).permissionsFor(this.server.me)
+			const perms2 = (<Discord.TextChannel> this.channel).permissionsFor(this.member)
+
+			if (perms) {
+				return perms.has(permission) && perms2.has(permission)
+			} else {
+				return this.server.me.hasPermission(permission) && this.member.hasPermission(permission)
+			}
+		}
+
+		return false
+	}
+
 	buildError(message: string, argNum: number) {
 		let buildString = 'Error - ' + message + '\n```' + this.command.id + ' '
 		let spacesLen = this.command.id.length
@@ -433,7 +456,7 @@ class ImageCommandBase extends CommandBase {
 	}
 
 	tryConvert(instance: CommandExecutionInstance, ...args: string[]): Promise<Buffer | null> {
-		if (instance.isPM || instance.server && instance.server.me.hasPermission('ATTACH_FILES')) {
+		if (instance.hasPermissionBoth('ATTACH_FILES')) {
 			return this.convert(...args)
 		}
 
@@ -443,7 +466,7 @@ class ImageCommandBase extends CommandBase {
 	}
 
 	tryConvertInOut(instance: CommandExecutionInstance, bufferIn: Buffer, ...args: string[]): Promise<Buffer | null> {
-		if (instance.isPM || instance.server && instance.server.me.hasPermission('ATTACH_FILES')) {
+		if (instance.hasPermissionBoth('ATTACH_FILES')) {
 			return this.convertInOut(bufferIn, ...args)
 		}
 
