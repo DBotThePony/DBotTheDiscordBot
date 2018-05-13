@@ -43,35 +43,48 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new Ping())
 	holder.registerCommand(new DateCommand())
 
+	holder.setCategory('colors')
 	holder.registerCommand(new ColorCommand())
 	holder.registerCommand(new ColorsCommand())
 	holder.registerCommand(new ReloadColors())
 	holder.registerCommand(new RemoveColors())
 
+	holder.setCategory('hash')
 	holder.registerCommand(new HashCommand('MD5'))
 	holder.registerCommand(new HashCommand('SHA256'))
 	holder.registerCommand(new HashCommand('SHA1'))
 	holder.registerCommand(new HashCommand('SHA512'))
 
+	holder.setCategory('fun')
+	holder.registerCommand(new NFS())
+
+	holder.setCategory('fun_text')
 	holder.registerCommand(new WordWallCommand())
 	holder.registerCommand(new XD())
 	holder.registerCommand(new Leet())
-	holder.registerCommand(new SourceServerPing())
-
-	RegisterCowsay(holder)
-	RegisterRPActions(holder)
-
-	holder.registerCommand(new ShippingCommand())
-	holder.registerCommand(new ASCIIPonyCommand())
-	holder.registerCommand(new ASCIIPonyImageCommand())
-	holder.registerCommand(new Fortune())
-	holder.registerCommand(new VulgarFortune())
-	holder.registerCommand(new CopyPasta())
-	holder.registerCommand(new NFS())
 
 	holder.registerCommand(new Aesthetics())
 	holder.registerCommand(new TextFlip())
 	holder.registerCommand(new TextFlop())
+
+	RegisterCowsay(holder)
+
+	holder.setCategory('util')
+	holder.registerCommand(new SourceServerPing())
+
+	holder.setCategory('roleplay')
+	RegisterRPActions(holder)
+
+	holder.setCategory('ponystuff')
+	holder.registerCommand(new ShippingCommand())
+	holder.registerCommand(new ASCIIPonyCommand())
+	holder.registerCommand(new ASCIIPonyImageCommand())
+
+	holder.setCategory('quotes')
+	holder.registerCommand(new Fortune())
+	holder.registerCommand(new VulgarFortune())
+	holder.registerCommand(new CopyPasta())
+
 	holder.registerCommand(new Intel())
 	holder.registerCommand(new NoIntel())
 	holder.registerCommand(new Pogreb())

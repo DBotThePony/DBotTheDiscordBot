@@ -23,6 +23,9 @@ import Discord = require('discord.js')
 class CommandHolder {
 	registeredCommands = new Map<string, CommandBase>()
 	mappedCommands = new Map<string, CommandBase>()
+	categories = new Map<string, CommandBase[]>()
+	currentCategory: string | null = null
+	currentCategoryArray: CommandBase[] | null = null
 	prefix = '}'
 	bot: BotInstance
 
@@ -34,14 +37,43 @@ class CommandHolder {
 		this.bot.addHook('OnMessage', 'CommandHolder', (msg: Discord.Message) => this.call(msg))
 	}
 
+	setCategory(category: string) {
+		this.currentCategory = category
+
+		if (!this.categories.has(category)) {
+			this.categories.set(category, [])
+		}
+
+		this.currentCategoryArray = <CommandBase[]> this.categories.get(category)
+
+		return this
+	}
+
+	unsetCategory() {
+		this.currentCategory = null
+		this.currentCategoryArray = null
+		return this
+	}
+
 	registerCommand(command: CommandBase) {
 		command.setHolder(this)
+
+		if (this.currentCategoryArray) {
+			this.currentCategoryArray.push(command)
+		}
+
 		this.registeredCommands.set(command.id, command)
 		this.mappedCommands.set(command.id, command)
 
 		for (const alias of command.alias) {
 			this.mappedCommands.set(alias, command)
 		}
+
+		return this
+	}
+
+	getCategory(category: string) {
+		return this.categories.get(category)
 	}
 
 	has(command: string) {
