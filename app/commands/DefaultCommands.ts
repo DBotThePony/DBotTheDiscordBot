@@ -25,6 +25,7 @@ import {XD, Leet} from './fun/MiscFun'
 import {RegisterCowsay} from './fun/Cowsay'
 import {ShippingCommand} from './fun/Shipping'
 import {WordWallCommand} from './fun/text/WordWall'
+import {ASCIIPonyCommand, ASCIIPonyImageCommand} from './fun/text/ASCIIPony'
 import {RegisterRPActions} from './fun/Roleplay'
 import {SourceServerPing} from './util/SourceServerPing'
 import {ColorCommand, ColorsCommand, ReloadColors, RemoveColors} from './util/ColorCommand'
@@ -58,6 +59,8 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 	RegisterRPActions(holder)
 
 	holder.registerCommand(new ShippingCommand())
+	holder.registerCommand(new ASCIIPonyCommand())
+	holder.registerCommand(new ASCIIPonyImageCommand())
 }
 
 export {registerDefaultCommands, Help, Eval, Invite}

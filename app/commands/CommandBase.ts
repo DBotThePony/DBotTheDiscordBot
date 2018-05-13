@@ -54,6 +54,28 @@ class CommandExecutionInstance extends GEventEmitter {
 		this.thinking(true)
 	}
 
+	hasPermission(permission: Discord.PermissionResolvable | Discord.PermissionResolvable[]) {
+		if (this.isPM) {
+			return true // maybe
+		}
+
+		if (this.server && this.server.me.hasPermission('ADMINISTRATOR')) {
+			return true
+		}
+
+		if (this.channel && this.server) {
+			const perms = (<Discord.TextChannel> this.channel).permissionsFor(this.server.me)
+
+			if (perms) {
+				return perms.has(permission)
+			} else {
+				return this.server.me.hasPermission(permission)
+			}
+		}
+
+		return false
+	}
+
 	buildError(message: string, argNum: number) {
 		let buildString = 'Error - ' + message + '\n```' + this.command.id + ' '
 		let spacesLen = this.command.id.length
