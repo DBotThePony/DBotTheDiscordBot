@@ -115,4 +115,28 @@ class VulgarFortune extends CommandBase {
 	}
 }
 
-export {Fortune, VulgarFortune}
+const uniqueStr = '\x001\x001\x002'
+const uniqueStrExp = new RegExp(uniqueStr, 'g')
+const copyPastaDict: string[] = []
+
+for (const str of fs.readFileSync('./resource/copypasta.csv', {encoding: 'utf8'}).replace(/""/g, uniqueStr).split(/"([^"]*)"/g)) {
+	const result = str.trim().replace(uniqueStrExp, '"').replace(/\r?\n/g, '')
+
+	if (result.length != 0) {
+		copyPastaDict.push(result)
+	}
+}
+
+class CopyPasta extends CommandBase {
+	help = 'Posts a random quote from http://www.twitchquotes.com/'
+
+	constructor() {
+		super('copypasta', 'mfortune', 'tfortune')
+	}
+
+	executed(instance: CommandExecutionInstance) {
+		instance.reply('```\n' + copyPastaDict[Math.floor(Math.random() * (copyPastaDict.length - 1))] + '```')
+	}
+}
+
+export {Fortune, VulgarFortune, CopyPasta}
