@@ -65,7 +65,7 @@ declare module "unirest" {
         secureProtocol: string;
         localAddress: string;
     }
-    
+
     interface RequestAuth {
         user: string;
         pass: string;
@@ -83,8 +83,8 @@ declare module "unirest" {
         url: string;
         domain: string | null;
         method: string | null;
-        client: http.ClientRequest | https.ClientRequest; // ???
-        connection: http.ClientRequest | https.ClientRequest; // ???
+        client: http.ClientRequest; // ???
+        connection: http.ClientRequest; // ???
         socket: net.Socket;
         request: Request;
         setEncoding (val: 'utf-8' | null): void;

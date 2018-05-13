@@ -227,6 +227,10 @@ class CommandExecutionInstance extends GEventEmitter {
 	}
 
 	query(query: string) {
+		if (!this.bot || !this.bot.db) {
+			throw new Error('No bot or no database avaliable')
+		}
+
 		const promise = this.bot.db.query(query)
 
 		promise.catch((err) => {
@@ -245,7 +249,7 @@ class CommandBase implements CommandFlags {
 	help = ''
 	args = ''
 	executedTimes = 0
-	holder: CommandHolder
+	holder: CommandHolder | null = null
 	displayHelp = true
 
 	allowUsers = false
@@ -256,9 +260,9 @@ class CommandBase implements CommandFlags {
 	allowPM = true
 	onlyPM = false
 
-	get bot() { return this.holder.bot }
-	get sql() { return this.holder.bot.sql }
-	get client() { return this.holder.bot.client }
+	get bot() { return this.holder && this.holder.bot || null }
+	get sql() { return this.holder && this.holder.bot.sql || null }
+	get client() { return this.holder && this.holder.bot.client || null }
 
 	constructor(id: string | string[], ...aliases: string[]) {
 		if (typeof id == 'object') {

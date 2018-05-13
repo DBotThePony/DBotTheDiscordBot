@@ -24,7 +24,7 @@ import {validNumber} from '../../../lib/NumberUtil'
 const replaceDesc = /\r?\n/gi
 
 class Help extends CommandBase {
-	helpStrs: string[]
+	helpStrs: string[] = []
 	allowPipes = false
 
 	constructor() {
@@ -37,7 +37,7 @@ class Help extends CommandBase {
 
 		let helpPages = 0
 
-		for (const command of this.bot.commands.values()) {
+		for (const command of (<BotInstance> this.bot).commands.values()) {
 			if (!command.displayHelp) {
 				continue
 			}
@@ -51,7 +51,7 @@ class Help extends CommandBase {
 		let current = `Help page: ${page}/${helpPages}\n` + '```'
 		let i = 1
 
-		for (const command of this.bot.commands.values()) {
+		for (const command of (<BotInstance> this.bot).commands.values()) {
 			if (!command.displayHelp) {
 				continue
 			}
@@ -94,7 +94,7 @@ class Help extends CommandBase {
 
 		if (instance.hasArguments()) {
 			const command = <string> instance.next().toLowerCase()
-			const commandObj = this.bot.commands.get(command)
+			const commandObj = (<BotInstance> this.bot).commands.get(command)
 			const page = validNumber(command)
 
 			if (commandObj) {

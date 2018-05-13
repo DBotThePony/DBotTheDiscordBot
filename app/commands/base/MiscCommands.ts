@@ -18,6 +18,7 @@
 import {CommandBase, CommandExecutionInstance} from '../CommandBase'
 import {CommandHolder} from '../CommandHolder'
 import Discord = require('discord.js')
+import { BotInstance } from '../../BotInstance';
 
 class Invite extends CommandBase {
 	help = 'Invite link'
@@ -27,7 +28,7 @@ class Invite extends CommandBase {
 	}
 
 	executed(instance: CommandExecutionInstance) {
-		return 'Link https://discordapp.com/api/oauth2/authorize?client_id=' + this.bot.id + '&scope=bot&permissions=0\nJoin https://discord.gg/HG9eS79';
+		return 'Link https://discordapp.com/api/oauth2/authorize?client_id=' + (<BotInstance> this.bot).id + '&scope=bot&permissions=0\nJoin https://discord.gg/HG9eS79';
 	}
 }
 
@@ -49,7 +50,7 @@ class SetAvatar extends CommandBase {
 		}
 
 		instance.loadImage(img).then((path: string) => {
-			this.bot.client.user.setAvatar(path)
+			(<BotInstance> this.bot).client.user.setAvatar(path)
 			.catch((err) => {
 				instance.send(err)
 			}).then(() => {

@@ -80,10 +80,10 @@ const SteamIDFrom3To64 = function(id: string) {
 }
 
 class SteamID {
-    protected _steamid: string | null
-    protected _steamid3: string | null
-    protected _steamid64: string | null
-    protected _server: number | null
+    protected _steamid: string | null = null
+    protected _steamid3: string | null = null
+    protected _steamid64: string | null = null
+    protected _server: number | null = null
 
     get server(): number | null { return this._server }
     get steamid(): string | null { return this._steamid }

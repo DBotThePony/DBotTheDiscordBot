@@ -20,11 +20,12 @@ import {CommandHolder} from '../CommandHolder'
 import Discord = require('discord.js')
 import {sprintf} from 'sprintf-js'
 import { CommandHelper } from '../../lib/CommandHelper';
+import { BotInstance } from '../../BotInstance';
 
 class UserWithUserCommand extends CommandBase {
 	fstring: string
 	allowUsers = true
-	actionID: number
+	actionID: number | null = null
 
 	constructor(commName: string | string[], fstring: string, help?: string) {
 		super(commName)
@@ -34,6 +35,10 @@ class UserWithUserCommand extends CommandBase {
 
 	setHolder(holder: CommandHolder) {
 		this.holder = holder
+		if (!this.bot) {
+			throw new Error('Invalid bot initialization')
+		}
+
 		this.bot.storage.nextActionID = (this.bot.storage.nextActionID || 0) + 1
 		this.actionID = this.bot.storage.nextActionID
 		return this
@@ -45,7 +50,7 @@ class UserWithUserCommand extends CommandBase {
 
 		if (!targetUser) {
 			targetUser = actor
-			actor = this.bot.client.user
+			actor = (<BotInstance> this.bot).client.user
 		}
 
 		if (typeof targetUser != 'object') {
@@ -67,7 +72,7 @@ class UserWithEnvCommand extends CommandBase {
 	fstringAlone: string
 	fstringWith: string
 	allowUsers = true
-	actionID: number
+	actionID: number | null = null
 
 	constructor(commName: string | string[], fstringAlone: string, fstringWith: string, help?: string) {
 		super(commName)
@@ -78,6 +83,10 @@ class UserWithEnvCommand extends CommandBase {
 
 	setHolder(holder: CommandHolder) {
 		this.holder = holder
+		if (!this.bot) {
+			throw new Error('Invalid bot initialization')
+		}
+
 		this.bot.storage.nextActionID = (this.bot.storage.nextActionID || 0) + 1
 		this.actionID = this.bot.storage.nextActionID
 		return this

@@ -46,7 +46,8 @@ class BotInstance {
 	client = new Discord.Client({})
 	helper: CommandHelper
 	commands: CommandHolder
-	db: pg.Client
+	// shut up
+	db: pg.Client | null = null
 	get sql() { return this.db }
 	storage: BotStorage = {}
 	antispam: AntispamStorage = {}
@@ -74,26 +75,27 @@ class BotInstance {
 
 		const config = configInstance.getSQL()
 
-		if (config) {
-			this.db = new pg.Client(config)
-			this.db.connect().then(() => {
-				fs.readFile('./app/database.sql', (err, data) => {
-					this.db.query(data.toString()).catch((err) => {
-						console.error('SQL initialization error - ' + err)
-						process.exit(1)
-					}).then(() => {
-						console.log('SQL database online')
-					})
-				})
-			}).catch((err) => {
-				console.error('SQL initialization error - ' + err)
-				process.exit(1)
-			})
-		} else {
+		if (!config) {
 			console.error('No valid SQL config?')
 			process.exit(1)
+			return
 		}
-	}
+
+		this.db = new pg.Client(config)
+		this.db.connect().then(() => {
+			fs.readFile('./app/database.sql', (err, data) => {
+				(<pg.Client> this.db).query(data.toString()).catch((err) => {
+					console.error('SQL initialization error - ' + err)
+					process.exit(1)
+				}).then(() => {
+					console.log('SQL database online')
+				})
+			})
+		}).catch((err) => {
+			console.error('SQL initialization error - ' + err)
+			process.exit(1)
+		})
+}
 
 	updateAntispam() {
 		//if (this.client.status != 0) {
@@ -139,6 +141,10 @@ class BotInstance {
 	}
 
 	query(...args: any[]) {
+		if (!this.db) {
+			throw new Error('Invalid intiialization')
+		}
+
 		return this.db.query.apply(this.db, args)
 	}
 

@@ -100,7 +100,7 @@ class ConfigInstance implements ConfigData {
 	webpath: string
 	protocol: string
 	owners: string[]
-	sql_config: SQLConfig | null
+	sql_config: SQLConfig | null = null
 
 	constructor(inputData: ConfigData) {
 		this.data = inputData

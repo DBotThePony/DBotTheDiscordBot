@@ -21,7 +21,6 @@ import {CommandHolder} from '../CommandHolder'
 import {BotInstance} from '../../BotInstance'
 
 class Eval extends CommandBase {
-	helpStrs: string[]
 	allowPipes = false
 	displayHelp = false
 	help = 'Debug'
