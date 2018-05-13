@@ -26,7 +26,7 @@ import {RegisterCowsay} from './fun/Cowsay'
 import {ShippingCommand} from './fun/Shipping'
 import {WordWallCommand} from './fun/text/WordWall'
 import {ASCIIPonyCommand, ASCIIPonyImageCommand} from './fun/text/ASCIIPony'
-import {Fortune, VulgarFortune, CopyPasta} from './fun/text/Fortune'
+import {Fortune, VulgarFortune, CopyPasta, Intel, NoIntel} from './fun/text/Fortune'
 import {RegisterRPActions} from './fun/Roleplay'
 import {NFS} from './fun/Misc'
 import {Aesthetics, TextFlip, TextFlop} from './fun/text/TextManip'
@@ -72,6 +72,8 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new Aesthetics())
 	holder.registerCommand(new TextFlip())
 	holder.registerCommand(new TextFlop())
+	holder.registerCommand(new Intel())
+	holder.registerCommand(new NoIntel())
 }
 
 export {registerDefaultCommands, Help, Eval, Invite}

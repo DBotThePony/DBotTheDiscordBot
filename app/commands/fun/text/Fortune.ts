@@ -90,6 +90,30 @@ class Fortune extends CommandBase {
 	}
 }
 
+class Intel extends CommandBase {
+	help = 'intel'
+
+	constructor() {
+		super('intel')
+	}
+
+	executed(instance: CommandExecutionInstance) {
+		instance.send('```\n[2015-04-15] <NEO> Что за странные слова, пукнет, черепадла, у нас тут интеллигентное общество.```')
+	}
+}
+
+class NoIntel extends CommandBase {
+	help = 'nointel'
+
+	constructor() {
+		super('nointel')
+	}
+
+	executed(instance: CommandExecutionInstance) {
+		instance.send('```\nВот ты лайкаешь пост Нео "что за странные слова у Алекса "пук, чих и черепадлики" а сам такие же странные слова и юзаешь, типа "блин" и "офигенен"\nЧто за "американские двойные" стандарты. Определись уже в нашем "интеллигентном" обществе. Или у тебя концепция "Баба яга всегда против (Алекса)"? :facepalm:```')
+	}
+}
+
 class VulgarFortune extends CommandBase {
 	help = ':$ fortune [category]'
 
@@ -139,4 +163,4 @@ class CopyPasta extends CommandBase {
 	}
 }
 
-export {Fortune, VulgarFortune, CopyPasta}
+export {Fortune, VulgarFortune, CopyPasta, Intel, NoIntel}
