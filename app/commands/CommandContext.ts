@@ -1,6 +1,6 @@
 
 //
-// Copyright (C) 2017 DBot.
+// Copyright (C) 2017-2018 DBot.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -64,6 +64,7 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 	get user() { return this.author }
 	get sender() { return this.author }
 	get inServer() { return this.server != null }
+	get isPM() { return this.channel && this.channel.type == 'dm' }
 	get isOwner() { return this.uid && this.bot.config.owners.includes(this.uid) }
 	get inDM() { return typeof this.channel == 'object' && this.channel instanceof Discord.DMChannel }
 

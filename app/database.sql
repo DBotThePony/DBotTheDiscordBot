@@ -42,3 +42,16 @@ CREATE TABLE IF NOT EXISTS "shipping" (
 	"times" INTEGER NOT NULL DEFAULT 1,
 	PRIMARY KEY ("first", "second")
 );
+
+CREATE TABLE IF NOT EXISTS "command_ban_channel" (
+	"server" BIGINT NOT NULL,
+	"channel" BIGINT NOT NULL,
+	"commands" VARCHAR(255)[] DEFAULT ARRAY[]::VARCHAR(255)[],
+	PRIMARY KEY ("server", "channel")
+);
+
+CREATE TABLE IF NOT EXISTS "command_ban_server" (
+	"server" BIGINT NOT NULL,
+	"commands" VARCHAR(255)[] DEFAULT ARRAY[]::VARCHAR(255)[],
+	PRIMARY KEY ("server")
+);

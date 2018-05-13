@@ -1,6 +1,6 @@
 
 //
-// Copyright (C) 2017 DBot.
+// Copyright (C) 2017-2018 DBot.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -70,6 +70,28 @@ class CommandExecutionInstance extends GEventEmitter {
 				return perms.has(permission)
 			} else {
 				return this.server.me.hasPermission(permission)
+			}
+		}
+
+		return false
+	}
+
+	hasPermissionExecutor(permission: Discord.PermissionResolvable | Discord.PermissionResolvable[]) {
+		if (this.isPM) {
+			return true // maybe
+		}
+
+		if (this.member && this.member.hasPermission('ADMINISTRATOR')) {
+			return true
+		}
+
+		if (this.channel && this.server && this.member) {
+			const perms = (<Discord.TextChannel> this.channel).permissionsFor(this.member)
+
+			if (perms) {
+				return perms.has(permission)
+			} else {
+				return this.member.hasPermission(permission)
 			}
 		}
 
@@ -282,6 +304,7 @@ class CommandBase implements CommandFlags {
 	allowPipes = true
 	allowPM = true
 	onlyPM = false
+	canBeBanned = true
 
 	get bot() { return this.holder && this.holder.bot || null }
 	get sql() { return this.holder && this.holder.bot.sql || null }

@@ -1,6 +1,6 @@
 
 //
-// Copyright (C) 2017 DBot.
+// Copyright (C) 2017-2018 DBot.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import {CommandBase} from './CommandBase'
 import {CommandContext} from './CommandContext'
 import {BotInstance} from '../BotInstance'
 import Discord = require('discord.js')
+import { ServerCommandsState } from './CommandBansController'
 
 class CommandHolder {
 	registeredCommands = new Map<string, CommandBase>()
@@ -28,6 +29,7 @@ class CommandHolder {
 	currentCategoryArray: CommandBase[] | null = null
 	prefix = '}'
 	bot: BotInstance
+	banStates = new Map<string, ServerCommandsState>()
 
 	get size() { return this.registerCommand.length }
 	get length() { return this.registerCommand.length }
@@ -92,7 +94,17 @@ class CommandHolder {
 		return this.mappedCommands.get(command) || null
 	}
 
-	call(msg: Discord.Message, force = false) {
+	getServerBans(server: Discord.Guild): ServerCommandsState {
+		if (this.banStates.has(server.id)) {
+			return <ServerCommandsState> this.banStates.get(server.id)
+		}
+
+		const state = new ServerCommandsState(this.bot, server.id)
+		this.banStates.set(server.id, state)
+		return state
+	}
+
+	call(msg: Discord.Message, force = false): [CommandContext, CommandBase] | Promise<[CommandContext, CommandBase] | null> | null {
 		if (msg.author.id == this.bot.uid && !force) {
 			return null
 		}
@@ -125,16 +137,45 @@ class CommandHolder {
 			return null
 		}
 
-		context.importFlags(command)
-		context.parseFull()
+		const executeCommand = (): [CommandContext, CommandBase] | null => {
+			context.importFlags(command)
+			context.parseFull()
 
-		const status = command.execute(context)
+			const status = command.execute(context)
 
-		if (status == false) {
-			return null
+			if (status == false) {
+				return null
+			}
+
+			return [context, command]
 		}
 
-		return [context, command]
+		if (!context.inServer) {
+			return executeCommand()
+		}
+
+		return new Promise((resolve, reject) => {
+			const state = this.getServerBans(<Discord.Guild> context.server)
+			state.resolveBanned(command)
+			.then((serverBanStatus) => {
+				if (serverBanStatus) {
+					return
+				}
+
+				if (context.channel) {
+					state.resolveChannelBanned(<Discord.TextChannel> context.channel, command)
+					.then((channelBanStatus) => {
+						if (channelBanStatus) {
+							return
+						}
+
+						resolve(executeCommand())
+					})
+				} else {
+					resolve(executeCommand())
+				}
+			})
+		})
 	}
 }
 

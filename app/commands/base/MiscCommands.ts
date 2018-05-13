@@ -1,6 +1,6 @@
 
 //
-// Copyright (C) 2017 DBot.
+// Copyright (C) 2017-2018 DBot.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import { BotInstance } from '../../BotInstance';
 
 class Invite extends CommandBase {
 	help = 'Invite link'
+	canBeBanned = false
 
 	constructor() {
 		super('invite')
@@ -36,6 +37,7 @@ class SetAvatar extends CommandBase {
 	help = 'Set bot avatar'
 	displayHelp = false
 	allowUsers = true
+	canBeBanned = false
 
 	constructor() {
 		super('setavatar')
