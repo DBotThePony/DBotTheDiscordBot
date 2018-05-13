@@ -104,7 +104,7 @@ class CommandHolder {
 		return state
 	}
 
-	call(msg: Discord.Message, force = false): [CommandContext, CommandBase] | Promise<[CommandContext, CommandBase] | null> | null {
+	call(msg: Discord.Message, force = false): Promise<[CommandContext, CommandBase] | null> | null {
 		if (msg.author.id == this.bot.uid && !force) {
 			return null
 		}
@@ -150,11 +150,11 @@ class CommandHolder {
 			return [context, command]
 		}
 
-		if (!context.inServer) {
-			return executeCommand()
-		}
-
 		return new Promise((resolve, reject) => {
+			if (!context.inServer) {
+				return resolve(executeCommand())
+			}
+
 			const state = this.getServerBans(<Discord.Guild> context.server)
 			state.resolveBanned(command)
 			.then((serverBanStatus) => {
