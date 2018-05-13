@@ -88,7 +88,7 @@ class Help extends CommandBase {
 	}
 
 	executed(instance: CommandExecutionInstance) {
-		if (!this.helpStrs) {
+		if (this.helpStrs.length == 0) {
 			this.buildHelp()
 		}
 
