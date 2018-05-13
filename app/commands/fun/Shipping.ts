@@ -66,9 +66,9 @@ class ShippingCommand extends ImageCommandBase {
 				const shipText = `${instance.author} ships it (${value.rows[0].times} times now)\nShip name: **${nick1Piece}${nick2Piece}**`
 
 				if (imageBuffer) {
-					instance.reply(shipText, new Discord.Attachment(imageBuffer, 'ship.png'))
+					instance.send(shipText, new Discord.Attachment(imageBuffer, 'ship.png'))
 				} else {
-					instance.reply(shipText)
+					instance.send(shipText)
 				}
 			})
 		}
