@@ -65,7 +65,7 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 	get sender() { return this.author }
 	get inServer() { return this.server != null }
 	get isPM() { return this.channel && this.channel.type == 'dm' }
-	get isOwner() { return this.uid && this.bot.config.owners.includes(this.uid) }
+	get isOwner() { return this.uid && this.bot.config.owners.includes(this.uid) || false }
 	get inDM() { return typeof this.channel == 'object' && this.channel instanceof Discord.DMChannel }
 
 	constructor(bot: BotInstance, rawInput: string, msg?: Discord.Message) {

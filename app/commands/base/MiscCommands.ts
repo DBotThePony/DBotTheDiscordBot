@@ -88,6 +88,7 @@ class GetAvatar extends CommandBase {
 
 class About extends CommandBase {
 	help = 'About'
+	canBeBanned = false
 
 	constructor() {
 		super('about')
@@ -100,6 +101,7 @@ class About extends CommandBase {
 
 class DateCommand extends CommandBase {
 	help = 'Shows current date'
+	canBeBanned = false
 
 	constructor() {
 		super('about')
@@ -128,6 +130,7 @@ const finishMessage = [
 
 class Ping extends CommandBase {
 	help = 'Time to reply'
+	canBeBanned = false
 
 	constructor() {
 		super('ping')

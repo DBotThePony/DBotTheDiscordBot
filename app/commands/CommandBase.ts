@@ -35,6 +35,7 @@ class CommandExecutionInstance extends GEventEmitter {
 	get sql() { return this.context.bot.sql }
 	get commands() { return this.context.bot.commands }
 	get inServer() { return this.context.inServer }
+	get isOwner() { return this.context.isOwner }
 	get author() { return this.context.author }
 	get user() { return this.context.author }
 	get sender() { return this.context.author }
@@ -79,6 +80,10 @@ class CommandExecutionInstance extends GEventEmitter {
 	hasPermissionExecutor(permission: Discord.PermissionResolvable | Discord.PermissionResolvable[]) {
 		if (this.isPM) {
 			return true // maybe
+		}
+
+		if (this.context.isOwner) {
+			return true
 		}
 
 		if (this.member && this.member.hasPermission('ADMINISTRATOR')) {
@@ -258,6 +263,19 @@ class CommandExecutionInstance extends GEventEmitter {
 
 	get(argNum: number) {
 		return this.context.parsedArgs[argNum]
+	}
+
+	has(argNum: number) {
+		return this.context.parsedArgs[argNum] != undefined && this.context.parsedArgs[argNum] != null
+	}
+
+	assert(argNum: number, reason?: string) {
+		if (!this.has(argNum)) {
+			this.error(reason || 'Missing argument at ' + argNum, argNum)
+			return false
+		}
+
+		return true
 	}
 
 	reset() {

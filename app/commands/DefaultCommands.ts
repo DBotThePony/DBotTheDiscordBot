@@ -21,6 +21,7 @@ import {HashCommand} from './base/Util'
 import {CommandHolder} from './CommandHolder'
 
 import {Invite, SetAvatar, GetAvatar, About, Ping, DateCommand} from './base/MiscCommands'
+import {CMDManip} from './base/CommandManip'
 import {XD, Leet} from './fun/MiscFun'
 import {RegisterCowsay} from './fun/Cowsay'
 import {ShippingCommand} from './fun/Shipping'
@@ -42,6 +43,8 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new About())
 	holder.registerCommand(new Ping())
 	holder.registerCommand(new DateCommand())
+	holder.registerCommand(new CMDManip(true))
+	holder.registerCommand(new CMDManip(false))
 
 	holder.setCategory('colors')
 	holder.registerCommand(new ColorCommand())

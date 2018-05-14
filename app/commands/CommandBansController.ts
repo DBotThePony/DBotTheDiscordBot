@@ -244,7 +244,7 @@ class ServerCommandsState {
 		})
 	}
 
-	bulkBan(...commands: CommandBase[]): Promise<[CommandBase, boolean, string]> {
+	bulkBan(...commands: CommandBase[]): Promise<[CommandBase, boolean, string][]> {
 		return new Promise((resolve, reject) => {
 			const statuses: any[] = []
 			let amount = commands.length
@@ -256,7 +256,7 @@ class ServerCommandsState {
 					statuses.push([command, true, status])
 
 					if (amount == 0) {
-						resolve(<any> statuses)
+						resolve(statuses)
 					}
 				})
 				.catch((reason) => {
@@ -264,14 +264,14 @@ class ServerCommandsState {
 					statuses.push([command, false, reason])
 
 					if (amount == 0) {
-						resolve(<any> statuses)
+						resolve(statuses)
 					}
 				})
 			}
 		})
 	}
 
-	bulkUnban(...commands: CommandBase[]): Promise<[CommandBase, boolean, string]> {
+	bulkUnban(...commands: CommandBase[]): Promise<[CommandBase, boolean, string][]> {
 		return new Promise((resolve, reject) => {
 			const statuses: any[] = []
 			let amount = commands.length
@@ -283,7 +283,7 @@ class ServerCommandsState {
 					statuses.push([command, true, status])
 
 					if (amount == 0) {
-						resolve(<any> statuses)
+						resolve(statuses)
 					}
 				})
 				.catch((reason) => {
@@ -291,14 +291,14 @@ class ServerCommandsState {
 					statuses.push([command, false, reason])
 
 					if (amount == 0) {
-						resolve(<any> statuses)
+						resolve(statuses)
 					}
 				})
 			}
 		})
 	}
 
-	bulkChannelBan(channel: Discord.TextChannel | string, ...commands: CommandBase[]): Promise<[CommandBase, boolean, string]> {
+	bulkChannelBan(channel: Discord.TextChannel | string, ...commands: CommandBase[]): Promise<[CommandBase, boolean, string][]> {
 		return new Promise((resolve, reject) => {
 			const statuses: any[] = []
 			let amount = commands.length
@@ -310,7 +310,7 @@ class ServerCommandsState {
 					statuses.push([command, true, status])
 
 					if (amount == 0) {
-						resolve(<any> statuses)
+						resolve(statuses)
 					}
 				})
 				.catch((reason) => {
@@ -318,14 +318,14 @@ class ServerCommandsState {
 					statuses.push([command, false, reason])
 
 					if (amount == 0) {
-						resolve(<any> statuses)
+						resolve(statuses)
 					}
 				})
 			}
 		})
 	}
 
-	bulkChannelUnban(channel: Discord.TextChannel | string, ...commands: CommandBase[]): Promise<[CommandBase, boolean, string]> {
+	bulkChannelUnban(channel: Discord.TextChannel | string, ...commands: CommandBase[]): Promise<[CommandBase, boolean, string][]> {
 		return new Promise((resolve, reject) => {
 			const statuses: any[] = []
 			let amount = commands.length
@@ -337,7 +337,7 @@ class ServerCommandsState {
 					statuses.push([command, true, status])
 
 					if (amount == 0) {
-						resolve(<any> statuses)
+						resolve(statuses)
 					}
 				})
 				.catch((reason) => {
@@ -345,11 +345,23 @@ class ServerCommandsState {
 					statuses.push([command, false, reason])
 
 					if (amount == 0) {
-						resolve(<any> statuses)
+						resolve(statuses)
 					}
 				})
 			}
 		})
+	}
+
+	commandList() {
+		return this.commands
+	}
+
+	commandListChannel(channel: Discord.TextChannel | string) {
+		if (!this.channels.has(this.resolveChannelID(channel))) {
+			return []
+		}
+
+		return <CommandBase[]> this.channels.get(this.resolveChannelID(channel))
 	}
 }
 
