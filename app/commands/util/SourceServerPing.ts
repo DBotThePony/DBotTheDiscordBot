@@ -2,7 +2,7 @@
 //
 // Copyright (C) 2017-2018 DBot.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
+// Licensed under the Apache License, Version 2.0 (the "License")
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
@@ -130,83 +130,83 @@ class SourceServerPing extends CommandBase {
 		let Closed = false
 		let sendStamp = CurTime()
 
-		let socket = dgram.createSocket('udp4');
+		let socket = dgram.createSocket('udp4')
 
 		socket.on('message', (buf, rinfo) => {
 			try {
-				let pingLatency = Math.floor((CurTime() - sendStamp) * 1000);
-				let offset = 6;
-				const readName = ReadString(buf, offset);
-				let name = readName[0];
-				offset += <number> readName[1];
+				let pingLatency = Math.floor((CurTime() - sendStamp) * 1000)
+				let offset = 6
+				const readName = ReadString(buf, offset)
+				let name = readName[0]
+				offset += <number> readName[1]
 
-				const readMap = ReadString(buf, offset);
-				const map = readMap[0];
-				offset += <number> readMap[1];
+				const readMap = ReadString(buf, offset)
+				const map = readMap[0]
+				offset += <number> readMap[1]
 
-				const readFolder = ReadString(buf, offset);
-				const folder = readFolder[0];
-				offset += <number> readFolder[1];
+				const readFolder = ReadString(buf, offset)
+				const folder = readFolder[0]
+				offset += <number> readFolder[1]
 
-				const readGame = ReadString(buf, offset);
-				const game = readGame[0];
-				offset += <number> readGame[1];
+				const readGame = ReadString(buf, offset)
+				const game = readGame[0]
+				offset += <number> readGame[1]
 
-				const readID = buf.readUInt16LE(offset);
-				offset += 2;
+				const readID = buf.readUInt16LE(offset)
+				offset += 2
 
-				const Players = buf.readUInt8(offset);
-				offset += 1;
+				const Players = buf.readUInt8(offset)
+				offset += 1
 
-				const MPlayers = buf.readUInt8(offset);
-				offset += 1;
+				const MPlayers = buf.readUInt8(offset)
+				offset += 1
 
-				const Bots = buf.readUInt8(offset);
-				offset += 1;
+				const Bots = buf.readUInt8(offset)
+				offset += 1
 
-				const Type = String.fromCharCode(buf.readUInt8(offset));
-				offset += 1;
+				const Type = String.fromCharCode(buf.readUInt8(offset))
+				offset += 1
 
-				const OS = String.fromCharCode(buf.readUInt8(offset));
-				offset += 1;
+				const OS = String.fromCharCode(buf.readUInt8(offset))
+				offset += 1
 
-				const Visibility = buf.readUInt8(offset);
-				offset += 1;
+				const Visibility = buf.readUInt8(offset)
+				offset += 1
 
-				const VAC = buf.readUInt8(offset);
-				offset += 1;
+				const VAC = buf.readUInt8(offset)
+				offset += 1
 
-				const readVersion = ReadString(buf, offset);
-				const Version = readVersion[0];
-				offset += <number> readVersion[1];
+				const readVersion = ReadString(buf, offset)
+				const Version = readVersion[0]
+				offset += <number> readVersion[1]
 
-				let output = '\n```';
+				let output = '\n```'
 
-				output += 'Ping to the server:      ' + Math.floor(pingLatency) + 'ms\n';
-				output += 'Server IP:               ' + ip + '\n';
-				output += 'Server Port:             ' + port + '\n';
-				output += 'Server Name:             ' + name + '\n';
-				output += 'Server current map:      ' + map + '\n';
-				output += 'Server game folder:      ' + folder + '\n';
-				output += 'Server game:             ' + game + '\n';
-				output += 'Server game ID:          ' + readID + '\n';
-				output += 'Server Current players:  ' + Players + '\n';
-				output += 'Server Max players:      ' + MPlayers + '\n';
-				output += 'Server Load:             ' + Players + '/' + MPlayers + ' (' + Math.floor(Players / MPlayers * 100) + '%)' + '\n';
-				output += 'Server Bots:             ' + Bots + '\n';
-				output += 'Server Type:             ' + (Type == 'd' && 'Dedicated' || Type == 'l' && 'Listen' || Type == 'p' && 'SourceTV' || 'WTF?') + '\n';
-				output += 'Server OS:               ' + (OS == 'l' && 'Linux' || OS == 'w' && 'Windows' || OS == 'm' && 'Apple OS/X' || OS == 'o' && 'Apple OS/X' || 'WTF?') + '\n';
-				output += 'Server is running VAC:   ' + (VAC == 1 && 'Yes' || 'Nope') + '\n';
+				output += 'Ping to the server:      ' + Math.floor(pingLatency) + 'ms\n'
+				output += 'Server IP:               ' + ip + '\n'
+				output += 'Server Port:             ' + port + '\n'
+				output += 'Server Name:             ' + name + '\n'
+				output += 'Server current map:      ' + map + '\n'
+				output += 'Server game folder:      ' + folder + '\n'
+				output += 'Server game:             ' + game + '\n'
+				output += 'Server game ID:          ' + readID + '\n'
+				output += 'Server Current players:  ' + Players + '\n'
+				output += 'Server Max players:      ' + MPlayers + '\n'
+				output += 'Server Load:             ' + Players + '/' + MPlayers + ' (' + Math.floor(Players / MPlayers * 100) + '%)' + '\n'
+				output += 'Server Bots:             ' + Bots + '\n'
+				output += 'Server Type:             ' + (Type == 'd' && 'Dedicated' || Type == 'l' && 'Listen' || Type == 'p' && 'SourceTV' || 'WTF?') + '\n'
+				output += 'Server OS:               ' + (OS == 'l' && 'Linux' || OS == 'w' && 'Windows' || OS == 'm' && 'Apple OS/X' || OS == 'o' && 'Apple OS/X' || 'WTF?') + '\n'
+				output += 'Server is running VAC:   ' + (VAC == 1 && 'Yes' || 'Nope') + '\n'
 
-				output += '\n```';
+				output += '\n```'
 
-				instance.reply(output);
+				instance.reply(output)
 			} catch(err) {
 				console.log(err)
 				instance.reply('Internal error')
 			}
 
-			socket.close();
+			socket.close()
 		})
 
 		socket.on('listening', () => {
@@ -220,19 +220,19 @@ class SourceServerPing extends CommandBase {
 		})
 
 		socket.on('close', () => {
-			Closed = true;
-		});
+			Closed = true
+		})
 
 		setTimeout(() => {
 			if (Closed) {
-				return;
+				return
 			}
 
-			instance.reply('Failed to ping: Connection timeout!');
-			socket.close();
-		}, 4000);
+			instance.reply('Failed to ping: Connection timeout!')
+			socket.close()
+		}, 4000)
 
-		socket.bind(randPort, '0.0.0.0');
+		socket.bind(randPort, '0.0.0.0')
 	}
 }
 
