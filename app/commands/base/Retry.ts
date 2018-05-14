@@ -44,13 +44,13 @@ class Retry extends CommandBase {
 		const command = context.getCommand()
 
 		if (!command) {
-			return // what
+			return true // what
 		}
 
 		const commandObject = this.bot.commands.get(command)
 
 		if (!commandObject) {
-			return // wtf
+			return true // wtf
 		}
 
 		commandObject.execute(context)
