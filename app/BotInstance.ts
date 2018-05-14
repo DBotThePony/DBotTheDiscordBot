@@ -23,6 +23,7 @@ import Discord = require('discord.js')
 import {registerDefaultCommands} from './commands/DefaultCommands'
 import pg = require('pg')
 import fs = require('fs')
+import { RegisterStatusWatchdog } from './modules/BotStatus';
 
 const DefaultHooksMap = [
 	['message', 'OnMessage'],
@@ -156,11 +157,16 @@ class BotInstance {
 		return this.client.guilds.get(id)
 	}
 
+	online() {
+		RegisterStatusWatchdog(this)
+	}
+
 	login() {
 		return this.client.login(this.config.token)
 				.catch(console.error)
 				.then(() => {
 					console.log(`Bot with ID ${this.client.user.id} is now online`)
+					this.online()
 				})
 	}
 
