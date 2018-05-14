@@ -82,7 +82,7 @@ class CommandExecutionInstance extends GEventEmitter {
 			return true // maybe
 		}
 
-		if (this.context.isOwner) {
+		if (this.isOwner) {
 			return true
 		}
 
@@ -108,7 +108,7 @@ class CommandExecutionInstance extends GEventEmitter {
 			return true // maybe
 		}
 
-		if (this.server && this.server.me.hasPermission('ADMINISTRATOR') && this.member && this.member.hasPermission('ADMINISTRATOR')) {
+		if (this.server && this.server.me.hasPermission('ADMINISTRATOR') && (this.isOwner || this.member && this.member.hasPermission('ADMINISTRATOR'))) {
 			return true
 		}
 
