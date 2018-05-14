@@ -27,6 +27,8 @@ class CommandHolder {
 	categories = new Map<string, CommandBase[]>()
 	currentCategory: string | null = null
 	currentCategoryArray: CommandBase[] | null = null
+	lastCommandContext = new Map<string, CommandContext>()
+	lastCommandContextChannel = new Map<string, Map<string, CommandContext>>()
 	prefix = '}'
 	bot: BotInstance
 	banStates = new Map<string, ServerCommandsState>()
@@ -37,6 +39,42 @@ class CommandHolder {
 	constructor(bot: BotInstance) {
 		this.bot = bot
 		this.bot.addHook('OnMessage', 'CommandHolder', (msg: Discord.Message) => this.call(msg))
+	}
+
+	lastContext(user: string | Discord.User | Discord.GuildMember | null) {
+		if (typeof user == 'string') {
+			return this.lastCommandContext.get(user) || null
+		} else if (user instanceof Discord.User) {
+			return this.lastCommandContext.get(user.id) || null
+		} else if (user instanceof Discord.GuildMember) {
+			return this.lastCommandContext.get(user.id) || null // ???
+		}
+
+		return null
+	}
+
+	lastContextChannel(channel: Discord.Channel | null, user: string | Discord.User | Discord.GuildMember | null) {
+		if (!channel) {
+			return null
+		}
+
+		let userid
+
+		if (typeof user == 'string') {
+			userid = user
+		} else if (user instanceof Discord.User) {
+			userid = user.id
+		} else if (user instanceof Discord.GuildMember) {
+			userid = user.id
+		} else {
+			return null
+		}
+
+		if (this.lastCommandContextChannel.has(userid)) {
+			return (<Map<string, CommandContext>> this.lastCommandContextChannel.get(userid)).get(channel.id)
+		}
+
+		return null
 	}
 
 	setCategory(category: string) {
@@ -145,6 +183,19 @@ class CommandHolder {
 
 			if (status == false) {
 				return null
+			}
+
+			if (command.rememberContext && context.author) {
+				this.lastCommandContext.set(context.author.id, context)
+
+				if (context.channel) {
+					if (!this.lastCommandContextChannel.has(context.author.id)) {
+						this.lastCommandContextChannel.set(context.author.id, new Map())
+					}
+
+					(<Map<string, CommandContext>> this.lastCommandContextChannel.get(context.author.id)).set(context.channel.id, context)
+				}
+
 			}
 
 			return [context, command]

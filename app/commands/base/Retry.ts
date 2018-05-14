@@ -19,29 +19,43 @@ import {CommandBase, CommandExecutionInstance} from '../CommandBase'
 import {CommandContext} from '../CommandContext'
 import {CommandHolder} from '../CommandHolder'
 
-class Eval extends CommandBase {
+class Retry extends CommandBase {
 	allowPipes = false
-	displayHelp = false
-	help = 'Debug'
+	help = 'Re-executes previous command (based on CommandContext, but creates new CommandExecutionInstance)'
 	canBeBanned = false
+	rememberContext = false
 
 	constructor() {
-		super('eval', 'debug', 'repl')
+		super('retry')
 	}
 
 	executed(instance: CommandExecutionInstance) {
-		if (!instance.isOwner) {
-			instance.reply('Not a bot owner')
+		if (!this.bot) {
+			throw new Error('Bad bot instance')
+		}
+
+		const context = this.bot.commands.lastContextChannel(instance.channel, instance.author)
+
+		if (!context) {
+			instance.reply('There isn\'t any command executed previously!')
 			return
 		}
 
-		try {
-			const status = eval(instance.raw)
-			instance.send('```js\n' + status + '```')
-		} catch(err) {
-			instance.send('```js\n' + err.stack + '```')
+		const command = context.getCommand()
+
+		if (!command) {
+			return // what
 		}
+
+		const commandObject = this.bot.commands.get(command)
+
+		if (!commandObject) {
+			return // wtf
+		}
+
+		commandObject.execute(context)
+		return true
 	}
 }
 
-export {Eval}
+export {Retry}

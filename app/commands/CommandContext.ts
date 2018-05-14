@@ -56,7 +56,6 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 	allowRoles = false
 	allowChannels = false
 	allowPipes = true
-	executed = false
 
 	get sid() { return this.serverid }
 	get uid() { return this.userid }

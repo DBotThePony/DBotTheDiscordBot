@@ -22,6 +22,7 @@ import {CommandHolder} from './CommandHolder'
 
 import {Invite, SetAvatar, GetAvatar, About, Ping, DateCommand} from './base/MiscCommands'
 import {CMDManip} from './base/CommandManip'
+import {Retry} from './base/Retry'
 import {XD, Leet} from './fun/MiscFun'
 import {RegisterCowsay} from './fun/Cowsay'
 import {ShippingCommand} from './fun/Shipping'
@@ -43,6 +44,7 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new About())
 	holder.registerCommand(new Ping())
 	holder.registerCommand(new DateCommand())
+	holder.registerCommand(new Retry())
 	holder.registerCommand(new CMDManip(true))
 	holder.registerCommand(new CMDManip(false))
 

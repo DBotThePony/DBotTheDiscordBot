@@ -23,6 +23,7 @@ import Discord = require('discord.js')
 class CommandExecutionInstance extends GEventEmitter {
 	isTyping = false
 	wasTyping = false
+	messageSent = false
 	flushed = false
 	context: CommandContext
 	command: CommandBase
@@ -203,8 +204,17 @@ class CommandExecutionInstance extends GEventEmitter {
 	flush() {
 		this.flushed = true
 
+		if (this.messageSent) {
+			if (this.isTyping) {
+				this.context.typing(false)
+			}
+
+			return
+		}
+
 		if (this.isTyping) {
 			this.context.typing(true)
+			return
 		}
 
 		if (!this.wasTyping) {
@@ -224,6 +234,8 @@ class CommandExecutionInstance extends GEventEmitter {
 		if (this.isTyping) {
 			this.thinking(false)
 		}
+
+		this.messageSent = true
 
 		return promise
 	}
@@ -323,6 +335,7 @@ class CommandBase implements CommandFlags {
 	allowPM = true
 	onlyPM = false
 	canBeBanned = true
+	rememberContext = true
 
 	get bot() { return this.holder && this.holder.bot || null }
 	get sql() { return this.holder && this.holder.bot.sql || null }
