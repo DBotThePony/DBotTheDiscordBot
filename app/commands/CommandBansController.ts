@@ -214,8 +214,8 @@ class ServerCommandsState {
 				throw new Error('Bad bot initialization')
 			}
 
-			this.bot.sql.query(`INSERT INTO "command_ban_channel" VALUES (${this.serverid}, ${this.resolveChannelID(channel)}, ARRAY['${command.id}']) ON CONFLICT ("server") DO UPDATE
-				SET "commands" = "command_ban_server"."commands" || excluded."commands"`)
+			this.bot.sql.query(`INSERT INTO "command_ban_channel" VALUES (${this.serverid}, ${this.resolveChannelID(channel)}, ARRAY['${command.id}']) ON CONFLICT ("server", "channel") DO UPDATE
+				SET "commands" = "command_ban_channel"."commands" || excluded."commands"`)
 			.then((value) => {
 				this.getChannel(channel).push(command)
 				resolve('Command banned successfully')
