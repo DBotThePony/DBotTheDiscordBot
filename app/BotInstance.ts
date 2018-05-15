@@ -48,7 +48,7 @@ class BotInstance {
 	helper: CommandHelper
 	commands: CommandHolder
 	// shut up
-	db: pg.Client | null = null
+	db!: pg.Client
 	get sql() { return this.db }
 	storage: BotStorage = {}
 	antispam: AntispamStorage = {}

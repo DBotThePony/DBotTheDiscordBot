@@ -249,25 +249,27 @@ class ServerCommandsState {
 			const statuses: any[] = []
 			let amount = commands.length
 
-			for (const command of commands) {
-				this.banCommand(command)
-				.then((status) => {
-					amount--
-					statuses.push([command, true, status])
+			this.bot.sql.query(`BEGIN`).then(() => {
+				for (const command of commands) {
+					this.banCommand(command)
+					.then((status) => {
+						amount--
+						statuses.push([command, true, status])
 
-					if (amount == 0) {
-						resolve(statuses)
-					}
-				})
-				.catch((reason) => {
-					amount--
-					statuses.push([command, false, reason])
+						if (amount == 0) {
+							this.bot.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
+						}
+					})
+					.catch((reason) => {
+						amount--
+						statuses.push([command, false, reason])
 
-					if (amount == 0) {
-						resolve(statuses)
-					}
-				})
-			}
+						if (amount == 0) {
+							this.bot.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
+						}
+					})
+				}
+			})
 		})
 	}
 
@@ -276,25 +278,27 @@ class ServerCommandsState {
 			const statuses: any[] = []
 			let amount = commands.length
 
-			for (const command of commands) {
-				this.unbanCommand(command)
-				.then((status) => {
-					amount--
-					statuses.push([command, true, status])
+			this.bot.sql.query(`BEGIN`).then(() => {
+				for (const command of commands) {
+					this.unbanCommand(command)
+					.then((status) => {
+						amount--
+						statuses.push([command, true, status])
 
-					if (amount == 0) {
-						resolve(statuses)
-					}
-				})
-				.catch((reason) => {
-					amount--
-					statuses.push([command, false, reason])
+						if (amount == 0) {
+							this.bot.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
+						}
+					})
+					.catch((reason) => {
+						amount--
+						statuses.push([command, false, reason])
 
-					if (amount == 0) {
-						resolve(statuses)
-					}
-				})
-			}
+						if (amount == 0) {
+							this.bot.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
+						}
+					})
+				}
+			})
 		})
 	}
 
@@ -303,25 +307,27 @@ class ServerCommandsState {
 			const statuses: any[] = []
 			let amount = commands.length
 
-			for (const command of commands) {
-				this.banChannelCommand(channel, command)
-				.then((status) => {
-					amount--
-					statuses.push([command, true, status])
+			this.bot.sql.query(`BEGIN`).then(() => {
+				for (const command of commands) {
+					this.banChannelCommand(channel, command)
+					.then((status) => {
+						amount--
+						statuses.push([command, true, status])
 
-					if (amount == 0) {
-						resolve(statuses)
-					}
-				})
-				.catch((reason) => {
-					amount--
-					statuses.push([command, false, reason])
+						if (amount == 0) {
+							this.bot.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
+						}
+					})
+					.catch((reason) => {
+						amount--
+						statuses.push([command, false, reason])
 
-					if (amount == 0) {
-						resolve(statuses)
-					}
-				})
-			}
+						if (amount == 0) {
+							this.bot.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
+						}
+					})
+				}
+			})
 		})
 	}
 
@@ -330,25 +336,27 @@ class ServerCommandsState {
 			const statuses: any[] = []
 			let amount = commands.length
 
-			for (const command of commands) {
-				this.unbanChannelCommand(channel, command)
-				.then((status) => {
-					amount--
-					statuses.push([command, true, status])
+			this.bot.sql.query(`BEGIN`).then(() => {
+				for (const command of commands) {
+					this.unbanChannelCommand(channel, command)
+					.then((status) => {
+						amount--
+						statuses.push([command, true, status])
 
-					if (amount == 0) {
-						resolve(statuses)
-					}
-				})
-				.catch((reason) => {
-					amount--
-					statuses.push([command, false, reason])
+						if (amount == 0) {
+							this.bot.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
+						}
+					})
+					.catch((reason) => {
+						amount--
+						statuses.push([command, false, reason])
 
-					if (amount == 0) {
-						resolve(statuses)
-					}
-				})
-			}
+						if (amount == 0) {
+							this.bot.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
+						}
+					})
+				}
+			})
 		})
 	}
 

@@ -22,20 +22,24 @@ import { BotInstance } from '../../BotInstance';
 
 class CMDManip extends CommandBase {
 	allowPipes = false
-	help = 'Allows command banning and unbanning. Subcommands are list, listgroups, ban and unban'
 	canBeBanned = false
+	allowPM = false
 
-	constructor(public isChannel: boolean) {
-		super(isChannel && 'cmd_channel' || 'cmd')
+	constructor(public isChannel: boolean, public exclusive = false) {
+		super(isChannel && (!exclusive && 'cmd_channel' || 'cmd_exclusive') || 'cmd')
+		this.help = 'Allows command banning and unbanning ' +
+			(isChannel && 'per channel' || '') +
+			'. Subcommands are list, listgroups, ban and unban' +
+			(exclusive && ' (exclusive: bans/unbans everything *but* current channel)' || '')
 	}
 
 	canManage(instance: CommandExecutionInstance) {
-		if (this.isChannel && !instance.hasPermissionExecutor('MANAGE_CHANNELS')) {
-			instance.reply('You need both MANAGE_CHANNELS permission!')
-			return false
-		}
-
-		if (!this.isChannel && !instance.hasPermissionExecutor('MANAGE_GUILD')) {
+		if (this.isChannel && !this.exclusive) {
+			if (!instance.hasPermissionExecutor('MANAGE_CHANNELS')) {
+				instance.reply('You need both MANAGE_CHANNELS permission!')
+				return false
+			}
+		} else if (!instance.hasPermissionExecutor('MANAGE_GUILD')){
 			instance.reply('You need MANAGE_GUILD permission!')
 			return false
 		}
@@ -55,19 +59,51 @@ class CMDManip extends CommandBase {
 		const bans = instance.bot.commands.getServerBans(instance.server)
 
 		if (this.isChannel) {
-			bans.bulkChannelBan(<Discord.TextChannel> instance.channel, ...commands)
-			.then((result) => {
-				const lines = []
+			if (!this.exclusive) {
+				bans.bulkChannelBan(<Discord.TextChannel> instance.channel, ...commands)
+				.then((result) => {
+					const lines = []
 
-				for (const [command, status, reason] of result) {
-					lines.push(command.id + ': ' + reason + ` (${status})`)
+					for (const [command, status, reason] of result) {
+						lines.push(command.id + ': ' + reason + ` (${status})`)
+					}
+
+					instance.reply('Bulk ban from <#' + (<Discord.Channel> instance.channel).id + '>: ```\n' + lines.join('\n') + '```')
+				})
+				.catch((result) => {
+					instance.reply('Failed to ban: ```\n' + result + '```')
+				})
+			} else {
+				const lines: string[] = []
+				let size = 0
+
+				for (const channel of instance.server.channels.values()) {
+					if ((channel instanceof Discord.TextChannel) && channel != instance.channel) {
+						size++
+
+						bans.bulkChannelBan(channel, ...commands)
+						.then((result) => {
+							let totalBanned = 0
+
+							for (const [command, status, reason] of result) {
+								if (status) {
+									totalBanned++
+								}
+							}
+
+							lines.push('#' + channel.name + ': ' + totalBanned + '/' + commands.length + ' got banned')
+							size--
+
+							if (size <= 0) {
+								instance.reply('Bulk ban from other channels: ```\n' + lines.join('\n') + '```')
+							}
+						})
+						.catch((result) => {
+							instance.reply('Failed to ban: ```\n' + result + '```')
+						})
+					}
 				}
-
-				instance.reply('Bulk ban from <#' + (<Discord.Channel> instance.channel).id + '>: ```\n' + lines.join('\n') + '```')
-			})
-			.catch((result) => {
-				instance.reply('Failed to ban: ```\n' + result + '```')
-			})
+			}
 		} else {
 			bans.bulkBan(...commands)
 			.then((result) => {
@@ -97,19 +133,51 @@ class CMDManip extends CommandBase {
 		const bans = instance.bot.commands.getServerBans(instance.server)
 
 		if (this.isChannel) {
-			bans.bulkChannelUnban(<Discord.TextChannel> instance.channel, ...commands)
-			.then((result) => {
-				const lines = []
+			if (!this.exclusive) {
+				bans.bulkChannelUnban(<Discord.TextChannel> instance.channel, ...commands)
+				.then((result) => {
+					const lines = []
 
-				for (const [command, status, reason] of result) {
-					lines.push(command.id + ': ' + reason + ` (${status})`)
+					for (const [command, status, reason] of result) {
+						lines.push(command.id + ': ' + reason + ` (${status})`)
+					}
+
+					instance.reply('Bulk unban from <#' + (<Discord.Channel> instance.channel).id + '>: ```\n' + lines.join('\n') + '```')
+				})
+				.catch((result) => {
+					instance.reply('Failed to unban: ```\n' + result + '```')
+				})
+			} else {
+				const lines: string[] = []
+				let size = 0
+
+				for (const channel of instance.server.channels.values()) {
+					if ((channel instanceof Discord.TextChannel) && channel != instance.channel) {
+						size++
+
+						bans.bulkChannelUnban(channel, ...commands)
+						.then((result) => {
+							let totalBanned = 0
+
+							for (const [command, status, reason] of result) {
+								if (status) {
+									totalBanned++
+								}
+							}
+
+							lines.push('#' + channel.name + ': ' + totalBanned + '/' + commands.length + ' got unbanned')
+							size--
+
+							if (size <= 0) {
+								instance.reply('Bulk unban from other channels: ```\n' + lines.join('\n') + '```')
+							}
+						})
+						.catch((result) => {
+							instance.reply('Failed to unban: ```\n' + result + '```')
+						})
+					}
 				}
-
-				instance.reply('Bulk unban from <#' + (<Discord.Channel> instance.channel).id + '>: ```\n' + lines.join('\n') + '```')
-			})
-			.catch((result) => {
-				instance.reply('Failed to unban: ```\n' + result + '```')
-			})
+			}
 		} else {
 			bans.bulkUnban(...commands)
 			.then((result) => {
@@ -140,10 +208,10 @@ class CMDManip extends CommandBase {
 			return
 		}
 
-		const command = (<BotInstance> this.bot).commands.get((<string> instance.get(2)).toLowerCase())
+		const command = this.bot.commands.get((<string> instance.get(2)).toLowerCase())
 
 		if (!command) {
-			const list = (<BotInstance> this.bot).commands.getCategory((<string> instance.get(2)).toLowerCase())
+			const list = this.bot.commands.getCategory((<string> instance.get(2)).toLowerCase())
 
 			if (list) {
 				return this.bulkBan(instance, list)
@@ -156,13 +224,35 @@ class CMDManip extends CommandBase {
 		const bans = instance.bot.commands.getServerBans(instance.server)
 
 		if (this.isChannel) {
-			bans.banChannelCommand(<Discord.TextChannel> instance.channel, command)
-			.then((result) => {
-				instance.reply(command.id + ' ban from <#' + (<Discord.Channel> instance.channel).id + '>: ```\n' + result + '```')
-			})
-			.catch((result) => {
-				instance.reply(command.id + ' ban from <#' + (<Discord.Channel> instance.channel).id + '>: ```\n' + result + '```')
-			})
+			if (!this.exclusive) {
+				bans.banChannelCommand(<Discord.TextChannel> instance.channel, command)
+				.then((result) => {
+					instance.reply(command.id + ' ban from <#' + (<Discord.Channel> instance.channel).id + '>: ```\n' + result + '```')
+				})
+				.catch((result) => {
+					instance.reply(command.id + ' ban from <#' + (<Discord.Channel> instance.channel).id + '>: ```\n' + result + '```')
+				})
+			} else {
+				const lines: string[] = []
+				let size = 0
+
+				for (const channel of instance.server.channels.values()) {
+					if ((channel instanceof Discord.TextChannel) && channel != instance.channel) {
+						size++
+
+						const callback = (result: string) => {
+							lines.push('#' + channel.name + ': ' + result)
+							size--
+
+							if (size <= 0) {
+								instance.reply(command.id + ' ban from other channels: ```\n' + lines.join('\n') + '```')
+							}
+						}
+
+						bans.banChannelCommand(channel, command).then(callback).catch(callback)
+					}
+				}
+			}
 		} else {
 			bans.banCommand(command)
 			.then((result) => {
@@ -187,10 +277,10 @@ class CMDManip extends CommandBase {
 			return
 		}
 
-		const command = (<BotInstance> this.bot).commands.get((<string> instance.get(2)).toLowerCase())
+		const command = this.bot.commands.get((<string> instance.get(2)).toLowerCase())
 
 		if (!command) {
-			const list = (<BotInstance> this.bot).commands.getCategory((<string> instance.get(2)).toLowerCase())
+			const list = this.bot.commands.getCategory((<string> instance.get(2)).toLowerCase())
 
 			if (list) {
 				return this.bulkUnban(instance, list)
@@ -203,13 +293,33 @@ class CMDManip extends CommandBase {
 		const bans = instance.bot.commands.getServerBans(instance.server)
 
 		if (this.isChannel) {
-			bans.unbanChannelCommand(<Discord.TextChannel> instance.channel, command)
-			.then((result) => {
-				instance.reply(command.id + ' unban from <#' + (<Discord.Channel> instance.channel).id + '>: ```\n' + result + '```')
-			})
-			.catch((result) => {
-				instance.reply(command.id + ' unban from <#' + (<Discord.Channel> instance.channel).id + '>: ```\n' + result + '```')
-			})
+			if (!this.exclusive) {
+				const callback = (result: string) => {
+					instance.reply(command.id + ' unban from <#' + (<Discord.Channel> instance.channel).id + '>: ```\n' + result + '```')
+				}
+
+				bans.unbanChannelCommand(<Discord.TextChannel> instance.channel, command).then(callback).catch(callback)
+			} else {
+				const lines: string[] = []
+				let size = 0
+
+				for (const channel of instance.server.channels.values()) {
+					if ((channel instanceof Discord.TextChannel) && channel != instance.channel) {
+						size++
+
+						const callback = (result: string) => {
+							lines.push('#' + channel.name + ': ' + result)
+							size--
+
+							if (size <= 0) {
+								instance.reply(command.id + ' unban from other channels: ```\n' + lines.join('\n') + '```')
+							}
+						}
+
+						bans.unbanChannelCommand(channel, command).then(callback).catch(callback)
+					}
+				}
+			}
 		} else {
 			bans.unbanCommand(command)
 			.then((result) => {
@@ -222,6 +332,10 @@ class CMDManip extends CommandBase {
 	}
 
 	list(instance: CommandExecutionInstance) {
+		if (this.exclusive) {
+			instance.error('Can\'t list in Exclusive command', 1)
+		}
+
 		if (!instance.server || !instance.channel) {
 			throw new Error('Invalid execution instance')
 		}
@@ -253,10 +367,6 @@ class CMDManip extends CommandBase {
 	}
 
 	listGroups(instance: CommandExecutionInstance) {
-		if (!this.bot) {
-			throw new Error('Invalid bot instance')
-		}
-
 		const list = []
 
 		for (const id of this.bot.commands.categories.keys()) {

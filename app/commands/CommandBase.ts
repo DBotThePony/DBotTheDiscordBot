@@ -324,7 +324,7 @@ class CommandBase implements CommandFlags {
 	help = ''
 	args = ''
 	executedTimes = 0
-	holder: CommandHolder | null = null
+	holder!: CommandHolder
 	displayHelp = true
 
 	allowUsers = false
@@ -337,9 +337,9 @@ class CommandBase implements CommandFlags {
 	canBeBanned = true
 	rememberContext = true
 
-	get bot() { return this.holder && this.holder.bot || null }
-	get sql() { return this.holder && this.holder.bot.sql || null }
-	get client() { return this.holder && this.holder.bot.client || null }
+	get bot() { return this.holder.bot }
+	get sql() { return this.holder.bot.sql }
+	get client() { return this.holder.bot.client }
 
 	constructor(id: string | string[], ...aliases: string[]) {
 		if (typeof id == 'object') {

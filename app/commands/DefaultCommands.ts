@@ -46,6 +46,7 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new DateCommand())
 	holder.registerCommand(new Retry())
 	holder.registerCommand(new CMDManip(true))
+	holder.registerCommand(new CMDManip(true, true))
 	holder.registerCommand(new CMDManip(false))
 
 	holder.setCategory('colors')
