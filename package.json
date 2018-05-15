@@ -8,6 +8,7 @@
   "dependencies": {
     "@types/bignumber.js": "^4.0.3",
     "@types/node": "^8.0.27",
+    "@types/numeral": "0.0.22",
     "@types/pg": "^7.1.4",
     "@types/sprintf-js": "^1.1.0",
     "bignumber.js": "^4.0.4",
