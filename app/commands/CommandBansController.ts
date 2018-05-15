@@ -48,11 +48,13 @@ class ServerCommandsState {
 					return
 				}
 
-				for (const commandID of values.rows[0].commands) {
-					const command = this.bot.commands.get(commandID)
+				if (values.rows[0]) {
+					for (const commandID of values.rows[0].commands) {
+						const command = this.bot.commands.get(commandID)
 
-					if (command) {
-						this.commands.push(command)
+						if (command) {
+							this.commands.push(command)
+						}
 					}
 				}
 
@@ -77,12 +79,16 @@ class ServerCommandsState {
 				}
 			})
 			.catch((err) => {
+				console.error(err)
+
 				for (const reject of this.loadCallbacksCatch) {
 					reject()
 				}
 			})
 		})
 		.catch((err) => {
+			console.error(err)
+
 			for (const reject of this.loadCallbacksCatch) {
 				reject()
 			}
