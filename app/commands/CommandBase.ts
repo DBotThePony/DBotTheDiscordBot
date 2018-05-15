@@ -231,6 +231,12 @@ class CommandExecutionInstance extends GEventEmitter {
 
 		const promise = this.context.send(content, attach)
 
+		if (!promise) {
+			return null
+		}
+
+		promise.catch(console.error)
+
 		if (this.isTyping) {
 			this.thinking(false)
 		}
