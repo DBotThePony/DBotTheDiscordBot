@@ -245,7 +245,7 @@ class CommandExecutionInstance extends GEventEmitter {
 	}
 
 	reply(content: string, attach?: Discord.Attachment | Discord.MessageOptions) {
-		return this.send('<@' + this.id + '>, ' + content, attach)
+		return this.isPM ? this.send(content, attach) : this.send('<@' + this.id + '>, ' + content, attach)
 	}
 
 	sendPM(content: string) {
