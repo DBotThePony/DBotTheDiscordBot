@@ -202,7 +202,7 @@ class CommandHolder {
 		}
 
 		return new Promise((resolve, reject) => {
-			if (!context.inServer) {
+			if (!context.inServer || context.member && context.member.hasPermission('ADMINISTRATOR') || context.isOwner) {
 				return resolve(executeCommand())
 			}
 
