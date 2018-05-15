@@ -136,7 +136,7 @@ const RegisterRPActions = function(holder: CommandHolder) {
 	holder.registerCommand(new UserWithUserCommand('earnom', '%s softly bites ears of %s', 'mmmmm!'))
 	holder.registerCommand(new UserWithUserCommand('chokeslam', '%s CHOKESLAMS %s', 'ded'))
 	holder.registerCommand(new UserWithUserCommand(['sniff', 'sniffs'], '%s sniffs %s', 'why would you do this'))
-	holder.registerCommand(new UserWithUserCommand(['manenom', 'manebite'], '%s sniffs %s', 'why would you do this'))
+	holder.registerCommand(new UserWithUserCommand(['manenom', 'manebite'], '%s mane noms %s', 'heh nommy'))
 	holder.registerCommand(new UserWithUserCommand(['nom', 'nosenom'], '%s nose noms %s', 'not what you think'))
 	holder.registerCommand(new UserWithUserCommand(['fuck'], '%s fukks %s', 'r00d'))
 	holder.registerCommand(new UserWithUserCommand('pet', '%s pets %s', 'oww'))
