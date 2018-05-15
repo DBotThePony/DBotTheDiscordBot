@@ -151,13 +151,17 @@ class CommandHolder {
 			return null
 		}
 
-		const raw = msg.content.trim()
+		let raw = msg.content.trim()
 
-		if (raw.substr(0, this.prefix.length) != this.prefix) {
+		if (raw == '' || raw.substr(0, this.prefix.length) != this.prefix && msg.channel.type != 'dm') {
 			return null
 		}
 
-		const context = new CommandContext(this.bot, raw.substr(1), msg)
+		if (raw.substr(0, this.prefix.length) == this.prefix && msg.channel.type == 'dm') {
+			raw = raw.substr(this.prefix.length)
+		}
+
+		const context = new CommandContext(this.bot, (msg.channel.type != 'dm' && raw.substr(1) || raw).trim(), msg)
 		context.parse()
 		const getCommand = context.getCommand()
 
