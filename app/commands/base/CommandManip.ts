@@ -59,6 +59,11 @@ class CMDManip extends CommandBase {
 
 		const bans = instance.bot.commands.getServerBans(instance.server)
 
+		if (!bans.loaded) {
+			instance.reply('Command bans are not already loaded! Please try again a bit later!')
+			return
+		}
+
 		if (this.isChannel) {
 			if (!this.exclusive) {
 				bans.bulkChannelBan(<Discord.TextChannel> instance.channel, ...commands)
@@ -132,6 +137,11 @@ class CMDManip extends CommandBase {
 		}
 
 		const bans = instance.bot.commands.getServerBans(instance.server)
+
+		if (!bans.loaded) {
+			instance.reply('Command bans are not already loaded! Please try again a bit later!')
+			return
+		}
 
 		if (this.isChannel) {
 			if (!this.exclusive) {
@@ -224,6 +234,11 @@ class CMDManip extends CommandBase {
 
 		const bans = instance.bot.commands.getServerBans(instance.server)
 
+		if (!bans.loaded) {
+			instance.reply('Command bans are not already loaded! Please try again a bit later!')
+			return
+		}
+
 		if (this.isChannel) {
 			if (!this.exclusive) {
 				bans.banChannelCommand(<Discord.TextChannel> instance.channel, command)
@@ -292,6 +307,11 @@ class CMDManip extends CommandBase {
 		}
 
 		const bans = instance.bot.commands.getServerBans(instance.server)
+
+		if (!bans.loaded) {
+			instance.reply('Command bans are not already loaded! Please try again a bit later!')
+			return
+		}
 
 		if (this.isChannel) {
 			if (!this.exclusive) {
