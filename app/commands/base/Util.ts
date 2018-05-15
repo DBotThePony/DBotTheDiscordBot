@@ -145,7 +145,7 @@ class AdminList extends CommandBase {
 		} else if (users.length < 30) {
 			instance.reply('No users are avaliable with ' + perm + ' permission!')
 		} else {
-			instance.reply('There is ' + users.length + ' users with ' + perm + ' permission')
+			instance.reply('There are ' + users.length + ' users with ' + perm + ' permission')
 		}
 	}
 }
