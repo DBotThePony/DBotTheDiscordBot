@@ -17,7 +17,7 @@
 
 import {Help} from './base/Help'
 import {Eval} from './base/Eval'
-import {HashCommand} from './base/Util'
+import {HashCommand, ServerOwnerCommand, PermissionsList, AdminList} from './base/Util'
 import {CommandHolder} from './CommandHolder'
 
 import {Invite, SetAvatar, GetAvatar, About, Ping, DateCommand} from './base/MiscCommands'
@@ -40,7 +40,6 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new Eval())
 	holder.registerCommand(new Invite())
 	holder.registerCommand(new SetAvatar())
-	holder.registerCommand(new GetAvatar())
 	holder.registerCommand(new About())
 	holder.registerCommand(new Ping())
 	holder.registerCommand(new DateCommand())
@@ -77,6 +76,10 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 
 	holder.setCategory('util')
 	holder.registerCommand(new SourceServerPing())
+	holder.registerCommand(new ServerOwnerCommand())
+	holder.registerCommand(new PermissionsList())
+	holder.registerCommand(new AdminList())
+	holder.registerCommand(new GetAvatar())
 
 	holder.setCategory('roleplay')
 	RegisterRPActions(holder)

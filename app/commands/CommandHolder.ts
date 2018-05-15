@@ -210,7 +210,7 @@ class CommandHolder {
 				return resolve(executeCommand())
 			}
 
-			const state = this.getServerBans(<Discord.Guild> context.server)
+			const state = this.getServerBans(context.server!)
 			state.resolveBanned(command)
 			.then((serverBanStatus) => {
 				if (serverBanStatus) {

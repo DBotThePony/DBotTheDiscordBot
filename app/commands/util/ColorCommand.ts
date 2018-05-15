@@ -129,9 +129,7 @@ class ReloadColors extends CommandBase {
 			return
 		}
 
-		const server = <Discord.Guild> instance.server
-
-		instance.query(`SELECT "colors" FROM "server_colors" WHERE "server" = '${server.id}'`)
+		instance.query(`SELECT "colors" FROM "server_colors" WHERE "server" = '${instance.server!.id}'`)
 		.then((values) => {
 			const freshRun = values.rowCount == 0
 
@@ -148,7 +146,7 @@ class ReloadColors extends CommandBase {
 					rolesToCreate.push([data[0], data[1], true])
 				}
 
-				for (const [id, role] of server.roles) {
+				for (const [id, role] of instance.server!.roles) {
 					if (arr.includes(id)) {
 						rolesToCreate[arr.indexOf(id)][2] = false
 						createdRoles[arr.indexOf(id)] = role
@@ -189,7 +187,7 @@ class ReloadColors extends CommandBase {
 						idarray.push(role.id)
 					}
 
-					instance.query(`INSERT INTO "server_colors" VALUES ('${server.id}', '{${idarray.join(',')}}') ON CONFLICT ("server") DO UPDATE SET "colors" = excluded."colors"`)
+					instance.query(`INSERT INTO "server_colors" VALUES ('${instance.server!.id}', '{${idarray.join(',')}}') ON CONFLICT ("server") DO UPDATE SET "colors" = excluded."colors"`)
 					.then(() => {
 						instance.reply('Roles were created successfully.')
 					})
@@ -203,7 +201,7 @@ class ReloadColors extends CommandBase {
 					return
 				}
 
-				server.createRole({
+				instance.server!.createRole({
 					permissions: [],
 					mentionable: false,
 					hoist: false,
@@ -224,7 +222,7 @@ class ReloadColors extends CommandBase {
 							idarray.push(role.id)
 						}
 
-						instance.query(`INSERT INTO "server_colors" VALUES ('${server.id}', '{${idarray.join(',')}}') ON CONFLICT ("server") DO UPDATE SET "colors" = excluded."colors"`)
+						instance.query(`INSERT INTO "server_colors" VALUES ('${instance.server!.id}', '{${idarray.join(',')}}') ON CONFLICT ("server") DO UPDATE SET "colors" = excluded."colors"`)
 						.then(() => {
 							instance.reply('Roles were created successfully.')
 						})
@@ -259,9 +257,7 @@ class RemoveColors extends CommandBase {
 			return
 		}
 
-		const server = <Discord.Guild> instance.server
-
-		instance.query(`SELECT "colors" FROM "server_colors" WHERE "server" = '${server.id}'`)
+		instance.query(`SELECT "colors" FROM "server_colors" WHERE "server" = '${instance.server!.id}'`)
 		.then((values) => {
 			if (values.rowCount == 0) {
 				instance.reply('No roles to remove')
@@ -273,8 +269,8 @@ class RemoveColors extends CommandBase {
 			let nextid = 0
 
 			const iterateOver = () => {
-				if (server.roles.has(arr[nextid])) {
-					(<Discord.Role> server.roles.get(arr[nextid]))
+				if (instance.server!.roles.has(arr[nextid])) {
+					(<Discord.Role> instance.server!.roles.get(arr[nextid]))
 					.delete('Colors removal by <@' + (<Discord.User> instance.author).id + '>')
 					.then((role: Discord.Role) => {
 						if (arr[nextid + 1]) {
@@ -282,7 +278,7 @@ class RemoveColors extends CommandBase {
 							// setInterval(iterateOver, 1500) // discord.js should handle this
 							iterateOver()
 						} else {
-							instance.query(`DELETE FROM "server_colors" WHERE "server" = '${server.id}'`)
+							instance.query(`DELETE FROM "server_colors" WHERE "server" = '${instance.server!.id}'`)
 							.then(() => {
 								instance.reply('Roles were removed successfully.')
 							})
@@ -295,7 +291,7 @@ class RemoveColors extends CommandBase {
 					nextid++
 
 					if (nextid >= arr.length) {
-						instance.query(`DELETE FROM "server_colors" WHERE "server" = '${server.id}'`)
+						instance.query(`DELETE FROM "server_colors" WHERE "server" = '${instance.server!.id}'`)
 						.then(() => {
 							instance.reply('Roles were removed successfully.')
 						})
@@ -350,9 +346,7 @@ class ColorCommand extends CommandBase {
 			return
 		}
 
-		const server = <Discord.Guild> instance.server
-
-		instance.query(`SELECT "colors" FROM "server_colors" WHERE "server" = '${server.id}'`)
+		instance.query(`SELECT "colors" FROM "server_colors" WHERE "server" = '${instance.server!.id}'`)
 		.then((values) => {
 			if (values.rowCount == 0) {
 				instance.reply('Server has no colors enabled!')
@@ -373,12 +367,12 @@ class ColorCommand extends CommandBase {
 				return
 			}
 
-			if (!server.roles.has(arr[colorID])) {
+			if (!instance.server!.roles.has(arr[colorID])) {
 				instance.reply('Target role was removed by server administrator or something :\\')
 				return
 			}
 
-			const role = <Discord.Role> server.roles.get(arr[colorID])
+			const role = <Discord.Role> instance.server!.roles.get(arr[colorID])
 
 			for (const userRole of member.roles.values()) {
 				if (arr.includes(userRole.id)) {

@@ -76,6 +76,7 @@ for (let i in charMap) {
 
 class Aesthetics extends CommandBase {
 	help = 'A e s t h e t i c s'
+	args = '<string>'
 
 	constructor() {
 		super('aesthetics', 'aes')
@@ -93,6 +94,7 @@ class Aesthetics extends CommandBase {
 
 class TextFlip extends CommandBase {
 	help = 'Flips?'
+	args = '<string>'
 
 	constructor() {
 		super('tflip')
@@ -110,6 +112,7 @@ class TextFlip extends CommandBase {
 
 class TextFlop extends CommandBase {
 	help = 'Flops?'
+	args = '<string>'
 
 	constructor() {
 		super('tflop')

@@ -221,7 +221,7 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 				const user = arg.match(parseUser)
 
 				if (user) {
-					this.parsedArgs[i] = this.server.member(user[1])
+					this.parsedArgs[i] = this.server.member(user[1]) || arg
 					continue
 				} else {
 					switch (arg) {

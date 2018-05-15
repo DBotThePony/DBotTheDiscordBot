@@ -21,6 +21,7 @@ import Discord = require('discord.js')
 
 class WordWallCommand extends CommandBase {
 	help = 'Creates a word wall'
+	args = '<string>'
 
 	constructor() {
 		super('wordwall')

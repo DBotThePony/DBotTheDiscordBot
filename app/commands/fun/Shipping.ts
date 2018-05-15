@@ -22,6 +22,7 @@ import Discord = require('discord.js')
 class ShippingCommand extends ImageCommandBase {
 	help = 'ship'
 	allowUsers = true
+	args = '<user1> <user2>'
 
 	constructor() {
 		super('ship')

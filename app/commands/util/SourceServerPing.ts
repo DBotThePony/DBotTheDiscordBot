@@ -54,6 +54,7 @@ const ReadString = function(buf: Buffer, offset: number) {
 
 class SourceServerPing extends CommandBase {
 	help = 'Pings source server'
+	args = '<ip/domain name>[:port]'
 
 	constructor() {
 		super('sping')

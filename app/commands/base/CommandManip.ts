@@ -24,6 +24,7 @@ class CMDManip extends CommandBase {
 	allowPipes = false
 	canBeBanned = false
 	allowPM = false
+	args = '<subaction> <target?>'
 
 	constructor(public isChannel: boolean, public exclusive = false) {
 		super(isChannel && (!exclusive && 'cmd_channel' || 'cmd_exclusive') || 'cmd')

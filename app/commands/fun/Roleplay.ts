@@ -26,6 +26,7 @@ class UserWithUserCommand extends CommandBase {
 	fstring: string
 	allowUsers = true
 	actionID: number | null = null
+	args = '[target user = bot->you]'
 
 	constructor(commName: string | string[], fstring: string, help?: string) {
 		super(commName)
@@ -73,6 +74,7 @@ class UserWithEnvCommand extends CommandBase {
 	fstringWith: string
 	allowUsers = true
 	actionID: number | null = null
+	args = '[target user = none]'
 
 	constructor(commName: string | string[], fstringAlone: string, fstringWith: string, help?: string) {
 		super(commName)

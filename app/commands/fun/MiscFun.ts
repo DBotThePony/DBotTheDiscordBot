@@ -136,6 +136,7 @@ const lett_match = new RegExp('(' + leetmap_array.join('|') + ')', 'gi')
 
 class Leet extends CommandBase {
 	help = 'l33t'
+	args = '<string>'
 
 	constructor() {
 		super('l33t', 'leet', 'leetspeak', 'l33tspeak')

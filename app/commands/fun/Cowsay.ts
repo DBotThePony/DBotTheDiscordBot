@@ -22,6 +22,7 @@ const cowsay = require('cowsay');
 
 class Cowsay extends CommandBase {
 	askFile: string
+	args = '<string>'
 
 	constructor(cowname: string) {
 		super(cowname + 'say', cowname)

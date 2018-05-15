@@ -22,6 +22,7 @@ import crypto = require('crypto')
 
 class HashCommand extends CommandBase {
 	hasher: string
+	args = '<string>'
 	canBeBanned = false
 
 	constructor(hasher: string) {
@@ -35,4 +36,118 @@ class HashCommand extends CommandBase {
 	}
 }
 
-export {HashCommand}
+class ServerOwnerCommand extends CommandBase {
+	help = 'Displays owner of the guild'
+	canBeBanned = false
+	allowPM = false
+
+	constructor() {
+		super('owner')
+	}
+
+	executed(instance: CommandExecutionInstance) {
+		return 'Owner of the server is <@' + instance.server!.ownerID + '>'
+	}
+}
+
+const permissionlist: Discord.PermissionResolvable[] = [
+	'CREATE_INSTANT_INVITE',
+	'KICK_MEMBERS',
+	'BAN_MEMBERS',
+	'MANAGE_CHANNELS',
+	'MANAGE_GUILD',
+	'ADD_REACTIONS',
+	// 'VIEW_AUDIT_LOG',
+	'VIEW_CHANNEL',
+	'SEND_MESSAGES',
+	'SEND_TTS_MESSAGES',
+	'MANAGE_MESSAGES',
+	'EMBED_LINKS',
+	'ATTACH_FILES',
+	'READ_MESSAGE_HISTORY',
+	'MENTION_EVERYONE',
+	'USE_EXTERNAL_EMOJIS',
+	'CONNECT',
+	'SPEAK',
+	'MUTE_MEMBERS',
+	'DEAFEN_MEMBERS',
+	'MOVE_MEMBERS',
+	'USE_VAD',
+	'CHANGE_NICKNAME',
+	'MANAGE_NICKNAMES',
+	'MANAGE_ROLES',
+	'MANAGE_WEBHOOKS',
+	'MANAGE_EMOJIS',
+]
+
+class PermissionsList extends CommandBase {
+	allowPM = false
+	help = 'Displays permission of specified user'
+	args = '[user = you]'
+	allowMembers = true
+
+	constructor() {
+		super('permissions', 'perms', 'perm')
+	}
+
+	executed(instance: CommandExecutionInstance) {
+		let user = instance.member
+
+		if (instance.get(1) instanceof Discord.GuildMember) {
+			user = instance.get(1)
+		}
+
+		if (!user) {
+			return true
+		}
+
+		if (!user.hasPermission('ADMINISTRATOR')) {
+			const lines: string[] = []
+
+			for (const perm of permissionlist) {
+				lines.push(perm + (' ').repeat(17 - (<string> perm).length) + ': ' + user.hasPermission(perm))
+			}
+
+			instance.reply('Permissions: ```\n' + lines.join('\n') + '```')
+		} else {
+			instance.reply('User is an Administrator\n(all permissions, bypass some checks (both Discord\'s channel permission overwrites and this bot\'s some checks))')
+		}
+	}
+}
+
+class AdminList extends CommandBase {
+	allowPM = false
+	help = 'Displays users with specified permission'
+	args = '[permission = ADMINISTRATOR]'
+
+	constructor() {
+		super('admins', 'adminlist')
+	}
+
+	executed(instance: CommandExecutionInstance) {
+		const perm = <Discord.PermissionResolvable> (<string> (instance.get(1) || 'ADMINISTRATOR')).toUpperCase()
+
+		if (!permissionlist.includes(perm) && perm != 'ADMINISTRATOR') {
+			instance.error('Invalid permission supplied', 1)
+			return
+		}
+
+		const users: string[] = []
+
+		for (const member of instance.server!.members.values()) {
+			if (member.hasPermission(perm)) {
+				users.push(member.nickname || member.user.username)
+			}
+		}
+
+		if (users.length != 0 && users.length < 30) {
+			instance.reply('Users with ' + perm + ' permission are: ```\n' + users.join(', ') + '```')
+		} else if (users.length < 30) {
+			instance.reply('No users are avaliable with ' + perm + ' permission!')
+		} else {
+			instance.reply('There is ' + users.length + ' users with ' + perm + ' permission')
+		}
+	}
+}
+
+export {HashCommand, ServerOwnerCommand, PermissionsList, AdminList}
