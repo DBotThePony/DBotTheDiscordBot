@@ -60,7 +60,7 @@ class CMDManip extends CommandBase {
 		const bans = instance.bot.commands.getServerBans(instance.server)
 
 		if (!bans.loaded) {
-			instance.reply('Command bans are not already loaded! Please try again a bit later!')
+			instance.reply('Command bans are not loaded! Please try again a bit later!')
 			return
 		}
 
@@ -139,7 +139,7 @@ class CMDManip extends CommandBase {
 		const bans = instance.bot.commands.getServerBans(instance.server)
 
 		if (!bans.loaded) {
-			instance.reply('Command bans are not already loaded! Please try again a bit later!')
+			instance.reply('Command bans are not loaded! Please try again a bit later!')
 			return
 		}
 
@@ -235,7 +235,7 @@ class CMDManip extends CommandBase {
 		const bans = instance.bot.commands.getServerBans(instance.server)
 
 		if (!bans.loaded) {
-			instance.reply('Command bans are not already loaded! Please try again a bit later!')
+			instance.reply('Command bans are not loaded! Please try again a bit later!')
 			return
 		}
 
@@ -309,7 +309,7 @@ class CMDManip extends CommandBase {
 		const bans = instance.bot.commands.getServerBans(instance.server)
 
 		if (!bans.loaded) {
-			instance.reply('Command bans are not already loaded! Please try again a bit later!')
+			instance.reply('Command bans are not loaded! Please try again a bit later!')
 			return
 		}
 
