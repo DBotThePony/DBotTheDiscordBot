@@ -53,6 +53,10 @@ for (const index in wordSets) {
 			valueIn.match(/[a-z ]/i) != null
 	})
 
+	for (const i in newValue) {
+		newValue[i] = newValue[i].toLowerCase().trim()
+	}
+
 	wordSets[index] = newValue
 }
 
@@ -61,13 +65,18 @@ class GameStatus {
 	named: (string | null)[] = []
 	guessed: string[] = []
 	finished = false
+	fullguess = false
 	lives: number
 
 	constructor(public channel: Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel, public word: string, public wordset: string[]) {
 		this.chars = word.split('')
 
 		for (let i = 0; i < word.length; i++) {
-			this.named.push(null)
+			if (word[i] == ' ') {
+				this.named.push(' ')
+			} else {
+				this.named.push(null)
+			}
 		}
 
 		this.lives = Math.max(word.length, 6)
@@ -108,12 +117,12 @@ class GameStatus {
 	status() {
 		if (this.lives > 0) {
 			if (this.victory()) {
-				return 'Win!\nLives left: ' + this.lives + '\nNamed: ' + this.guessed.join(', ') + '\nWord: ' + this.chars.join(' ')
+				return 'Win!' + (this.fullguess && '\nWORD WAS FULLY GUESSED!' || '') + '\nLives left: ' + this.lives + '\nNamed: ' + this.guessed.join(', ') + '\nWord: ' + this.chars.join(' ')
 			} else {
 				return 'Lives: ' + this.lives + '\nNamed: ' + this.guessed.join(', ') + '\nWord: ' + this.constructWord()
 			}
 		} else {
-			return 'Game over!' + '\nWere named: ' + this.guessed.join(', ') + '\nWord: ' + this.chars.join(' ') + '\nGuess: ' + this.constructWord()
+			return 'Game over!' + (this.fullguess && '\nU Tried :star:' || '') +  '\nWere named: ' + this.guessed.join(', ') + '\nWord: ' + this.chars.join(' ') + '\nGuess: ' + this.constructWord()
 		}
 	}
 
@@ -125,37 +134,54 @@ class GameStatus {
 
 		character = character.toLowerCase()
 
-		if (this.guessed.includes(character)) {
-			instance.reply('This character were previously named!\n```\n' + this.status() + '\n```')
-			return
-		}
+		if (character.length == 1) {
+			if (this.guessed.includes(character)) {
+				instance.reply('This character were previously named!\n```\n' + this.status() + '\n```')
+				return
+			}
 
-		this.guessed.push(character)
+			this.guessed.push(character)
 
-		if (!this.chars.includes(character)) {
-			this.lives--
+			if (!this.chars.includes(character)) {
+				this.lives--
 
-			if (this.lives > 0) {
-				instance.reply('That was miss! One live is lost!\n```\n' + this.status() + '\n```')
-			} else {
+				if (this.lives > 0) {
+					instance.reply('That was miss! One live is lost!\n```\n' + this.status() + '\n```')
+				} else {
+					this.finished = true
+					instance.reply('That was miss and you lose!\n```\n' + this.status() + '\n```')
+				}
+
+				return
+			}
+
+			for (let i = 0; i < this.chars.length; i++) {
+				if (this.chars[i] == character) {
+					this.named[i] = character
+				}
+			}
+
+			if (this.victory()) {
 				this.finished = true
-				instance.reply('That was miss and you lose!\n```\n' + this.status() + '\n```')
+				instance.reply('Hit! and you won!\n```\n' + this.status() + '\n```')
+			} else {
+				instance.reply('Hit!\n```\n' + this.status() + '\n```')
 			}
-
-			return
-		}
-
-		for (let i = 0; i < this.chars.length; i++) {
-			if (this.chars[i] == character) {
-				this.named[i] = character
-			}
-		}
-
-		if (this.victory()) {
-			this.finished = true
-			instance.reply('Hit! and you won!\n```\n' + this.status() + '\n```')
 		} else {
-			instance.reply('Hit!\n```\n' + this.status() + '\n```')
+			this.fullguess = true
+			this.finished = true
+
+			if (character == this.word) {
+				for (let i = 0; i < this.chars.length; i++) {
+					this.named[i] = this.chars[i]
+				}
+
+				this.lives = 9000
+				instance.reply('OMEGAWIN!\n```\n' + this.status() + '\n```')
+			} else {
+				this.lives = 0
+				instance.reply('OMEGALOOSE!\n```\n' + this.status() + '\n```')
+			}
 		}
 	}
 }
@@ -163,6 +189,7 @@ class GameStatus {
 class GuessAWordGame extends CommandBase {
 	help = 'Play a hangman like game! Actions are new, status, end, guess'
 	args = '<action> [argument]'
+	guessExp = /[a-z]/i
 
 	gameStatus = new Map<string, GameStatus>()
 
@@ -235,9 +262,9 @@ class GuessAWordGame extends CommandBase {
 			return
 		}
 
-		const char = <string> instance.get(2)
+		const char = (<string[]> instance.from(2)).join(' ')
 
-		if (!allowedCharacters.includes(char)) {
+		if (!char.match(this.guessExp)) {
 			instance.reply('Invalid character to name!')
 			return
 		}
@@ -282,6 +309,7 @@ class GuessAWordGame extends CommandBase {
 class GuessCommand extends CommandBase {
 	help = 'Alias for }hangman guess'
 	args = '<character>'
+	guessExp = /[a-z]/i
 
 	constructor() {
 		super('guess', 'namechar', 'guesschar', 'guesscharacter')
@@ -307,9 +335,9 @@ class GuessCommand extends CommandBase {
 			return
 		}
 
-		const char = <string> instance.get(1)
+		const char = instance.raw
 
-		if (!allowedCharacters.includes(char)) {
+		if (!char.match(this.guessExp)) {
 			instance.reply('Invalid character to name!')
 			return
 		}

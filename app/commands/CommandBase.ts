@@ -283,6 +283,20 @@ class CommandExecutionInstance extends GEventEmitter {
 		return this.context.parsedArgs[argNum]
 	}
 
+	from(argNum: number): any[] {
+		if (this.has(argNum)) {
+			return []
+		}
+
+		const output: string[] = []
+
+		for (let i = argNum; i < this.context.parsedArgs.length; i++) {
+			output.push(this.context.parsedArgs[i])
+		}
+
+		return output
+	}
+
 	has(argNum: number) {
 		return this.context.parsedArgs[argNum] != undefined && this.context.parsedArgs[argNum] != null
 	}
