@@ -150,4 +150,35 @@ class AdminList extends CommandBase {
 	}
 }
 
-export {HashCommand, ServerOwnerCommand, PermissionsList, AdminList}
+class ServerInfo extends CommandBase {
+	allowPM = false
+	help = 'Displays server information'
+
+	constructor() {
+		super('server', 'serverinfo')
+	}
+
+	executed(instance: CommandExecutionInstance) {
+		const verLevel = instance.server!.verificationLevel == 0 && 'NONE' ||
+			instance.server!.verificationLevel == 1 && 'LOW' ||
+			instance.server!.verificationLevel == 2 && 'MEDIUM' ||
+			instance.server!.verificationLevel == 3 && 'HIGH'
+
+		instance.reply(
+			`\`\`\`
+Server name:               ${instance.server!.name}
+Server ID:                 ${instance.server!.id}
+Server owner:              @${instance.server!.owner.nickname || instance.server!.owner.user.username} <@${instance.server!.owner.id}>
+Server avatar: ${instance.server!.iconURL || '<no image>'}
+Server users:              ${instance.server!.members.size} on fetch/${instance.server!.memberCount} total
+Server channels:           ${instance.server!.channels.size}
+Server roles:              ${instance.server!.roles.size}
+Server region:             ${instance.server!.region}
+Server created at:         ${instance.server!.createdAt }
+Server verification:       ${verLevel}
+\`\`\``
+		)
+	}
+}
+
+export {HashCommand, ServerOwnerCommand, PermissionsList, AdminList, ServerInfo}
