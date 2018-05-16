@@ -50,7 +50,7 @@ for (const index in wordSets) {
 
 	const newValue = value.filter((valueIn) => {
 		return valueIn.trim() == valueIn &&
-			valueIn.match(/[a-z ]/i) != null
+			valueIn.match(/^[a-z ]+$/i) != null
 	})
 
 	for (const i in newValue) {
@@ -149,7 +149,7 @@ class GameStatus {
 					instance.reply('That was miss! One live is lost!\n```\n' + this.status() + '\n```')
 				} else {
 					this.finished = true
-					instance.reply('That was miss and you lose!\n```\n' + this.status() + '\n```')
+					instance.reply('That was miss and you lose! BETTER LUCK NEXT TIME!\n```\n' + this.status() + '\n```')
 				}
 
 				return
@@ -346,5 +346,57 @@ class GuessCommand extends CommandBase {
 		game.play(instance, char)
 	}
 }
+
+const russianWordSets: IWordSet = {
+	easy: [],
+	medium: [],
+	hard: [],
+	very_hard: [],
+}
+
+{
+	const readRussian = fs.readFileSync('./resource/hangman/5000lemma.num', 'utf8').split(/\r?\n/)
+
+	const matchWord = /^.*([а-яА-Я]) ([a-z]+)$/i
+	let i = 0
+	let group = 0
+	let groups = [russianWordSets.easy, russianWordSets.medium, russianWordSets.hard, russianWordSets.very_hard]
+	let currGroup = russianWordSets.easy
+
+	for (const line of readRussian) {
+		const wordData = line.match(matchWord)
+
+		if (wordData == null) {
+			continue
+		}
+
+		const wordType = wordData[2]
+
+		if (wordType == 'misc' || wordType == 'prep' || wordType == 'pron') {
+			continue
+		}
+
+		const word = wordData[1]
+
+		if (wordType == 'adjpron' && word.length < 4) {
+			continue
+		}
+
+		if (wordType == 'verb' && word.length < 4) {
+			continue
+		}
+
+		i++
+
+		if (group != (groups.length - 1) && i >= (group + 1) * 250) {
+			i = 0
+			group++
+			currGroup = groups[group]
+		}
+
+		currGroup.push(word)
+	}
+}
+
 
 export {GuessAWordGame, GuessCommand}
