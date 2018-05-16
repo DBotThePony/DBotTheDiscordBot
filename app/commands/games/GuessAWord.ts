@@ -224,7 +224,9 @@ class GuessAWordGame extends CommandBase {
 			return
 		}
 
-		const game = new GameStatus(instance.channel!, (<GameStatus> this.gameStatus.get(instance.channel!.id)).word, (<GameStatus> this.gameStatus.get(instance.channel!.id)).wordset)
+		const wordset = (<GameStatus> this.gameStatus.get(instance.channel!.id)).wordset
+		const word = wordset[Math.floor(Math.random() * (wordset.length - 1))]
+		const game = new GameStatus(instance.channel!, word, wordset)
 		this.gameStatus.set(instance.channel!.id, game)
 
 		instance.send('Game has restarted with same word set!\n```\n' + game.status() + '\n```')
