@@ -24,6 +24,7 @@ import {Invite, SetAvatar, GetAvatar, About, Ping, DateCommand} from './base/Mis
 import {CMDManip} from './base/CommandManip'
 import {Retry} from './base/Retry'
 import {XD, Leet} from './fun/MiscFun'
+import {GuessAWordGame, GuessCommand} from './games/GuessAWord'
 import {RegisterCowsay} from './fun/Cowsay'
 import {ShippingCommand} from './fun/Shipping'
 import {WordWallCommand} from './fun/text/WordWall'
@@ -59,6 +60,10 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new HashCommand('SHA256'))
 	holder.registerCommand(new HashCommand('SHA1'))
 	holder.registerCommand(new HashCommand('SHA512'))
+
+	holder.setCategory('games')
+	holder.registerCommand(new GuessAWordGame())
+	holder.registerCommand(new GuessCommand())
 
 	holder.setCategory('fun')
 	holder.registerCommand(new NFS())
