@@ -407,7 +407,7 @@ const russianWordSets: IWordSet = {
 			currGroup = groups[group]
 		}
 
-		currGroup.push(word)
+		currGroup.push(word.replace(/ё/ig, 'е'))
 	}
 }
 
