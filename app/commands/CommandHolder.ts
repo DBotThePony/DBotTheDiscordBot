@@ -29,7 +29,7 @@ class CommandHolder {
 	currentCategoryArray: CommandBase[] | null = null
 	lastCommandContext = new Map<string, CommandContext>()
 	lastCommandContextChannel = new Map<string, Map<string, CommandContext>>()
-	prefix = '}'
+	prefix = ['}', ')']
 	bot: BotInstance
 	banStates = new Map<string, ServerCommandsState>()
 
@@ -153,15 +153,26 @@ class CommandHolder {
 
 		let raw = msg.content.trim()
 
-		if (raw == '' || raw.substr(0, this.prefix.length) != this.prefix && msg.channel.type != 'dm') {
+		if (raw == '') {
 			return null
 		}
 
-		if (raw.substr(0, this.prefix.length) == this.prefix && msg.channel.type == 'dm') {
-			raw = raw.substr(this.prefix.length)
+		let hitPrefix = false
+		let pm = msg.channel.type == 'dm'
+
+		for (const prefix of this.prefix) {
+			if (raw.substr(0, prefix.length) == prefix) {
+				raw = raw.substr(prefix.length)
+				hitPrefix = true
+				break
+			}
 		}
 
-		const context = new CommandContext(this.bot, (msg.channel.type != 'dm' && raw.substr(1) || raw).trim(), msg)
+		if (!hitPrefix && !pm) {
+			return null
+		}
+
+		const context = new CommandContext(this.bot, raw.trim(), msg)
 		context.parse()
 		const getCommand = context.getCommand()
 
