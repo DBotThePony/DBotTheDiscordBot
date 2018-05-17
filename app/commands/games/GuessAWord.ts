@@ -381,7 +381,7 @@ const russianWordSets: IWordSet = {
 			continue
 		}
 
-		const word = wordData[1]
+		const word = wordData[1].toLowerCase().trim()
 
 		if (wordType == 'adjpron' && word.length < 4) {
 			continue
