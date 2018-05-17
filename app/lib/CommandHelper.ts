@@ -33,7 +33,7 @@ class CommandHelper {
 
 	constructor(bot: BotInstance) {
 		this.bot = bot
-		this.bot.addHook('OnMessage', 'CommandHelper', (msg: Discord.Message) => this.onMessage(msg))
+		this.bot.client.on('message', (msg: Discord.Message) => this.onMessage(msg))
 		this.cache = new ImageCache(bot)
 	}
 

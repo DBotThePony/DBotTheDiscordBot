@@ -17,19 +17,12 @@
 
 import {ConfigInstance} from './ConfigInstance'
 import {CommandHolder} from './commands/CommandHolder'
-import {Hook} from '../lib/glib/hook'
 import {CommandHelper} from './lib/CommandHelper'
 import Discord = require('discord.js')
 import {registerDefaultCommands} from './commands/DefaultCommands'
 import pg = require('pg')
 import fs = require('fs')
 import { RegisterStatusWatchdog } from './modules/BotStatus';
-
-const DefaultHooksMap = [
-	['message', 'OnMessage'],
-	['channelCreate', 'ChannelCreated'],
-	['ready', 'BotOnline'],
-]
 
 interface BotStorage {
 	[key: string]: any
@@ -43,7 +36,6 @@ interface AntispamStorage {
 
 class BotInstance {
 	config: ConfigInstance
-	hooks = new Hook()
 	client = new Discord.Client({})
 	helper: CommandHelper
 	commands: CommandHolder
@@ -67,7 +59,6 @@ class BotInstance {
 		this.helper = new CommandHelper(this)
 		this.commands = new CommandHolder(this)
 
-		this.registerHooks()
 		registerDefaultCommands(this.commands)
 
 		if (doLogin) {
@@ -169,27 +160,6 @@ class BotInstance {
 					this.online()
 				})
 	}
-
-	call(...args: any[]) {
-		return this.hooks.call.apply(this.hooks, args)
-	}
-
-	addHook(...args: any[]) {
-		return this.hooks.add.apply(this.hooks, args)
-	}
-
-	addSingleHook(...args: any[]) {
-		return this.hooks.single.apply(this.hooks, args)
-	}
-
-	registerHooks(hookSystem = this.hooks) {
-		for (const map of DefaultHooksMap) {
-			this.client.on(map[0], (...args: any[]) => {
-				args.unshift(map[1])
-				this.hooks.call.apply(this.hooks, args)
-			})
-		}
-	}
 }
 
-export {BotInstance, DefaultHooksMap}
+export {BotInstance}

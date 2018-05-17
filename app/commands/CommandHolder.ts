@@ -38,7 +38,7 @@ class CommandHolder {
 
 	constructor(bot: BotInstance) {
 		this.bot = bot
-		this.bot.addHook('OnMessage', 'CommandHolder', (msg: Discord.Message) => this.call(msg))
+		this.bot.client.on('message', (msg: Discord.Message) => this.call(msg))
 	}
 
 	lastContext(user: string | Discord.User | Discord.GuildMember | null) {
