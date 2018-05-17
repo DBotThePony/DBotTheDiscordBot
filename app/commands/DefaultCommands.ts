@@ -49,7 +49,7 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new CMDManip(true, true))
 	holder.registerCommand(new CMDManip(false))
 
-	holder.setCategory('colors')
+	holder.setCategory('colors', 'util')
 	holder.registerCommand(new ColorCommand())
 	holder.registerCommand(new ColorsCommand())
 	holder.registerCommand(new ReloadColors())
@@ -61,16 +61,16 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new HashCommand('SHA1'))
 	holder.registerCommand(new HashCommand('SHA512'))
 
-	holder.setCategory('games')
+	holder.setCategory('games', 'fun_text', 'fun')
 	holder.registerCommand(new GuessAWordGame())
 	holder.registerCommand(new GuessCommand())
 	holder.registerCommand(new GuessAWordGameRussian())
 	holder.registerCommand(new GuessCommandRussian())
 
-	holder.setCategory('fun')
+	holder.setCategory('fun', 'images')
 	holder.registerCommand(new NFS())
 
-	holder.setCategory('fun_text')
+	holder.setCategory('fun_text', 'fun')
 	holder.registerCommand(new WordWallCommand())
 	holder.registerCommand(new XD())
 	holder.registerCommand(new Leet())
@@ -89,7 +89,7 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new GetAvatar())
 	holder.registerCommand(new ServerInfo())
 
-	holder.setCategory('roleplay')
+	holder.setCategory('roleplay', 'ponystuff')
 	RegisterRPActions(holder)
 
 	holder.setCategory('ponystuff')

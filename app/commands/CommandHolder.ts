@@ -25,8 +25,7 @@ class CommandHolder {
 	registeredCommands = new Map<string, CommandBase>()
 	mappedCommands = new Map<string, CommandBase>()
 	categories = new Map<string, CommandBase[]>()
-	currentCategory: string | null = null
-	currentCategoryArray: CommandBase[] | null = null
+	currentCategoryArray: string[] | null = null
 	lastCommandContext = new Map<string, CommandContext>()
 	lastCommandContextChannel = new Map<string, Map<string, CommandContext>>()
 	prefix = ['}', ')']
@@ -77,20 +76,19 @@ class CommandHolder {
 		return null
 	}
 
-	setCategory(category: string) {
-		this.currentCategory = category
-
-		if (!this.categories.has(category)) {
-			this.categories.set(category, [])
+	setCategory(...categories: string[]) {
+		for (const category of categories) {
+			if (!this.categories.has(category)) {
+				this.categories.set(category, [])
+			}
 		}
 
-		this.currentCategoryArray = <CommandBase[]> this.categories.get(category)
+		this.currentCategoryArray = categories
 
 		return this
 	}
 
 	unsetCategory() {
-		this.currentCategory = null
 		this.currentCategoryArray = null
 		return this
 	}
@@ -99,7 +97,9 @@ class CommandHolder {
 		command.setHolder(this)
 
 		if (this.currentCategoryArray) {
-			this.currentCategoryArray.push(command)
+			for (const category of this.currentCategoryArray) {
+				this.categories.get(category)!.push(command)
+			}
 		}
 
 		this.registeredCommands.set(command.id, command)
