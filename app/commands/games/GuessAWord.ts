@@ -189,12 +189,14 @@ class GameStatus {
 class GuessAWordGame extends CommandBase {
 	help = 'Play a hangman like game! Actions are new, status, end, guess'
 	args = '<action> [argument]'
-	guessExp = /[a-z]/i
+	guessExp = /[a-z ]/i
 
 	gameStatus = new Map<string, GameStatus>()
+	wordSets = wordSets
+	setList = setList
 
-	constructor() {
-		super('hangman', 'wordgame', 'guessaword', 'drownman')
+	constructor(prefix = '') {
+		super(prefix + 'hangman', prefix + 'wordgame', prefix + 'guessaword', prefix + 'drownman')
 	}
 
 	start(instance: CommandExecutionInstance) {
@@ -205,13 +207,13 @@ class GuessAWordGame extends CommandBase {
 
 		const wordSetToUse = (<string> instance.get(2) || 'easy').toLowerCase()
 
-		if (!wordSets[wordSetToUse]) {
-			instance.error('Invalid word set provided! Valid are ' + setList.join(', '), 2)
+		if (!this.wordSets[wordSetToUse]) {
+			instance.error('Invalid word set provided! Valid are ' + this.setList.join(', '), 2)
 			return
 		}
 
-		const word = wordSets[wordSetToUse][Math.floor(Math.random() * (wordSets[wordSetToUse].length - 1))]
-		const game = new GameStatus(instance.channel!, word, wordSets[wordSetToUse])
+		const word = this.wordSets[wordSetToUse][Math.floor(Math.random() * (this.wordSets[wordSetToUse].length - 1))]
+		const game = new GameStatus(instance.channel!, word, this.wordSets[wordSetToUse])
 
 		this.gameStatus.set(instance.channel!.id, game)
 
@@ -311,10 +313,11 @@ class GuessAWordGame extends CommandBase {
 class GuessCommand extends CommandBase {
 	help = 'Alias for }hangman guess'
 	args = '<character>'
-	guessExp = /[a-z]/i
+	guessExp = /[a-z ]/i
+	commandID = 'hangman'
 
-	constructor() {
-		super('guess', 'namechar', 'guesschar', 'guesscharacter')
+	constructor(prefix = '') {
+		super(prefix + 'guess', prefix + 'namechar', prefix + 'guesschar', prefix + 'guesscharacter')
 	}
 
 	executed(instance: CommandExecutionInstance) {
@@ -322,7 +325,7 @@ class GuessCommand extends CommandBase {
 			return true
 		}
 
-		if (!instance.bot.commands.get('hangman')) {
+		if (!instance.bot.commands.get(this.commandID)) {
 			throw new Error('Invalid command list state (hangman command is absent)')
 		}
 
@@ -330,7 +333,7 @@ class GuessCommand extends CommandBase {
 			return
 		}
 
-		const command = <GuessAWordGame> instance.bot.commands.get('hangman')
+		const command = <GuessAWordGame> instance.bot.commands.get(this.commandID)
 
 		if (!command.gameStatus.has(instance.channel!.id)) {
 			instance.reply('No game in progress!')
@@ -359,7 +362,7 @@ const russianWordSets: IWordSet = {
 {
 	const readRussian = fs.readFileSync('./resource/hangman/5000lemma.num', 'utf8').split(/\r?\n/)
 
-	const matchWord = /^.*([а-яА-Я]) ([a-z]+)$/i
+	const matchWord = /^[0-9]+ [0-9.]+ ([а-яА-Я]+) ([a-z]+)$/i
 	let i = 0
 	let group = 0
 	let groups = [russianWordSets.easy, russianWordSets.medium, russianWordSets.hard, russianWordSets.very_hard]
@@ -388,6 +391,18 @@ const russianWordSets: IWordSet = {
 			continue
 		}
 
+		if (word.length == 1) {
+			continue
+		}
+
+		if (wordType != 'noun' && word.length < 4) {
+			continue
+		}
+
+		//if (word.length < 4) {
+			//console.log('Too short word for russian hangman: Word - ' + word + ' - length - ' + word.length + ' - type - ' + wordType)
+		//s}
+
 		i++
 
 		if (group != (groups.length - 1) && i >= (group + 1) * 250) {
@@ -400,5 +415,37 @@ const russianWordSets: IWordSet = {
 	}
 }
 
+const russianSets: string[] = []
 
-export {GuessAWordGame, GuessCommand}
+for (const index in russianWordSets) {
+	russianSets.push(index)
+
+	if (russianWordSets[index].length == 0) {
+		console.error(index + ' set contains no words')
+	}
+}
+
+class GuessAWordGameRussian extends GuessAWordGame {
+	guessExp = /[а-яА-Я ]/i
+	wordSets = russianWordSets
+	setList = russianSets
+
+	constructor() {
+		super('r')
+		this.addAlias('полечудес', 'чудеса')
+	}
+}
+
+class GuessCommandRussian extends GuessCommand {
+	help = 'Alias for }rhangman guess'
+	args = '<character>'
+	guessExp = /[а-яА-Я ]/i
+	commandID = 'rhangman'
+
+	constructor() {
+		super('r')
+		this.addAlias('угадать', 'буква', 'rg')
+	}
+}
+
+export {GuessAWordGame, GuessCommand, GuessCommandRussian, GuessAWordGameRussian}

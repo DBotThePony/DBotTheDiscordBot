@@ -376,6 +376,12 @@ class CommandBase implements CommandFlags {
 		}
 	}
 
+	addAlias(...aliases: string[]) {
+		for (const obj of aliases) {
+			this.alias.push(obj)
+		}
+	}
+
 	setHolder(holder: CommandHolder) {
 		this.holder = holder
 		return this
