@@ -214,8 +214,8 @@ class SteamIDCommand extends CommandBase {
 			.then((result: any) => {
 				const reply = `\`\`\`
 Nickname:            ${result.personaname}
-URL:                 ${result.profileurl}
 Avatar:              ${result.avatar}
+Last logoff:         ${new Date(result.lastlogoff * 1000)}
 Real Name:           ${result.realname && result.realname != '' && result.realname || '<not set>'}
 Location:            ${result.loccountrycode && result.loccountrycode != '' && result.loccountrycode || '<not set>'}
 Status:              ${SteamIDCommand.profileState[result.personastate]}
