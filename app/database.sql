@@ -75,3 +75,25 @@ CREATE TABLE IF NOT EXISTS "hangman_stats" (
 	"length" INTEGER NOT NULL DEFAULT 0,
 	"length_guess" INTEGER NOT NULL DEFAULT 0
 );
+
+CREATE TABLE IF NOT EXISTS "steamid_cache" (
+	"steamid" BIGINT NOT NULL PRIMARY KEY,
+	"communityvisibilitystate" INTEGER NOT NULL DEFAULT 0,
+	"profilestate" INTEGER NOT NULL DEFAULT 0,
+	"personaname" VARCHAR(255) NOT NULL DEFAULT '<missing>',
+	"lastlogoff" INTEGER NOT NULL DEFAULT 0,
+	"profileurl" VARCHAR(255) NOT NULL DEFAULT '<missing>',
+	"avatar" VARCHAR(255) NOT NULL DEFAULT '<missing>',
+	"avatarmedium" VARCHAR(255) NOT NULL DEFAULT '<missing>',
+	"avatarfull" VARCHAR(255) NOT NULL DEFAULT '<missing>',
+	"personastate" INTEGER NOT NULL DEFAULT 0,
+	"realname" VARCHAR(255) NOT NULL DEFAULT '<missing>',
+	"primaryclanid" VARCHAR(255) NOT NULL DEFAULT '<missing>',
+	"timecreated" BIGINT NOT NULL DEFAULT 0,
+	"personastateflags" INTEGER NOT NULL DEFAULT 0,
+	"loccountrycode" VARCHAR(15) NOT NULL DEFAULT '',
+	"locstatecode" VARCHAR(15) NOT NULL DEFAULT '',
+	"loccityid" INTEGER NOT NULL DEFAULT 0,
+
+	"expires" BIGINT NOT NULL DEFAULT 0
+);

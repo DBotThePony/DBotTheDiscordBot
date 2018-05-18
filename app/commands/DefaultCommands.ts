@@ -34,6 +34,7 @@ import {RegisterRPActions} from './fun/Roleplay'
 import {NFS} from './fun/Misc'
 import {Aesthetics, TextFlip, TextFlop} from './fun/text/TextManip'
 import {SourceServerPing} from './util/SourceServerPing'
+import {SteamIDCommand} from './util/SteamID'
 import {ColorCommand, ColorsCommand, ReloadColors, RemoveColors} from './util/ColorCommand'
 
 const registerDefaultCommands = function(holder: CommandHolder) {
@@ -89,6 +90,10 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new AdminList())
 	holder.registerCommand(new GetAvatar())
 	holder.registerCommand(new ServerInfo())
+
+	if (holder.bot.config.steam_enable) {
+		holder.registerCommand(new SteamIDCommand())
+	}
 
 	holder.setCategory('roleplay', 'ponystuff')
 	RegisterRPActions(holder)

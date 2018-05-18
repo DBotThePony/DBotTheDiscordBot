@@ -400,7 +400,12 @@ class CommandBase implements CommandFlags {
 
 	setHolder(holder: CommandHolder) {
 		this.holder = holder
+		this.setupBot(holder.bot)
 		return this
+	}
+
+	setupBot(bot: BotInstance) {
+
 	}
 
 	antispam(user: Discord.User, msg: Discord.Message) {
@@ -469,6 +474,7 @@ class CommandBase implements CommandFlags {
 }
 
 import child_process = require('child_process')
+import { BotInstance } from '../BotInstance';
 const spawn = child_process.spawn
 
 const reconstructBuffer = (buffers: Buffer[]) => {
