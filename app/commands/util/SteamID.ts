@@ -212,7 +212,8 @@ class SteamIDCommand extends CommandBase {
 		.then((steamid) => {
 			this.resolveSteamID(steamid)
 			.then((result: any) => {
-				const reply = `\`\`\`
+				const reply = `${result.profileurl}
+\`\`\`
 Nickname:            ${result.personaname}
 Avatar:              ${result.avatar}
 Last logoff:         ${new Date(result.lastlogoff * 1000)}
@@ -222,8 +223,7 @@ Status:              ${SteamIDCommand.profileState[result.personastate]}
 SteamID:             ${steamid.steamid}
 SteamID3:            ${steamid.steamid3}
 SteamID64:           ${steamid.steamid64}
-\`\`\`
-${result.profileurl}`
+\`\`\``
 
 				instance.reply(reply)
 			})
