@@ -18,6 +18,7 @@
 import {CommandContext, CommandFlags} from './CommandContext'
 import {CommandHolder} from './CommandHolder'
 import {GEventEmitter} from '../../lib/glib/GEventEmitter'
+import {InvalidStateException} from '../../lib/Error'
 import Discord = require('discord.js')
 
 class CommandExecutionInstance extends GEventEmitter {
@@ -297,6 +298,23 @@ class CommandExecutionInstance extends GEventEmitter {
 
 	has(argNum: number) {
 		return this.context.parsedArgs[argNum] != undefined && this.context.parsedArgs[argNum] != null
+	}
+
+	selectUser(slotIn = 1, ifNone: Discord.User | null = this.author, strict = true): Discord.User | null {
+		if (!this.command.allowUsers) {
+			throw new InvalidStateException('Command do not accept users', 'allowUsers', true, this.command.allowUsers)
+		}
+
+		if (!this.has(slotIn)) {
+			return ifNone
+		}
+
+		if (strict && !(this.get(slotIn) instanceof Discord.User)) {
+			this.error('Invalid user argument', slotIn)
+			return null
+		}
+
+		return this.get(slotIn)
 	}
 
 	assert(argNum: number, reason?: string) {

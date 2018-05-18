@@ -500,4 +500,65 @@ class GuessCommandRussian extends GuessCommand {
 	}
 }
 
-export {GuessAWordGame, GuessCommand, GuessCommandRussian, GuessAWordGameRussian}
+
+class HangmanStats extends CommandBase {
+	help = 'Displays statistics for selected user'
+	args = '[user]'
+	allowUsers = true
+
+	constructor() {
+		super('hangmanstats', 'chargamestats', 'guessawordstats', 'drownmanstats')
+	}
+
+	executed(instance: CommandExecutionInstance) {
+		const user = instance.selectUser()
+
+		if (!user) {
+			return
+		}
+
+		instance.query(`SELECT * FROM "hangman_stats" WHERE "user" = ${user.id}`).then((values) => {
+			if (!values.rows[0]) {
+				instance.reply('No statistics found!')
+				return
+			}
+
+			const row = values.rows[0]
+
+			// "games" INTEGER NOT NULL DEFAULT 0,
+			// "started" INTEGER NOT NULL DEFAULT 0,
+			// "stopped" INTEGER NOT NULL DEFAULT 0,
+			// "victories" INTEGER NOT NULL DEFAULT 0,
+			// "defeats" INTEGER NOT NULL DEFAULT 0,
+
+			// "guesses" INTEGER NOT NULL DEFAULT 0,
+			// "guesses_hits" INTEGER NOT NULL DEFAULT 0,
+			// "guesses_miss" INTEGER NOT NULL DEFAULT 0,
+
+			// "full_guesses" INTEGER NOT NULL DEFAULT 0,
+			// "full_guesses_hits" INTEGER NOT NULL DEFAULT 0,
+			// "full_guesses_miss" INTEGER NOT NULL DEFAULT 0,
+
+			// "length" INTEGER NOT NULL DEFAULT 0,
+			// "length_guess" INTEGER NOT NULL DEFAULT 0
+
+			instance.reply(`\`\`\`
+Total games:                      ${row.games}
+Total started games:              ${row.started}
+Total stopped games:              ${row.stopped}
+Total victories:                  ${row.victories}
+Total defeats:                    ${row.defeats}
+Total guesses:                    ${row.guesses}
+Total guesses hits:               ${row.guesses_hits}
+Total guesses misses:             ${row.guesses_miss}
+Total full guesses:               ${row.full_guesses}
+Total full guesses hits:          ${row.full_guesses_hits}
+Total full guesses misses:        ${row.full_guesses_miss}
+Total word length:                ${row.length}
+Total guess length:               ${row.length_guess}
+\`\`\``)
+		})
+	}
+}
+
+export {GuessAWordGame, GuessCommand, GuessCommandRussian, GuessAWordGameRussian, HangmanStats}
