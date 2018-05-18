@@ -38,9 +38,14 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 	channel: Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel | null = null
 	member: Discord.GuildMember | null = null
 	self: Discord.GuildMember | null = null
+	me: Discord.GuildMember | null = null
 	server: Discord.Guild | null = null
 	userid: string | null = null
 	serverid: string | null = null
+
+	editOn: CommandContext | null = null
+	edited = false
+	editTarget: Discord.Message | null = null
 
 	raw: string = ''
 	rawArgs: string = ''
@@ -56,6 +61,8 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 	allowRoles = false
 	allowChannels = false
 	allowPipes = true
+
+	messages: Discord.Message[] = []
 
 	get sid() { return this.serverid }
 	get uid() { return this.userid }
@@ -73,19 +80,44 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 		this.bot = bot
 
 		if (msg) {
-			this.msg = msg
-			this.author = msg.author
-			this.channel = msg.channel
-			this.userid = msg.author.id
-			this.userid = msg.author.id
-
-			if (msg.guild) {
-				this.server = msg.guild
-				this.self = msg.guild.member(bot.id)
-				this.member = msg.member
-				this.serverid = msg.guild.id
-			}
+			this.setupMessage(msg)
 		}
+	}
+
+	setupMessage(msg: Discord.Message) {
+		this.args = []
+		this.argsPipes = []
+		this.parsedArgs = []
+		this.parsedPipes = []
+		this.parsed = false
+
+		this.msg = msg
+		this.author = msg.author
+		this.channel = msg.channel
+		this.userid = msg.author.id
+		this.userid = msg.author.id
+
+		if (msg.guild) {
+			this.server = msg.guild
+			this.self = msg.guild.me
+			this.me = msg.guild.me
+			this.member = msg.member
+			this.serverid = msg.guild.id
+		}
+	}
+
+	setEdit(editOn: CommandContext) {
+		if (!editOn.canEdit()) {
+			throw new Error('Illegal state of CommandContext provided to .setEdit()')
+		}
+
+		if (this.messages.length != 0) {
+			throw new Error('Already got sent messages!')
+		}
+
+		this.editOn = editOn
+		this.edited = false
+		this.editTarget = editOn.getEditMessage()
 	}
 
 	importFlags(flags: CommandFlags) {
@@ -94,6 +126,26 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 		this.allowRoles = flags.allowRoles
 		this.allowChannels = flags.allowChannels
 		this.allowPipes = flags.allowPipes
+	}
+
+	canEdit() {
+		return this.messages.length == 1
+	}
+
+	getEditMessage(): Discord.Message | null {
+		return this.messages[0] || null
+	}
+
+	clearAll() {
+		const promises = []
+
+		for (const message of this.messages) {
+			const promise = message.delete()
+			promise.catch(console.error)
+			promises.push(promise)
+		}
+
+		return promises
 	}
 
 	send(content: string, attach?: Discord.Attachment | Discord.MessageOptions): Promise<Discord.Message | Discord.Message[]> | null {
@@ -111,13 +163,39 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 			return status
 		}
 
-		const promise = this.channel.send(content, attach)
+		if (this.editTarget && attach) {
+			this.editTarget.delete().catch(console.error)
+			this.edited = true
+			this.editTarget = null
+		}
 
-		promise.catch((err) => {
-			console.error(err)
-		})
+		if (!this.editTarget) {
+			const promise = this.channel.send(content, attach)
 
-		return <Promise<Discord.Message | Discord.Message[]>> promise
+			promise.catch(console.error)
+
+			promise.then((message) => {
+				if (Array.isArray(message)) {
+					for (const m of message) {
+						this.messages.push(m)
+					}
+				} else {
+					this.messages.push(message)
+				}
+			})
+
+			return promise
+		} else {
+			const promise = this.editTarget.edit(content)
+
+			promise.catch(console.error)
+
+			promise.then((message) => {
+				this.messages.push(message)
+			})
+
+			return promise
+		}
 	}
 
 	typing(status: boolean) {

@@ -28,6 +28,7 @@ class CommandHolder {
 	currentCategoryArray: string[] | null = null
 	lastCommandContext = new Map<string, CommandContext>()
 	lastCommandContextChannel = new Map<string, Map<string, CommandContext>>()
+	commandContextes = new Map<string, CommandContext[]>()
 	prefix = ['}', ')']
 	bot: BotInstance
 	banStates = new Map<string, ServerCommandsState>()
@@ -38,6 +39,8 @@ class CommandHolder {
 	constructor(bot: BotInstance) {
 		this.bot = bot
 		this.bot.client.on('message', (msg: Discord.Message) => this.call(msg))
+		this.bot.client.on('messageUpdate', (oldMessage: Discord.Message, newMessage: Discord.Message) => this.onEdit(oldMessage, newMessage))
+		this.bot.client.on('messageDelete', (msg: Discord.Message) => this.onDelete(msg))
 	}
 
 	lastContext(user: string | Discord.User | Discord.GuildMember | null) {
@@ -142,37 +145,86 @@ class CommandHolder {
 		return state
 	}
 
-	call(msg: Discord.Message, force = false): Promise<[CommandContext, CommandBase] | null> | null {
-		if (msg.author.id == this.bot.uid && !force) {
-			return null
+	pushContext(channelID: string, context: CommandContext) {
+		if (!this.commandContextes.has(channelID)) {
+			this.commandContextes.set(channelID, [])
 		}
 
-		if (!this.bot.checkAntispam(msg.author)) {
-			return null
+		this.commandContextes.get(channelID)!.push(context)
+		return this
+	}
+
+	onDelete(msg: Discord.Message) {
+		if (!this.commandContextes.has(msg.channel.id)) {
+			return
 		}
 
-		let raw = msg.content.trim()
+		const contextList = <CommandContext[]> this.commandContextes.get(msg.channel.id)
+		let hitMessage = null
 
-		if (raw == '') {
-			return null
-		}
+		for (let i = contextList.length - 1; i >= 0; i--) {
+			const context = contextList[i]
 
-		let hitPrefix = false
-		let pm = msg.channel.type == 'dm'
-
-		for (const prefix of this.prefix) {
-			if (raw.substr(0, prefix.length) == prefix) {
-				raw = raw.substr(prefix.length)
-				hitPrefix = true
+			if (context.msg && (context.msg == msg || context.msg.id == msg.id)) {
+				hitMessage = context
 				break
 			}
 		}
 
-		if (!hitPrefix && !pm) {
-			return null
+		if (!hitMessage) {
+			return
 		}
 
-		const context = new CommandContext(this.bot, raw.trim(), msg)
+		hitMessage.clearAll()
+	}
+
+	onEdit(oldMessage: Discord.Message, newMessage: Discord.Message) {
+		if (oldMessage.content == newMessage.content) {
+			return
+		}
+
+		const channel = oldMessage.channel || newMessage.channel
+
+		if (!this.commandContextes.has(channel.id)) {
+			return
+		}
+
+		const contextList = <CommandContext[]> this.commandContextes.get(channel.id)
+		let hitMessage = null
+
+		for (let i = contextList.length - 1; i >= 0; i--) {
+			const context = contextList[i]
+
+			if (context.msg && (context.msg == oldMessage || context.msg.id == oldMessage.id)) {
+				hitMessage = context
+				break
+			}
+		}
+
+		if (!hitMessage) {
+			return
+		}
+
+		if (hitMessage.canEdit()) {
+			const parsed = this.parseContent(newMessage)
+
+			if (parsed) {
+				const context = new CommandContext(this.bot, parsed, newMessage)
+				context.setEdit(hitMessage)
+				this.proceed(context)
+				this.pushContext(channel.id, context)
+			} else {
+				hitMessage.clearAll()
+			}
+		} else {
+			hitMessage.clearAll()
+			this.call(newMessage)
+		}
+
+		contextList.splice(contextList.indexOf(hitMessage), 1)
+	}
+
+	proceed(context: CommandContext): Promise<[CommandContext, CommandBase] | null> | null {
 		context.parse()
 		const getCommand = context.getCommand()
 
@@ -186,7 +238,7 @@ class CommandHolder {
 			return null
 		}
 
-		if (!this.bot.addAntispam(msg.author, command.antispam(msg.author, msg))) {
+		if (!this.bot.addAntispam(context.msg!.author, command.antispam(context.msg!.author, context.msg!))) {
 			return null
 		}
 
@@ -242,6 +294,51 @@ class CommandHolder {
 				}
 			})
 		})
+	}
+
+	parseContent(msg: Discord.Message) {
+		let raw = msg.content.trim()
+
+		if (raw == '') {
+			return null
+		}
+
+		let hitPrefix = false
+		let pm = msg.channel.type == 'dm'
+
+		for (const prefix of this.prefix) {
+			if (raw.substr(0, prefix.length) == prefix) {
+				raw = raw.substr(prefix.length)
+				hitPrefix = true
+				break
+			}
+		}
+
+		if (!hitPrefix && !pm) {
+			return null
+		}
+
+		return raw
+	}
+
+	call(msg: Discord.Message, force = false): Promise<[CommandContext, CommandBase] | null> | null {
+		if (msg.author.id == this.bot.uid && !force) {
+			return null
+		}
+
+		if (!this.bot.checkAntispam(msg.author)) {
+			return null
+		}
+
+		const raw = this.parseContent(msg)
+
+		if (!raw) {
+			return null
+		}
+
+		const context = new CommandContext(this.bot, raw.trim(), msg)
+		this.pushContext(msg.channel.id, context)
+		return this.proceed(context)
 	}
 }
 

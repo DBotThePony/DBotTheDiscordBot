@@ -235,8 +235,6 @@ class CommandExecutionInstance extends GEventEmitter {
 			return null
 		}
 
-		promise.catch(console.error)
-
 		if (this.isTyping) {
 			this.thinking(false)
 		}
