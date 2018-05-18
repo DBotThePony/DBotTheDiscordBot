@@ -216,6 +216,8 @@ class SteamIDCommand extends CommandBase {
 \`\`\`
 Nickname:            ${result.personaname}
 Avatar:              ${result.avatar}
+Profile state:       ${result.profilestate == 1 && 'PUBLIC' || 'PRIVATE'}
+Time created:        ${new Date(result.timecreated * 1000)}
 Last logoff:         ${new Date(result.lastlogoff * 1000)}
 Real Name:           ${result.realname && result.realname != '' && result.realname || '<not set>'}
 Location:            ${result.loccountrycode && result.loccountrycode != '' && result.loccountrycode || '<not set>'}
