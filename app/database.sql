@@ -55,3 +55,23 @@ CREATE TABLE IF NOT EXISTS "command_ban_server" (
 	"commands" VARCHAR(255)[] DEFAULT ARRAY[]::VARCHAR(255)[],
 	PRIMARY KEY ("server")
 );
+
+CREATE TABLE IF NOT EXISTS "hangman_stats" (
+	"user" BIGINT NOT NULL PRIMARY KEY,
+	"games" INTEGER NOT NULL DEFAULT 0,
+	"started" INTEGER NOT NULL DEFAULT 0,
+	"stopped" INTEGER NOT NULL DEFAULT 0,
+	"victories" INTEGER NOT NULL DEFAULT 0,
+	"defeats" INTEGER NOT NULL DEFAULT 0,
+
+	"guesses" INTEGER NOT NULL DEFAULT 0,
+	"guesses_hits" INTEGER NOT NULL DEFAULT 0,
+	"guesses_miss" INTEGER NOT NULL DEFAULT 0,
+
+	"full_guesses" INTEGER NOT NULL DEFAULT 0,
+	"full_guesses_hits" INTEGER NOT NULL DEFAULT 0,
+	"full_guesses_miss" INTEGER NOT NULL DEFAULT 0,
+
+	"length" INTEGER NOT NULL DEFAULT 0,
+	"length_guess" INTEGER NOT NULL DEFAULT 0
+);

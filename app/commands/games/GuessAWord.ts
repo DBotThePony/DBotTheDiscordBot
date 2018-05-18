@@ -64,7 +64,7 @@ class GameStatus {
 	fullguess = false
 	lives: number
 
-	constructor(public channel: Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel, public word: string, public wordset: string[]) {
+	constructor(public channel: Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel, public word: string, public wordset: string[], public parent: CommandBase) {
 		this.chars = word.split('')
 
 		for (let i = 0; i < word.length; i++) {
@@ -122,6 +122,35 @@ class GameStatus {
 		}
 	}
 
+	users: Discord.User[] = []
+	queries: string[] = []
+
+	finish() {
+		this.finished = true
+
+		if (this.victory()) {
+			for (const user of this.users) {
+				this.increment(user, 'victories')
+			}
+		} else {
+			for (const user of this.users) {
+				this.increment(user, 'defeats')
+			}
+		}
+
+		if (this.queries.length != 0) {
+			this.parent.bot.sql.query(`BEGIN; ${this.queries.join(';')}; COMMIT;`).catch(console.error)
+		}
+	}
+
+	register(user: Discord.User) {
+		this.queries.push(`INSERT INTO "hangman_stats" ("user") VALUES (${user.id}) ON CONFLICT DO NOTHING`)
+	}
+
+	increment(user: Discord.User, field: string, by = 1) {
+		this.queries.push(`UPDATE "hangman_stats" SET "${field}" = "${field}" + ${by} WHERE "user" = ${user.id}`)
+	}
+
 	play(instance: CommandExecutionInstance, character: string) {
 		if (!this.canPlay()) {
 			instance.reply('Game instance is either finished or invalid!')
@@ -129,6 +158,16 @@ class GameStatus {
 		}
 
 		character = character.toLowerCase()
+
+		if (!this.users.includes(instance.user!)) {
+			this.users.push(instance.user!)
+
+			this.register(instance.user!)
+			this.queries.push(`UPDATE "hangman_stats" SET "games" = "games" + 1, "length" = "length" + ${this.word.length} WHERE "user" = ${instance.user!.id}`)
+		}
+
+		this.increment(instance.user!, 'guesses')
+		this.increment(instance.user!, 'length_guess', character.length)
 
 		if (character.length == 1) {
 			if (this.guessed.includes(character)) {
@@ -141,10 +180,12 @@ class GameStatus {
 			if (!this.chars.includes(character)) {
 				this.lives--
 
+				this.increment(instance.user!, 'guesses_miss')
+
 				if (this.lives > 0) {
 					instance.reply('That was miss! One live is lost!\n```\n' + this.status() + '\n```')
 				} else {
-					this.finished = true
+					this.finish()
 					instance.reply('That was miss and you lose! BETTER LUCK NEXT TIME!\n```\n' + this.status() + '\n```')
 				}
 
@@ -157,17 +198,22 @@ class GameStatus {
 				}
 			}
 
+			this.increment(instance.user!, 'guesses_hits')
+
 			if (this.victory()) {
-				this.finished = true
+				this.finish()
 				instance.reply('Hit! and you won!\n```\n' + this.status() + '\n```')
 			} else {
 				instance.reply('Hit!\n```\n' + this.status() + '\n```')
 			}
 		} else {
+			this.increment(instance.user!, 'full_guesses')
+
 			this.fullguess = true
-			this.finished = true
 
 			if (character == this.word) {
+				this.increment(instance.user!, 'full_guesses_hits')
+
 				for (let i = 0; i < this.chars.length; i++) {
 					this.named[i] = this.chars[i]
 				}
@@ -175,9 +221,12 @@ class GameStatus {
 				this.lives = 9000
 				instance.reply('OMEGAWIN!\n```\n' + this.status() + '\n```')
 			} else {
+				this.increment(instance.user!, 'full_guesses_miss')
 				this.lives = 0
 				instance.reply('OMEGALOOSE!\n```\n' + this.status() + '\n```')
 			}
+
+			this.finish()
 		}
 	}
 }
@@ -209,8 +258,10 @@ class GuessAWordGame extends CommandBase {
 		}
 
 		const word = this.wordSets[wordSetToUse][Math.floor(Math.random() * (this.wordSets[wordSetToUse].length - 1))]
-		const game = new GameStatus(instance.channel!, word, this.wordSets[wordSetToUse])
+		const game = new GameStatus(instance.channel!, word, this.wordSets[wordSetToUse], this)
 
+		game.register(instance.user!)
+		game.increment(instance.user!, 'started')
 		this.gameStatus.set(instance.channel!.id, game)
 
 		instance.send('Game has started on `' + wordSetToUse + '` word set!\n```\n' + game.status() + '\n```')
@@ -224,7 +275,9 @@ class GuessAWordGame extends CommandBase {
 
 		const wordset = (<GameStatus> this.gameStatus.get(instance.channel!.id)).wordset
 		const word = wordset[Math.floor(Math.random() * (wordset.length - 1))]
-		const game = new GameStatus(instance.channel!, word, wordset)
+		const game = new GameStatus(instance.channel!, word, wordset, this)
+		game.register(instance.user!)
+		game.increment(instance.user!, 'started')
 		this.gameStatus.set(instance.channel!.id, game)
 
 		instance.send('Game has restarted with same word set!\n```\n' + game.status() + '\n```')
@@ -237,8 +290,11 @@ class GuessAWordGame extends CommandBase {
 		}
 
 		const game = <GameStatus> this.gameStatus.get(instance.channel!.id)
+		game.register(instance.user!)
+		game.increment(instance.user!, 'stopped')
 		game.lives = 0
 		instance.send('Game is over!\n```\n' + game.status() + '\n```')
+		game.finish()
 		this.gameStatus.delete(instance.channel!.id)
 	}
 
