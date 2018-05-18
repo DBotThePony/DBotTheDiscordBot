@@ -186,6 +186,12 @@ class CommandHolder {
 		const channel = oldMessage.channel || newMessage.channel
 
 		if (!this.commandContextes.has(channel.id)) {
+			if (!this.parseContent(oldMessage) && this.parseContent(newMessage) && oldMessage.createdAt.getTime() > Date.now() - 60000) {
+				const context = new CommandContext(this.bot, this.parseContent(newMessage)!, newMessage)
+				this.proceed(context)
+				this.pushContext(channel.id, context)
+			}
+
 			return
 		}
 
@@ -205,6 +211,8 @@ class CommandHolder {
 			return
 		}
 
+		contextList.splice(contextList.indexOf(hitMessage), 1)
+
 		if (hitMessage.canEdit()) {
 			const parsed = this.parseContent(newMessage)
 
@@ -220,8 +228,6 @@ class CommandHolder {
 			hitMessage.clearAll()
 			this.call(newMessage)
 		}
-
-		contextList.splice(contextList.indexOf(hitMessage), 1)
 	}
 
 	proceed(context: CommandContext): Promise<[CommandContext, CommandBase] | null> | null {
