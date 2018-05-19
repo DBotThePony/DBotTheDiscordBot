@@ -103,6 +103,24 @@ class ServerCommandsState {
 		return !this.isBanned(command) && command.canBeBanned
 	}
 
+	resolveOnLoaded(): Promise<this> {
+		return new Promise((resolve, reject) => {
+			if (this.loaded) {
+				resolve(this)
+				return
+			}
+
+			this.loadCallbacks.push(() => {
+				resolve(this)
+			})
+
+			this.loadCallbacksCatch.push(() => {
+				//reject(this) // ???
+				resolve(this) // ???
+			})
+		})
+	}
+
 	resolveBanned(command: CommandBase): Promise<boolean> {
 		return new Promise((resolve, reject) => {
 			if (this.loaded) {

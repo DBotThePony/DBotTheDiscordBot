@@ -59,14 +59,55 @@ class CMDManip extends CommandBase {
 
 		const bans = instance.bot.commands.getServerBans(instance.server)
 
-		if (!bans.loaded) {
-			instance.reply('Command bans are not loaded! Please try again a bit later!')
-			return
-		}
+		bans.resolveOnLoaded().then(() => {
+			if (this.isChannel) {
+				if (!this.exclusive) {
+					bans.bulkChannelBan(<Discord.TextChannel> instance.channel, ...commands)
+					.then((result) => {
+						const lines = []
 
-		if (this.isChannel) {
-			if (!this.exclusive) {
-				bans.bulkChannelBan(<Discord.TextChannel> instance.channel, ...commands)
+						for (const [command, status, reason] of result) {
+							lines.push(command.id + ': ' + reason + ` (${status})`)
+						}
+
+						instance.reply('Bulk ban from <#' + (<Discord.Channel> instance.channel).id + '>: ```\n' + lines.join('\n') + '```')
+					})
+					.catch((result) => {
+						instance.reply('Failed to ban: ```\n' + result + '```')
+					})
+				} else {
+					const lines: string[] = []
+					let size = 0
+
+					for (const channel of instance.server!.channels.values()) {
+						if ((channel instanceof Discord.TextChannel) && channel != instance.channel) {
+							size++
+
+							bans.bulkChannelBan(channel, ...commands)
+							.then((result) => {
+								let totalBanned = 0
+
+								for (const [command, status, reason] of result) {
+									if (status) {
+										totalBanned++
+									}
+								}
+
+								lines.push('#' + channel.name + ': ' + totalBanned + '/' + commands.length + ' got banned')
+								size--
+
+								if (size <= 0) {
+									instance.reply('Bulk ban from other channels: ```\n' + lines.join('\n') + '```')
+								}
+							})
+							.catch((result) => {
+								instance.reply('Failed to ban: ```\n' + result + '```')
+							})
+						}
+					}
+				}
+			} else {
+				bans.bulkBan(...commands)
 				.then((result) => {
 					const lines = []
 
@@ -74,57 +115,13 @@ class CMDManip extends CommandBase {
 						lines.push(command.id + ': ' + reason + ` (${status})`)
 					}
 
-					instance.reply('Bulk ban from <#' + (<Discord.Channel> instance.channel).id + '>: ```\n' + lines.join('\n') + '```')
+					instance.reply('Bulk ban: ```\n' + lines.join('\n') + '```')
 				})
 				.catch((result) => {
 					instance.reply('Failed to ban: ```\n' + result + '```')
 				})
-			} else {
-				const lines: string[] = []
-				let size = 0
-
-				for (const channel of instance.server.channels.values()) {
-					if ((channel instanceof Discord.TextChannel) && channel != instance.channel) {
-						size++
-
-						bans.bulkChannelBan(channel, ...commands)
-						.then((result) => {
-							let totalBanned = 0
-
-							for (const [command, status, reason] of result) {
-								if (status) {
-									totalBanned++
-								}
-							}
-
-							lines.push('#' + channel.name + ': ' + totalBanned + '/' + commands.length + ' got banned')
-							size--
-
-							if (size <= 0) {
-								instance.reply('Bulk ban from other channels: ```\n' + lines.join('\n') + '```')
-							}
-						})
-						.catch((result) => {
-							instance.reply('Failed to ban: ```\n' + result + '```')
-						})
-					}
-				}
 			}
-		} else {
-			bans.bulkBan(...commands)
-			.then((result) => {
-				const lines = []
-
-				for (const [command, status, reason] of result) {
-					lines.push(command.id + ': ' + reason + ` (${status})`)
-				}
-
-				instance.reply('Bulk ban: ```\n' + lines.join('\n') + '```')
-			})
-			.catch((result) => {
-				instance.reply('Failed to ban: ```\n' + result + '```')
-			})
-		}
+		})
 	}
 
 	bulkUnban(instance: CommandExecutionInstance, commands: CommandBase[]) {
@@ -138,14 +135,55 @@ class CMDManip extends CommandBase {
 
 		const bans = instance.bot.commands.getServerBans(instance.server)
 
-		if (!bans.loaded) {
-			instance.reply('Command bans are not loaded! Please try again a bit later!')
-			return
-		}
+		bans.resolveOnLoaded().then(() => {
+			if (this.isChannel) {
+				if (!this.exclusive) {
+					bans.bulkChannelUnban(<Discord.TextChannel> instance.channel, ...commands)
+					.then((result) => {
+						const lines = []
 
-		if (this.isChannel) {
-			if (!this.exclusive) {
-				bans.bulkChannelUnban(<Discord.TextChannel> instance.channel, ...commands)
+						for (const [command, status, reason] of result) {
+							lines.push(command.id + ': ' + reason + ` (${status})`)
+						}
+
+						instance.reply('Bulk unban from <#' + (<Discord.Channel> instance.channel).id + '>: ```\n' + lines.join('\n') + '```')
+					})
+					.catch((result) => {
+						instance.reply('Failed to unban: ```\n' + result + '```')
+					})
+				} else {
+					const lines: string[] = []
+					let size = 0
+
+					for (const channel of instance.server!.channels.values()) {
+						if ((channel instanceof Discord.TextChannel) && channel != instance.channel) {
+							size++
+
+							bans.bulkChannelUnban(channel, ...commands)
+							.then((result) => {
+								let totalBanned = 0
+
+								for (const [command, status, reason] of result) {
+									if (status) {
+										totalBanned++
+									}
+								}
+
+								lines.push('#' + channel.name + ': ' + totalBanned + '/' + commands.length + ' got unbanned')
+								size--
+
+								if (size <= 0) {
+									instance.reply('Bulk unban from other channels: ```\n' + lines.join('\n') + '```')
+								}
+							})
+							.catch((result) => {
+								instance.reply('Failed to unban: ```\n' + result + '```')
+							})
+						}
+					}
+				}
+			} else {
+				bans.bulkUnban(...commands)
 				.then((result) => {
 					const lines = []
 
@@ -153,57 +191,13 @@ class CMDManip extends CommandBase {
 						lines.push(command.id + ': ' + reason + ` (${status})`)
 					}
 
-					instance.reply('Bulk unban from <#' + (<Discord.Channel> instance.channel).id + '>: ```\n' + lines.join('\n') + '```')
+					instance.reply('Bulk unban: ```\n' + lines.join('\n') + '```')
 				})
 				.catch((result) => {
 					instance.reply('Failed to unban: ```\n' + result + '```')
 				})
-			} else {
-				const lines: string[] = []
-				let size = 0
-
-				for (const channel of instance.server.channels.values()) {
-					if ((channel instanceof Discord.TextChannel) && channel != instance.channel) {
-						size++
-
-						bans.bulkChannelUnban(channel, ...commands)
-						.then((result) => {
-							let totalBanned = 0
-
-							for (const [command, status, reason] of result) {
-								if (status) {
-									totalBanned++
-								}
-							}
-
-							lines.push('#' + channel.name + ': ' + totalBanned + '/' + commands.length + ' got unbanned')
-							size--
-
-							if (size <= 0) {
-								instance.reply('Bulk unban from other channels: ```\n' + lines.join('\n') + '```')
-							}
-						})
-						.catch((result) => {
-							instance.reply('Failed to unban: ```\n' + result + '```')
-						})
-					}
-				}
 			}
-		} else {
-			bans.bulkUnban(...commands)
-			.then((result) => {
-				const lines = []
-
-				for (const [command, status, reason] of result) {
-					lines.push(command.id + ': ' + reason + ` (${status})`)
-				}
-
-				instance.reply('Bulk unban: ```\n' + lines.join('\n') + '```')
-			})
-			.catch((result) => {
-				instance.reply('Failed to unban: ```\n' + result + '```')
-			})
-		}
+		})
 	}
 
 	ban(instance: CommandExecutionInstance) {
@@ -234,50 +228,47 @@ class CMDManip extends CommandBase {
 
 		const bans = instance.bot.commands.getServerBans(instance.server)
 
-		if (!bans.loaded) {
-			instance.reply('Command bans are not loaded! Please try again a bit later!')
-			return
-		}
+		bans.resolveOnLoaded().then(() => {
+			if (this.isChannel) {
+				if (!this.exclusive) {
+					bans.banChannelCommand(<Discord.TextChannel> instance.channel, command)
+					.then((result) => {
+						instance.reply(command.id + ' ban from <#' + (<Discord.Channel> instance.channel).id + '>: ```\n' + result + '```')
+					})
+					.catch((result) => {
+						instance.reply(command.id + ' ban from <#' + (<Discord.Channel> instance.channel).id + '>: ```\n' + result + '```')
+					})
+				} else {
+					const lines: string[] = []
+					let size = 0
 
-		if (this.isChannel) {
-			if (!this.exclusive) {
-				bans.banChannelCommand(<Discord.TextChannel> instance.channel, command)
-				.then((result) => {
-					instance.reply(command.id + ' ban from <#' + (<Discord.Channel> instance.channel).id + '>: ```\n' + result + '```')
-				})
-				.catch((result) => {
-					instance.reply(command.id + ' ban from <#' + (<Discord.Channel> instance.channel).id + '>: ```\n' + result + '```')
-				})
-			} else {
-				const lines: string[] = []
-				let size = 0
+					for (const channel of instance.server!.channels.values()) {
+						if ((channel instanceof Discord.TextChannel) && channel != instance.channel) {
+							size++
 
-				for (const channel of instance.server.channels.values()) {
-					if ((channel instanceof Discord.TextChannel) && channel != instance.channel) {
-						size++
+							const callback = (result: string) => {
+								lines.push('#' + channel.name + ': ' + result)
+								size--
 
-						const callback = (result: string) => {
-							lines.push('#' + channel.name + ': ' + result)
-							size--
-
-							if (size <= 0) {
-								instance.reply(command.id + ' ban from other channels: ```\n' + lines.join('\n') + '```')
+								if (size <= 0) {
+									instance.reply(command.id + ' ban from other channels: ```\n' + lines.join('\n') + '```')
+								}
 							}
-						}
 
-						bans.banChannelCommand(channel, command).then(callback).catch(callback)
+							bans.banChannelCommand(channel, command).then(callback).catch(callback)
+						}
 					}
 				}
+			} else {
+				bans.banCommand(command)
+				.then((result) => {
+					instance.reply(command.id + ' ban: ```\n' + result + '```')
+				})
+				.catch((result) => {
+					instance.reply(command.id + ' ban: ```\n' + result + '```')
+				})
 			}
-		} else {
-			bans.banCommand(command)
-			.then((result) => {
-				instance.reply(command.id + ' ban: ```\n' + result + '```')
-			})
-			.catch((result) => {
-				instance.reply(command.id + ' ban: ```\n' + result + '```')
-			})
-		}
+		})
 	}
 
 	unban(instance: CommandExecutionInstance) {
@@ -308,48 +299,45 @@ class CMDManip extends CommandBase {
 
 		const bans = instance.bot.commands.getServerBans(instance.server)
 
-		if (!bans.loaded) {
-			instance.reply('Command bans are not loaded! Please try again a bit later!')
-			return
-		}
+		bans.resolveOnLoaded().then(() => {
+			if (this.isChannel) {
+				if (!this.exclusive) {
+					const callback = (result: string) => {
+						instance.reply(command.id + ' unban from <#' + (<Discord.Channel> instance.channel).id + '>: ```\n' + result + '```')
+					}
 
-		if (this.isChannel) {
-			if (!this.exclusive) {
-				const callback = (result: string) => {
-					instance.reply(command.id + ' unban from <#' + (<Discord.Channel> instance.channel).id + '>: ```\n' + result + '```')
-				}
+					bans.unbanChannelCommand(<Discord.TextChannel> instance.channel, command).then(callback).catch(callback)
+				} else {
+					const lines: string[] = []
+					let size = 0
 
-				bans.unbanChannelCommand(<Discord.TextChannel> instance.channel, command).then(callback).catch(callback)
-			} else {
-				const lines: string[] = []
-				let size = 0
+					for (const channel of instance.server!.channels.values()) {
+						if ((channel instanceof Discord.TextChannel) && channel != instance.channel) {
+							size++
 
-				for (const channel of instance.server.channels.values()) {
-					if ((channel instanceof Discord.TextChannel) && channel != instance.channel) {
-						size++
+							const callback = (result: string) => {
+								lines.push('#' + channel.name + ': ' + result)
+								size--
 
-						const callback = (result: string) => {
-							lines.push('#' + channel.name + ': ' + result)
-							size--
-
-							if (size <= 0) {
-								instance.reply(command.id + ' unban from other channels: ```\n' + lines.join('\n') + '```')
+								if (size <= 0) {
+									instance.reply(command.id + ' unban from other channels: ```\n' + lines.join('\n') + '```')
+								}
 							}
-						}
 
-						bans.unbanChannelCommand(channel, command).then(callback).catch(callback)
+							bans.unbanChannelCommand(channel, command).then(callback).catch(callback)
+						}
 					}
 				}
+			} else {
+				bans.unbanCommand(command)
+				.then((result) => {
+					instance.reply(command.id + ' unban: ```\n' + result + '```')
+				})
+				.catch((result) => {
+					instance.reply(command.id + ' unban: ```\n' + result + '```')
+				})
 			}
-		} else {
-			bans.unbanCommand(command)
-			.then((result) => {
-				instance.reply(command.id + ' unban: ```\n' + result + '```')
-			})
-			.catch((result) => {
-				instance.reply(command.id + ' unban: ```\n' + result + '```')
-			})
-		}
+		})
 	}
 
 	list(instance: CommandExecutionInstance) {
