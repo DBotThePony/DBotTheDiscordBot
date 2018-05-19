@@ -28,6 +28,7 @@ import {GuessAWordGame, GuessCommand, GuessCommandRussian, GuessAWordGameRussian
 import {RegisterCowsay} from './fun/Cowsay'
 import {ShippingCommand} from './fun/Shipping'
 import {WordWallCommand} from './fun/text/WordWall'
+import {RollTheDice} from './fun/text/RollTheDice'
 import {ASCIIPonyCommand, ASCIIPonyImageCommand} from './fun/text/ASCIIPony'
 import {Fortune, VulgarFortune, CopyPasta, Intel, NoIntel, Pogreb} from './fun/text/Fortune'
 import {RegisterRPActions} from './fun/Roleplay'
@@ -80,6 +81,8 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new Aesthetics())
 	holder.registerCommand(new TextFlip())
 	holder.registerCommand(new TextFlop())
+
+	holder.registerCommand(new RollTheDice())
 
 	RegisterCowsay(holder)
 
