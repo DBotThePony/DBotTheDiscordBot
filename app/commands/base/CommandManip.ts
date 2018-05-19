@@ -349,30 +349,34 @@ class CMDManip extends CommandBase {
 			throw new Error('Invalid execution instance')
 		}
 
-		let list: CommandBase[]
+		const bans = instance.bot.commands.getServerBans(instance.server)
 
-		if (this.isChannel) {
-			list = instance.bot.commands.getServerBans(instance.server).commandListChannel(<Discord.TextChannel> instance.channel)
-		} else {
-			list = instance.bot.commands.getServerBans(instance.server).commandList()
-		}
+		bans.resolveOnLoaded().then(() => {
+			let list: CommandBase[]
 
-		if (list.length == 0) {
-			instance.reply('No commands are present in ban list.')
-			return
-		}
-
-		const namelist = []
-
-		for (const command of list) {
-			if (command.hasAlias()) {
-				namelist.push(command.id + ' (' + command.alias.join(', ') + ')')
+			if (this.isChannel) {
+				list = bans.commandListChannel(<Discord.TextChannel> instance.channel)
 			} else {
-				namelist.push(command.id)
+				list = bans.commandList()
 			}
-		}
 
-		instance.reply('Commands in banlist are: ```\n' + namelist.join(', ') + '```')
+			if (list.length == 0) {
+				instance.reply('No commands are present in ban list.')
+				return
+			}
+
+			const namelist = []
+
+			for (const command of list) {
+				if (command.hasAlias()) {
+					namelist.push(command.id + ' (' + command.alias.join(', ') + ')')
+				} else {
+					namelist.push(command.id)
+				}
+			}
+
+			instance.reply('Commands in banlist are: ```\n' + namelist.join(', ') + '```')
+		})
 	}
 
 	listGroups(instance: CommandExecutionInstance) {
