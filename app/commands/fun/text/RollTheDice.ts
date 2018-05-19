@@ -37,7 +37,6 @@ class RollTheDice extends CommandBase {
 			if (split.length == 2) {
 				edges = parseInt(split[0])
 				times = parseInt(split[1])
-				console.log(edges, times)
 
 				if (edges != edges) {
 					instance.error('Invalid amount of edges provided' , 1)
