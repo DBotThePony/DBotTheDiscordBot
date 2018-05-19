@@ -295,9 +295,15 @@ class CommandHolder {
 
 						resolve(executeCommand())
 					})
+					.catch(() => {
+						reject('Command is banned from this channel')
+					})
 				} else {
 					resolve(executeCommand())
 				}
+			})
+			.catch(() => {
+				reject('Command is banned from the server')
 			})
 		})
 	}
