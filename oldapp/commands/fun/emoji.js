@@ -1,20 +1,20 @@
 
 
-// 
+//
 // Copyright (C) 2016-2017 DBot. All other content, that was used, but not created in this project, is licensed under their own licenses, and belong to their authors.
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //      http://www.apache.org/licenses/LICENSE-2.0
-//  
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// 
+//
 
 'use strict';
 
@@ -47,107 +47,107 @@ const spawn = child_process.spawn;
 module.exports = {
 	name: 'emoji',
 	alias: ['e'],
-	
+
 	help_args: '<...>',
 	desc: 'Emoji into image!',
-	
+
 	func: function(args, cmd, msg) {
 		if (cmd === '')
 			return 'No smileys? ;n;';
-		
+
 		let emojiCollection = [];
 		let emojiMatch = cmd.match(regExpObj);
 		let customEmojiAmount = 0;
-		
+
 		msg.channel.startTyping();
-		
+
 		const continueFunc = function() {
 			if (!emojiCollection[0]) {
 				msg.channel.stopTyping();
 				msg.reply('No emoji found in this text ;w;');
 				return;
 			}
-			
+
 			if (emojiCollection.length > 50) {
 				msg.channel.stopTyping();
 				msg.reply('Too many smileys ;n;');
 				return;
 			}
-			
+
 			const hash = crypto.createHash('sha256');
-			
+
 			for (const row of emojiCollection) {
 				let str;
-				
+
 				if (row.isNewLine) {
 					str = '\n';
 				} else {
 					str = row.path + '-' + (row.flop && 'true' || 'false');
 				}
-				
+
 				hash.update(str);
 			}
-			
+
 			const sha = hash.digest('hex');
 			const fpath = DBot.WebRoot + '/emoji/' + sha + '.png';
-			
+
 			fs.stat(fpath, function(err, stat) {
 				if (stat) {
 					msg.channel.stopTyping();
 					msg.reply(DBot.URLRoot + '/emoji/' + sha + '.png');
 				} else {
 					let magikArgs = ['-background', 'rgba(0,0,0,0)'];
-					
+
 					let imageLayers = [];
 					let currentLayer = [];
 					imageLayers[0] = currentLayer;
-					
+
 					for (let i in emojiCollection) {
 						if (emojiCollection[i].isNewLine) {
 							currentLayer = [];
 							imageLayers.push(currentLayer);
 						} else {
 							currentLayer.push('(', '-resize', '512x512!');
-							
+
 							if (emojiCollection[i].flop) {
 								currentLayer.push('-flop');
 							}
-							
+
 							currentLayer.push(emojiCollection[i].path, ')');
 						}
 					}
-					
+
 					for (let i in imageLayers) {
 						magikArgs.push('(');
 						let Layer = imageLayers[i];
-						
+
 						for (let i2 in Layer) {
 							magikArgs.push(Layer[i2]);
 						}
-						
+
 						magikArgs.push('+append');
 						magikArgs.push(')');
 					}
-					
+
 					magikArgs.push('-append', fpath);
-					
+
 					const magik = spawn('convert', magikArgs);
-					
+
 					Util.Redirect(magik);
-					
+
 					magik.on('close', function(code) {
 						if (code === 0) {
 							msg.reply(DBot.URLRoot + '/emoji/' + sha + '.png');
 						} else {
 							msg.reply('<internal pony error>');
 						}
-						
+
 						msg.channel.stopTyping();
 					});
 				}
 			});
 		};
-		
+
 		try {
 			for (let subStr of emojiMatch) {
 				subStr = subStr.toLowerCase();

@@ -475,6 +475,7 @@ class CommandBase implements CommandFlags {
 
 import child_process = require('child_process')
 import { BotInstance } from '../BotInstance';
+import { ImageIdentify } from '../../lib/imagemagick/Identify';
 const spawn = child_process.spawn
 
 const reconstructBuffer = (buffers: Buffer[]) => {
@@ -565,6 +566,10 @@ class ImageCommandBase extends CommandBase {
 		return new Promise((resolve, reject) => {
 			resolve(null)
 		})
+	}
+
+	identify(instance: CommandExecutionInstance, pathToFile: string): Promise<ImageIdentify> {
+		return new ImageIdentify(pathToFile).identify()
 	}
 
 	tryConvertInOut(instance: CommandExecutionInstance, bufferIn: Buffer, ...args: string[]): Promise<Buffer | null> {
