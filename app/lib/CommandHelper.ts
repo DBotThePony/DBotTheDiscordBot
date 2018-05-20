@@ -73,7 +73,8 @@ class CommandHelper {
 	findImageString(arg: string) {
 		const matchurl = arg.match(urlMatch)
 
-		if (matchurl && matchurl[0].match(imgExt)) {
+		//if (matchurl && matchurl[0].match(imgExt)) {
+		if (matchurl) {
 			return matchurl[0]
 		}
 
@@ -81,11 +82,8 @@ class CommandHelper {
 	}
 
 	findImage(inputArg: Discord.Message | Discord.TextBasedChannelFields, arg: any) {
-		if (typeof arg == 'string') {
-			const img = this.findImageString(arg)
-			if (img) {
-				return img
-			}
+		if (typeof arg == 'string' && arg.trim() != '') {
+			return this.findImageString(arg.trim())
 		}
 
 		if (typeof arg == 'object') {
