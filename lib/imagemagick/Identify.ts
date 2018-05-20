@@ -299,6 +299,7 @@ class ImageIdentify {
 						return
 					}
 
+					this.identified = true
 					this.format = IMAGE_FORMAT[matchData[1]] || IMAGE_FORMAT.UNKNOWN
 					this.width = parseInt(matchData[2])
 					this.height = parseInt(matchData[3])
