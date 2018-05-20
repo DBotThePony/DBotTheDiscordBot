@@ -32,6 +32,7 @@ import {RollTheDice} from './fun/text/RollTheDice'
 import {ASCIIPonyCommand, ASCIIPonyImageCommand} from './fun/text/ASCIIPony'
 import {Fortune, VulgarFortune, CopyPasta, Intel, NoIntel, Pogreb} from './fun/text/Fortune'
 import {RegisterRPActions} from './fun/Roleplay'
+import {WastedCommand} from './image/Wasted'
 import {NFS} from './fun/Misc'
 import {Aesthetics, TextFlip, TextFlop} from './fun/text/TextManip'
 import {SourceServerPing} from './util/SourceServerPing'
@@ -72,6 +73,7 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 
 	holder.setCategory('fun', 'images')
 	holder.registerCommand(new NFS())
+	holder.registerCommand(new WastedCommand())
 
 	holder.setCategory('fun_text', 'fun')
 	holder.registerCommand(new WordWallCommand())

@@ -70,21 +70,33 @@ class CommandHelper {
 		}
 	}
 
+	findImageString(arg: string) {
+		const matchurl = arg.match(urlMatch)
+
+		if (matchurl && matchurl[0].match(imgExt)) {
+			return matchurl[0]
+		}
+
+		return null
+	}
+
 	findImage(inputArg: Discord.Message | Discord.TextBasedChannelFields, arg: any) {
 		if (typeof arg == 'string') {
-			const matchurl = arg.match(urlMatch)
-
-			if (matchurl && matchurl[0].match(imgExt)) {
-				return matchurl[0]
+			const img = this.findImageString(arg)
+			if (img) {
+				return img
 			}
 		}
 
-		if (typeof arg == 'object' && arg instanceof Discord.User) {
-			return arg.avatarURL
-		}
+		if (typeof arg == 'object') {
+			if (arg instanceof Discord.User) {
+				return arg.avatarURL
+			}
 
-		if (typeof arg == 'object' && arg instanceof Discord.GuildMember) {
-			return arg.user.avatarURL
+			if (arg instanceof Discord.GuildMember) {
+				return arg.user.avatarURL
+			}
+
 		}
 
 		return this.lastImage(inputArg)

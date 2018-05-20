@@ -224,6 +224,14 @@ enum SIZE_MULTIPLIER {
 import child_process = require('child_process')
 const spawn = child_process.spawn
 
+enum IMAGE_CLAMP_STATUS {
+	NORMAL = 0,
+	TOO_SMALL_WIDTH = 0x2,
+	TOO_SMALL_HEIGHT = 0x4,
+	TOO_BIG_WIDTH = 0x8,
+	TOO_BIG_HEIGHT = 0x10,
+}
+
 class ImageIdentify {
 	identified = false
 	invalid = false
@@ -264,7 +272,79 @@ class ImageIdentify {
 		return this.isTIFF || this.isBMP || this.isPNG || this.isJPEG || this.isWEBP
 	}
 
-	get isLarge() { return this.width && this.height && (this.width > 1500 || this.height > 1500) }
+	get isLarge() { return this.width && this.height && (this.width > 1500 || this.height > 1500) || false }
+	get isSmall() { return this.width && this.height && (this.width < 400 && this.height < 400) || false }
+
+	get aspectRatio() { return this.width && this.height && this.width / this.height || 1}
+	get wildAspectRatio() { return this.aspectRatio < 0.35 || this.aspectRatio >= 2.5}
+
+	static IMAGE_CLAMP_STATUS = IMAGE_CLAMP_STATUS
+
+	// does not provide exactly clamped values
+	clamp(minWidth: number, minHeight: number, maxWidth: number, maxHeight: number) {
+		if (!this.identified) {
+			throw new Error('Image is not alredy identified!')
+		}
+
+		let clampStatus = IMAGE_CLAMP_STATUS.NORMAL
+
+		if (this.width! < minWidth) {
+			clampStatus += IMAGE_CLAMP_STATUS.TOO_SMALL_WIDTH
+		}
+
+		if (this.height! < minHeight) {
+			clampStatus += IMAGE_CLAMP_STATUS.TOO_SMALL_HEIGHT
+		}
+
+		if (this.width! > maxWidth) {
+			clampStatus += IMAGE_CLAMP_STATUS.TOO_BIG_WIDTH
+		}
+
+		if (this.height! > maxHeight) {
+			clampStatus += IMAGE_CLAMP_STATUS.TOO_BIG_HEIGHT
+		}
+
+		switch (clampStatus) {
+			// all good
+			case IMAGE_CLAMP_STATUS.NORMAL:
+				return [this.width!, this.height!]
+
+			// straight
+			case IMAGE_CLAMP_STATUS.TOO_SMALL_WIDTH:
+				return [minWidth, minWidth / this.aspectRatio]
+			case IMAGE_CLAMP_STATUS.TOO_BIG_WIDTH:
+				return [maxWidth, maxWidth / this.aspectRatio]
+			case IMAGE_CLAMP_STATUS.TOO_SMALL_HEIGHT:
+				return [minHeight * this.aspectRatio, minHeight]
+			case IMAGE_CLAMP_STATUS.TOO_BIG_HEIGHT:
+				return [maxHeight * this.aspectRatio, maxHeight]
+
+			case IMAGE_CLAMP_STATUS.TOO_SMALL_WIDTH + IMAGE_CLAMP_STATUS.TOO_SMALL_HEIGHT:
+				if (minWidth < minHeight) {
+					return [minHeight * this.aspectRatio, minHeight]
+				} else if (minWidth > minHeight) {
+					return [minWidth, minWidth / this.aspectRatio]
+				} else {
+					return [minWidth, minHeight]
+				}
+
+			case IMAGE_CLAMP_STATUS.TOO_BIG_WIDTH + IMAGE_CLAMP_STATUS.TOO_BIG_HEIGHT:
+				if (maxWidth < maxHeight) {
+					return [maxHeight * this.aspectRatio, maxHeight]
+				} else if (maxWidth > maxHeight) {
+					return [maxWidth, maxWidth / this.aspectRatio]
+				} else {
+					return [maxWidth, maxHeight]
+				}
+
+			case IMAGE_CLAMP_STATUS.TOO_SMALL_WIDTH + IMAGE_CLAMP_STATUS.TOO_BIG_HEIGHT:
+				return [null, null]
+			case IMAGE_CLAMP_STATUS.TOO_SMALL_HEIGHT + IMAGE_CLAMP_STATUS.TOO_BIG_WIDTH:
+				return [null, null]
+		}
+
+		return [null, null]
+	}
 
 	// 2018-05-01_13-28-43.png PNG 424x161 424x161+0+0 8-bit sRGB 88.2KB 0.000u 0:00.000
 	static matchExp = ' ([a-zA-Z]+) ([0-9]+)x([0-9]+) [0-9]+x[0-9]+\\+([0-9]+)\\+([0-9]+) ([0-9]+)-bit ([a-zA-Z]+) ([0-9\\.]+)([A-Z]+)'

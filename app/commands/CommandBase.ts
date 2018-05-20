@@ -164,17 +164,27 @@ class CommandExecutionInstance extends GEventEmitter {
 		this.isTyping = status
 	}
 
-	findImage(arg: any) {
-		if (this.channel) {
-			return this.bot.helper.findImage(this.channel, arg)
+	findImage(arg: any): string | null {
+		if (typeof arg == 'object' && arg instanceof Discord.User) {
+			return arg.avatarURL
 		}
+
+		if (typeof arg == 'string') {
+			return this.bot.helper.findImageString(arg)
+		}
+
+		if (this.channel) {
+			return this.bot.helper.findImage(this.channel, arg) || null
+		}
+
+		return null
 	}
 
 	loadImage(urlIn: string) {
 		const promise = this.bot.helper.loadImage(urlIn)
 
 		promise.catch((err: string) => {
-			this.send('Image download failed: ' + err)
+			this.reply('Image download failed: ```\n' + err + '\n```')
 		})
 
 		return promise
@@ -569,7 +579,13 @@ class ImageCommandBase extends CommandBase {
 	}
 
 	identify(instance: CommandExecutionInstance, pathToFile: string): Promise<ImageIdentify> {
-		return new ImageIdentify(pathToFile).identify()
+		const promise = new ImageIdentify(pathToFile).identify()
+
+		promise.catch((err) => {
+			instance.reply('```\n' + err + '\n```')
+		})
+
+		return promise
 	}
 
 	tryConvertInOut(instance: CommandExecutionInstance, bufferIn: Buffer, ...args: string[]): Promise<Buffer | null> {
