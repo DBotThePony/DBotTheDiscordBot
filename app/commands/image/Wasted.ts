@@ -89,6 +89,7 @@ class YouDied extends RegularImageCommandBase {
 	}
 
 	doImage(instance: CommandExecutionInstance, identify: ImageIdentify, w: number, h: number) {
+		const targettext = instance.has(2) && instance.from(2).join(' ') || 'YOU DIED'
 		let signHeight = Math.min(w!, h!) / 7
 		let pointsize = signHeight
 
@@ -112,7 +113,7 @@ class YouDied extends RegularImageCommandBase {
 			'-strokewidth', String(Math.floor(Math.min(w!, h!) / 400)),
 
 			'-pointsize', String(pointsize),
-			'-draw', 'text 0,' + Math.floor(h! / 2 - signHeight * .55) + ' "YOU DIED"',
+			'-draw', 'text 0,' + Math.floor(h! / 2 - signHeight * .55) + ' ' + this.escapeText(targettext),
 			'png:-'
 		)
 

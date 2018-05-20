@@ -597,6 +597,10 @@ class ImageCommandBase extends CommandBase {
 
 		return promise
 	}
+
+	escapeText(textIn: string) {
+		return `"${textIn.replace(/\\/gi, '\\\\').replace(/"/, '\\"')}"`
+	}
 }
 
 // todo: RegularMultiImageCommandBase (when needed)
