@@ -79,4 +79,48 @@ class WastedCommand extends RegularImageCommandBase {
 	}
 }
 
-export {WastedCommand}
+class YouDied extends RegularImageCommandBase {
+	help = 'forsenPls YOU DIED forsenPls'
+	allowUsers = true
+	args = '<target>'
+
+	constructor() {
+		super('youdied', 'dead', 'ded', 'youareded', 'youaredead', 'darksouls')
+	}
+
+	doImage(instance: CommandExecutionInstance, identify: ImageIdentify, w: number, h: number) {
+		let signHeight = Math.min(w!, h!) / 7
+		let pointsize = signHeight
+
+		const image: string[] = [
+			identify.path!, '-resize', '2048x2048>', '-resize', '512x512<',
+			'-color-matrix', '.3 .1 .3 .3 .1 .3 .3 .1 .3', '-fill', 'rgba(0,0,0,0.05)',
+		]
+
+		const internsShadowCount = Math.floor(signHeight / 4)
+
+		for (let i = internsShadowCount; i >= 0; i--) {
+			image.push('-draw', 'rectangle 0, ' + (h! / 2 - signHeight / 2 - i) + ', ' + w! + ', ' + (h! / 2 + signHeight / 2 + i));
+		}
+
+		image.push(
+			'-gravity', 'South',
+			'-font', 'OptimusPrinceps',
+
+			'-fill', 'rgb(160,30,30)',
+			'-stroke', 'black',
+			'-strokewidth', String(Math.floor(Math.min(w!, h!) / 400)),
+
+			'-pointsize', String(pointsize),
+			'-draw', 'text 0,' + Math.floor(h! / 2 - signHeight * .55) + ' "YOU DIED"',
+			'png:-'
+		)
+
+		this.convert(instance, ...image)
+		.then((value) => {
+			instance.reply('', new Discord.Attachment(value!, 'wasted.png'))
+		})
+	}
+}
+
+export {WastedCommand, YouDied}
