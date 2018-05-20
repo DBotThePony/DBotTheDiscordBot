@@ -293,7 +293,7 @@ class CommandExecutionInstance extends GEventEmitter {
 	}
 
 	from(argNum: number): any[] {
-		if (this.has(argNum)) {
+		if (!this.has(argNum)) {
 			return []
 		}
 
