@@ -511,7 +511,7 @@ const reconstructBuffer = (buffers: Buffer[]) => {
 }
 
 class ImageCommandBase extends CommandBase {
-	convert(...args: string[]): Promise<Buffer> {
+	convertInternal(...args: string[]): Promise<Buffer> {
 		return new Promise((resolve, reject) => {
 			const magick = spawn('convert', args)
 
@@ -539,7 +539,7 @@ class ImageCommandBase extends CommandBase {
 		})
 	}
 
-	convertInOut(bufferIn: Buffer, ...args: string[]): Promise<Buffer> {
+	convertInOutInternal(bufferIn: Buffer, ...args: string[]): Promise<Buffer> {
 		return new Promise((resolve, reject) => {
 			const magick = spawn('convert', args)
 
@@ -568,14 +568,14 @@ class ImageCommandBase extends CommandBase {
 		})
 	}
 
-	tryConvert(instance: CommandExecutionInstance, ...args: string[]): Promise<Buffer | null> {
-		if (instance.hasPermissionBoth('ATTACH_FILES')) {
-			return this.convert(...args)
-		}
+	convert(instance: CommandExecutionInstance, ...args: string[]): Promise<Buffer | null> {
+		const promise = this.convertInternal(...args)
 
-		return new Promise((resolve, reject) => {
-			resolve(null)
+		promise.catch((err) => {
+			instance.reply(err)
 		})
+
+		return promise
 	}
 
 	identify(instance: CommandExecutionInstance, pathToFile: string): Promise<ImageIdentify> {
@@ -588,28 +588,8 @@ class ImageCommandBase extends CommandBase {
 		return promise
 	}
 
-	tryConvertInOut(instance: CommandExecutionInstance, bufferIn: Buffer, ...args: string[]): Promise<Buffer | null> {
-		if (instance.hasPermissionBoth('ATTACH_FILES')) {
-			return this.convertInOut(bufferIn, ...args)
-		}
-
-		return new Promise((resolve, reject) => {
-			resolve(null)
-		})
-	}
-
-	tryConvert2(instance: CommandExecutionInstance, ...args: string[]): Promise<Buffer | null> {
-		const promise = this.tryConvert(instance, ...args)
-
-		promise.catch((err) => {
-			instance.reply(err)
-		})
-
-		return promise
-	}
-
-	tryConvertInOut2(instance: CommandExecutionInstance, bufferIn: Buffer, ...args: string[]): Promise<Buffer | null> {
-		const promise = this.convertInOut(bufferIn, ...args)
+	convertInOut(instance: CommandExecutionInstance, bufferIn: Buffer, ...args: string[]): Promise<Buffer | null> {
+		const promise = this.convertInOutInternal(bufferIn, ...args)
 
 		promise.catch((err) => {
 			instance.reply(err)

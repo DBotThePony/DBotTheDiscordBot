@@ -25,7 +25,7 @@ class WastedCommand extends ImageCommandBase {
 	args = '<target>'
 
 	constructor(public toptext = 'wasted', public bottomtext = '') {
-		super('wasted')
+		super(toptext.toLowerCase())
 	}
 
 	executed(instance: CommandExecutionInstance) {
@@ -62,11 +62,11 @@ class WastedCommand extends ImageCommandBase {
 					return
 				}
 
-				const signHeight = Math.min(w!, h!) / 7
+				let signHeight = Math.min(w!, h!) / 7
 				let pointsize = signHeight * 0.85
 
 				if (this.bottomtext != '') {
-					pointsize /= 2
+					signHeight *= 1.2
 				}
 
 				const image: string[] = [
@@ -77,18 +77,34 @@ class WastedCommand extends ImageCommandBase {
 
 					'-gravity', 'South',
 					'-font', 'PricedownBl-Regular',
+					'-weight', '300',
+				]
+
+				let textpos = Math.floor(h! / 2 - signHeight * .45)
+
+				if (this.bottomtext != '') {
+					image.push(
+						'-fill', 'rgb(200,200,200)',
+						'-pointsize', String(pointsize * 0.43),
+						'-draw', 'text 0,' + (Math.floor(h! / 2 - signHeight * .45)) + ' "' + this.bottomtext + '"',
+						'-gravity', 'North'
+					)
+
+					pointsize *= 0.9
+					textpos -= h! * 0.025
+				}
+
+				image.push(
 					'-fill', 'rgb(200,30,30)',
 					'-stroke', 'black',
 					'-strokewidth', String(Math.floor(Math.min(w!, h!) / 400)),
-					'-weight', '300',
 
 					'-pointsize', String(pointsize),
-
-					'-draw', 'text 0,' + (Math.floor(h! / 2 - signHeight * .45)) + ' "' + this.toptext + '"',
+					'-draw', 'text 0,' + textpos + ' "' + this.toptext + '"',
 					'png:-'
-				]
+				)
 
-				this.tryConvert2(instance, ...image)
+				this.convert(instance, ...image)
 				.then((value) => {
 					instance.reply('', new Discord.Attachment(value!, 'wasted.png'))
 				})

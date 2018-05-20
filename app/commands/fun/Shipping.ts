@@ -74,12 +74,12 @@ class ShippingCommand extends ImageCommandBase {
 			})
 		}
 
-		if (user1.avatarURL && user2.avatarURL) {
+		if (instance.hasPermissionBoth('ATTACH_FILES') && user1.avatarURL && user2.avatarURL) {
 			instance.loadImage(user1.avatarURL)
 			.then((avatar1) => {
 				instance.loadImage(user2.avatarURL)
 				.then((avatar2) => {
-					this.tryConvert2(instance,
+					this.convert(instance,
 						'(', avatar1, '-resize', '256x256!', ')',
 						'(', './resource/emoji/2665.png', '-resize', '256x256!', ')',
 						'(', avatar2, '-resize', '256x256!', ')',

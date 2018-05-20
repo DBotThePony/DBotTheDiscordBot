@@ -74,6 +74,7 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.setCategory('fun', 'images')
 	holder.registerCommand(new NFS())
 	holder.registerCommand(new WastedCommand())
+	holder.registerCommand(new WastedCommand('cactus', 'you got cocky, mate'))
 
 	holder.setCategory('fun_text', 'fun')
 	holder.registerCommand(new WordWallCommand())
