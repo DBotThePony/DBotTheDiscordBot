@@ -15,11 +15,12 @@
 // limitations under the License.
 //
 
-import {CommandBase, CommandExecutionInstance, ImageCommandBase} from '../CommandBase'
+import {CommandBase, CommandExecutionInstance, ImageCommandBase, RegularImageCommandBase} from '../CommandBase'
 import {CommandHolder} from '../CommandHolder'
 import Discord = require('discord.js')
+import { ImageIdentify } from '../../../lib/imagemagick/Identify';
 
-class WastedCommand extends ImageCommandBase {
+class WastedCommand extends RegularImageCommandBase {
 	help = 'wasted'
 	allowUsers = true
 	args = '<target>'
@@ -28,87 +29,52 @@ class WastedCommand extends ImageCommandBase {
 		super(toptext.toLowerCase())
 	}
 
-	executed(instance: CommandExecutionInstance) {
-		if (!instance.hasPermissionBoth('ATTACH_FILES')) {
-			instance.reply('No rights to attach files!')
-			return
+	doImage(instance: CommandExecutionInstance, identify: ImageIdentify, w: number, h: number) {
+		let signHeight = Math.min(w!, h!) / 7
+		let pointsize = signHeight * 0.85
+
+		if (this.bottomtext != '') {
+			signHeight *= 1.2
 		}
 
-		const image = instance.findImage(instance.next())
+		const image: string[] = [
+			identify.path!, '-resize', '2048x2048>', '-resize', '512x512<',
+			'-color-matrix', '.3 .1 .3 .3 .1 .3 .3 .1 .3', '-fill', 'rgba(0,0,0,0.5)',
 
-		if (!image) {
-			instance.error('Invalid image provided', 1)
-			return
+			'-draw', 'rectangle 0, ' + (h! / 2 - signHeight / 2) + ', ' + w + ', ' + (h! / 2 + signHeight / 2),
+
+			'-gravity', 'South',
+			'-font', 'PricedownBl-Regular',
+			'-weight', '300',
+		]
+
+		let textpos = Math.floor(h! / 2 - signHeight * .45)
+
+		if (this.bottomtext != '') {
+			image.push(
+				'-fill', 'rgb(200,200,200)',
+				'-pointsize', String(pointsize * 0.43),
+				'-draw', 'text 0,' + (Math.floor(h! / 2 - signHeight * .45)) + ' "' + this.bottomtext + '"',
+				'-gravity', 'North'
+			)
+
+			pointsize *= 0.9
+			textpos -= h! * 0.025
 		}
 
-		instance.loadImage(image)
-		.then((path) => {
-			this.identify(instance, path)
-			.then((value) => {
-				if (!value.isStatic) {
-					instance.reply('Image is not a static image!')
-					return
-				}
+		image.push(
+			'-fill', 'rgb(200,30,30)',
+			'-stroke', 'black',
+			'-strokewidth', String(Math.floor(Math.min(w!, h!) / 400)),
 
-				if (value.wildAspectRatio) {
-					instance.reply('Image has wild aspect ratio')
-					return
-				}
+			'-pointsize', String(pointsize),
+			'-draw', 'text 0,' + textpos + ' "' + this.toptext + '"',
+			'png:-'
+		)
 
-				const [w, h] = value.clamp(512, 512, 2048, 2048)
-
-				if (!w && !h) {
-					instance.reply('Image has wild aspect ratio')
-					return
-				}
-
-				let signHeight = Math.min(w!, h!) / 7
-				let pointsize = signHeight * 0.85
-
-				if (this.bottomtext != '') {
-					signHeight *= 1.2
-				}
-
-				const image: string[] = [
-					path, '-resize', '2048x2048>', '-resize', '512x512<',
-					'-color-matrix', '.3 .1 .3 .3 .1 .3 .3 .1 .3', '-fill', 'rgba(0,0,0,0.5)',
-
-					'-draw', 'rectangle 0, ' + (h! / 2 - signHeight / 2) + ', ' + w + ', ' + (h! / 2 + signHeight / 2),
-
-					'-gravity', 'South',
-					'-font', 'PricedownBl-Regular',
-					'-weight', '300',
-				]
-
-				let textpos = Math.floor(h! / 2 - signHeight * .45)
-
-				if (this.bottomtext != '') {
-					image.push(
-						'-fill', 'rgb(200,200,200)',
-						'-pointsize', String(pointsize * 0.43),
-						'-draw', 'text 0,' + (Math.floor(h! / 2 - signHeight * .45)) + ' "' + this.bottomtext + '"',
-						'-gravity', 'North'
-					)
-
-					pointsize *= 0.9
-					textpos -= h! * 0.025
-				}
-
-				image.push(
-					'-fill', 'rgb(200,30,30)',
-					'-stroke', 'black',
-					'-strokewidth', String(Math.floor(Math.min(w!, h!) / 400)),
-
-					'-pointsize', String(pointsize),
-					'-draw', 'text 0,' + textpos + ' "' + this.toptext + '"',
-					'png:-'
-				)
-
-				this.convert(instance, ...image)
-				.then((value) => {
-					instance.reply('', new Discord.Attachment(value!, 'wasted.png'))
-				})
-			})
+		this.convert(instance, ...image)
+		.then((value) => {
+			instance.reply('', new Discord.Attachment(value!, 'wasted.png'))
 		})
 	}
 }

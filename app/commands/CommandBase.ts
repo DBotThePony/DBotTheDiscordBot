@@ -599,4 +599,62 @@ class ImageCommandBase extends CommandBase {
 	}
 }
 
-export {CommandBase, ImageCommandBase, CommandExecutionInstance}
+// todo: RegularMultiImageCommandBase (when needed)
+class RegularImageCommandBase extends ImageCommandBase {
+	forceClamp = true
+	clampMinWidth = 512
+	clampMinHeight = 512
+	clampMaxWidth = 2048
+	clampMaxHeight = 2048
+	allowWildRatio = false
+	onlyStatic = true
+
+	doImage(instance: CommandExecutionInstance, identify: ImageIdentify, w?: number, h?: number) {
+
+	}
+
+	executed(instance: CommandExecutionInstance) {
+		if (!instance.hasPermissionBoth('ATTACH_FILES')) {
+			instance.reply('No rights to attach files!')
+			return
+		}
+
+		const image = instance.findImage(instance.next())
+
+		if (!image) {
+			instance.error('Invalid image provided', 1)
+			return
+		}
+
+		instance.loadImage(image)
+		.then((path) => {
+			this.identify(instance, path)
+			.then((value) => {
+				if (this.onlyStatic && !value.isStatic) {
+					instance.reply('Image is not a static image!')
+					return
+				}
+
+				if (!this.allowWildRatio && value.wildAspectRatio) {
+					instance.reply('Image has wild aspect ratio')
+					return
+				}
+
+				if (this.forceClamp) {
+					const [w, h] = value.clamp(this.clampMinWidth, this.clampMinHeight, this.clampMaxWidth, this.clampMaxHeight)
+
+					if (!w && !h) {
+						instance.reply('Image has wild aspect ratio')
+						return
+					}
+
+					this.doImage(instance, value, w!, h!)
+				} else {
+					this.doImage(instance, value)
+				}
+			})
+		})
+	}
+}
+
+export {CommandBase, ImageCommandBase, CommandExecutionInstance, RegularImageCommandBase}
