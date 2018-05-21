@@ -20,7 +20,7 @@ import {Eval} from './base/Eval'
 import {HashCommand, ServerOwnerCommand, PermissionsList, AdminList, ServerInfo} from './base/Util'
 import {CommandHolder} from './CommandHolder'
 
-import {Invite, SetAvatar, GetAvatar, About, Ping, DateCommand} from './base/MiscCommands'
+import {Invite, SetAvatar, GetAvatar, About, Ping, DateCommand, BotInfoCommand} from './base/MiscCommands'
 import {CMDManip} from './base/CommandManip'
 import {Retry} from './base/Retry'
 import {XD, Leet} from './fun/MiscFun'
@@ -49,6 +49,7 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new Ping())
 	holder.registerCommand(new DateCommand())
 	holder.registerCommand(new Retry())
+	holder.registerCommand(new BotInfoCommand())
 	holder.registerCommand(new CMDManip(true))
 	holder.registerCommand(new CMDManip(true, true))
 	holder.registerCommand(new CMDManip(false))

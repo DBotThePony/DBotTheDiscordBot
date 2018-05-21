@@ -112,6 +112,41 @@ class DateCommand extends CommandBase {
 	}
 }
 
+import numeral = require('numeral')
+import humanizeDuration = require('humanize-duration')
+
+interface NodeRelease {
+	name: string
+	sourceUrl: string
+	headersUrl: string
+	libUrl: string
+}
+
+class BotInfoCommand extends CommandBase {
+	help = 'Shows bot information'
+	canBeBanned = false
+
+	constructor() {
+		super('botinfo')
+	}
+
+	executed(instance: CommandExecutionInstance) {
+		const memory = process.memoryUsage()
+
+		return `\`\`\`
+Platform:           ${process.platform}
+Release name:       ${(<NodeRelease> process.release).name}
+Release URL:        ${(<NodeRelease> process.release).sourceUrl}
+Release Headers:    ${(<NodeRelease> process.release).headersUrl}
+Version:            ${process.version}
+Uptime:             ${humanizeDuration(process.uptime() * 1000)}
+Mem Allocated:      ${numeral(memory.rss).format('0b')}
+Heap:               ${numeral(memory.heapTotal).format('0b')}
+Heap used:          ${numeral(memory.heapUsed).format('0b')}
+\`\`\``
+	}
+}
+
 const initMessage = [
 	'Bleh', 'Pne?', 'Ponies are coming for you', 'Ponis everiwhere!', 'gnignip', 'k', 'Am I a bot?',
 	'It is so fun!', 'Lookin\' for something interesting', '*jumps*', 'pew pew', 'vroom'
@@ -151,4 +186,4 @@ class Ping extends CommandBase {
 	}
 }
 
-export {Invite, SetAvatar, GetAvatar, About, Ping, DateCommand}
+export {Invite, SetAvatar, GetAvatar, About, Ping, DateCommand, BotInfoCommand}
