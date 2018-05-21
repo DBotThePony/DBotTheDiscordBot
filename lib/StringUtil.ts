@@ -27,7 +27,7 @@ const ParseString = function(strIn: string) {
 
 	for (const val of strIn.trim()) {
 		if (val == ' ' && !inSingle && !inDouble && !nextEscaped) {
-			if (prevChar != ' ') {
+			if (prevChar != ' ' && prevChar != '') {
 				currentLevel.push(currentString)
 				currentString = ''
 				prevChar = val
@@ -41,7 +41,7 @@ const ParseString = function(strIn: string) {
 				currentLevel.push(currentString)
 				currentString = ''
 				prevChar = ''
-			} else if (!inDouble && prevChar == ' ') {
+			} else if (!inDouble && (prevChar == ' ' || prevChar == '')) {
 				inDouble = true
 				currentString = ''
 				prevChar = ''
@@ -57,7 +57,7 @@ const ParseString = function(strIn: string) {
 				currentLevel.push(currentString)
 				currentString = ''
 				prevChar = ''
-			} else if (!inSingle && prevChar == ' ') {
+			} else if (!inSingle && (prevChar == ' ' || prevChar == '')) {
 				inSingle = true
 				currentString = ''
 				prevChar = ''
