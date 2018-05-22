@@ -292,7 +292,13 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 			}
 		}
 
-		if (this.args[0]) {
+		this.rebuildRaw()
+
+		return this
+	}
+
+	rebuildRaw() {
+		if (this.args[0] && this.allowPipes) {
 			//this._rawArgs = this.raw.substr(this.args[0].length + 1)
 			let match
 
@@ -307,9 +313,9 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 			} else {
 				this._rawArgs = this.args.join(' ')
 			}
+		} else if (this.args[0]) {
+			this._rawArgs = this.raw.substr(this.args[0].length + 1)
 		}
-
-		return this
 	}
 
 	parseFull() {

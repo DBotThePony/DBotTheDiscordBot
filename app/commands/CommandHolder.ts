@@ -250,6 +250,7 @@ class CommandHolder {
 
 		const executeCommand = (): [CommandContext, CommandBase] | null => {
 			context.importFlags(command)
+			context.rebuildRaw()
 			context.parseFull()
 
 			const status = command.execute(context)

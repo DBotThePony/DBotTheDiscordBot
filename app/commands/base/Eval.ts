@@ -42,6 +42,7 @@ class Eval extends CommandBase {
 			instance.send('```js\n' + status + '```')
 		} catch(err) {
 			instance.send('```js\n' + err.stack + '```')
+			console.log(instance.context.rawArgs, err)
 		}
 	}
 }
