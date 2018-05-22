@@ -256,6 +256,11 @@ class CommandExecutionInstance extends GEventEmitter {
 		if (this.allowPipes && this.commandPipe && !attach) {
 			const argsPrev = []
 			content = content.replace(/```/g, '')
+
+			if (this.id) {
+				content = content.replace('<@' + this.id + '>, ', '')
+			}
+
 			const argsNextRaw = ParseString(content)
 
 			for (const level of argsNextRaw) {
