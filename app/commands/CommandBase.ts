@@ -26,10 +26,12 @@ class CommandExecutionInstance extends GEventEmitter {
 	wasTyping = false
 	messageSent = false
 	flushed = false
-	context: CommandContext
-	command: CommandBase
 	currentArg = 0
 	errored = false
+	validPipe = false
+	commandPipe: CommandBase | null = null
+	piped = false
+	argsPipe: any[] | null = null
 
 	get uid() { return this.context.bot.uid }
 	get id() { return this.context.author && this.context.author.id }
@@ -48,12 +50,23 @@ class CommandExecutionInstance extends GEventEmitter {
 	get length() { return this.context.args.length - 1 }
 	get raw() { return this.context.rawArgs }
 	get isPM() { return this.context.msg && this.context.msg.channel.type == 'dm' }
+
+	get parsedArgs() { return this.argsPipe || this.context.parsedArgs }
+	get allowPipes() { return this.context.allowPipes }
+
 	hasArguments() { return this.context.hasArguments() }
 
-	constructor(command: CommandBase, context: CommandContext) {
+	constructor(public command: CommandBase, public context: CommandContext, public pipeid = 0) {
 		super()
-		this.context = context
-		this.command = command
+
+		if (this.allowPipes) {
+			const getPipe = context.getPipe(pipeid)
+
+			if (getPipe) {
+				this.commandPipe = this.bot.commands.get(getPipe.toLowerCase()) || null
+			}
+		}
+
 		this.thinking(true)
 	}
 
@@ -134,8 +147,8 @@ class CommandExecutionInstance extends GEventEmitter {
 		let uppersLen = 0
 		argNum--
 
-		for (let i2 = 1; i2 <= Math.max(argNum, this.context.parsedArgs.length - 1) + 1; i2++) {
-			const arg = this.context.parsedArgs[i2] || '<missing>'
+		for (let i2 = 1; i2 <= Math.max(argNum, this.parsedArgs.length - 1) + 1; i2++) {
+			const arg = this.parsedArgs[i2] || '<missing>'
 			buildString += arg + ' '
 			if (i2 < argNum) {
 				spacesLen += arg.length
@@ -201,7 +214,7 @@ class CommandExecutionInstance extends GEventEmitter {
 	}
 
 	argument(num: number) {
-		return this.context.parsedArgs[num]
+		return this.parsedArgs[num]
 	}
 
 	destroy() {
@@ -239,6 +252,29 @@ class CommandExecutionInstance extends GEventEmitter {
 		}
 
 		if (this.emit('send', content) != undefined) { return null }
+
+		if (this.allowPipes && this.commandPipe && !attach) {
+			const argsPrev = []
+			content = content.replace(/```/g, '')
+			const argsNextRaw = ParseString(content)
+
+			for (const level of argsNextRaw) {
+				for (const argument of level) {
+					argsPrev.push(argument)
+				}
+			}
+
+			this.messageSent = true
+			this.context.pipe(this.pipeid, argsPrev, content)
+
+			if (this.isTyping) {
+				this.thinking(false)
+			}
+
+			this.commandPipe.execute(this.context)
+
+			return null
+		}
 
 		const promise = this.context.send(content, attach)
 
@@ -285,11 +321,11 @@ class CommandExecutionInstance extends GEventEmitter {
 
 	next() {
 		this.currentArg++
-		return this.context.parsedArgs[this.currentArg]
+		return this.parsedArgs[this.currentArg]
 	}
 
 	get(argNum: number) {
-		return this.context.parsedArgs[argNum]
+		return this.parsedArgs[argNum]
 	}
 
 	from(argNum: number): any[] {
@@ -299,15 +335,15 @@ class CommandExecutionInstance extends GEventEmitter {
 
 		const output: string[] = []
 
-		for (let i = argNum; i < this.context.parsedArgs.length; i++) {
-			output.push(this.context.parsedArgs[i])
+		for (let i = argNum; i < this.parsedArgs.length; i++) {
+			output.push(this.parsedArgs[i])
 		}
 
 		return output
 	}
 
 	has(argNum: number) {
-		return this.context.parsedArgs[argNum] != undefined && this.context.parsedArgs[argNum] != null
+		return this.parsedArgs[argNum] != undefined && this.parsedArgs[argNum] != null
 	}
 
 	selectUser(slotIn = 1, ifNone: Discord.User | null = this.author, strict = true): Discord.User | null {
@@ -342,8 +378,8 @@ class CommandExecutionInstance extends GEventEmitter {
 	}
 
 	*[Symbol.iterator] () {
-		for (let i = 1; i < this.context.parsedArgs.length; i++) {
-			yield [i, this.context.parsedArgs[i]]
+		for (let i = 1; i < this.parsedArgs.length; i++) {
+			yield [i, this.parsedArgs[i]]
 		}
 	}
 
@@ -378,6 +414,7 @@ class CommandBase implements CommandFlags {
 	allowRoles = false
 	allowChannels = false
 	allowPipes = true
+	isPipe = false
 	allowPM = true
 	onlyPM = false
 	canBeBanned = true
@@ -443,7 +480,7 @@ class CommandBase implements CommandFlags {
 	}
 
 	execute(context: CommandContext) {
-		const instance = new CommandExecutionInstance(this, context)
+		const instance = new CommandExecutionInstance(this, context, context.nextpipeid)
 
 		if (this.onlyPM && !instance.isPM) {
 			instance.reply('This command can be only executed in Direct messaging channel (PM/Private Messaging)')
@@ -486,6 +523,7 @@ class CommandBase implements CommandFlags {
 import child_process = require('child_process')
 import { BotInstance } from '../BotInstance';
 import { ImageIdentify } from '../../lib/imagemagick/Identify';
+import { ParseString } from '../../lib/StringUtil';
 const spawn = child_process.spawn
 
 const reconstructBuffer = (buffers: Buffer[]) => {
@@ -511,6 +549,8 @@ const reconstructBuffer = (buffers: Buffer[]) => {
 }
 
 class ImageCommandBase extends CommandBase {
+	allowPipes = false
+
 	convertInternal(...args: string[]): Promise<Buffer> {
 		return new Promise((resolve, reject) => {
 			const magick = spawn('convert', args)

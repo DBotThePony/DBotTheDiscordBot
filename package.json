@@ -7,21 +7,21 @@
   },
   "dependencies": {
     "@types/bignumber.js": "^4.0.3",
-    "@types/node": "^8.0.27",
+    "@types/node": "10.x",
     "@types/numeral": "0.0.22",
-    "@types/pg": "^7.1.4",
+    "@types/pg": "^7.4.9",
     "@types/sprintf-js": "^1.1.0",
     "bignumber.js": "^4.0.4",
     "bufferutil": "^3.0.2",
     "cowsay": "^1.2.1",
-    "discord.js": "^11.2.1",
+    "discord.js": "^11.3.2",
     "erlpack": "github:hammerandchisel/erlpack",
     "figlet": "^1.2.0",
     "humanize-duration": "^3.10.1",
     "moment": "^2.18.1",
     "node-opus": "^0.2.6",
     "numeral": "^2.0.6",
-    "pg": "^7.3.0",
+    "pg": "^7.4.3",
     "ping": "^0.2.2",
     "pug": "^2.0.0-rc.4",
     "sprintf-js": "^1.1.1",
@@ -29,6 +29,6 @@
     "typescript": "^2.8.3",
     "unirest": "^0.5.1",
     "utf8": "^2.1.2",
-    "uws": "^8.14.1"
+    "uws": "^9.14.0"
   }
 }

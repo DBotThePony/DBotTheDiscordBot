@@ -18,6 +18,8 @@
 import {CommandBase, CommandExecutionInstance} from '../CommandBase'
 import {CommandContext} from '../CommandContext'
 import {CommandHolder} from '../CommandHolder'
+import {ParseString} from '../../../lib/StringUtil'
+const ParseString2 = ParseString
 
 class Eval extends CommandBase {
 	allowPipes = false

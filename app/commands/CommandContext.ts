@@ -48,11 +48,12 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 	editTarget: Discord.Message | null = null
 
 	raw: string = ''
-	rawArgs: string = ''
+	private _rawArgs: string = ''
+	get rawArgs() { return this.piping && this.rawPipe || this._rawArgs }
 	args: string[] = []
+	get currentArgs() { return this.piping && this.pipeArguments || this.args }
 	argsPipes: string[][] = []
 	parsedArgs: any[] = []
-	parsedPipes: any[][] = []
 	parsed = false
 	bot: BotInstance
 
@@ -61,6 +62,9 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 	allowRoles = false
 	allowChannels = false
 	allowPipes = true
+
+	piping = false
+	pipeid = 0
 
 	messages: Discord.Message[] = []
 
@@ -88,7 +92,6 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 		this.args = []
 		this.argsPipes = []
 		this.parsedArgs = []
-		this.parsedPipes = []
 		this.parsed = false
 
 		this.msg = msg
@@ -212,22 +215,75 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 		return this.msg
 	}
 
-	getCommand() {
-		if (!this.parsed || !this.args[0]) {
-			return null
+	rawPipe = ''
+	pipeCommand: string | null = null
+	pipeArguments: string[] = []
+	originalCommand: string | null = null
+	nextpipeid = 0
+
+	pipe(pipeid: number, append: string[], raw: string) {
+		this.piping = true
+		this.pipeid = pipeid
+		this.nextpipeid = pipeid + 1
+		const args = this.getPipeArguments(pipeid)
+
+		if (!args) {
+			throw new Error('No pipe found with ID ' + pipeid)
 		}
 
-		return this.args[0].toLowerCase()
+		const rawPrev = args.join(' ')
+		this.pipeCommand = this.getPipe(pipeid)
+		args.push(...append)
+		this.rawPipe = (rawPrev + ' ' + raw).trim()
+		this.pipeArguments = args
+		this.parseFull()
+
+		return this
+	}
+
+	getCommand() {
+		if (this.piping) {
+			return this.pipeCommand
+		}
+
+		return this.originalCommand
 	}
 
 	parseArgs(strIn: string) {
+		if (this.parsed) {
+			return this
+		}
+
 		this.parsed = true
 		const parsedData = ParseString(this.raw)
 		this.args = parsedData[0]
 		parsedData.splice(0, 1)
+		this.originalCommand = this.args[0] && this.args[0].toLowerCase() || null
 
 		if (this.allowPipes) {
-			this.argsPipes = parsedData
+			let hit = false
+
+			for (const layer of parsedData) {
+				if (layer[0]) {
+					const command = layer[0]
+					const getcommand = this.bot.commands.get(command.toLowerCase())
+
+					if (getcommand && !getcommand.allowPipes) {
+						hit = true
+						break
+					}
+				}
+			}
+
+			if (!hit) {
+				this.argsPipes = parsedData
+			} else {
+				for (const obj of parsedData) {
+					for (const obj2 of obj) {
+						this.args.push(obj2)
+					}
+				}
+			}
 		} else {
 			for (const obj of parsedData) {
 				for (const obj2 of obj) {
@@ -237,7 +293,7 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 		}
 
 		if (this.args[0]) {
-			this.rawArgs = this.raw.substr(this.args[0].length + 1)
+			this._rawArgs = this.raw.substr(this.args[0].length + 1)
 		}
 
 		return this
@@ -246,8 +302,8 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 	parseFull() {
 		this.parsedArgs = []
 
-		for (const i in this.args) {
-			const arg = this.args[i]
+		for (const i in this.currentArgs) {
+			const arg = this.currentArgs[i]
 
 			if (typeof arg != 'string') {
 				break
@@ -359,6 +415,32 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 		}
 
 		return this
+	}
+
+	getPipe(pipeNum: number): string | null {
+		if (!this.argsPipes[pipeNum] || this.argsPipes[pipeNum].length == 0) {
+			return null
+		}
+
+		return this.argsPipes[pipeNum][0]
+	}
+
+	getPipeArguments(pipeNum: number): string[] | null {
+		if (!this.argsPipes[pipeNum] || this.argsPipes[pipeNum].length == 0) {
+			return null
+		}
+
+		const reply = []
+
+		for (let i = 1; i < this.argsPipes[pipeNum].length; i++) {
+			reply.push(this.argsPipes[pipeNum][i])
+		}
+
+		return reply
+	}
+
+	hasPipes() {
+		return this.argsPipes.length >= 1
 	}
 
 	hasArguments() {

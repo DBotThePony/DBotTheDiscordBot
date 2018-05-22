@@ -66,8 +66,9 @@ const ParseString = function(strIn: string) {
 			}
 		} else if (val == '\\') {
 			nextEscaped = true
-		} else if (val == '|' && !inDouble && !inSingle && !nextEscaped) {
+		} else if (val == '|' && !inDouble && !inSingle && !nextEscaped && (prevChar == ' ' || prevChar == '')) {
 			currentLevel = []
+			prevChar = ''
 			output.push(currentLevel)
 		} else {
 			nextEscaped = false
