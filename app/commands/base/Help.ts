@@ -46,7 +46,7 @@ class Help extends CommandBase {
 			helpPages++
 		}
 
-		helpPages = Math.ceil(helpPages / 5)
+		helpPages = Math.ceil(helpPages / 15)
 
 		let page = 1
 		let current = `Help page: ${page}/${helpPages}\n` + '```'
@@ -68,12 +68,12 @@ class Help extends CommandBase {
 			}
 
 			if (command.hasHelp()) {
-				current += '\n    ' + command.help.replace(replaceDesc, '\n    ')
+				current += '\n       ' + command.help.replace(replaceDesc, '\n    ')
 			}
 
 			i++
 
-			if (i > 5) {
+			if (i > 15) {
 				current += '```'
 				this.helpStrs[page - 1] = current
 				page++
