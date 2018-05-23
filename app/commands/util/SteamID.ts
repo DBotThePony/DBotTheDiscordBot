@@ -58,7 +58,7 @@ class SteamIDCommand extends CommandBase {
 					}
 				}
 
- 				unirest.get(this.resolveBase + encodeURI(id))
+                unirest.get(this.resolveBase + encodeURI(id))
 				.encoding('utf-8')
 				.end((result) => {
 					if (!result.body || result.body == '') {
@@ -70,8 +70,8 @@ class SteamIDCommand extends CommandBase {
 						// const json = JSON.parse(result.body)
 
 						// if (!json.response || !json.response.success) {
-						// 	reject('ISteamUser/ResolveVanityURL: Invalid Vanity ID')
-						// 	return
+						//  reject('ISteamUser/ResolveVanityURL: Invalid Vanity ID')
+						//  return
 						// }
 
 						const json = result.body
@@ -140,8 +140,8 @@ class SteamIDCommand extends CommandBase {
 								// const json = JSON.parse(result.body)
 
 								// if (!json.response || !json.response.players || !json.response.players[0]) {
-								// 	reject('ISteamUser/GetPlayerSummaries: Account with specified SteamID does not exist')
-								// 	return
+								//  reject('ISteamUser/GetPlayerSummaries: Account with specified SteamID does not exist')
+								//  return
 								// }
 
 								const json = result.body
@@ -199,7 +199,7 @@ class SteamIDCommand extends CommandBase {
 		}
 
 		const steamidString = (<string> instance.get(1))
-			.replace(/^https?:\/\/steamcommunity.com\/(id|profile)\//i, '')
+			.replace(/^https?:\/\/steamcommunity.com\/(id|profiles)\//i, '')
 			.replace(/\//g, '')
 			.trim()
 
