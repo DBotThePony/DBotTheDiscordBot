@@ -15,13 +15,18 @@
 // limitations under the License.
 //
 
-import {CommandBase, CommandExecutionInstance} from '../CommandBase'
+import {CommandBase, CommandExecutionInstance, ImageCommandBase} from '../CommandBase'
 import {CommandContext} from '../CommandContext'
 import {CommandHolder} from '../CommandHolder'
 import {ParseString} from '../../../lib/StringUtil'
+import Discord2 = require('discord.js')
+import unirest2 = require('unirest')
+
+const Discord = Discord2
+const unirest = unirest2
 const ParseString2 = ParseString
 
-class Eval extends CommandBase {
+class Eval extends ImageCommandBase {
 	allowPipes = false
 	displayHelp = false
 	help = 'Debug'
