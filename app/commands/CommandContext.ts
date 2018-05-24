@@ -297,21 +297,28 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 		return this
 	}
 
+	static patternSafe = /(\+|\|\\|\-|\]|\(|\)|\[])/g
+
 	rebuildRaw() {
 		if (this.args[0] && this.allowPipes) {
 			//this._rawArgs = this.raw.substr(this.args[0].length + 1)
 			let match
 
-			if (this.args[1]) {
-				match = this.raw.match(new RegExp('^' + this.args[0] + '([^|]+)(' + this.args[this.args.length - 1] + ')("?\'?)'))
-			} else {
-				match = this.raw.match(new RegExp('^' + this.args[0] + '([^|]+)'))
-			}
+			try {
+				if (this.args[1]) {
+					match = this.raw.match(new RegExp('^' + this.args[0] + '([^|]+)(' + this.args[this.args.length - 1].replace(CommandContext.patternSafe, '\\$1') + ')("?\'?)'))
+				} else {
+					match = this.raw.match(new RegExp('^' + this.args[0] + '([^|]+)'))
+				}
 
-			if (match) {
-				this._rawArgs = (match[1] + (match[2] || '') + (match[3] || '')).trim()
-			} else {
-				this._rawArgs = this.args.join(' ')
+				if (match) {
+					this._rawArgs = (match[1] + (match[2] || '') + (match[3] || '')).trim()
+				} else {
+					this._rawArgs = this.args.join(' ')
+				}
+			} catch(err) {
+				console.error(err)
+				this._rawArgs = this.raw.substr(this.args[0].length + 1)
 			}
 		} else if (this.args[0]) {
 			this._rawArgs = this.raw.substr(this.args[0].length + 1)
