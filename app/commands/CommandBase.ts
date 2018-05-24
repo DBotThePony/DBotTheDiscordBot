@@ -561,10 +561,16 @@ class ImageCommandBase extends CommandBase {
 			const magick = spawn('convert', args)
 
 			let buffers: Buffer[] = []
+			let buffersErr: Buffer[] = []
 
 			magick.on('close', (code: number, signal: string) => {
 				if (code != 0) {
-					reject('Image magick exited with non zero code! (' + code + ')')
+					if (buffersErr.length == 0) {
+						reject('Image magick exited with non zero code! (' + code + ')')
+					} else {
+						reject(reconstructBuffer(buffersErr).toString('utf8'))
+					}
+
 					return
 				}
 
@@ -578,6 +584,10 @@ class ImageCommandBase extends CommandBase {
 
 			magick.stdout.on('data', (chunk: Buffer) => {
 				buffers.push(chunk)
+			})
+
+			magick.stderr.on('data', (chunk: Buffer) => {
+				buffersErr.push(chunk)
 			})
 
 			magick.stderr.pipe(process.stderr)
@@ -645,6 +655,27 @@ class ImageCommandBase extends CommandBase {
 
 	escapeText(textIn: string) {
 		return `"${textIn.replace(/\\/gi, '\\\\').replace(/"/, '\\"')}"`
+	}
+
+	formatDrawText(lines: string, fontStyle: 'Any' | 'Normal' | 'Italic' | 'Oblique' = 'Normal', align: 'Left' | 'Center' | 'Right' = 'Center') {
+		const split = lines.split(/\r?\n/)
+
+		const magikArgs: string[] = []
+		const gravity = align == 'Left' && 'NorthWest' || align == 'Center' && 'Center' || 'NorthEast'
+
+		for (const line of split) {
+			magikArgs.push(
+				'(',
+				'canvas:transparent',
+				'-gravity', gravity,
+				'label:' + line,
+				')'
+			)
+		}
+
+		magikArgs.push('-append')
+
+		return magikArgs
 	}
 }
 
