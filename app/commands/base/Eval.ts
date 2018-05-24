@@ -45,6 +45,13 @@ class Eval extends ImageCommandBase {
 		try {
 			const status = eval(instance.raw)
 			instance.send('```js\n' + status + '```')
+
+			if (typeof status == 'object' && status instanceof Promise) {
+				status.catch((err) => {
+					instance.send('Rejection: ```js\n' + err + '```')
+				})
+			}
+
 		} catch(err) {
 			instance.send('```js\n' + err.stack + '```')
 			console.log(instance.context.rawArgs, err)
