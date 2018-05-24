@@ -613,7 +613,7 @@ class ImageCommandBase extends CommandBase {
 		})
 	}
 
-	convert(instance: CommandExecutionInstance, ...args: string[]): Promise<Buffer | null> {
+	convert(instance: CommandExecutionInstance, ...args: string[]): Promise<Buffer> {
 		const promise = this.convertInternal(...args)
 
 		promise.catch((err) => {
