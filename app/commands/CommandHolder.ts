@@ -267,7 +267,7 @@ class CommandHolder {
 						this.lastCommandContextChannel.set(context.author.id, new Map())
 					}
 
-					(<Map<string, CommandContext>> this.lastCommandContextChannel.get(context.author.id)).set(context.channel.id, context)
+					this.lastCommandContextChannel.get(context.author.id)!.set(context.channel.id, context)
 				}
 
 			}
