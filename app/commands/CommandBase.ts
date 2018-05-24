@@ -660,7 +660,7 @@ class ImageCommandBase extends CommandBase {
 	formatDrawText(lines: string, fontStyle: 'Any' | 'Normal' | 'Italic' | 'Oblique' = 'Normal', align: 'Left' | 'Center' | 'Right' = 'Center') {
 		const split = lines.split(/\r?\n/)
 
-		const magikArgs: string[] = []
+		const magikArgs: string[] = ['(']
 		const gravity = align == 'Left' && 'NorthWest' || align == 'Center' && 'Center' || 'NorthEast'
 
 		for (const line of split) {
@@ -673,7 +673,7 @@ class ImageCommandBase extends CommandBase {
 			)
 		}
 
-		magikArgs.push('-append')
+		magikArgs.push('-append', ')')
 
 		return magikArgs
 	}
