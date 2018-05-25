@@ -15,10 +15,10 @@
 // limitations under the License.
 //
 
-import {CommandBase, CommandExecutionInstance} from '../CommandBase'
+import {CommandBase, CommandExecutionInstance, ImageCommandBase} from '../CommandBase'
 import {CommandHolder} from '../CommandHolder'
 import Discord = require('discord.js')
-const cowsay = require('cowsay');
+import cowsay = require('cowsay')
 
 class Cowsay extends CommandBase {
 	askFile: string
@@ -40,7 +40,40 @@ class Cowsay extends CommandBase {
 			f: this.askFile
 		})
 
-		return '```' + result + '```'
+		return '```\n' + result + '\n```'
+	}
+}
+
+class ICowsay extends ImageCommandBase {
+	askFile: string
+	args = '<string>'
+
+	constructor(cowname: string) {
+		super('i' + cowname + 'say', 'i' + cowname)
+		this.help = cowname + 'say the word'
+		this.askFile = cowname
+
+		if (cowname == 'cow') {
+			this.askFile = 'default'
+		}
+	}
+
+	executed(instance: CommandExecutionInstance) {
+		if (!instance.hasPermissionBoth('ATTACH_FILES')) {
+			instance.reply('Can not attach files!')
+			return
+		}
+
+		const result = <string> cowsay.say({
+			text: instance.raw.replace(/```/gi, '``\\`'),
+			f: this.askFile
+		})
+
+		this.convert(instance, '-font', 'PT-Mono', '-pointsize', '64', '-background', 'transparent', '-fill', 'Grey', '-gravity', 'NorthWest',
+		'label:' + this.escapeLiterals(result), 'png:-')
+		.then((buff) => {
+			instance.send('', new Discord.Attachment(buff, 'cowsay.png'))
+		})
 	}
 }
 
@@ -56,6 +89,7 @@ const cows = [
 const RegisterCowsay = function(holder: CommandHolder) {
 	for (const cow of cows) {
 		holder.registerCommand(new Cowsay(cow))
+		holder.registerCommand(new ICowsay(cow))
 	}
 }
 

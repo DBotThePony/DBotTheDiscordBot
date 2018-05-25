@@ -61,10 +61,6 @@ class BotInstance {
 
 		registerDefaultCommands(this.commands)
 
-		if (doLogin) {
-			this.login()
-		}
-
 		const config = configInstance.getSQL()
 
 		if (!config) {
@@ -72,6 +68,18 @@ class BotInstance {
 			process.exit(1)
 			return
 		}
+
+		this.client.on('error', (err) => {
+			if (!err) {
+				return
+			}
+
+			if (err.message == 'read ECONNRESET') {
+				setTimeout(() => {
+					this.login()
+				}, 4000)
+			}
+		})
 
 		this.db = new pg.Client(config)
 		this.db.connect().then(() => {
@@ -81,6 +89,10 @@ class BotInstance {
 					process.exit(1)
 				}).then(() => {
 					console.log('SQL database online')
+
+					if (doLogin) {
+						this.login()
+					}
 				})
 			})
 		}).catch((err) => {
@@ -91,7 +103,7 @@ class BotInstance {
 
 	updateAntispam() {
 		//if (this.client.status != 0) {
-		//	return
+		//  return
 		//}
 
 		for (const ID in this.antispam) {

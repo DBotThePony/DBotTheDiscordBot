@@ -653,28 +653,28 @@ class ImageCommandBase extends CommandBase {
 		return promise
 	}
 
-	escapeText(textIn: string) {
-		return `"${textIn.replace(/\\/gi, '\\\\').replace(/"/, '\\"')}"`
+	escapeLiterals(textIn: string) {
+		return textIn.replace(/\\/gi, '\\\\').replace(/"/, '\\"').replace(/%/g, '%%').replace(/@/g, '\\@')
 	}
 
-	formatDrawText(lines: string, fontStyle: 'Any' | 'Normal' | 'Italic' | 'Oblique' = 'Normal', align: 'Left' | 'Center' | 'Right' = 'Center') {
-		const split = lines.split(/\r?\n/)
+	escapeText(textIn: string) {
+		return `"${this.escapeLiterals(textIn)}"`
+	}
 
+	formatDrawText(lines: string) {
+		const split = lines.split(/\r?\n/)
 		const magikArgs: string[] = ['(']
-		const gravity = align == 'Left' && 'NorthWest' || align == 'Center' && 'Center' || 'NorthEast'
 
 		for (const line of split) {
 			magikArgs.push(
 				'(',
 				'canvas:transparent',
-				'-gravity', gravity,
-				'label:' + line,
+				'caption:' + line,
 				')'
 			)
 		}
 
 		magikArgs.push('-append', ')')
-
 		return magikArgs
 	}
 }
