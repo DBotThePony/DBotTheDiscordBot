@@ -70,12 +70,20 @@ class CommandHelper {
 		}
 	}
 
+	static matchCustomImage = /^<:[a-zA-Z_-]+:([0-9]+)>$/
+
 	findImageString(arg: string) {
 		const matchurl = arg.match(urlMatch)
 
 		//if (matchurl && matchurl[0].match(imgExt)) {
 		if (matchurl) {
 			return matchurl[0]
+		}
+
+		const matchSmile = arg.match(CommandHelper.matchCustomImage)
+
+		if (matchSmile) {
+			return `https://cdn.discordapp.com/emojis/${matchSmile[1]}.png?v=1`
 		}
 
 		return null
