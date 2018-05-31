@@ -19,6 +19,7 @@ import {BotInstance} from '../BotInstance'
 import Discord = require('discord.js')
 import { ImageCache } from './ImageCache';
 import fs = require('fs')
+import { EMOJI_FUNCS } from './Emoji';
 
 const imgExt = /.(jpe?g|png|bpg|tiff|bmp)/
 const imgExtGif = /.(jpe?g|png|bpg|tiff|bmp|gif)/
@@ -84,6 +85,12 @@ class CommandHelper {
 
 		if (matchSmile) {
 			return `https://cdn.discordapp.com/emojis/${matchSmile[1]}.png?v=1`
+		}
+
+		const matchEmoji = EMOJI_FUNCS.match(arg)
+
+		if (matchEmoji) {
+			return matchEmoji
 		}
 
 		return null

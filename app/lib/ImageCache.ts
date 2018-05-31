@@ -64,6 +64,10 @@ class ImageCache {
 
 	download(urlIn: string) {
 		return new Promise<string>((resolve, reject) => {
+			if (urlIn.match(/^\.\/resource\//) && !urlIn.match(/\.\.\//)) {
+				resolve(urlIn)
+			}
+
 			const identify = this.transformName(urlIn)
 
 			if (!identify) {

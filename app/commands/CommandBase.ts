@@ -197,7 +197,7 @@ class CommandExecutionInstance extends GEventEmitter {
 		const promise = this.bot.helper.loadImage(urlIn)
 
 		promise.catch((err: string) => {
-			this.reply('Image download failed: ```\n' + err + '\n```')
+			this.reply('Image `' + urlIn + '` download failed: ```\n' + err + '\n```')
 		})
 
 		return promise
