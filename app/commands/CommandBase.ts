@@ -281,6 +281,30 @@ class CommandExecutionInstance extends GEventEmitter {
 			return null
 		}
 
+		if (content.length > 1900 && !attach) {
+			if (this.hasPermission('ATTACH_FILES')) {
+				const promise = this.context.send('', new Discord.Attachment(Buffer.from(content), this.command.id + '.txt'))
+
+				if (this.isTyping) {
+					this.thinking(false)
+				}
+
+				this.messageSent = true
+
+				return promise
+			} else {
+				const promise = this.context.send('Command output is too big to be sent.')
+
+				if (this.isTyping) {
+					this.thinking(false)
+				}
+
+				this.messageSent = true
+
+				return promise
+			}
+		}
+
 		const promise = this.context.send(content, attach)
 
 		if (!promise) {

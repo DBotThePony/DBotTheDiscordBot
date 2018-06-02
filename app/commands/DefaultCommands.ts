@@ -41,6 +41,7 @@ import {ColorCommand, ColorsCommand, ReloadColors, RemoveColors} from './util/Co
 import { RatedByCommand } from './image/RatedBy';
 import { GoldCommand } from './image/Gold';
 import { GachiPls } from './image/GachiPls';
+import { EmoteCommand } from './image/Emote';
 
 const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new Help())
@@ -81,6 +82,7 @@ const registerDefaultCommands = function(holder: CommandHolder) {
 	holder.registerCommand(new RatedByCommand())
 	holder.registerCommand(new GoldCommand())
 	holder.registerCommand(new GachiPls())
+	holder.registerCommand(new EmoteCommand())
 	holder.registerCommand(new WastedCommand())
 	holder.registerCommand(new WastedCommand('cactus', 'you got cocky, mate'))
 

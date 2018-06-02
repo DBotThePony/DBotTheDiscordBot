@@ -23,18 +23,18 @@ const map: EmojiMap = {
 	'\uD83D\uDC69\uD83D\uDC69\uD83D\uDC66': '1f469-1f469-1f466',
 	'\uD83D\uDC69\uD83D\uDC69\uD83D\uDC67': '1f469-1f469-1f467',
 	'\uD83D\uDC41\uD83D\uDDE8': '1f441-1f5e8',
-	'\\#\u20E3': '0023-20e3',
-	'0\u20E3': '0030-20e3',
-	'1\u20E3': '0031-20e3',
-	'2\u20E3': '0032-20e3',
-	'3\u20E3': '0033-20e3',
-	'4\u20E3': '0034-20e3',
-	'5\u20E3': '0035-20e3',
-	'6\u20E3': '0036-20e3',
-	'7\u20E3': '0037-20e3',
-	'8\u20E3': '0038-20e3',
-	'9\u20E3': '0039-20e3',
-	'\\*\u20E3': '002a-20e3',
+	// '\\#\u20E3': '0023-20e3',
+	// '0\u20E3': '0030-20e3',
+	// '1\u20E3': '0031-20e3',
+	// '2\u20E3': '0032-20e3',
+	// '3\u20E3': '0033-20e3',
+	// '4\u20E3': '0034-20e3',
+	// '5\u20E3': '0035-20e3',
+	// '6\u20E3': '0036-20e3',
+	// '7\u20E3': '0037-20e3',
+	// '8\u20E3': '0038-20e3',
+	// '9\u20E3': '0039-20e3',
+	// '\\*\u20E3': '002a-20e3',
 	'\uD83E\uDD3E\uD83C\uDFFF': '1f93e-1f3ff',
 	'\uD83E\uDD3E\uD83C\uDFFE': '1f93e-1f3fe',
 	'\uD83E\uDD3E\uD83C\uDFFD': '1f93e-1f3fd',
@@ -1809,7 +1809,7 @@ const map: EmojiMap = {
 	'\u23EC': '23ec',
 	'\u23F0': '23f0',
 	'\u23F3': '23f3',
-	'\\*': '002a',
+	// '\\*': '002a',
 	'\u26CE': '26ce',
 	'\u2705': '2705',
 	'\u270A': '270a',
@@ -1824,18 +1824,18 @@ const map: EmojiMap = {
 	'\u2796': '2796',
 	'\u2797': '2797',
 	'\u27B0': '27b0',
-	'\\#': '0023',
+	// '\\#': '0023',
 	'\u27BF': '27bf',
-	'9': '0039',
-	'8': '0038',
-	'7': '0037',
-	'6': '0036',
-	'5': '0035',
-	'4': '0034',
-	'3': '0033',
-	'2': '0032',
-	'1': '0031',
-	'0': '0030'
+	// '9': '0039',
+	// '8': '0038',
+	// '7': '0037',
+	// '6': '0036',
+	// '5': '0035',
+	// '4': '0034',
+	// '3': '0033',
+	// '2': '0032',
+	// '1': '0031',
+	// '0': '0030'
 }
 
 interface EmojiList {
@@ -6597,6 +6597,7 @@ const emojiList: EmojiList = {
 let EMOJI_REGEXP_IS: RegExp
 let EMOJI_REGEXP: RegExp
 let EMOJI_REGEXP_GLOBAL: RegExp
+let EMOJI_REGEXP_BASE: string
 
 {
 	let strcompose = []
@@ -6605,12 +6606,13 @@ let EMOJI_REGEXP_GLOBAL: RegExp
 		strcompose.push(unicode)
 	}
 
-	EMOJI_REGEXP_IS = new RegExp('^(' + strcompose.join('|') + ')$')
-	EMOJI_REGEXP = new RegExp('(' + strcompose.join('|') + ')')
-	EMOJI_REGEXP_GLOBAL = new RegExp('(' + strcompose.join('|') + ')', 'g')
+	EMOJI_REGEXP_BASE = strcompose.join('|')
+	EMOJI_REGEXP_IS = new RegExp('^(' + EMOJI_REGEXP_BASE + ')$')
+	EMOJI_REGEXP = new RegExp('(' + EMOJI_REGEXP_BASE + ')')
+	EMOJI_REGEXP_GLOBAL = new RegExp('(' + EMOJI_REGEXP_BASE + ')', 'g')
 }
 
-export {EMOJI_REGEXP, EMOJI_REGEXP_GLOBAL, EMOJI_REGEXP_IS}
+export {EMOJI_REGEXP, EMOJI_REGEXP_GLOBAL, EMOJI_REGEXP_IS, EMOJI_REGEXP_BASE}
 
 const EMOJI_FUNCS = {
 	is: (input: string) => {
@@ -6650,6 +6652,14 @@ const EMOJI_FUNCS = {
 
 		return null
 	},
+
+	remap: (input: string) => {
+		return map[input]
+	},
+
+	mapOnDisk: (input: string) => {
+		return './resource/emoji/' + map[input] + '.png'
+	}
 }
 
 export {EMOJI_FUNCS}
