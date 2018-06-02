@@ -21,7 +21,7 @@ import Discord = require('discord.js')
 import { EMOJI_REGEXP_BASE, EMOJI_FUNCS } from '../../lib/Emoji';
 
 const globalExp = new RegExp('(\\!?)(<:[a-zA-Z_-]+:[0-9]+>|' + EMOJI_REGEXP_BASE + ')', 'gi')
-const discordEmoteExp = /<:[a-zA-Z_-]+:([0-9]+)>/
+const discordEmoteExp = /<:[0-9a-zA-Z_-]+:([0-9]+)>/
 
 // `https://cdn.discordapp.com/emojis/.png?v=1`
 
