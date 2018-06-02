@@ -71,7 +71,7 @@ class CommandHelper {
 		}
 	}
 
-	static matchCustomImage = /^<:[0-9a-zA-Z_-]+:([0-9]+)>$/
+	static matchCustomImage = /^<:[^:]+:([0-9]+)>$/
 
 	findImageString(arg: string) {
 		const matchurl = arg.match(urlMatch)
