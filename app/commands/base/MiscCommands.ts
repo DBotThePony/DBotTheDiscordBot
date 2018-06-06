@@ -172,15 +172,12 @@ class Ping extends CommandBase {
 	}
 
 	executed(instance: CommandExecutionInstance) {
-		const now = new Date()
-
+		const now = Date.now()
 		const promise = instance.send(initMessage[Math.floor(Math.random() * (initMessage.length - 1))])
 
 		if (promise) {
 			promise.then((msg) => {
-				const newnow = new Date()
-				msg = <Discord.Message> msg
-				msg.edit(`It takes **${(newnow.getTime() - now.getTime())}** ms to ping **${instance.next() || finishMessage[Math.floor(Math.random() * (finishMessage.length - 1))]}**`)
+				(<Discord.Message> msg).edit(`It takes **${(Date.now() - now)}** ms to ping **${instance.next() || finishMessage[Math.floor(Math.random() * (finishMessage.length - 1))]}**`)
 			})
 		}
 	}

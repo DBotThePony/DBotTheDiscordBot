@@ -249,27 +249,31 @@ class CommandHolder {
 		}
 
 		const executeCommand = (): [CommandContext, CommandBase] | null => {
-			context.importFlags(command)
-			context.rebuildRaw()
-			context.parseFull()
+			try {
+				context.importFlags(command)
+				context.rebuildRaw()
+				context.parseFull()
 
-			const status = command.execute(context)
+				const status = command.execute(context)
 
-			if (status == false) {
-				return null
-			}
-
-			if (command.rememberContext && context.author) {
-				this.lastCommandContext.set(context.author.id, context)
-
-				if (context.channel) {
-					if (!this.lastCommandContextChannel.has(context.author.id)) {
-						this.lastCommandContextChannel.set(context.author.id, new Map())
-					}
-
-					this.lastCommandContextChannel.get(context.author.id)!.set(context.channel.id, context)
+				if (status == false) {
+					return null
 				}
 
+				if (command.rememberContext && context.author) {
+					this.lastCommandContext.set(context.author.id, context)
+
+					if (context.channel) {
+						if (!this.lastCommandContextChannel.has(context.author.id)) {
+							this.lastCommandContextChannel.set(context.author.id, new Map())
+						}
+
+						this.lastCommandContextChannel.get(context.author.id)!.set(context.channel.id, context)
+					}
+
+				}
+			} catch(err) {
+				console.error(err)
 			}
 
 			return [context, command]

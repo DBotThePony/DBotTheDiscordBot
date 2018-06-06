@@ -154,14 +154,6 @@ class CommandContext implements CommandFlags {
 			return null
 		}
 
-		if (status != undefined) {
-			if (typeof status == 'string') {
-				return this.channel.send(status)
-			}
-
-			return status
-		}
-
 		if (this.editTarget && attach) {
 			this.editTarget.delete().catch(console.error)
 			this.edited = true
