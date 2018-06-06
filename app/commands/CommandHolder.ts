@@ -137,7 +137,7 @@ class CommandHolder {
 
 	getServerBans(server: Discord.Guild): ServerCommandsState {
 		if (this.banStates.has(server.id)) {
-			return <ServerCommandsState> this.banStates.get(server.id)
+			return this.banStates.get(server.id)!
 		}
 
 		const state = new ServerCommandsState(this.bot, server.id)
@@ -159,7 +159,7 @@ class CommandHolder {
 			return
 		}
 
-		const contextList = <CommandContext[]> this.commandContextes.get(msg.channel.id)
+		const contextList = this.commandContextes.get(msg.channel.id)!
 		let hitMessage = null
 
 		for (let i = contextList.length - 1; i >= 0; i--) {
@@ -195,7 +195,7 @@ class CommandHolder {
 			return
 		}
 
-		const contextList = <CommandContext[]> this.commandContextes.get(channel.id)
+		const contextList = this.commandContextes.get(channel.id)!
 		let hitMessage = null
 
 		for (let i = contextList.length - 1; i >= 0; i--) {

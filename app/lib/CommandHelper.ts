@@ -61,13 +61,13 @@ class CommandHelper {
 
 	lastImage(inputArg: Discord.Message | Discord.TextBasedChannelFields) {
 		if (inputArg instanceof Discord.Message) {
-			return this.IMGHistory.get(inputArg.channel.id)
+			return this.IMGHistory.get(inputArg.channel.id) || null
 		} else if (inputArg instanceof Discord.DMChannel) {
-			return this.IMGHistory.get(inputArg.id)
+			return this.IMGHistory.get(inputArg.id) || null
 		} else if (inputArg instanceof Discord.TextChannel) {
-			return this.IMGHistory.get(inputArg.id)
+			return this.IMGHistory.get(inputArg.id) || null
 		} else if (inputArg instanceof Discord.GroupDMChannel) {
-			return this.IMGHistory.get(inputArg.id)
+			return this.IMGHistory.get(inputArg.id) || null
 		}
 	}
 

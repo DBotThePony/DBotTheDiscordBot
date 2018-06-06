@@ -305,7 +305,7 @@ class CommandContext implements CommandFlags {
 					this._rawArgs = this.args.join(' ')
 				}
 			} catch(err) {
-				console.error(err)
+				// console.error(err)
 				this._rawArgs = this.raw.substr(this.args[0].length + 1)
 			}
 		} else if (this.args[0]) {
@@ -411,7 +411,7 @@ class CommandContext implements CommandFlags {
 				const channel = arg.match(parseChannel)
 
 				if (channel) {
-					this.parsedArgs[i] = this.bot.client.channels.get(channel[1])
+					this.parsedArgs[i] = this.bot.client.channels.get(channel[1]) || arg
 					continue
 				}
 			}
@@ -420,7 +420,7 @@ class CommandContext implements CommandFlags {
 				const role = arg.match(parseRole)
 
 				if (role) {
-					this.parsedArgs[i] = this.server.roles.get(role[1])
+					this.parsedArgs[i] = this.server.roles.get(role[1]) || arg
 					continue
 				}
 			}

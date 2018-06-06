@@ -26,17 +26,12 @@ class ServerCommandsState {
 	loaded = false
 	loadCallbacks: ((...args: any[]) => any)[] = []
 	loadCallbacksCatch: ((...args: any[]) => any)[] = []
+	get sql() { return this.bot.sql }
 
 	constructor(public bot: BotInstance, public serverid: string) {
-		if (!this.bot.sql) {
-			throw new Error('Bad bot initialization')
-		}
-
-		const sql = this.bot.sql
-
-		sql.query(`SELECT "commands" FROM "command_ban_server" WHERE "server" = ${this.serverid}`)
+		this.sql.query(`SELECT "commands" FROM "command_ban_server" WHERE "server" = ${this.serverid}`)
 		.then((values) => {
-			sql.query(`SELECT "channel", "commands" FROM "command_ban_channel" WHERE "server" = ${this.serverid}`)
+			this.sql.query(`SELECT "channel", "commands" FROM "command_ban_channel" WHERE "server" = ${this.serverid}`)
 			.then((values2) => {
 				this.loaded = true
 
@@ -157,11 +152,11 @@ class ServerCommandsState {
 		const id = this.resolveChannelID(channel)
 
 		if (this.channels.has(id)) {
-			return <CommandBase[]> this.channels.get(id)
+			return this.channels.get(id)!
 		}
 
 		this.channels.set(id, [])
-		return <CommandBase[]> this.channels.get(id)
+		return this.channels.get(id)!
 	}
 
 	resolveChannelID(channel: Discord.TextChannel | string) {
@@ -188,11 +183,7 @@ class ServerCommandsState {
 				return
 			}
 
-			if (!this.bot.sql) {
-				throw new Error('Bad bot initialization')
-			}
-
-			this.bot.sql.query(`INSERT INTO "command_ban_server" VALUES (${this.serverid}, ARRAY['${command.id}']) ON CONFLICT ("server") DO UPDATE
+			this.sql.query(`INSERT INTO "command_ban_server" VALUES (${this.serverid}, ARRAY['${command.id}']) ON CONFLICT ("server") DO UPDATE
 				SET "commands" = "command_ban_server"."commands" || excluded."commands"`)
 			.then((value) => {
 				this.commands.push(command)
@@ -209,11 +200,7 @@ class ServerCommandsState {
 				return
 			}
 
-			if (!this.bot.sql) {
-				throw new Error('Bad bot initialization')
-			}
-
-			this.bot.sql.query(`UPDATE "command_ban_server" SET "commands" = array_remove("commands", '${command.id}') WHERE "server" = ${this.serverid}`)
+			this.sql.query(`UPDATE "command_ban_server" SET "commands" = array_remove("commands", '${command.id}') WHERE "server" = ${this.serverid}`)
 			.then((value) => {
 				this.commands.splice(this.commands.indexOf(command), 1)
 				resolve('Command unbanned successfully')
@@ -234,11 +221,7 @@ class ServerCommandsState {
 				return
 			}
 
-			if (!this.bot.sql) {
-				throw new Error('Bad bot initialization')
-			}
-
-			this.bot.sql.query(`INSERT INTO "command_ban_channel" VALUES (${this.serverid}, ${this.resolveChannelID(channel)}, ARRAY['${command.id}']) ON CONFLICT ("server", "channel") DO UPDATE
+			this.sql.query(`INSERT INTO "command_ban_channel" VALUES (${this.serverid}, ${this.resolveChannelID(channel)}, ARRAY['${command.id}']) ON CONFLICT ("server", "channel") DO UPDATE
 				SET "commands" = "command_ban_channel"."commands" || excluded."commands"`)
 			.then((value) => {
 				this.getChannel(channel).push(command)
@@ -255,11 +238,7 @@ class ServerCommandsState {
 				return
 			}
 
-			if (!this.bot.sql) {
-				throw new Error('Bad bot initialization')
-			}
-
-			this.bot.sql.query(`UPDATE "command_ban_channel" SET "commands" = array_remove("commands", '${command.id}') WHERE "server" = ${this.serverid} AND "channel" = ${this.resolveChannelID(channel)}`)
+			this.sql.query(`UPDATE "command_ban_channel" SET "commands" = array_remove("commands", '${command.id}') WHERE "server" = ${this.serverid} AND "channel" = ${this.resolveChannelID(channel)}`)
 			.then((value) => {
 				this.getChannel(channel).splice(this.getChannel(channel).indexOf(command), 1)
 				resolve('Command unbanned successfully')
@@ -273,7 +252,7 @@ class ServerCommandsState {
 			const statuses: any[] = []
 			let amount = commands.length
 
-			this.bot.sql.query(`BEGIN`).then(() => {
+			this.sql.query(`BEGIN`).then(() => {
 				for (const command of commands) {
 					this.banCommand(command)
 					.then((status) => {
@@ -281,7 +260,7 @@ class ServerCommandsState {
 						statuses.push([command, true, status])
 
 						if (amount == 0) {
-							this.bot.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
+							this.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
 						}
 					})
 					.catch((reason) => {
@@ -289,7 +268,7 @@ class ServerCommandsState {
 						statuses.push([command, false, reason])
 
 						if (amount == 0) {
-							this.bot.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
+							this.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
 						}
 					})
 				}
@@ -302,7 +281,7 @@ class ServerCommandsState {
 			const statuses: any[] = []
 			let amount = commands.length
 
-			this.bot.sql.query(`BEGIN`).then(() => {
+			this.sql.query(`BEGIN`).then(() => {
 				for (const command of commands) {
 					this.unbanCommand(command)
 					.then((status) => {
@@ -310,7 +289,7 @@ class ServerCommandsState {
 						statuses.push([command, true, status])
 
 						if (amount == 0) {
-							this.bot.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
+							this.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
 						}
 					})
 					.catch((reason) => {
@@ -318,7 +297,7 @@ class ServerCommandsState {
 						statuses.push([command, false, reason])
 
 						if (amount == 0) {
-							this.bot.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
+							this.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
 						}
 					})
 				}
@@ -331,7 +310,7 @@ class ServerCommandsState {
 			const statuses: any[] = []
 			let amount = commands.length
 
-			this.bot.sql.query(`BEGIN`).then(() => {
+			this.sql.query(`BEGIN`).then(() => {
 				for (const command of commands) {
 					this.banChannelCommand(channel, command)
 					.then((status) => {
@@ -339,7 +318,7 @@ class ServerCommandsState {
 						statuses.push([command, true, status])
 
 						if (amount == 0) {
-							this.bot.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
+							this.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
 						}
 					})
 					.catch((reason) => {
@@ -347,7 +326,7 @@ class ServerCommandsState {
 						statuses.push([command, false, reason])
 
 						if (amount == 0) {
-							this.bot.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
+							this.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
 						}
 					})
 				}
@@ -360,7 +339,7 @@ class ServerCommandsState {
 			const statuses: any[] = []
 			let amount = commands.length
 
-			this.bot.sql.query(`BEGIN`).then(() => {
+			this.sql.query(`BEGIN`).then(() => {
 				for (const command of commands) {
 					this.unbanChannelCommand(channel, command)
 					.then((status) => {
@@ -368,7 +347,7 @@ class ServerCommandsState {
 						statuses.push([command, true, status])
 
 						if (amount == 0) {
-							this.bot.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
+							this.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
 						}
 					})
 					.catch((reason) => {
@@ -376,7 +355,7 @@ class ServerCommandsState {
 						statuses.push([command, false, reason])
 
 						if (amount == 0) {
-							this.bot.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
+							this.sql.query(`COMMIT`).then(() => resolve(statuses)).catch(err => reject(err))
 						}
 					})
 				}
@@ -393,7 +372,7 @@ class ServerCommandsState {
 			return []
 		}
 
-		return <CommandBase[]> this.channels.get(this.resolveChannelID(channel))
+		return this.channels.get(this.resolveChannelID(channel))!
 	}
 }
 
