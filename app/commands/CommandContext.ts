@@ -18,7 +18,6 @@
 import Discord = require('discord.js')
 import {ParseString} from '../../lib/StringUtil'
 import {BotInstance} from '../BotInstance'
-import {GEventEmitter} from '../../lib/glib/GEventEmitter'
 
 const parseUser = /<@!?([0-9]+)>/
 const parseRole = /<&([0-9]+)>/
@@ -32,7 +31,7 @@ interface CommandFlags {
 	allowPipes: boolean
 }
 
-class CommandContext extends GEventEmitter implements CommandFlags {
+class CommandContext implements CommandFlags {
 	msg: Discord.Message | null = null
 	author: Discord.User | null = null
 	channel: Discord.TextChannel | Discord.DMChannel | Discord.GroupDMChannel | null = null
@@ -79,7 +78,6 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 	get inDM() { return typeof this.channel == 'object' && this.channel instanceof Discord.DMChannel }
 
 	constructor(bot: BotInstance, rawInput: string, msg?: Discord.Message) {
-		super()
 		this.raw = rawInput
 		this.bot = bot
 
@@ -155,8 +153,6 @@ class CommandContext extends GEventEmitter implements CommandFlags {
 		if (!this.channel) {
 			return null
 		}
-
-		const status = this.emit('send', content)
 
 		if (status != undefined) {
 			if (typeof status == 'string') {

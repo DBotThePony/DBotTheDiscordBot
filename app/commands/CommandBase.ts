@@ -17,11 +17,10 @@
 
 import {CommandContext, CommandFlags} from './CommandContext'
 import {CommandHolder} from './CommandHolder'
-import {GEventEmitter} from '../../lib/glib/GEventEmitter'
 import {InvalidStateException} from '../../lib/Error'
 import Discord = require('discord.js')
 
-class CommandExecutionInstance extends GEventEmitter {
+class CommandExecutionInstance {
 	isTyping = false
 	wasTyping = false
 	messageSent = false
@@ -57,8 +56,6 @@ class CommandExecutionInstance extends GEventEmitter {
 	hasArguments() { return this.context.hasArguments() }
 
 	constructor(public command: CommandBase, public context: CommandContext, public pipeid = 0) {
-		super()
-
 		if (this.allowPipes) {
 			const getPipe = context.getPipe(pipeid)
 
@@ -251,8 +248,6 @@ class CommandExecutionInstance extends GEventEmitter {
 			return null
 		}
 
-		if (this.emit('send', content) != undefined) { return null }
-
 		if (this.allowPipes && this.commandPipe && !attach) {
 			const argsPrev = []
 			content = content.replace(/```/g, '')
@@ -332,8 +327,6 @@ class CommandExecutionInstance extends GEventEmitter {
 		if (this.errored) {
 			return false
 		}
-
-		if (this.emit('sendPM', content) != undefined) { return false }
 
 		if (!this.context.user) {
 			return false
